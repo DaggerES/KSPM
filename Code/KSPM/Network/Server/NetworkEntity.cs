@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 
 /*
- * We are handling the server as an entity, because the cliente itself would not have any idea to whom is sending the package.
+ * Server is handled as an entity, because the cliente itself would not have any idea to whom is sending the package.
  */
 
 namespace KSPM.Network.Server
