@@ -5,7 +5,9 @@ using System.Text;
 
 namespace KSPM.Network.Server
 {
-    class AbstractSettings
+    public class AbstractSettings
     {
+        //public static abstract void ReadSettings(ref AbstractSettings settings);
+        //public static abstract bool WriteSettings(ref AbstractSettings settings);
     }
 }

@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace KSPM.Network.Server
 {
-    class GameServer
+    public class GameServer
     {
         /// <summary>
         /// Controls the life-cycle of the server, also the thread's life-cyle.
