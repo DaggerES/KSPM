@@ -39,12 +39,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Diagnostics\RealTimer.cs" />
+    <Compile Include="Globals\KSPMGlobals.cs" />
+    <Compile Include="IO\Logging\ConsoleLog.cs" />
+    <Compile Include="IO\Logging\DevNullLog.cs" />
+    <Compile Include="IO\Logging\FileLog.cs" />
+    <Compile Include="IO\Logging\Log.cs" />
+    <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\Message.cs" />
     <Compile Include="Network\Server\AbstractSettings.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Server\NetworkEntity.cs" />
     <Compile Include="Network\Server\ServerSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Docs\KSPM.cd" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

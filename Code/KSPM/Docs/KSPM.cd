@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KSPM.Network.Common.Message" Collapsed="true">
+    <Position X="8.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQACAAAAAAAAgAAAAA=</HashCode>
+      <FileName>Network\Common\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.AbstractSettings" Collapsed="true">
+    <Position X="4.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\AbstractSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.GameServer" Collapsed="true">
+    <Position X="6.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQACAAAgAACAAAggABEQgAAABIACAAAAgAAACAAEEAA=</HashCode>
+      <FileName>Network\Server\GameServer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.NetworkEntity" Collapsed="true">
+    <Position X="6.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Network\Server\NetworkEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.ServerSettings" Collapsed="true">
+    <Position X="4.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AoAAAAACAAAAAAJAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\ServerSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Diagnostics.RealTimer" Collapsed="true">
+    <Position X="11.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Diagnostics\RealTimer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.FileLog" Collapsed="true">
+    <Position X="4.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAACAAABIAIAAAAAAAAAAAAAAgAAEAAgAAQAA=</HashCode>
+      <FileName>IO\Logging\FileLog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.Log" Collapsed="true">
+    <Position X="4.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>IO\Logging\Log.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KSPM.Network.Common.Error" Collapsed="true">
+    <Position X="8.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Common\Error.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

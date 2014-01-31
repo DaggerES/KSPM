@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
+using System.IO;
 
 namespace KSPM.Network.Server
 {
+    /// <summary>
+    /// Class to handle the settings used by the server for its proper operation.
+    /// </summary>
     public class ServerSettings : AbstractSettings
     {
         [XmlIgnore]
@@ -15,19 +19,30 @@ namespace KSPM.Network.Server
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
         public uint maxConnectedClients;
+
+        /// <summary>
+        /// The maximun of enqueued connections that the TCP socket can handle.
+        /// </summary>
         [XmlIgnore]
         public int connectionsBackog;
 
+        /// <summary>
+        /// Read the settings file and inflate an object with the stored information.
+        /// </summary>
+        /// <param name="settings">Reference to the ServerSettings object which would be filled.</param>
+        /// <returns>False if there was an error during the write task.</returns>
         public static bool ReadSettings(ref ServerSettings settings)
         {
             bool success = false;
+            StreamReader settingsStreamReader;
             XmlSerializer settingsSerializer;
             XmlTextReader settingsReader;
-            settingsReader = new XmlTextReader(ServerSettings.SettingsFilename);
+            settingsStreamReader = new StreamReader(ServerSettings.SettingsFilename, UTF8Encoding.UTF8);
+            settingsReader = new XmlTextReader(settingsStreamReader);
             settingsSerializer = new XmlSerializer(typeof(ServerSettings));
             try
             {
-                settings = (ServerSettings)settingsSerializer.Deserialize(settingsReader, "http://www.w3.org/2001/XMLSchema-instance");
+                settings = (ServerSettings)settingsSerializer.Deserialize(settingsReader);
                 success = true;
             }
             catch (InvalidOperationException)
@@ -36,11 +51,18 @@ namespace KSPM.Network.Server
             return success;
         }
 
+        /// <summary>
+        /// Write the settings object into a Xml file using the UTF8 encoding.
+        /// </summary>
+        /// <param name="settings">Reference to the ServerSettings object</param>
+        /// <returns>False if there was an error such as if the reference is set to a null.</returns>
         public static bool WriteSettings(ref ServerSettings settings)
         {
             bool success = false;
             XmlTextWriter settingsWriter;
             XmlSerializer settingsSerializer;
+            if (settings == null)
+                return false;
             settingsWriter = new XmlTextWriter(ServerSettings.SettingsFilename, UTF8Encoding.UTF8);
             settingsWriter.Formatting = Formatting.Indented;
             settingsSerializer = new XmlSerializer(typeof(ServerSettings));
