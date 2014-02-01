@@ -45,6 +45,7 @@
     <Compile Include="IO\Logging\DevNullLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
+    <Compile Include="Network\Common\CommandQueue.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\Message.cs" />
     <Compile Include="Network\Server\AbstractSettings.cs" />

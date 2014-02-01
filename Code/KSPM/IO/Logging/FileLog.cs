@@ -58,7 +58,7 @@ namespace KSPM.IO.Logging
                     this.logBinaryWriter = null;
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
         }
 
         /// <summary>

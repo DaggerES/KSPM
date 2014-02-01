@@ -15,7 +15,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Represents an abstract interpretation of the server and the clients, having only the essential information to know what kind of Entity represents, either the server or the client.
     /// </summary>
-    abstract class NetworkEntity
+    public abstract class NetworkEntity
     {
         /// <summary>
         /// This represents the IP address and the port of the entity.

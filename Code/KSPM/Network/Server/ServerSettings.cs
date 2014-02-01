@@ -15,6 +15,11 @@ namespace KSPM.Network.Server
     {
         [XmlIgnore]
         public static string SettingsFilename = "serverSettings.xml";
+        [XmlIgnore]
+        public static readonly int ServerBufferSize = 1024*4;
+        [XmlIgnore]
+        protected static int ServerConnectionsBacklog = 10;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
@@ -43,6 +48,7 @@ namespace KSPM.Network.Server
             try
             {
                 settings = (ServerSettings)settingsSerializer.Deserialize(settingsReader);
+                settings.connectionsBackog = ServerSettings.ServerConnectionsBacklog;
                 success = true;
             }
             catch (InvalidOperationException)

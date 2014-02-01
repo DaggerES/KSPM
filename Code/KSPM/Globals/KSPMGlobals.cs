@@ -6,11 +6,11 @@ namespace KSPM.Globals
     public class KSPMGlobals
     {
 
-        public static KSPMGlobals Globals = null;
+        public static readonly KSPMGlobals Globals = new KSPMGlobals();
 
         #region Logging variables
 
-        public Log log;
+        protected Log log;
         protected FileLog fileLogger;
         protected ConsoleLog consoleLogger;
         protected DevNullLog nullLogger;
@@ -22,13 +22,10 @@ namespace KSPM.Globals
 
         public RealTimer realTimer;
 
-        public static KSPMGlobals GetKSPMGlobals()
+        protected KSPMGlobals()
         {
-            if (KSPMGlobals.Globals == null)
-            {
-                KSPMGlobals.Globals = new KSPMGlobals();
-            }
-            return KSPMGlobals.Globals;
+            this.nullLogger = new DevNullLog();
+            this.log = this.nullLogger;
         }
 
         /// <summary>
@@ -40,7 +37,6 @@ namespace KSPM.Globals
         {
             this.loggingMode = loggingMode;
             this.binaryEnabled = isBinaryEnabled;
-            this.nullLogger = new DevNullLog();
             switch (this.loggingMode)
             {
                 case Log.LogginMode.Console:
@@ -57,6 +53,14 @@ namespace KSPM.Globals
                 case Log.LogginMode.DevNull:
                     this.log = this.nullLogger;
                     break;
+            }
+        }
+
+        public Log Log
+        {
+            get
+            {
+                return this.log;
             }
         }
     }

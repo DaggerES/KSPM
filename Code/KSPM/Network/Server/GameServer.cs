@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
+
+using KSPM.Globals;
+using KSPM.Network.Common;
 
 namespace KSPM.Network.Server
 {
@@ -33,6 +33,11 @@ namespace KSPM.Network.Server
         /// </summary>
         protected IPEndPoint tcpIpEndPoint;
 
+        /// <summary>
+        /// Byte buffer attached to the TCP socket.
+        /// </summary>
+        protected byte[] tcpBuffer;
+
         #endregion
 
         /// <summary>
@@ -45,11 +50,20 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
+        #region Threading code
+
+        /// <summary>
+        /// Holds the local commands to be processed by de server.
+        /// </summary>
+        protected CommandQueue commandsQueue;
+
         protected Thread connectionsThread;
         protected Thread commandsThread;
         protected Thread outgoingMessagesThread;
         protected Thread clientThread;
         protected Thread localCommandsThread;
+
+        #endregion
 
         /// <summary>
         /// Constructor of the server
@@ -61,11 +75,20 @@ namespace KSPM.Network.Server
             if (this.lowLevelOperationSettings == null)
             {
                 this.ableToRun = false;
+                return;
             }
-            else
-            {
-                this.ableToRun = true;
-            }
+
+            this.tcpBuffer = new byte[ServerSettings.ServerBufferSize];
+            this.commandsQueue = new CommandQueue();
+
+            this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
+            this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
+            this.outgoingMessagesThread = null;
+            this.clientThread = null;
+            this.localCommandsThread = null;
+
+
+            this.ableToRun = true;
             this.alive = false;
         }
 
@@ -79,26 +102,29 @@ namespace KSPM.Network.Server
 
         public bool StartServer()
         {
+            KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server...");
             if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
                 return false;
+            }
             this.tcpIpEndPoint = new IPEndPoint(IPAddress.Any, this.lowLevelOperationSettings.tcpPort);
             this.tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             this.tcpSocket.NoDelay = true;
+
+            this.udpSocket = null;
             try
             {
                 this.tcpSocket.Bind(this.tcpIpEndPoint);
+                this.connectionsThread.Start();
+                this.commandsThread.Start();
+                this.alive = true;
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-            }
-            catch (SocketException ex)
-            {
-            }
-            catch (ObjectDisposedException ex)
-            {
-            }
-            catch (System.Security.SecurityException ex)
-            {
+                ///If there is some exception, the server must shutdown itself and its threads.
+                KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+                this.alive = false;
             }
             return true;  
         }
@@ -108,6 +134,45 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleConnectionsThreadMethod()
         {
+            Socket attemptingConnectionSocket = null;
+            NetworkEntity newConnectionEntity = null;
+            Message incomingMessage = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
+            }
+            try
+            {
+                this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
+                while (this.alive)
+                {
+                    attemptingConnectionSocket = this.tcpSocket.Accept();
+                    if (attemptingConnectionSocket != null)
+                    {
+                        //attemptingConnectionSocket.Connect(attemptingConnectionSocket.RemoteEndPoint);
+                        attemptingConnectionSocket.Receive(this.tcpBuffer);
+                        //this.tcpSocket.Connect(attemptingConnectionSocket.RemoteEndPoint);
+                        //this.tcpSocket.Receive(this.tcpBuffer);
+                        //Check the first byte of the message
+                        if (this.tcpBuffer[0] == (byte)Message.CommandType.Handshake)
+                        {
+                            KSPMGlobals.Globals.Log.WriteTo("New client from: " + attemptingConnectionSocket.RemoteEndPoint.ToString());
+                        }
+                        else
+                        {
+                            incomingMessage = new Message( (Message.CommandType)this.tcpBuffer[ 0 ], ref newConnectionEntity, ref newConnectionEntity, ref this.tcpBuffer );
+                            this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                        }
+                        attemptingConnectionSocket.Shutdown(SocketShutdown.Both);
+                        attemptingConnectionSocket.Disconnect(false);
+                    }
+                    Thread.Sleep(11);
+                }
+            }
+            catch (Exception ex)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
         }
 
         /// <summary>
@@ -115,6 +180,32 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleCommandsThreadMethod()
         {
+            Message messageToProcess = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
+            }
+            while (this.alive)
+            {
+                if (!this.commandsQueue.IsEmpty())
+                {
+                    this.commandsQueue.DequeueCommandMessage(out messageToProcess);
+                    if (messageToProcess != null)
+                    {
+                        switch (messageToProcess.Command)
+                        {
+                            case Message.CommandType.StopServer:
+                                this.ShutdownServer();
+                                break;
+                            case Message.CommandType.Unknown:
+                            default:
+                                KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString() );
+                                break;
+                        }
+                    }
+                }
+                Thread.Sleep(9);
+            }
         }
 
         /// <summary>
@@ -127,8 +218,39 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Handles the commands passed by the UI or the console if is it one implemented.
         /// </summary>
-        protected void HandleLocalCommandsThread()
+        protected void HandleLocalCommandsThreadMethod()
         {
+        }
+
+        public void ShutdownServer()
+        {
+            KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server ...");
+
+            ///*************************Killing threads code
+            this.commandsThread.Abort();
+            this.connectionsThread.Abort();
+            this.alive = false;
+            //this.commandsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread ...");
+            //this.connectionsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread ...");
+
+            ///*************************Killing TCP socket code
+            if (this.tcpSocket.Connected)
+            {
+                this.tcpSocket.Shutdown(SocketShutdown.Both);
+                this.tcpSocket.Close();
+            }
+            this.tcpBuffer = null;
+            this.tcpIpEndPoint = null;
+
+            ///*********************Killing server itself
+            this.ableToRun = false;
+            this.commandsQueue.Purge(false);
+            this.commandsQueue = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
+
         }
     }
 }
