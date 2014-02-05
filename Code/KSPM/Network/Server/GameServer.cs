@@ -6,6 +6,9 @@ using System.Net;
 
 using KSPM.Globals;
 using KSPM.Network.Common;
+using KSPM.Network.Common.Packet;
+using KSPM.Network.Server.UserManagement;
+using KSPM.Network.Server.UserManagement.Filters;
 
 namespace KSPM.Network.Server
 {
@@ -65,6 +68,15 @@ namespace KSPM.Network.Server
 
         #endregion
 
+        #region USM
+
+        /// <summary>
+        /// Default User Management System (UMS) applied by the server.
+        /// </summary>
+        UserManagementSystem defaultUserManagementSystem;
+
+        #endregion
+
         /// <summary>
         /// Constructor of the server
         /// </summary>
@@ -87,6 +99,7 @@ namespace KSPM.Network.Server
             this.clientThread = null;
             this.localCommandsThread = null;
 
+            this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
 
             this.ableToRun = true;
             this.alive = false;
@@ -105,7 +118,7 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server...");
             if (!this.ableToRun)
             {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
                 return false;
             }
             this.tcpIpEndPoint = new IPEndPoint(IPAddress.Any, this.lowLevelOperationSettings.tcpPort);
@@ -139,14 +152,16 @@ namespace KSPM.Network.Server
             Message incomingMessage = null;
             if (!this.ableToRun)
             {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
             }
             try
             {
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 while (this.alive)
                 {
-                    attemptingConnectionSocket = this.tcpSocket.Accept();
+                    //attemptingConnectionSocket = this.tcpSocket.Accept();
+                    this.tcpSocket.BeginAccept(new AsyncCallback(this.OnAsyncAcceptIncomingConnection), this.tcpSocket);
+                    /*
                     if (attemptingConnectionSocket != null)
                     {
                         //attemptingConnectionSocket.Connect(attemptingConnectionSocket.RemoteEndPoint);
@@ -160,14 +175,21 @@ namespace KSPM.Network.Server
                         }
                         else
                         {
-                            incomingMessage = new Message( (Message.CommandType)this.tcpBuffer[ 0 ], ref newConnectionEntity, ref newConnectionEntity, ref this.tcpBuffer );
+                            incomingMessage = new Message((Message.CommandType)this.tcpBuffer[0], ref newConnectionEntity, ref newConnectionEntity, ref this.tcpBuffer);
                             this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
                         }
                         attemptingConnectionSocket.Shutdown(SocketShutdown.Both);
                         attemptingConnectionSocket.Disconnect(false);
                     }
+                    */
                     Thread.Sleep(11);
                 }
+            }
+            catch (ThreadAbortException)
+            {
+                this.tcpSocket.Shutdown(SocketShutdown.Both);
+                this.tcpSocket.Close();
+                this.alive = false;
             }
             catch (Exception ex)
             {
@@ -181,30 +203,45 @@ namespace KSPM.Network.Server
         protected void HandleCommandsThreadMethod()
         {
             Message messageToProcess = null;
+            NetworkEntity messageOwner = null;
             if (!this.ableToRun)
             {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ServerErrors.ServerUnableToRun.ToString());
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
             }
-            while (this.alive)
+            try
             {
-                if (!this.commandsQueue.IsEmpty())
+                while (this.alive)
                 {
-                    this.commandsQueue.DequeueCommandMessage(out messageToProcess);
-                    if (messageToProcess != null)
+                    if (!this.commandsQueue.IsEmpty())
                     {
-                        switch (messageToProcess.Command)
+                        this.commandsQueue.DequeueCommandMessage(out messageToProcess);
+                        if (messageToProcess != null)
                         {
-                            case Message.CommandType.StopServer:
-                                this.ShutdownServer();
-                                break;
-                            case Message.CommandType.Unknown:
-                            default:
-                                KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString() );
-                                break;
+                            switch (messageToProcess.Command)
+                            {
+                                case Message.CommandType.NewClient:
+                                    messageOwner = messageToProcess.OwnerNetworkEntity;
+                                    if (this.defaultUserManagementSystem.Query(ref messageOwner))
+                                    {
+
+                                    }
+                                    break;
+                                case Message.CommandType.StopServer:
+                                    this.ShutdownServer();
+                                    break;
+                                case Message.CommandType.Unknown:
+                                default:
+                                    KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                    break;
+                            }
                         }
                     }
+                    Thread.Sleep(9);
                 }
-                Thread.Sleep(9);
+            }
+            catch (ThreadAbortException)
+            {
+                this.alive = false;
             }
         }
 
@@ -227,13 +264,14 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server ...");
 
             ///*************************Killing threads code
+            this.alive = false;
             this.commandsThread.Abort();
             this.connectionsThread.Abort();
-            this.alive = false;
-            //this.commandsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread ...");
-            //this.connectionsThread.Join();
+
+            this.connectionsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread ...");
+            this.commandsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread ...");
 
             ///*************************Killing TCP socket code
             if (this.tcpSocket.Connected)
@@ -251,6 +289,37 @@ namespace KSPM.Network.Server
 
             KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
 
+        }
+
+        /// <summary>
+        /// Method called in asynchronously or synchronously  each time that a new connection is attempted.
+        /// </summary>
+        /// <param name="result"></param>
+        protected void OnAsyncAcceptIncomingConnection(IAsyncResult result)
+        {
+            Socket callingSocket, incomingConnectionSocket;
+            NetworkRawEntity newNetworkEntity;
+            callingSocket = (Socket)result.AsyncState;
+            incomingConnectionSocket = callingSocket.EndAccept(result);
+            newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
+            incomingConnectionSocket.BeginReceive(newNetworkEntity.rawBuffer, 0, 0, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
+        }
+
+        /// <summary>
+        /// Method called each time the socket wants to read data.
+        /// </summary>
+        /// <param name="result"></param>
+        protected void ReceiveCallback(IAsyncResult result)
+        {
+            int readBytes;
+            Message incomingMessage = null;
+            NetworkRawEntity callingEntity = (NetworkEntity)result.AsyncState;
+            readBytes = callingEntity.ownerSocket.EndReceive(result);
+            if (PacketHandler.InflateMessage(ref callingEntity.rawBuffer, ref incomingMessage) == Error.ErrorType.Ok)
+            {
+                incomingMessage.SetOwnerMessageNetworkEntity(ref callingEntity);
+                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+            }
         }
     }
 }

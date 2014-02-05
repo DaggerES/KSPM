@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 using KSPM.Network.Server;
 
 namespace KSPM.Network.Common
@@ -16,11 +12,13 @@ namespace KSPM.Network.Common
         {
             Null = 0,
             Unknown,
-            Handshake,
-            RefuseConnection,
-            Disconnect,
             StopServer,
-            RestartServer
+            RestartServer,
+            Handshake,
+            NewClient,
+            RefuseConnection,
+            ServerFull,
+            Disconnect,
         }
 
         /// <summary>
@@ -29,34 +27,19 @@ namespace KSPM.Network.Common
         protected CommandType command;
 
         /// <summary>
-        /// The entity who sends the message.
+        /// A network entity which is owner of the message.
         /// </summary>
-        protected NetworkEntity senderEntity;
-
-        /// <summary>
-        /// The entity who would recive the message.
-        /// </summary>
-        protected NetworkEntity recipiententity;
-
-        /// <summary>
-        /// Raw message
-        /// </summary>
-        protected byte[] rawMessage;
+        protected NetworkEntity messageOwner;
 
         /// <summary>
         /// Constructor, I have to rethink this method.
         /// </summary>
-        /// <param name="kindOfMessage"></param>
-        /// <param name="sender"></param>
-        /// <param name="recipient"></param>
-        /// <param name="rawMessage"></param>
-        public Message(CommandType kindOfMessage, ref NetworkEntity sender, ref NetworkEntity recipient, ref byte[] rawMessage)
+        /// <param name="kindOfMessage">Command kind</param>
+        /// <param name="messageOwner">Network entity who is owner of this message.</param>
+        public Message(CommandType kindOfMessage, ref NetworkEntity messageOwner)
         {
             this.command = kindOfMessage;
-            this.senderEntity = sender;
-            this.recipiententity = recipient;
-            this.rawMessage = new byte[rawMessage.Length];
-            Buffer.BlockCopy(rawMessage, 0, this.rawMessage, 0, rawMessage.Length);
+            this.messageOwner= messageOwner;
         }
 
         /// <summary>
@@ -70,5 +53,24 @@ namespace KSPM.Network.Common
             }
         }
 
+        /// <summary>
+        /// Sets a new NetworkEntity owner for this message.
+        /// </summary>
+        /// <param name="messageOwner"></param>
+        public void SetOwnerMessageNetworkEntity(ref NetworkRawEntity messageOwner)
+        {
+            this.messageOwner = (NetworkEntity)messageOwner;
+        }
+
+        /// <summary>
+        /// Returnr the current NetworkEntity owner of this message.
+        /// </summary>
+        public NetworkEntity OwnerNetworkEntity
+        {
+            get
+            {
+                return this.messageOwner;
+            }
+        }
     }
 }

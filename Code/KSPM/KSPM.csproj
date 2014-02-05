@@ -48,16 +48,27 @@
     <Compile Include="Network\Common\CommandQueue.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\Message.cs" />
+    <Compile Include="Network\Common\Packet\ByteDecoder.cs" />
+    <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Server\AbstractSettings.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
-    <Compile Include="Network\Server\NetworkEntity.cs" />
+    <Compile Include="Network\Common\NetworkEntity.cs" />
+    <Compile Include="Network\Common\NetworkRawEntity.cs" />
     <Compile Include="Network\Server\ServerSettings.cs" />
+    <Compile Include="Network\Server\ServerSideClient.cs" />
+    <Compile Include="Network\Server\UserManagement\Filters\Filter.cs" />
+    <Compile Include="IO\ILoadableFromFile.cs" />
+    <Compile Include="Network\Server\UserManagement\Filters\NoneFilter.cs" />
+    <Compile Include="Network\Server\UserManagement\LowlevelUserManagmentSystem.cs" />
+    <Compile Include="Network\Server\UserManagement\UserManagementSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\KSPM.cd" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Game\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
