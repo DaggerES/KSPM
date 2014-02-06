@@ -20,7 +20,11 @@ namespace KSPM.Network.Common
             #endregion
 
             #region NetworkEntities
-            InvalidNetworkEntity
+            InvalidNetworkEntity,
+            #endregion
+
+            #region ServerSideClient
+            ServerClientUnableToRun
             #endregion
         };
     }

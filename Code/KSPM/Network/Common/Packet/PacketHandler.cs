@@ -30,5 +30,11 @@ namespace KSPM.Network.Common.Packet
             messageTarget = new Message((Message.CommandType)rawBytes[4], ref NetworkEntity.LoopbackNetworkEntity );
             return Error.ErrorType.Ok;
         }
+
+        public static Error.ErrorType EncodeMessage(ref NetworkEntity owner, out Message messageTarget)
+        {
+            messageTarget = new Message((Message.CommandType)owner.rawBuffer[PacketHandler.RawMessageHeaderSize], ref owner);
+            return Error.ErrorType.Ok;
+        }
     }
 }

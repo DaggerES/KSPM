@@ -1,5 +1,6 @@
 ﻿
 using KSPM.Network.Server;
+using KSPM.Network.Common.Packet;
 
 namespace KSPM.Network.Common
 {
@@ -20,6 +21,11 @@ namespace KSPM.Network.Common
             ServerFull,
             Disconnect,
         }
+
+        /// <summary>
+        /// 4 bytes to mark the end of the message, is kind of the differential manchester encoding plus 1.
+        /// </summary>
+        protected static readonly byte[] EndOfMessageCommand = new byte[] { 127, 255, 127, 0 };
 
         /// <summary>
         /// Command type
@@ -71,6 +77,28 @@ namespace KSPM.Network.Common
             {
                 return this.messageOwner;
             }
+        }
+
+        /// <summary>
+        /// Writes a handshake message in a raw format into the sender's buffer, the previous content is discarded.
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <returns></returns>
+        public static Error.ErrorType HandshakeAccetpMessage(ref NetworkEntity sender)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            byte [] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Handshake;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes( bytesToSend );
+            System.Buffer.BlockCopy( messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length );
+            return Error.ErrorType.Ok;
         }
     }
 }

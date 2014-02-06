@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using System.Threading;
 using System.Net.Sockets;
@@ -59,6 +60,7 @@ namespace KSPM.Network.Server
         /// Holds the local commands to be processed by de server.
         /// </summary>
         protected CommandQueue commandsQueue;
+        public CommandQueue outgoingMessagesQueue;
 
         protected Thread connectionsThread;
         protected Thread commandsThread;
@@ -74,6 +76,7 @@ namespace KSPM.Network.Server
         /// Default User Management System (UMS) applied by the server.
         /// </summary>
         UserManagementSystem defaultUserManagementSystem;
+        List<ServerSideClient> clientsPoll;
 
         #endregion
 
@@ -92,6 +95,7 @@ namespace KSPM.Network.Server
 
             this.tcpBuffer = new byte[ServerSettings.ServerBufferSize];
             this.commandsQueue = new CommandQueue();
+            this.outgoingMessagesQueue = new CommandQueue();
 
             this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
@@ -100,6 +104,7 @@ namespace KSPM.Network.Server
             this.localCommandsThread = null;
 
             this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
+            this.clientsPoll = new List<ServerSideClient>();
 
             this.ableToRun = true;
             this.alive = false;
@@ -204,6 +209,7 @@ namespace KSPM.Network.Server
         {
             Message messageToProcess = null;
             NetworkEntity messageOwner = null;
+            ServerSideClient newClientAttempt = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -223,10 +229,17 @@ namespace KSPM.Network.Server
                                     messageOwner = messageToProcess.OwnerNetworkEntity;
                                     if (this.defaultUserManagementSystem.Query(ref messageOwner))
                                     {
-
+                                        if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
+                                        {
+                                            if (newClientAttempt.StartClient())
+                                            {
+                                                this.clientsPoll.Add(newClientAttempt);
+                                            }
+                                        }
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
+                                    //// this needs to have a list or something to hold the connected clients
                                     this.ShutdownServer();
                                     break;
                                 case Message.CommandType.Unknown:
@@ -286,6 +299,14 @@ namespace KSPM.Network.Server
             this.ableToRun = false;
             this.commandsQueue.Purge(false);
             this.commandsQueue = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
+
+            for (int i = 0; i < this.clientsPoll.Count; i++)
+            {
+                this.clientsPoll[i].ShutdownClient();
+            }
+            this.clientsPoll = null;
 
             KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
 

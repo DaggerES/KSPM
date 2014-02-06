@@ -8,7 +8,7 @@ using System.Net.Sockets;
 namespace KSPM.Network.Common
 {
     /// <summary>
-    /// Represents an abstract interpretation of the server and the clients, having only the essential information to know what kind of Entity represents, either the server or the client.
+    /// Represents an interpretation of the server and the clients, having only the essential information to know what kind of Entity represents, either the server or the client.
     /// </summary>
     public class NetworkEntity : NetworkRawEntity, System.IDisposable
     {

@@ -1,5 +1,6 @@
 ﻿using KSPM.IO.Logging;
 using KSPM.Diagnostics;
+using KSPM.Network.Server;
 
 namespace KSPM.Globals
 {
@@ -20,12 +21,19 @@ namespace KSPM.Globals
 
         #endregion
 
+        #region Server variables
+
         public RealTimer realTimer;
+
+        protected GameServer gameServer;
+
+        #endregion
 
         protected KSPMGlobals()
         {
             this.nullLogger = new DevNullLog();
             this.log = this.nullLogger;
+            this.gameServer = null;
         }
 
         /// <summary>
@@ -56,11 +64,24 @@ namespace KSPM.Globals
             }
         }
 
+        public void SetServerReference(ref GameServer reference)
+        {
+            this.gameServer = reference;
+        }
+
         public Log Log
         {
             get
             {
                 return this.log;
+            }
+        }
+
+        public GameServer KSPMServer
+        {
+            get
+            {
+                return this.gameServer;
             }
         }
     }
