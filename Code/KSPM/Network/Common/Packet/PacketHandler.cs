@@ -24,7 +24,7 @@ namespace KSPM.Network.Common.Packet
             messageTarget = null;
             if (rawBytes.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, 0);
+            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, 0);//Remove the exess of data
             if (bytesBlockSize != rawBytes.Length)
                 return Error.ErrorType.MessageIncompleteBytes;
             messageTarget = new Message((Message.CommandType)rawBytes[4], ref NetworkEntity.LoopbackNetworkEntity );

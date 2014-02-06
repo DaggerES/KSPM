@@ -323,7 +323,7 @@ namespace KSPM.Network.Server
             callingSocket = (Socket)result.AsyncState;
             incomingConnectionSocket = callingSocket.EndAccept(result);
             newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
-            incomingConnectionSocket.BeginReceive(newNetworkEntity.rawBuffer, 0, 0, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
+            incomingConnectionSocket.BeginReceive(newNetworkEntity.rawBuffer, 0, newNetworkEntity.rawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
         }
 
         /// <summary>

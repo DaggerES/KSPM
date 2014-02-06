@@ -100,5 +100,22 @@ namespace KSPM.Network.Common
             System.Buffer.BlockCopy( messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length );
             return Error.ErrorType.Ok;
         }
+
+        public static Error.ErrorType NewUserMessage(ref NetworkEntity sender)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.NewClient;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            return Error.ErrorType.Ok;
+        }
     }
 }
