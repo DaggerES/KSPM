@@ -34,6 +34,8 @@ namespace KSPM.Network.Common
         {
         }
 
+        public virtual void MessageSent() { }
+
         /// <summary>
         /// Sets to null each member.
         /// </summary>
@@ -41,6 +43,7 @@ namespace KSPM.Network.Common
         {
             this.ownerSocket = null;
             this.rawBuffer = null;
+            this.secondaryRawBuffer = null;
         }
     }
 }

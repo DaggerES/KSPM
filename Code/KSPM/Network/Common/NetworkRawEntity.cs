@@ -15,6 +15,11 @@ namespace KSPM.Network.Common
         public byte[] rawBuffer;
 
         /// <summary>
+        /// Secondary array which should be used as a complement to the send/receive methods, because if there are simultaneous send/receive operations, the buffer is overwritten.
+        /// </summary>
+        public byte[] secondaryRawBuffer;
+
+        /// <summary>
         /// The socket which is the owner of the entity;
         /// </summary>
         public Socket ownerSocket;
@@ -22,6 +27,7 @@ namespace KSPM.Network.Common
         protected NetworkRawEntity()
         {
             this.rawBuffer = null;
+            this.secondaryRawBuffer = null;
             this.ownerSocket = null;
         }
 
@@ -29,6 +35,7 @@ namespace KSPM.Network.Common
         {
             this.ownerSocket = owner;
             this.rawBuffer = new byte[ KSPM.Network.Server.ServerSettings.ServerBufferSize];
+            this.secondaryRawBuffer = new byte[KSPM.Network.Server.ServerSettings.ServerBufferSize];
         }
     }
 }

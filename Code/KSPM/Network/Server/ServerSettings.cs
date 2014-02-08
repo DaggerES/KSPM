@@ -16,7 +16,7 @@ namespace KSPM.Network.Server
         [XmlIgnore]
         public static string SettingsFilename = "serverSettings.xml";
         [XmlIgnore]
-        public static readonly int ServerBufferSize = 1024*4;
+        public static readonly int ServerBufferSize = 1024*1;
         [XmlIgnore]
         protected static int ServerConnectionsBacklog = 10;
 

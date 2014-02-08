@@ -17,6 +17,8 @@ namespace KSPM.Network.Common
             #region NetworkErrors
             MessageBadFormat,
             MessageIncompleteBytes,
+            MessageCRCError,
+            MessageInvalidRawBytes,
             #endregion
 
             #region NetworkEntities

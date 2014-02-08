@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Net;
 
 using KSPM.Network.Common;
+using KSPM.Network.Common.Packet;
 
 namespace FakeKSPMClient
 {
@@ -38,12 +39,33 @@ namespace FakeKSPMClient
 
         private void button1_Click(object sender, EventArgs e)
         {
+            KSPM.Network.Common.Message messageToSend = null;
             switch ((KSPM.Network.Common.Message.CommandType)this.comboBoxCommands.SelectedIndex)
             {
                 case KSPM.Network.Common.Message.CommandType.NewClient:
-                    KSPM.Network.Common.Message.NewUserMessage(ref myNetworkEntity);
+                    KSPM.Network.Common.Message.NewUserMessage(ref myNetworkEntity, out messageToSend);
+                    PacketHandler.EncodeRawPacket(ref myNetworkEntity);
                     this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
                     break;
+
+                case KSPM.Network.Common.Message.CommandType.Disconnect:
+                    KSPM.Network.Common.Message.DisconnectMessage(ref myNetworkEntity, out messageToSend);
+                    PacketHandler.EncodeRawPacket(ref myNetworkEntity);
+                    this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                    break;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            KSPM.Network.Common.Message messageToSend = null;
+            if (myNetworkEntity.ownerSocket.Connected)
+            {
+                KSPM.Network.Common.Message.DisconnectMessage(ref myNetworkEntity, out messageToSend);
+                PacketHandler.EncodeRawPacket(ref myNetworkEntity);
+                this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                this.myNetworkEntity.ownerSocket.Disconnect(true);
+                this.checkBox1.Checked = this.myNetworkEntity.ownerSocket.Connected;
             }
         }
     }

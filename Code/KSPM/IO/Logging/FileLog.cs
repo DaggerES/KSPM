@@ -82,11 +82,11 @@ namespace KSPM.IO.Logging
             string fileName;
             if (baseName == null)
             {
-                fileName = String.Format("{0}_{1}.settings", dateTime.ToString("dd-MM-yyyy"), dateTime.ToFileTime().ToString());
+                fileName = String.Format("{0}_{1}.log", dateTime.ToString("dd-MM-yyyy"), dateTime.ToFileTime().ToString());
             }
             else
             {
-                fileName = String.Format("{0}_{1}_{2}.settings", baseName, dateTime.ToString("dd-MM-yyyy"), dateTime.ToFileTime().ToString());
+                fileName = String.Format("{0}_{1}_{2}.log", baseName, dateTime.ToString("dd-MM-yyyy"), dateTime.ToFileTime().ToString());
             }
             return fileName;
         }
@@ -104,7 +104,7 @@ namespace KSPM.IO.Logging
             }
             else
             {
-                this.logTextWriter.Write( RealTimer.GetCurrentDateTime() + message);
+                this.logTextWriter.WriteLine( RealTimer.GetCurrentDateTime() + message);
                 this.logTextWriter.Flush();
             }
         }

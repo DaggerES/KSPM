@@ -24,6 +24,7 @@ namespace KSPM_TestingConsole
             server.StartServer();
             Console.ReadLine();
             server.ShutdownServer();
+            Console.ReadLine();
         }
 
     }

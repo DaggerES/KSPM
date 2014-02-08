@@ -13,7 +13,7 @@ using KSPM.Network.Server.UserManagement.Filters;
 
 namespace KSPM.Network.Server
 {
-    public class GameServer
+    public class GameServer : IAsyncSender
     {
         /// <summary>
         /// Controls the life-cycle of the server, also the thread's life-cyle.
@@ -59,7 +59,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Holds the local commands to be processed by de server.
         /// </summary>
-        protected CommandQueue commandsQueue;
+        public CommandQueue commandsQueue;
         public CommandQueue outgoingMessagesQueue;
 
         protected Thread connectionsThread;
@@ -99,7 +99,7 @@ namespace KSPM.Network.Server
 
             this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
-            this.outgoingMessagesThread = null;
+            this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
             this.clientThread = null;
             this.localCommandsThread = null;
 
@@ -134,9 +134,10 @@ namespace KSPM.Network.Server
             try
             {
                 this.tcpSocket.Bind(this.tcpIpEndPoint);
+                this.alive = true;
                 this.connectionsThread.Start();
                 this.commandsThread.Start();
-                this.alive = true;
+                this.outgoingMessagesThread.Start();
             }
             catch (Exception ex)
             {
@@ -161,11 +162,13 @@ namespace KSPM.Network.Server
             }
             try
             {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle conenctions[ " + this.alive + " ]");
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 while (this.alive)
                 {
                     //attemptingConnectionSocket = this.tcpSocket.Accept();
                     this.tcpSocket.BeginAccept(new AsyncCallback(this.OnAsyncAcceptIncomingConnection), this.tcpSocket);
+                    //KSPMGlobals.Globals.Log.WriteTo("Receiving conn");
                     /*
                     if (attemptingConnectionSocket != null)
                     {
@@ -216,6 +219,7 @@ namespace KSPM.Network.Server
             }
             try
             {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle commands[ " + this.alive + " ]");
                 while (this.alive)
                 {
                     if (!this.commandsQueue.IsEmpty())
@@ -234,13 +238,18 @@ namespace KSPM.Network.Server
                                             if (newClientAttempt.StartClient())
                                             {
                                                 this.clientsPoll.Add(newClientAttempt);
+                                                KSPMGlobals.Globals.Log.WriteTo(this.tcpSocket.Connected.ToString());
                                             }
                                         }
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
-                                    //// this needs to have a list or something to hold the connected clients
                                     this.ShutdownServer();
+                                    break;
+                                case Message.CommandType.Authentication:
+                                    break;
+                                case Message.CommandType.Disconnect:
+                                    KSPMGlobals.Globals.Log.WriteTo("Disconnecet command: " + messageToProcess.Command.ToString());
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
@@ -263,6 +272,32 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleOutgoingMessagesThreadMethod()
         {
+            Message outgoingMessage = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
+                while (this.alive)
+                {
+                    if (!this.outgoingMessagesQueue.IsEmpty())
+                    {
+                        this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
+                        if (outgoingMessage != null)
+                        {
+                            outgoingMessage.OwnerNetworkEntity.ownerSocket.BeginSend(outgoingMessage.OwnerNetworkEntity.rawBuffer, 0, (int)outgoingMessage.BytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), outgoingMessage.OwnerNetworkEntity);
+                        }
+                        outgoingMessage = null;
+                    }
+                    Thread.Sleep(5);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.alive = false;
+            }
         }
 
         /// <summary>
@@ -280,11 +315,15 @@ namespace KSPM.Network.Server
             this.alive = false;
             this.commandsThread.Abort();
             this.connectionsThread.Abort();
+            this.outgoingMessagesThread.Abort();
 
             this.connectionsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread ...");
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread ...");
+            this.outgoingMessagesThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread ...");
+
 
             ///*************************Killing TCP socket code
             if (this.tcpSocket.Connected)
@@ -322,8 +361,9 @@ namespace KSPM.Network.Server
             NetworkRawEntity newNetworkEntity;
             callingSocket = (Socket)result.AsyncState;
             incomingConnectionSocket = callingSocket.EndAccept(result);
+            KSPMGlobals.Globals.Log.WriteTo("Hola!!!");
             newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
-            incomingConnectionSocket.BeginReceive(newNetworkEntity.rawBuffer, 0, newNetworkEntity.rawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
+            incomingConnectionSocket.BeginReceive(newNetworkEntity.secondaryRawBuffer, 0, newNetworkEntity.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
         }
 
         /// <summary>
@@ -334,12 +374,37 @@ namespace KSPM.Network.Server
         {
             int readBytes;
             Message incomingMessage = null;
-            NetworkRawEntity callingEntity = (NetworkEntity)result.AsyncState;
+            NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
             readBytes = callingEntity.ownerSocket.EndReceive(result);
-            if (PacketHandler.InflateMessage(ref callingEntity.rawBuffer, ref incomingMessage) == Error.ErrorType.Ok)
+            if (readBytes > 0)
             {
-                incomingMessage.SetOwnerMessageNetworkEntity(ref callingEntity);
-                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                if (PacketHandler.DecodeRawPacket(ref callingEntity.secondaryRawBuffer) == Error.ErrorType.Ok)
+                {
+                    if (PacketHandler.InflateMessage(ref callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                    {
+                        incomingMessage.SetOwnerMessageNetworkEntity(ref callingEntity);
+                        this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                        KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                    }
+                }
+            }
+        }
+
+
+        public void AsyncSenderCallback(System.IAsyncResult result)
+        {
+            int sentBytes;
+            NetworkEntity net = null;
+            Socket callingSocket = null;
+            try
+            {
+                net = (NetworkEntity)result.AsyncState;
+                //callingSocket = (Socket)result.AsyncState;
+                sentBytes = net.ownerSocket.EndSend(result);
+                net.MessageSent();
+            }
+            catch (System.Exception)
+            {
             }
         }
     }

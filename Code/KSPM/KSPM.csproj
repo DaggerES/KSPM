@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Diagnostics\RealTimer.cs" />
     <Compile Include="Globals\KSPMGlobals.cs" />
+    <Compile Include="IO\Compression\Compressor.cs" />
     <Compile Include="IO\Logging\ConsoleLog.cs" />
     <Compile Include="IO\Logging\DevNullLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Docs\KSPM.cd" />
   </ItemGroup>
   <ItemGroup>
