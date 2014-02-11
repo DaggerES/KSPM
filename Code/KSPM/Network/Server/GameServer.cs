@@ -10,6 +10,7 @@ using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
+using KSPM.Game;
 
 namespace KSPM.Network.Server
 {
@@ -166,30 +167,8 @@ namespace KSPM.Network.Server
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 while (this.alive)
                 {
-                    //attemptingConnectionSocket = this.tcpSocket.Accept();
                     this.tcpSocket.BeginAccept(new AsyncCallback(this.OnAsyncAcceptIncomingConnection), this.tcpSocket);
                     //KSPMGlobals.Globals.Log.WriteTo("Receiving conn");
-                    /*
-                    if (attemptingConnectionSocket != null)
-                    {
-                        //attemptingConnectionSocket.Connect(attemptingConnectionSocket.RemoteEndPoint);
-                        attemptingConnectionSocket.Receive(this.tcpBuffer);
-                        //this.tcpSocket.Connect(attemptingConnectionSocket.RemoteEndPoint);
-                        //this.tcpSocket.Receive(this.tcpBuffer);
-                        //Check the first byte of the message
-                        if (this.tcpBuffer[0] == (byte)Message.CommandType.Handshake)
-                        {
-                            KSPMGlobals.Globals.Log.WriteTo("New client from: " + attemptingConnectionSocket.RemoteEndPoint.ToString());
-                        }
-                        else
-                        {
-                            incomingMessage = new Message((Message.CommandType)this.tcpBuffer[0], ref newConnectionEntity, ref newConnectionEntity, ref this.tcpBuffer);
-                            this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                        }
-                        attemptingConnectionSocket.Shutdown(SocketShutdown.Both);
-                        attemptingConnectionSocket.Disconnect(false);
-                    }
-                    */
                     Thread.Sleep(11);
                 }
             }
@@ -247,8 +226,10 @@ namespace KSPM.Network.Server
                                     this.ShutdownServer();
                                     break;
                                 case Message.CommandType.Authentication:
+                                    string username;
+                                    User.DecodeUsernameFromBytes(ref messageToProcess.OwnerNetworkEntity.secondaryRawBuffer, 6, messageToProcess.OwnerNetworkEntity.secondaryRawBuffer[5], out username);
                                     break;
-                                case Message.CommandType.Disconnect:
+                                case Message.CommandType.Disconnect:/// Need to implement some user search
                                     KSPMGlobals.Globals.Log.WriteTo("Disconnecet command: " + messageToProcess.Command.ToString());
                                     break;
                                 case Message.CommandType.Unknown:

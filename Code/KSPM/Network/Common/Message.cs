@@ -1,6 +1,7 @@
 ﻿
 using KSPM.Network.Server;
 using KSPM.Network.Common.Packet;
+using KSPM.Game;
 
 namespace KSPM.Network.Common
 {
@@ -204,6 +205,46 @@ namespace KSPM.Network.Common
             }
             sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Disconnect;
             bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Creates an authentication message. **In this moment it is not complete and may change in future updates.**
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
+        public static Error.ErrorType AuthenticationMessage(ref NetworkEntity sender, ref User userInfo, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] userBuffer = null;
+            string stringBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            stringBuffer = userInfo.Username;
+            User.EncodeUsernameToBytes(ref stringBuffer, out userBuffer);
+
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Authentication;
+            bytesToSend += 1;
+            sender.rawBuffer[bytesToSend] = (byte)userBuffer.Length;
+            bytesToSend += 1;
+            
+            System.Buffer.BlockCopy(userBuffer, 0, sender.rawBuffer, bytesToSend, userBuffer.Length);
+            bytesToSend += userBuffer.Length;
+
+            //In this place I have to copy the buffer containing the hash
+
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);

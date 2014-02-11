@@ -26,7 +26,13 @@ namespace KSPM.Network.Common
             #endregion
 
             #region ServerSideClient
-            ServerClientUnableToRun
+            ServerClientUnableToRun,
+            #endregion
+
+            #region UserErrors
+            UserIncompleteBytes,
+            UserBadFormatString,
+            UserMaxlenghtStringReached,
             #endregion
         };
     }

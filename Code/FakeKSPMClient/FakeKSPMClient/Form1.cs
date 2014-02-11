@@ -12,6 +12,7 @@ using System.Net;
 
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
+using KSPM.Game;
 
 namespace FakeKSPMClient
 {
@@ -20,6 +21,7 @@ namespace FakeKSPMClient
         Socket clientSocket;
         IPEndPoint serverIPEndPoint;
         NetworkEntity myNetworkEntity;
+        string userName;
 
         public Form1()
         {
@@ -40,6 +42,12 @@ namespace FakeKSPMClient
         private void button1_Click(object sender, EventArgs e)
         {
             KSPM.Network.Common.Message messageToSend = null;
+            string tmpUserName;
+            string[] splitedUserInfo;
+            int bytesCount;
+            byte[] utf8Bytes;
+            GameUser user;
+            UTF8Encoding utf8Strings = new UTF8Encoding();
             switch ((KSPM.Network.Common.Message.CommandType)this.comboBoxCommands.SelectedIndex)
             {
                 case KSPM.Network.Common.Message.CommandType.NewClient:
@@ -52,6 +60,18 @@ namespace FakeKSPMClient
                     KSPM.Network.Common.Message.DisconnectMessage(ref myNetworkEntity, out messageToSend);
                     PacketHandler.EncodeRawPacket(ref myNetworkEntity);
                     this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                    break;
+                case  KSPM.Network.Common.Message.CommandType.Authentication:
+                    splitedUserInfo = textBoxCommands.Text.Split(':');
+                    tmpUserName = splitedUserInfo[0];
+                    user = new GameUser(ref tmpUserName, ref splitedUserInfo[1]);
+                    User asd = user;
+                    KSPM.Network.Common.Message.AuthenticationMessage(ref myNetworkEntity, ref asd, out messageToSend);
+                    this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                    /*bytesCount = utf8Strings.GetMaxByteCount(tmpUserName.Length);
+                    utf8Bytes = utf8Strings.GetBytes(tmpUserName);
+                    tmpUserName = utf8Strings.GetString(utf8Bytes);
+                    this.textBoxUTF8.Text = tmpUserName;*/
                     break;
             }
         }

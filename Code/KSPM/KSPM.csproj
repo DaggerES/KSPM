@@ -40,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics\RealTimer.cs" />
+    <Compile Include="Game\GameUser.cs" />
+    <Compile Include="Game\User.cs" />
     <Compile Include="Globals\KSPMGlobals.cs" />
     <Compile Include="IO\Compression\Compressor.cs" />
     <Compile Include="IO\Logging\ConsoleLog.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="Network\Common\NetworkRawEntity.cs" />
     <Compile Include="Network\Server\ServerSettings.cs" />
     <Compile Include="Network\Server\ServerSideClient.cs" />
+    <Compile Include="Network\Server\UserManagement\AccountManager.cs" />
     <Compile Include="Network\Server\UserManagement\Filters\Filter.cs" />
     <Compile Include="IO\ILoadableFromFile.cs" />
     <Compile Include="Network\Server\UserManagement\Filters\NoneFilter.cs" />
@@ -70,9 +73,7 @@
     <None Include="ClassDiagram1.cd" />
     <None Include="Docs\KSPM.cd" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Game\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

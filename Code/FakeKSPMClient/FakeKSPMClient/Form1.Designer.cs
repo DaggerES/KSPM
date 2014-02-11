@@ -42,11 +42,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxIP = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.textBoxUTF8 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.textBoxUTF8);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.textBoxPort);
             this.groupBox1.Controls.Add(this.label4);
@@ -183,6 +185,14 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "groupBox2";
             // 
+            // textBoxUTF8
+            // 
+            this.textBoxUTF8.Location = new System.Drawing.Point(128, 233);
+            this.textBoxUTF8.Multiline = true;
+            this.textBoxUTF8.Name = "textBoxUTF8";
+            this.textBoxUTF8.Size = new System.Drawing.Size(225, 53);
+            this.textBoxUTF8.TabIndex = 12;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -214,6 +224,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxPort;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBoxUTF8;
     }
 }
 

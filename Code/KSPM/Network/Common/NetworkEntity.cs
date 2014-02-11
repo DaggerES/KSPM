@@ -34,6 +34,9 @@ namespace KSPM.Network.Common
         {
         }
 
+        /// <summary>
+        /// Virtual method called once a message is sent, you should override it if you want to perform some task.
+        /// </summary>
         public virtual void MessageSent() { }
 
         /// <summary>

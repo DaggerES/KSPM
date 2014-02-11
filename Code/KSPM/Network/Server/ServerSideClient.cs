@@ -11,17 +11,23 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Represents a client handled by the server.
     /// </summary>
-    public class ServerSideClient : NetworkEntity , IAsyncReceiver
+    public class ServerSideClient : NetworkEntity
     {
         /// <summary>
         /// ServerSide status.
         /// </summary>
-        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, UDPConnecting, Connected, AwaitingACK, AwaitingReply};
+        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, UDPConnecting, Connected, AwaitingACK, AwaitingReply };
+        protected enum MessagesThreadStatus : byte { None = 0, AwaitingReply, ListeningForCommands };
 
         /// <summary>
         /// Thread to run the main body of the thread.
         /// </summary>
         protected Thread mainThread;
+
+        /// <summary>
+        /// Thread to handle the incoming messages.
+        /// </summary>
+        protected Thread messageHandlerTread;
 
         /// <summary>
         /// Constrols the mainThread lifecycle.
@@ -33,12 +39,22 @@ namespace KSPM.Network.Server
         /// </summary>
         protected bool ableToRun;
 
+        /// <summary>
+        /// Tells the current stage of the mainThread.
+        /// </summary>
         protected ClientStatus currentStatus;
+
+        /// <summary>
+        /// Tells the current status if the messages thread.
+        /// </summary>
+        protected MessagesThreadStatus commandStatus;
 
         protected ServerSideClient() : base()
         {
             this.currentStatus = ClientStatus.Handshaking;
             this.mainThread = new Thread(new ThreadStart(this.HandleMainBodyMethod));
+            this.messageHandlerTread = new Thread(new ThreadStart(this.HandleIncomingMessagesMethod));
+            this.commandStatus = MessagesThreadStatus.None;
             this.ableToRun = true;
         }
 
@@ -80,26 +96,71 @@ namespace KSPM.Network.Server
             this.aliveFlag = true;
             while (this.aliveFlag)
             {
-                //this.ownerSocket.BeginReceive(this.secondaryRawBuffer, 0, this.secondaryRawBuffer.Length, SocketFlags.None, new System.AsyncCallback(this.AsyncReceiverCallback), this);
                 switch (this.currentStatus)
                 {
                     case ClientStatus.Handshaking:
                         Message.HandshakeAccetpMessage(ref myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref myNetworkEntityReference);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
-                        //this.ownerSocket.BeginReceive(this.secondaryRawBuffer, 0, this.secondaryRawBuffer.Length, SocketFlags.None, new System.AsyncCallback(this.AsyncReceiverCallback), this);
                         this.currentStatus = ClientStatus.AwaitingReply;
+                        this.commandStatus = MessagesThreadStatus.AwaitingReply;
+                        //Awaiting for the Authentication message coming from the remote client.
                         break;
                     case ClientStatus.AwaitingReply:
-                        //this.ownerSocket.BeginReceive(this.secondaryRawBuffer, 0, this.secondaryRawBuffer.Length, SocketFlags.None, new System.AsyncCallback(this.AsyncReceiverCallback), this);
-                        //KSPMGlobals.Globals.Log.WriteTo("Awaiting...");
                         break;
                     case ClientStatus.Handshaked:
                         break;
                 }
-                //this.ownerSocket.Receive(this.secondaryRawBuffer);
-                //KSPMGlobals.Globals.Log.WriteTo("REC" + this.secondaryRawBuffer[4].ToString());
                 Thread.Sleep(3);
+            }
+        }
+
+        /// <summary>
+        /// Receives the incoming messages and pass them to the server to be processed.
+        /// </summary>
+        protected void HandleIncomingMessagesMethod()
+        {
+            int receivedBytes = 0;
+            Message incomingMessage = null;
+            NetworkEntity ownNetworkEntity = this;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                while (this.aliveFlag)
+                {
+                    switch (this.commandStatus)
+                    {
+                        case MessagesThreadStatus.AwaitingReply:
+                            receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
+                            if (receivedBytes > 0)
+                            {
+                                if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
+                                {
+                                    if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                    {
+                                        incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
+                                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                        this.commandStatus = MessagesThreadStatus.None;
+                                    }
+                                }
+                                receivedBytes = -1;
+                            }
+                            break;
+                        case MessagesThreadStatus.ListeningForCommands:
+                            break;
+                        case MessagesThreadStatus.None:
+                            break;
+                    }
+                    Thread.Sleep(3);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.aliveFlag = false;
             }
         }
 
@@ -118,6 +179,7 @@ namespace KSPM.Network.Server
             try
             {
                 this.mainThread.Start();
+                this.messageHandlerTread.Start();
                 result = true;
             }
             catch( System.Exception ex )
@@ -137,7 +199,10 @@ namespace KSPM.Network.Server
             this.aliveFlag = false;
             this.mainThread.Abort();
             this.mainThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed mainThread ...");
+            KSPMGlobals.Globals.Log.WriteTo("Killed mainThread...");
+            this.messageHandlerTread.Abort();
+            this.messageHandlerTread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed messagesThread...");
 
             ///***********************Sockets code
             if (this.ownerSocket.Connected)
@@ -176,34 +241,7 @@ namespace KSPM.Network.Server
             }
         }
 
-        /// <summary>
-        /// Receives the remote client's messages and passes it to the server to handle it.
-        /// </summary>
-        /// <param name="result"></param>
-        public void AsyncReceiverCallback(System.IAsyncResult result)
-        {
-            int readBytes = 0;
-            Message incomingMessage = null;
-            NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-            KSPMGlobals.Globals.Log.WriteTo("Awaiting...");
-            readBytes = callingEntity.ownerSocket.EndReceive(result);
-            
-            KSPMGlobals.Globals.Log.WriteTo("Awaiting finished...");
-            //KSPMGlobals.Globals.Log.WriteTo(callingEntity.ownerSocket.Available.ToString());
-            //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
-            if (readBytes > 0)
-            {
-                if (PacketHandler.DecodeRawPacket(ref callingEntity.secondaryRawBuffer) == Error.ErrorType.Ok)
-                {
-                    if (PacketHandler.InflateMessage(ref callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                    {
-                        incomingMessage.SetOwnerMessageNetworkEntity(ref callingEntity);
-                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                    }
-                }
-            }
-        }
-
+        /*
         public override void MessageSent()
         {
             KSPMGlobals.Globals.Log.WriteTo("MessageSent...");
@@ -215,15 +253,9 @@ namespace KSPM.Network.Server
             readBytes = this.ownerSocket.Receive(this.secondaryRawBuffer);
             if (readBytes > 0)
             {
-                if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
-                {
-                    if (PacketHandler.InflateMessage(ref asd, out incomingMessage) == Error.ErrorType.Ok)
-                    {
-                        incomingMessage.SetOwnerMessageNetworkEntity(ref asd);
-                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                    }
-                }
+                
             }
         }
+        */
     }
 }
