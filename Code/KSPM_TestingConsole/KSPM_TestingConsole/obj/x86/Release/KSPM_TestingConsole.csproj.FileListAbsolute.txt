@@ -1,0 +1,7 @@
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\bin\Release\KSPM_TestingConsole.exe
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\bin\Release\KSPM_TestingConsole.pdb
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\bin\Release\KSPM.dll
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\bin\Release\KSPM.pdb
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\obj\x86\Release\ResolveAssemblyReference.cache
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\obj\x86\Release\KSPM_TestingConsole.exe
+D:\Projects\CSharp\KSPM\Code\KSPM_TestingConsole\KSPM_TestingConsole\obj\x86\Release\KSPM_TestingConsole.pdb

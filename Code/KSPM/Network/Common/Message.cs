@@ -36,7 +36,7 @@ namespace KSPM.Network.Common
 
             /// <summary>
             /// Command used by the client to send its authentication information.
-            /// [Header {byte:4}][ Command {byte:1} ][ UsernameLenght {byte:1}] [ Username {byte:1-64} ][ HashedUsernameAndPassword {byte:64} ][ EndOfMessage {byte:4} ]
+            /// [Header {byte:4}][ Command {byte:1} ][ UsernameLenght {byte:1}] [ Username {byte:1-} ][HashLength{2}][ HashedUsernameAndPassword {byte:1-} ][ EndOfMessage {byte:4} ]
             /// </summary>
             Authentication,
 
@@ -194,6 +194,12 @@ namespace KSPM.Network.Common
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Writes a disconnect message into de buffer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
         public static Error.ErrorType DisconnectMessage(ref NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
@@ -223,6 +229,7 @@ namespace KSPM.Network.Common
         public static Error.ErrorType AuthenticationMessage(ref NetworkEntity sender, ref User userInfo, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            short hashSize;
             targetMessage = null;
             byte[] messageHeaderContent = null;
             byte[] userBuffer = null;
@@ -235,16 +242,30 @@ namespace KSPM.Network.Common
             stringBuffer = userInfo.Username;
             User.EncodeUsernameToBytes(ref stringBuffer, out userBuffer);
 
+            ///Writing the command.
             sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Authentication;
             bytesToSend += 1;
+
+            ///Writing the username's byte length.
             sender.rawBuffer[bytesToSend] = (byte)userBuffer.Length;
             bytesToSend += 1;
-            
+
+            ///Writing the username's bytes
             System.Buffer.BlockCopy(userBuffer, 0, sender.rawBuffer, bytesToSend, userBuffer.Length);
             bytesToSend += userBuffer.Length;
 
-            //In this place I have to copy the buffer containing the hash
+            ///Writing the hash's length
+            hashSize = (short)userInfo.Hash.Length;
+            userBuffer = null;
+            userBuffer = System.BitConverter.GetBytes( hashSize );
+            System.Buffer.BlockCopy(userBuffer, 0, sender.rawBuffer, bytesToSend, userBuffer.Length);
+            bytesToSend += userBuffer.Length;
 
+            ///Writing the user's hash code.
+            System.Buffer.BlockCopy(userInfo.Hash, 0, sender.rawBuffer, bytesToSend, hashSize);
+            bytesToSend += hashSize;
+            
+            ///Writing the EndOfMessage command.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
@@ -253,5 +274,7 @@ namespace KSPM.Network.Common
             targetMessage.BytesSize = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
+
+
     }
 }

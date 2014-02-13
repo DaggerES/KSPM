@@ -9,12 +9,12 @@
         /// Creates a GameUser object.
         /// </summary>
         /// <param name="userHash">Hash of the user.</param>
-        public GameUser(ref string userHash)
+        public GameUser(ref byte[] userHash)
             : base(ref userHash)
         {
         }
 
-        public GameUser(ref string username, ref string userHash)
+        public GameUser(ref string username, ref byte[] userHash)
             : base(ref userHash)
         {
             this.username = username;

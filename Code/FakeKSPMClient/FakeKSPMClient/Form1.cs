@@ -9,6 +9,7 @@ using System.Windows.Forms;
 
 using System.Net.Sockets;
 using System.Net;
+using System.Security.Cryptography;
 
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
@@ -27,6 +28,7 @@ namespace FakeKSPMClient
         {
             InitializeComponent();
             this.comboBoxCommands.Items.AddRange( Enum.GetNames( typeof(KSPM.Network.Common.Message.CommandType) ) );
+            System.Guid asd = Guid.NewGuid();
         }
 
         private void buttonConnect_Click(object sender, EventArgs e)
@@ -36,7 +38,10 @@ namespace FakeKSPMClient
             clientSocket.Bind( new IPEndPoint( IPAddress.Any, 0 ));
             myNetworkEntity = new NetworkEntity(ref this.clientSocket);
             clientSocket.Connect(serverIPEndPoint);
-            checkBox1.Checked = clientSocket.Connected;
+            if (clientSocket.Poll(1000, SelectMode.SelectWrite))
+            {
+                checkBox1.Checked = clientSocket.Connected;
+            }            
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -46,6 +51,7 @@ namespace FakeKSPMClient
             string[] splitedUserInfo;
             int bytesCount;
             byte[] utf8Bytes;
+            byte[] hashCode;
             GameUser user;
             UTF8Encoding utf8Strings = new UTF8Encoding();
             switch ((KSPM.Network.Common.Message.CommandType)this.comboBoxCommands.SelectedIndex)
@@ -62,16 +68,13 @@ namespace FakeKSPMClient
                     this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
                     break;
                 case  KSPM.Network.Common.Message.CommandType.Authentication:
-                    splitedUserInfo = textBoxCommands.Text.Split(':');
-                    tmpUserName = splitedUserInfo[0];
-                    user = new GameUser(ref tmpUserName, ref splitedUserInfo[1]);
+                    tmpUserName = textBoxCommands.Text;
+                    utf8Bytes = utf8Strings.GetBytes(tmpUserName);
+                    KSPM.IO.Security.Hash.GetHash(ref utf8Bytes, 0, (uint)utf8Bytes.Length, out hashCode);
+                    user = new GameUser(ref tmpUserName, ref hashCode);
                     User asd = user;
                     KSPM.Network.Common.Message.AuthenticationMessage(ref myNetworkEntity, ref asd, out messageToSend);
                     this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
-                    /*bytesCount = utf8Strings.GetMaxByteCount(tmpUserName.Length);
-                    utf8Bytes = utf8Strings.GetBytes(tmpUserName);
-                    tmpUserName = utf8Strings.GetString(utf8Bytes);
-                    this.textBoxUTF8.Text = tmpUserName;*/
                     break;
             }
         }

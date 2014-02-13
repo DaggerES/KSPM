@@ -69,6 +69,11 @@ namespace KSPM.Network.Server
         protected Thread clientThread;
         protected Thread localCommandsThread;
 
+        /// <summary>
+        /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
+        /// </summary>
+        protected static readonly ManualResetEvent SignalHandler = new ManualResetEvent(false);
+
         #endregion
 
         #region USM
@@ -77,7 +82,16 @@ namespace KSPM.Network.Server
         /// Default User Management System (UMS) applied by the server.
         /// </summary>
         UserManagementSystem defaultUserManagementSystem;
-        List<ServerSideClient> clientsPoll;
+
+        /// <summary>
+        /// Provides a basic authentication.
+        /// </summary>
+        AccountManager usersAccountManager;
+
+        /// <summary>
+        /// Poll of clients connected to the server, it should be used when the broadcasting is required.
+        /// </summary>
+        ClientsHandler clientsHandler;
 
         #endregion
 
@@ -105,7 +119,10 @@ namespace KSPM.Network.Server
             this.localCommandsThread = null;
 
             this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
-            this.clientsPoll = new List<ServerSideClient>();
+            this.clientsHandler = new ClientsHandler();
+
+            ///It still missing the filter
+            this.usersAccountManager = new AccountManager();
 
             this.ableToRun = true;
             this.alive = false;
@@ -154,9 +171,6 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleConnectionsThreadMethod()
         {
-            Socket attemptingConnectionSocket = null;
-            NetworkEntity newConnectionEntity = null;
-            Message incomingMessage = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -167,15 +181,19 @@ namespace KSPM.Network.Server
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 while (this.alive)
                 {
+                    GameServer.SignalHandler.Reset();
                     this.tcpSocket.BeginAccept(new AsyncCallback(this.OnAsyncAcceptIncomingConnection), this.tcpSocket);
-                    //KSPMGlobals.Globals.Log.WriteTo("Receiving conn");
+                    GameServer.SignalHandler.WaitOne();
                     Thread.Sleep(11);
                 }
             }
             catch (ThreadAbortException)
             {
-                this.tcpSocket.Shutdown(SocketShutdown.Both);
-                this.tcpSocket.Close();
+                if (this.tcpSocket.Connected)///Avoids exceptions
+                {
+                    this.tcpSocket.Shutdown(SocketShutdown.Both);
+                    this.tcpSocket.Close();
+                }
                 this.alive = false;
             }
             catch (Exception ex)
@@ -192,6 +210,9 @@ namespace KSPM.Network.Server
             Message messageToProcess = null;
             NetworkEntity messageOwner = null;
             ServerSideClient newClientAttempt = null;
+            ServerSideClient serverSideClientReference = null;
+            GameUser referredUser = null;
+            string stringBuffer;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -210,27 +231,42 @@ namespace KSPM.Network.Server
                             {
                                 case Message.CommandType.NewClient:
                                     messageOwner = messageToProcess.OwnerNetworkEntity;
-                                    if (this.defaultUserManagementSystem.Query(ref messageOwner))
+                                    if (this.clientsHandler.ConnectedClients < this.lowLevelOperationSettings.maxConnectedClients)
                                     {
-                                        if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
+                                        if (this.defaultUserManagementSystem.Query(ref messageOwner))
                                         {
-                                            if (newClientAttempt.StartClient())
+                                            if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
                                             {
-                                                this.clientsPoll.Add(newClientAttempt);
-                                                KSPMGlobals.Globals.Log.WriteTo(this.tcpSocket.Connected.ToString());
+                                                if (newClientAttempt.StartClient())
+                                                {
+                                                    this.clientsHandler.AddNewClient(newClientAttempt);
+                                                    KSPMGlobals.Globals.Log.WriteTo(this.tcpSocket.Connected.ToString());
+                                                }
                                             }
                                         }
+                                    }
+                                    else
+                                    {
+                                        ///We have to send the fucking connection refused.
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
                                     this.ShutdownServer();
                                     break;
                                 case Message.CommandType.Authentication:
-                                    string username;
-                                    User.DecodeUsernameFromBytes(ref messageToProcess.OwnerNetworkEntity.secondaryRawBuffer, 6, messageToProcess.OwnerNetworkEntity.secondaryRawBuffer[5], out username);
+                                    User.InflateUserFromBytes(ref messageToProcess.OwnerNetworkEntity.secondaryRawBuffer, out referredUser);
+                                    serverSideClientReference = (ServerSideClient)messageToProcess.OwnerNetworkEntity;
+                                    serverSideClientReference.gameUser = referredUser;
+                                    messageOwner = serverSideClientReference;
+                                    if (this.usersAccountManager.Query(ref messageOwner))
+                                    {
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("{0} has connected", serverSideClientReference.gameUser.Username));
+                                        serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
+                                    }
                                     break;
-                                case Message.CommandType.Disconnect:/// Need to implement some user search
-                                    KSPMGlobals.Globals.Log.WriteTo("Disconnecet command: " + messageToProcess.Command.ToString());
+                                case Message.CommandType.Disconnect:
+                                    ///Disconnects either a NetworkEntity or a ServerSideClient.
+                                    this.clientsHandler.RemoveClient(messageToProcess.OwnerNetworkEntity);
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
@@ -322,11 +358,8 @@ namespace KSPM.Network.Server
 
             KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
 
-            for (int i = 0; i < this.clientsPoll.Count; i++)
-            {
-                this.clientsPoll[i].ShutdownClient();
-            }
-            this.clientsPoll = null;
+            this.clientsHandler.Clear();
+            this.clientsHandler = null;
 
             KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
 
@@ -338,11 +371,11 @@ namespace KSPM.Network.Server
         /// <param name="result"></param>
         protected void OnAsyncAcceptIncomingConnection(IAsyncResult result)
         {
+            GameServer.SignalHandler.Set();
             Socket callingSocket, incomingConnectionSocket;
             NetworkRawEntity newNetworkEntity;
             callingSocket = (Socket)result.AsyncState;
             incomingConnectionSocket = callingSocket.EndAccept(result);
-            KSPMGlobals.Globals.Log.WriteTo("Hola!!!");
             newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
             incomingConnectionSocket.BeginReceive(newNetworkEntity.secondaryRawBuffer, 0, newNetworkEntity.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
         }
@@ -370,7 +403,6 @@ namespace KSPM.Network.Server
                 }
             }
         }
-
 
         public void AsyncSenderCallback(System.IAsyncResult result)
         {

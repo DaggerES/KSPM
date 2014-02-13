@@ -7,6 +7,7 @@
     {
         public override bool Query(ref Common.NetworkEntity entityToValidate)
         {
+            ServerSideClient clientReference = (ServerSideClient)entityToValidate;
             return true;
         }
     }

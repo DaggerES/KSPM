@@ -48,6 +48,7 @@
     <Compile Include="IO\Logging\DevNullLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
+    <Compile Include="IO\Security\Hash.cs" />
     <Compile Include="Network\Common\CommandQueue.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\IAsyncReceiver.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Network\Server\ServerSettings.cs" />
     <Compile Include="Network\Server\ServerSideClient.cs" />
     <Compile Include="Network\Server\UserManagement\AccountManager.cs" />
+    <Compile Include="Network\Server\UserManagement\ClientsHandler.cs" />
     <Compile Include="Network\Server\UserManagement\Filters\Filter.cs" />
     <Compile Include="IO\ILoadableFromFile.cs" />
     <Compile Include="Network\Server\UserManagement\Filters\NoneFilter.cs" />

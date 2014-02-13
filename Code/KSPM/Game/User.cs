@@ -24,9 +24,14 @@ namespace KSPM.Game
         protected string username;
 
         /// <summary>
-        /// The hash of this user, it should be unique.***I have to find the way to achieve this.
+        /// The hash of this user in a human understable format, it should be unique.***I have to find the way to achieve this.
         /// </summary>
-        protected string hash;
+        protected string humanHash;
+
+        /// <summary>
+        /// Binary hash of the user.
+        /// </summary>
+        protected byte[] hash;
 
         /// <summary>
         /// Unique Id
@@ -87,10 +92,39 @@ namespace KSPM.Game
         }
 
         /// <summary>
+        /// Tries to create an GameUser reference and fill it with the data contained in raw format.
+        /// </summary>
+        /// <param name="rawBytes">Byte array in raw format.</param>
+        /// <param name="targetUser">Out reference to the GameUser.</param>
+        /// <returns></returns>
+        public static Error.ErrorType InflateUserFromBytes(ref byte[] rawBytes, out GameUser targetUser)
+        {
+            targetUser = null;
+            byte[] hashCode =null;
+            short hashSize;
+            string buffer;
+            if (rawBytes == null)
+            {
+                return Error.ErrorType.UserIncompleteBytes;
+            }
+            ///6 because in that position is where the username's bytes start, so there is the add of username's length plus the 6th position.
+            hashSize = System.BitConverter.ToInt16(rawBytes, 6 + (int)rawBytes[5]);
+            hashCode = new byte[hashSize];
+            ///8 because is the 6th position + 2 bytes of the hashsize's bytes.
+            System.Buffer.BlockCopy(rawBytes, 8 + (int)rawBytes[5], hashCode, 0, hashSize);
+
+            if (User.DecodeUsernameFromBytes(ref rawBytes, 6, (uint)rawBytes[5], out buffer) == Error.ErrorType.Ok)
+            {
+                targetUser = new GameUser(ref buffer, ref hashCode);
+            }
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
         /// Contructor.
         /// </summary>
         /// <param name="hashCode"></param>
-        public User(ref string hashCode)
+        public User(ref byte[] hashCode)
         {
             this.hash = hashCode;
             this.id = User.UserReferencesCounter++;
@@ -109,7 +143,7 @@ namespace KSPM.Game
             }
         }
 
-        public string Hash
+        public byte[] Hash
         {
             get
             {

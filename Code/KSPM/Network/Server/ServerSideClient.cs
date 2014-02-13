@@ -4,6 +4,7 @@ using System.Threading;
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Globals;
+using KSPM.Game;
 
 
 namespace KSPM.Network.Server
@@ -16,7 +17,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// ServerSide status.
         /// </summary>
-        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, UDPConnecting, Connected, AwaitingACK, AwaitingReply };
+        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, Authenticated, UDPConnecting, Connected, AwaitingACK, AwaitingReply };
         protected enum MessagesThreadStatus : byte { None = 0, AwaitingReply, ListeningForCommands };
 
         /// <summary>
@@ -45,9 +46,15 @@ namespace KSPM.Network.Server
         protected ClientStatus currentStatus;
 
         /// <summary>
-        /// Tells the current status if the messages thread.
+        /// Tells the current status if the messages thread, if it is awaiting a reply or awating a command.
         /// </summary>
         protected MessagesThreadStatus commandStatus;
+
+        /// <summary>
+        /// A reference to the game user, this is kind a second level of the KSPM model.
+        /// I have made it public to perform fastest implementations.
+        /// </summary>
+        public User gameUser;
 
         protected ServerSideClient() : base()
         {
@@ -75,6 +82,7 @@ namespace KSPM.Network.Server
             ssClient.ownerSocket = baseNetworkEntity.ownerSocket;
             ssClient.rawBuffer = baseNetworkEntity.rawBuffer;
             ssClient.secondaryRawBuffer = baseNetworkEntity.secondaryRawBuffer;
+            ssClient.id = baseNetworkEntity.Id;
             baseNetworkEntity.Dispose();
             return Error.ErrorType.Ok;
         }
@@ -108,7 +116,14 @@ namespace KSPM.Network.Server
                         break;
                     case ClientStatus.AwaitingReply:
                         break;
+                    case ClientStatus.Authenticated:
+                        this.currentStatus = ClientStatus.Connected;
+                        this.commandStatus = MessagesThreadStatus.ListeningForCommands;
+                        break;
+                    case ClientStatus.Connected:
+                        break;
                     case ClientStatus.Handshaked:
+                        this.commandStatus = MessagesThreadStatus.ListeningForCommands;
                         break;
                 }
                 Thread.Sleep(3);
@@ -135,22 +150,45 @@ namespace KSPM.Network.Server
                     switch (this.commandStatus)
                     {
                         case MessagesThreadStatus.AwaitingReply:
-                            receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
-                            if (receivedBytes > 0)
+                            //KSPMGlobals.Globals.Log.WriteTo(this.ownerSocket.Poll(1000, SelectMode.SelectRead).ToString());
+                            if (this.ownerSocket.Poll(500, SelectMode.SelectRead))
                             {
-                                if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
+                                KSPMGlobals.Globals.Log.WriteTo("READING...");
+                                receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
+                                if (receivedBytes > 0)
                                 {
-                                    if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                    if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
                                     {
-                                        incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
-                                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                        this.commandStatus = MessagesThreadStatus.None;
+                                        if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                        {
+                                            incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
+                                            KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                            this.commandStatus = MessagesThreadStatus.None;
+                                        }
                                     }
+                                    receivedBytes = -1;
                                 }
-                                receivedBytes = -1;
                             }
                             break;
                         case MessagesThreadStatus.ListeningForCommands:
+                            if (this.ownerSocket.Poll(500, SelectMode.SelectRead))
+                            {
+                                KSPMGlobals.Globals.Log.WriteTo("READING Command...");
+                                receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
+                                if (receivedBytes > 0)
+                                {
+                                    if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
+                                    {
+                                        if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                        {
+                                            incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
+                                            KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                            this.commandStatus = MessagesThreadStatus.None;
+                                        }
+                                    }
+                                    receivedBytes = -1;
+                                }
+                            }
                             break;
                         case MessagesThreadStatus.None:
                             break;
@@ -201,12 +239,13 @@ namespace KSPM.Network.Server
             this.mainThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed mainThread...");
             this.messageHandlerTread.Abort();
-            this.messageHandlerTread.Join();
+            this.messageHandlerTread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo("Killed messagesThread...");
 
             ///***********************Sockets code
-            if (this.ownerSocket.Connected)
+            if (this.ownerSocket != null && this.ownerSocket.Connected)
             {
+                this.ownerSocket.Disconnect(false);
                 this.ownerSocket.Shutdown(SocketShutdown.Both);
                 this.ownerSocket.Close();
             }
@@ -241,21 +280,12 @@ namespace KSPM.Network.Server
             }
         }
 
-        /*
-        public override void MessageSent()
+        /// <summary>
+        /// Overrides the Release method and stop threads and other stuff inside the object.
+        /// </summary>
+        public override void Release()
         {
-            KSPMGlobals.Globals.Log.WriteTo("MessageSent...");
-            int readBytes = 0;
-            Message incomingMessage = null;
-            NetworkEntity asd = this;
-            //KSPMGlobals.Globals.Log.WriteTo(callingEntity.ownerSocket.Available.ToString());
-            //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
-            readBytes = this.ownerSocket.Receive(this.secondaryRawBuffer);
-            if (readBytes > 0)
-            {
-                
-            }
+            this.ShutdownClient();
         }
-        */
     }
 }

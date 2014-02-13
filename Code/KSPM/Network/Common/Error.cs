@@ -33,6 +33,11 @@ namespace KSPM.Network.Common
             UserIncompleteBytes,
             UserBadFormatString,
             UserMaxlenghtStringReached,
+            InvalidUser,
+            #endregion
+
+            #region ByteErrors
+            InvalidArray,
             #endregion
         };
     }

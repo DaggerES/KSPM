@@ -17,6 +17,7 @@ namespace KSPM.Network.Common
         /// </summary>
         public static NetworkEntity LoopbackNetworkEntity = new NetworkEntity();
 
+
         /// <summary>
         /// Constructs a new NetworkEntity
         /// </summary>
@@ -47,6 +48,35 @@ namespace KSPM.Network.Common
             this.ownerSocket = null;
             this.rawBuffer = null;
             this.secondaryRawBuffer = null;
+        }
+
+        /// <summary>
+        /// Releases all the resources on the NetworkEntity reference. <b>Do not confuse this method with the Dispose one.</b>
+        /// </summary>
+        public override void Release()
+        {
+            this.rawBuffer = null;
+            this.secondaryRawBuffer = null;
+            if (this.ownerSocket != null && this.ownerSocket.Connected)
+            {
+                this.ownerSocket.Disconnect(false);
+                this.ownerSocket.Shutdown(SocketShutdown.Both);
+                this.ownerSocket.Close();
+            }
+            this.ownerSocket = null;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                NetworkEntity reference = (NetworkEntity)obj;
+                return reference.id == this.id;
+            }
         }
     }
 }
