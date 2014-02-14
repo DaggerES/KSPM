@@ -19,6 +19,8 @@ namespace KSPM.Network.Server
         public static readonly int ServerBufferSize = 1024*1;
         [XmlIgnore]
         protected static int ServerConnectionsBacklog = 10;
+        [XmlIgnore]
+        protected static int ServerAuthenticationAllowingTries = 3;
 
         /// <summary>
         /// The maximun amount of time that the socket will wait for an incoming connection, after that time has reached a
@@ -30,6 +32,8 @@ namespace KSPM.Network.Server
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
         public uint maxConnectedClients;
+        [XmlElement("AuthenticationAttempts")]
+        public int maxAuthenticationAttempts;
 
         /// <summary>
         /// The maximun of enqueued connections that the TCP socket can handle.

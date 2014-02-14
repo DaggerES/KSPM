@@ -17,6 +17,41 @@ namespace KSPM.Network.Common
         /// </summary>
         public static NetworkEntity LoopbackNetworkEntity = new NetworkEntity();
 
+        /// <summary>
+        /// Delegate prototype of the method that can be set and called when the time comes.
+        /// </summary>
+        /// <param name="caller">NetworkEntity who performs the call.</param>
+        /// <param name="arg">object which can hold any parameter, in case that it could be needed.</param>
+        public delegate void MessageSentCallback(NetworkEntity caller, object arg);
+
+        /// <summary>
+        /// Set the method to the underlaying callback reference.
+        /// </summary>
+        /// <param name="method">Method to be called.</param>
+        public void SetMessageSentCallback(MessageSentCallback method)
+        {
+            this.messageSentCallback += method;
+        }
+
+        /// <summary>
+        /// Reference to an MessageSentCallback.
+        /// </summary>
+        protected MessageSentCallback messageSentCallback;
+
+        /// <summary>
+        /// Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.
+        /// </summary>
+        /// <param name="caller"></param>
+        /// <param name="arg"></param>
+        public void MessageSent( NetworkEntity caller, object arg)
+        {
+            if (this.messageSentCallback != null)
+            {
+                this.messageSentCallback(caller, arg);
+                this.messageSentCallback = null;
+            }
+        }
+
 
         /// <summary>
         /// Constructs a new NetworkEntity
@@ -25,6 +60,7 @@ namespace KSPM.Network.Common
         public NetworkEntity(ref Socket entityOwner)
             : base(ref entityOwner)
         {
+            this.messageSentCallback = null;
         }
 
         /// <summary>
@@ -33,12 +69,8 @@ namespace KSPM.Network.Common
         protected NetworkEntity()
             : base()
         {
+            this.messageSentCallback = null;
         }
-
-        /// <summary>
-        /// Virtual method called once a message is sent, you should override it if you want to perform some task.
-        /// </summary>
-        public virtual void MessageSent() { }
 
         /// <summary>
         /// Sets to null each member.
@@ -77,6 +109,11 @@ namespace KSPM.Network.Common
                 NetworkEntity reference = (NetworkEntity)obj;
                 return reference.id == this.id;
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return this.id.GetHashCode();
         }
     }
 }

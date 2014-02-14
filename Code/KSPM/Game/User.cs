@@ -39,6 +39,11 @@ namespace KSPM.Game
         protected int id;
 
         /// <summary>
+        /// Counts how many times this user have tried to authenticate into the server.
+        /// </summary>
+        protected int authenticationAttempts;
+
+        /// <summary>
         /// Tries to convert the amount of bytes especified by the bytesToRead argument to an UTF-8 encoded string.
         /// <b>Note:</b> If the offset + bytesToRead is greather than the array's lenght the amount of read bytes would be truncated.
         /// </summary>
@@ -131,6 +136,9 @@ namespace KSPM.Game
             this.username = string.Format("GameUser-{0}", this.id);
         }
 
+        /// <summary>
+        /// Sets/gets the username of the user, <b>this is not a PK</b>, be careful about this.
+        /// </summary>
         public string Username
         {
             get
@@ -143,11 +151,29 @@ namespace KSPM.Game
             }
         }
 
+        /// <summary>
+        /// Returns the user's hash.
+        /// </summary>
         public byte[] Hash
         {
             get
             {
                 return this.hash;
+            }
+        }
+
+        /// <summary>
+        /// Sets/gets the authentication attempts counter.
+        /// </summary>
+        public int AuthencticationAttempts
+        {
+            get
+            {
+                return this.authenticationAttempts;
+            }
+            set
+            {
+                this.authenticationAttempts = value;
             }
         }
     }

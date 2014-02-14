@@ -32,6 +32,11 @@ namespace KSPM.Network.Common
             /// </summary>
             NewClient,
             RefuseConnection,
+
+            /// <summary>
+            /// Message sent when the server is full and a new client is attempting to connect to the game.
+            /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            /// </summary>
             ServerFull,
 
             /// <summary>
@@ -142,6 +147,8 @@ namespace KSPM.Network.Common
             }
         }
 
+        #region AuthenticationCode
+
         /// <summary>
         /// Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
@@ -194,13 +201,14 @@ namespace KSPM.Network.Common
             return Error.ErrorType.Ok;
         }
 
+
         /// <summary>
-        /// Writes a disconnect message into de buffer.
+        /// Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="targetMessage"></param>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType DisconnectMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType ServerFullMessage(ref NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -209,7 +217,7 @@ namespace KSPM.Network.Common
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
-            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Disconnect;
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.ServerFull;
             bytesToSend += 1;
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
@@ -257,14 +265,14 @@ namespace KSPM.Network.Common
             ///Writing the hash's length
             hashSize = (short)userInfo.Hash.Length;
             userBuffer = null;
-            userBuffer = System.BitConverter.GetBytes( hashSize );
+            userBuffer = System.BitConverter.GetBytes(hashSize);
             System.Buffer.BlockCopy(userBuffer, 0, sender.rawBuffer, bytesToSend, userBuffer.Length);
             bytesToSend += userBuffer.Length;
 
             ///Writing the user's hash code.
             System.Buffer.BlockCopy(userInfo.Hash, 0, sender.rawBuffer, bytesToSend, hashSize);
             bytesToSend += hashSize;
-            
+
             ///Writing the EndOfMessage command.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
@@ -275,6 +283,87 @@ namespace KSPM.Network.Common
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Writes a AuthenticationFail message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType AuthenticationFailMessage(ref NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.AuthenticationFail;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
 
+        /// <summary>
+        /// Writes a AuthenticationSuccess message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType AuthenticationSuccessMessage(ref NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.AuthenticationSuccess;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        #endregion
+
+        #region UserInteractionCode
+        /// <summary>
+        /// Writes a disconnect message into de buffer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
+        public static Error.ErrorType DisconnectMessage(ref NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Disconnect;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        #endregion
     }
 }

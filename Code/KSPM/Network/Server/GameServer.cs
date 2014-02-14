@@ -161,6 +161,7 @@ namespace KSPM.Network.Server
             {
                 ///If there is some exception, the server must shutdown itself and its threads.
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+                this.ShutdownServer();
                 this.alive = false;
             }
             return true;  
@@ -208,11 +209,11 @@ namespace KSPM.Network.Server
         protected void HandleCommandsThreadMethod()
         {
             Message messageToProcess = null;
+            Message responseMessage = null;
             NetworkEntity messageOwner = null;
             ServerSideClient newClientAttempt = null;
             ServerSideClient serverSideClientReference = null;
             GameUser referredUser = null;
-            string stringBuffer;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -247,7 +248,11 @@ namespace KSPM.Network.Server
                                     }
                                     else
                                     {
-                                        ///We have to send the fucking connection refused.
+                                        //Creates the reject message and set the callback to the RejectMessageToClient. Performed in that way because it is needed to send the reject message before to proceed to disconnect the client.
+                                        messageOwner = messageToProcess.OwnerNetworkEntity;
+                                        Message.ServerFullMessage(ref messageOwner, out responseMessage);
+                                        responseMessage.OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
@@ -260,8 +265,26 @@ namespace KSPM.Network.Server
                                     messageOwner = serverSideClientReference;
                                     if (this.usersAccountManager.Query(ref messageOwner))
                                     {
+                                        Message.AuthenticationSuccessMessage(ref messageOwner, out responseMessage);
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                         KSPMGlobals.Globals.Log.WriteTo(string.Format("{0} has connected", serverSideClientReference.gameUser.Username));
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
+                                    }
+                                    else
+                                    {
+                                        ///Need to improve this code for a only one if.
+                                        ///And to check if is it needed to send a disconnect message before release the socket.
+                                        if ((serverSideClientReference.gameUser.AuthencticationAttempts++) < this.lowLevelOperationSettings.maxAuthenticationAttempts)
+                                        {
+                                            ///There is still a chance to authenticate again.
+                                            Message.AuthenticationFailMessage(ref messageOwner, out responseMessage);
+                                        }
+                                        else
+                                        {
+                                            ///There is no chance to try it again.
+                                            responseMessage.OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
+                                        }
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.Disconnect:
@@ -404,21 +427,34 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method used to send asynchronously a message. This method calls the MessageSentCallbak once the send task is completed, but do not get afraid of this callback call, if you have not set a method to the callback it will not be invoked at all.
+        /// </summary>
+        /// <param name="result"></param>
         public void AsyncSenderCallback(System.IAsyncResult result)
         {
             int sentBytes;
             NetworkEntity net = null;
-            Socket callingSocket = null;
             try
             {
                 net = (NetworkEntity)result.AsyncState;
                 //callingSocket = (Socket)result.AsyncState;
                 sentBytes = net.ownerSocket.EndSend(result);
-                net.MessageSent();
+                net.MessageSent(net, null);
             }
             catch (System.Exception)
             {
             }
+        }
+
+        /// <summary>
+        /// Method which remova a client, and is used to set the callback inside the networkentity.
+        /// </summary>
+        /// <param name="caller"></param>
+        /// <param name="arg"></param>
+        protected void RejectMessageToClient(NetworkEntity caller, object arg)
+        {
+            this.clientsHandler.RemoveClient(caller);
         }
     }
 }

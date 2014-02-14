@@ -5,6 +5,7 @@
     /// </summary>
     public class GameUser : User
     {
+
         /// <summary>
         /// Creates a GameUser object.
         /// </summary>
