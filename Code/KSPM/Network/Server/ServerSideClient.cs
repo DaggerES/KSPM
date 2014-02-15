@@ -56,13 +56,52 @@ namespace KSPM.Network.Server
         /// </summary>
         public User gameUser;
 
+        #region UDP
+
+        /// <summary>
+        /// UDP socket to handle the non-oriented packages.
+        /// </summary>
+        protected Socket udpSocket;
+
+        /// <summary>
+        /// Holds the udp information about the remote client.
+        /// </summary>
+        protected IPEndPoint udpRemoteNetworkInformation;
+
+        /// <summary>
+        /// Thread to handle the incoming packages.
+        /// </summary>
+        protected Thread udpListeningThread;
+
+        /// <summary>
+        /// Thread to handle the outgoing packages.
+        /// </summary>
+        protected Thread udpOutgoingHandlerThread;
+
+        /// <summary>
+        /// Tells if the udp socket is properly set and fully operational.
+        /// </summary>
+        protected bool udpReady;
+
+        #endregion
+
+        #region InitializingCode
+
+        /// <summary>
+        /// Creates a ServerSideReference.
+        /// </summary>
         protected ServerSideClient() : base()
         {
             this.currentStatus = ClientStatus.Handshaking;
             this.mainThread = new Thread(new ThreadStart(this.HandleMainBodyMethod));
             this.messageHandlerTread = new Thread(new ThreadStart(this.HandleIncomingMessagesMethod));
+
+            this.udpListeningThread = new Thread(new ThreadStart(this.HandleIncomingUDPPacketsThreadMethod));
+            this.udpOutgoingHandlerThread = new Thread(new ThreadStart(this.HandleOutgoingUDPPacketsThreadMethod));
+
             this.commandStatus = MessagesThreadStatus.None;
             this.ableToRun = true;
+            this.udpReady = false;
         }
 
         /// <summary>
@@ -87,8 +126,10 @@ namespace KSPM.Network.Server
             return Error.ErrorType.Ok;
         }
 
+        #endregion
+
         /// <summary>
-        /// Handles the main behaviour of the server side clien.
+        /// Handles the main behaviour of the server side client.
         /// </summary>
         protected void HandleMainBodyMethod()
         {
@@ -106,6 +147,7 @@ namespace KSPM.Network.Server
             {
                 switch (this.currentStatus)
                 {
+                        ///This is the starting status of each ServerSideClient.
                     case ClientStatus.Handshaking:
                         Message.HandshakeAccetpMessage(ref myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref myNetworkEntityReference);
@@ -121,6 +163,7 @@ namespace KSPM.Network.Server
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
                         break;
                     case ClientStatus.Connected:
+
                         break;
                     case ClientStatus.Handshaked:
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
@@ -129,6 +172,8 @@ namespace KSPM.Network.Server
                 Thread.Sleep(3);
             }
         }
+
+        #region TCPCode
 
         /// <summary>
         /// Receives the incoming messages and pass them to the server to be processed.
@@ -202,6 +247,77 @@ namespace KSPM.Network.Server
             }
         }
 
+        #endregion
+
+        #region UDPCode
+
+        protected Error.ErrorType InitializeUDPConnection()
+        {
+            IPEndPoint remoteNetInformation;
+            this.udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            remoteNetInformation = (IPEndPoint)this.ownerSocket.RemoteEndPoint;
+            this.udpRemoteNetworkInformation = new IPEndPoint(remoteNetInformation.Address, 0);//0 because should be any available port.
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Handles the incoming udp packets.
+        /// </summary>
+        protected void HandleIncomingUDPPacketsThreadMethod()
+        {
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                while (this.aliveFlag)
+                {
+                    if (this.udpReady)
+                    {
+
+                    }
+                    Thread.Sleep(3);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.udpReady = false;
+                this.aliveFlag = false;
+            }
+        }
+
+        /// <summary>
+        /// Handle the outgoing packets, such as broadcast the packet to the other clients.
+        /// </summary>
+        protected void HandleOutgoingUDPPacketsThreadMethod()
+        {
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                while (this.aliveFlag)
+                {
+                    if (this.udpReady)
+                    {
+                    }
+                    Thread.Sleep(3);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.udpReady = false;
+                this.aliveFlag = false;
+            }
+        }
+        #endregion
+
+        #region Management
+
         /// <summary>
         /// Starts the client so it is going to be able to live in another thread.
         /// </summary>
@@ -218,6 +334,10 @@ namespace KSPM.Network.Server
             {
                 this.mainThread.Start();
                 this.messageHandlerTread.Start();
+
+                this.udpListeningThread.Start();
+                this.udpOutgoingHandlerThread.Start();
+
                 result = true;
             }
             catch( System.Exception ex )
@@ -237,10 +357,16 @@ namespace KSPM.Network.Server
             this.aliveFlag = false;
             this.mainThread.Abort();
             this.mainThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed mainThread...");
+            KSPMGlobals.Globals.Log.WriteTo(string.Format( "[{0}] Killed mainthread...", this.mainThread.Name));
             this.messageHandlerTread.Abort();
             this.messageHandlerTread.Join(1000);
-            KSPMGlobals.Globals.Log.WriteTo("Killed messagesThread...");
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed messagesThread...", this.messageHandlerTread.Name));
+            this.udpListeningThread.Abort();
+            this.udpListeningThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpListeningThread...", this.udpListeningThread.Name));
+            this.udpOutgoingHandlerThread.Abort();
+            this.udpOutgoingHandlerThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpOutgoingHandlerThread...", this.udpOutgoingHandlerThread.Name));
 
             ///***********************Sockets code
             if (this.ownerSocket != null && this.ownerSocket.Connected)
@@ -266,20 +392,6 @@ namespace KSPM.Network.Server
             this.currentStatus = newStatus;
         }
 
-        public void AsyncSenderCallback(System.IAsyncResult result)
-        {
-            int sentBytes;
-            Socket callingSocket = null;
-            try
-            {
-                callingSocket = (Socket)result.AsyncState;
-                sentBytes = callingSocket.EndSend(result);
-            }
-            catch (System.Exception)
-            {
-            }
-        }
-
         /// <summary>
         /// Overrides the Release method and stop threads and other stuff inside the object.
         /// </summary>
@@ -287,5 +399,8 @@ namespace KSPM.Network.Server
         {
             this.ShutdownClient();
         }
+
+        #endregion
+        
     }
 }
