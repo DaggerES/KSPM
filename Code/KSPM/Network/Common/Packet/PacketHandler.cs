@@ -45,15 +45,15 @@ namespace KSPM.Network.Common.Packet
             int bytesBlockSize;
             int byteCounter;
             messageTarget = null;
-            if (bytesOwner.secondaryRawBuffer.Length < 4)
+            if (bytesOwner.ownerNetworkCollection.secondaryRawBuffer.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.secondaryRawBuffer, 0);
+            bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, 0);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
             ///Verifying the packet end of message command.
             for (byteCounter = 1 ; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
             {
-                if( ( bytesOwner.secondaryRawBuffer[ bytesBlockSize - byteCounter ] & Message.EndOfMessageCommand[ Message.EndOfMessageCommand.Length - byteCounter ] ) != bytesOwner.secondaryRawBuffer[ bytesBlockSize - byteCounter ] )
+                if ((bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter])
                 {
                     return Error.ErrorType.MessageBadFormat;
                 }
@@ -62,7 +62,7 @@ namespace KSPM.Network.Common.Packet
             if (bytesBlockSize != bytesOwner.Length)
                 return Error.ErrorType.MessageIncompleteBytes;
             */
-            messageTarget = new Message((Message.CommandType)bytesOwner.secondaryRawBuffer[4], ref bytesOwner);
+            messageTarget = new Message((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], ref bytesOwner);
             messageTarget.BytesSize = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
         }
@@ -104,11 +104,11 @@ namespace KSPM.Network.Common.Packet
             Message.CommandType command;
             if (owner == null)
                 return Error.ErrorType.InvalidNetworkEntity;
-            command = (Message.CommandType)owner.rawBuffer[PacketHandler.RawMessageHeaderSize];
+            command = (Message.CommandType)owner.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize];
             if (PacketHandler.CompressingPacketsEnabled)
             {
-                PacketHandler.CompressingObject.Compress(ref owner.rawBuffer, out compressedBytes);
-                System.Buffer.BlockCopy(compressedBytes, 0, owner.rawBuffer, 0, owner.rawBuffer.Length);
+                PacketHandler.CompressingObject.Compress(ref owner.ownerNetworkCollection.rawBuffer, out compressedBytes);
+                System.Buffer.BlockCopy(compressedBytes, 0, owner.ownerNetworkCollection.rawBuffer, 0, owner.ownerNetworkCollection.rawBuffer.Length);
             }
             return Error.ErrorType.Ok;
         }

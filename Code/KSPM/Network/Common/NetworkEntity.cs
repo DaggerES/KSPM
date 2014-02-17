@@ -77,9 +77,7 @@ namespace KSPM.Network.Common
         /// </summary>
         public void Dispose()
         {
-            this.ownerSocket = null;
-            this.rawBuffer = null;
-            this.secondaryRawBuffer = null;
+            this.ownerNetworkCollection.Dispose();
         }
 
         /// <summary>
@@ -87,15 +85,13 @@ namespace KSPM.Network.Common
         /// </summary>
         public override void Release()
         {
-            this.rawBuffer = null;
-            this.secondaryRawBuffer = null;
-            if (this.ownerSocket != null && this.ownerSocket.Connected)
+            if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
-                this.ownerSocket.Disconnect(false);
-                this.ownerSocket.Shutdown(SocketShutdown.Both);
-                this.ownerSocket.Close();
+                this.ownerNetworkCollection.socketReference.Disconnect(false);
+                this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
+                this.ownerNetworkCollection.socketReference.Close();
             }
-            this.ownerSocket = null;
+            this.ownerNetworkCollection.Dispose();
         }
 
         public override bool Equals(object obj)

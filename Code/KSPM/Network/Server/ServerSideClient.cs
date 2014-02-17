@@ -124,9 +124,9 @@ namespace KSPM.Network.Server
                 return Error.ErrorType.InvalidNetworkEntity;
             }
             ssClient = new ServerSideClient();
-            ssClient.ownerSocket = baseNetworkEntity.ownerSocket;
-            ssClient.rawBuffer = baseNetworkEntity.rawBuffer;
-            ssClient.secondaryRawBuffer = baseNetworkEntity.secondaryRawBuffer;
+            ssClient.ownerNetworkCollection.socketReference = baseNetworkEntity.ownerNetworkCollection.socketReference;
+            ssClient.ownerNetworkCollection.rawBuffer = baseNetworkEntity.ownerNetworkCollection.rawBuffer;
+            ssClient.ownerNetworkCollection.secondaryRawBuffer = baseNetworkEntity.ownerNetworkCollection.secondaryRawBuffer;
             ssClient.id = baseNetworkEntity.Id;
             baseNetworkEntity.Dispose();
             return Error.ErrorType.Ok;
@@ -158,7 +158,7 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
                 return;
             }
-            KSPMGlobals.Globals.Log.WriteTo("Going alive " + this.ownerSocket.RemoteEndPoint.ToString());
+            KSPMGlobals.Globals.Log.WriteTo("Going alive " + this.ownerNetworkCollection.socketReference.RemoteEndPoint.ToString());
             this.aliveFlag = true;
             while (this.aliveFlag)
             {
@@ -212,14 +212,14 @@ namespace KSPM.Network.Server
                     switch (this.commandStatus)
                     {
                         case MessagesThreadStatus.AwaitingReply:
-                            //KSPMGlobals.Globals.Log.WriteTo(this.ownerSocket.Poll(1000, SelectMode.SelectRead).ToString());
-                            if (this.ownerSocket.Poll(500, SelectMode.SelectRead))
+                            //KSPMGlobals.Globals.Log.WriteTo(this.ownerNetworkCollection.socketReference.Poll(1000, SelectMode.SelectRead).ToString());
+                            if (this.ownerNetworkCollection.socketReference.Poll(500, SelectMode.SelectRead))
                             {
                                 KSPMGlobals.Globals.Log.WriteTo("READING...");
-                                receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
+                                receivedBytes = this.ownerNetworkCollection.socketReference.Receive(this.ownerNetworkCollection.secondaryRawBuffer, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None);
                                 if (receivedBytes > 0)
                                 {
-                                    if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
+                                    if (PacketHandler.DecodeRawPacket(ref this.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                                     {
                                         if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
                                         {
@@ -233,13 +233,13 @@ namespace KSPM.Network.Server
                             }
                             break;
                         case MessagesThreadStatus.ListeningForCommands:
-                            if (this.ownerSocket.Poll(500, SelectMode.SelectRead))
+                            if (this.ownerNetworkCollection.socketReference.Poll(500, SelectMode.SelectRead))
                             {
                                 KSPMGlobals.Globals.Log.WriteTo("READING Command...");
-                                receivedBytes = this.ownerSocket.Receive(this.secondaryRawBuffer, this.secondaryRawBuffer.Length, SocketFlags.None);
+                                receivedBytes = this.ownerNetworkCollection.socketReference.Receive(this.ownerNetworkCollection.secondaryRawBuffer, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None);
                                 if (receivedBytes > 0)
                                 {
-                                    if (PacketHandler.DecodeRawPacket(ref this.secondaryRawBuffer) == Error.ErrorType.Ok)
+                                    if (PacketHandler.DecodeRawPacket(ref this.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                                     {
                                         if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
                                         {
@@ -277,7 +277,7 @@ namespace KSPM.Network.Server
             IPEndPoint remoteNetInformation;
             this.udpCollection = new NetworkBaseCollection(ServerSettings.ServerBufferSize);
             this.udpCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            remoteNetInformation = (IPEndPoint)this.ownerSocket.RemoteEndPoint;
+            remoteNetInformation = (IPEndPoint)this.ownerNetworkCollection.socketReference.RemoteEndPoint;
             this.udpRemoteNetworkInformation = new IPEndPoint(remoteNetInformation.Address, 0);//0 because It should be any available port.
             try
             {
@@ -402,14 +402,14 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpOutgoingHandlerThread...", this.udpOutgoingHandlerThread.Name));
 
             ///***********************Sockets code
-            if (this.ownerSocket != null && this.ownerSocket.Connected)
+            if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
-                this.ownerSocket.Disconnect(false);
-                this.ownerSocket.Shutdown(SocketShutdown.Both);
-                this.ownerSocket.Close();
+                this.ownerNetworkCollection.socketReference.Disconnect(false);
+                this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
+                this.ownerNetworkCollection.socketReference.Close();
             }
-            this.ownerSocket = null;
-            this.rawBuffer = null;
+            this.ownerNetworkCollection.socketReference = null;
+            this.ownerNetworkCollection.rawBuffer = null;
 
             this.ableToRun = false;
 

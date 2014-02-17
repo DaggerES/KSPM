@@ -10,19 +10,9 @@ namespace KSPM.Network.Common
     public abstract class NetworkRawEntity
     {
         /// <summary>
-        /// The byte array which will used as a buffer to send/receive methods.
+        /// Holds the main references to work with, Socket, MainBuffer, SecondaryBuffer.
         /// </summary>
-        public byte[] rawBuffer;
-
-        /// <summary>
-        /// Secondary array which should be used as a complement to the send/receive methods, because if there are simultaneous send/receive operations, the buffer is overwritten.
-        /// </summary>
-        public byte[] secondaryRawBuffer;
-
-        /// <summary>
-        /// The socket which is the owner of the entity;
-        /// </summary>
-        public Socket ownerSocket;
+        public NetworkBaseCollection ownerNetworkCollection;
 
         /// <summary>
         /// An unique ID.
@@ -31,18 +21,15 @@ namespace KSPM.Network.Common
 
         protected NetworkRawEntity()
         {
-            this.rawBuffer = null;
-            this.secondaryRawBuffer = null;
-            this.ownerSocket = null;
+            this.ownerNetworkCollection = null;
             this.id = System.Guid.NewGuid();
         }
 
         public NetworkRawEntity(ref Socket owner)
         {
             this.id = System.Guid.NewGuid();
-            this.ownerSocket = owner;
-            this.rawBuffer = new byte[ KSPM.Network.Server.ServerSettings.ServerBufferSize];
-            this.secondaryRawBuffer = new byte[KSPM.Network.Server.ServerSettings.ServerBufferSize];
+            this.ownerNetworkCollection = new NetworkBaseCollection(KSPM.Network.Server.ServerSettings.ServerBufferSize);
+            this.ownerNetworkCollection.socketReference = owner;
         }
 
         /// <summary>

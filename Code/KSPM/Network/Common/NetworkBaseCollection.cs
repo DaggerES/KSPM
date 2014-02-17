@@ -1,15 +1,15 @@
 ﻿using System.Net.Sockets;
 
-namespace KSPM.Network.Common.Packet
+namespace KSPM.Network.Common
 {
     /// <summary>
     /// Holds the basic properties to create a network connection.
     /// </summary>
-    class NetworkBaseCollection : System.IDisposable
+    public class NetworkBaseCollection : System.IDisposable
     {
         public Socket socketReference;
         public byte[] rawBuffer;
-        public byte[] secondarayRawBuffer;
+        public byte[] secondaryRawBuffer;
 
         /// <summary>
         /// Initializes the buffers, but the Socket is set to null.
@@ -19,7 +19,7 @@ namespace KSPM.Network.Common.Packet
         public NetworkBaseCollection(int buffersSize)
         {
             this.rawBuffer = new byte[buffersSize];
-            this.secondarayRawBuffer = new byte[buffersSize];
+            this.secondaryRawBuffer = new byte[buffersSize];
             this.socketReference = null;
         }
 
@@ -30,7 +30,7 @@ namespace KSPM.Network.Common.Packet
         public void Dispose()
         {
             this.rawBuffer = null;
-            this.secondarayRawBuffer = null;
+            this.secondaryRawBuffer = null;
             this.socketReference = null;
         }
     }

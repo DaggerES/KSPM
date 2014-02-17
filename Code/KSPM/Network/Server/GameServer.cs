@@ -259,7 +259,7 @@ namespace KSPM.Network.Server
                                     this.ShutdownServer();
                                     break;
                                 case Message.CommandType.Authentication:
-                                    User.InflateUserFromBytes(ref messageToProcess.OwnerNetworkEntity.secondaryRawBuffer, out referredUser);
+                                    User.InflateUserFromBytes(ref messageToProcess.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
                                     serverSideClientReference = (ServerSideClient)messageToProcess.OwnerNetworkEntity;
                                     serverSideClientReference.gameUser = referredUser;
                                     messageOwner = serverSideClientReference;
@@ -327,7 +327,7 @@ namespace KSPM.Network.Server
                         this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
-                            outgoingMessage.OwnerNetworkEntity.ownerSocket.BeginSend(outgoingMessage.OwnerNetworkEntity.rawBuffer, 0, (int)outgoingMessage.BytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), outgoingMessage.OwnerNetworkEntity);
+                            outgoingMessage.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.BytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), outgoingMessage.OwnerNetworkEntity);
                         }
                         outgoingMessage = null;
                     }
@@ -400,7 +400,7 @@ namespace KSPM.Network.Server
             callingSocket = (Socket)result.AsyncState;
             incomingConnectionSocket = callingSocket.EndAccept(result);
             newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
-            incomingConnectionSocket.BeginReceive(newNetworkEntity.secondaryRawBuffer, 0, newNetworkEntity.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
+            incomingConnectionSocket.BeginReceive(newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
         }
 
         /// <summary>
@@ -412,10 +412,10 @@ namespace KSPM.Network.Server
             int readBytes;
             Message incomingMessage = null;
             NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-            readBytes = callingEntity.ownerSocket.EndReceive(result);
+            readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
             if (readBytes > 0)
             {
-                if (PacketHandler.DecodeRawPacket(ref callingEntity.secondaryRawBuffer) == Error.ErrorType.Ok)
+                if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                 {
                     if (PacketHandler.InflateMessage(ref callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                     {
@@ -439,7 +439,7 @@ namespace KSPM.Network.Server
             {
                 net = (NetworkEntity)result.AsyncState;
                 //callingSocket = (Socket)result.AsyncState;
-                sentBytes = net.ownerSocket.EndSend(result);
+                sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
                 net.MessageSent(net, null);
             }
             catch (System.Exception)
