@@ -60,11 +60,26 @@ namespace KSPM.Network.Common
 
             #region UserInteractionCommands
 
+            #region UDPSettingUp
+            /// <summary>
+            /// Command sent by the server to tell the remote client wich port has been assigned to it, and either works to test the connection.
+            /// [Header {byte:4}][ Command {byte:1} ][ PortNumber{byte:4}][ EndOfMessage {byte:4} ]
+            /// </summary>
+            UDPSettingUp,
+
+            /// <summary>
+            /// Command send by the remote client to test the UDP connection, and the client establishes the message structure. <b>*It is sent through the UDP socket.*</b>
+            /// [Header {byte:4}][ Command {byte:1} ][ PairingNumber{byte:4} ][ EndOfMessage {byte:4} ]
+            /// </summary>
+            UDPairing,
+
+
+            #endregion
             /// <summary>
             /// Disconnect command to a nicely way to say goodbye.
             /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
             /// </summary>
-            Disconnect
+            Disconnect,
             #endregion
         }
 
@@ -360,6 +375,80 @@ namespace KSPM.Network.Common
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
             targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        #endregion
+
+        #region UDPCommands
+
+        public static Error.ErrorType UDPSettingUpMessage(ref NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int portNumber;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing the Command byte.
+            sender.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPSettingUp;
+            bytesToSend += 1;
+
+            ///Writing the port number.
+            portNumber = ((System.Net.IPEndPoint)ssClientReference.udpCollection.socketReference.LocalEndPoint).Port;
+            byteBuffer = System.BitConverter.GetBytes(portNumber);
+            System.Buffer.BlockCopy(byteBuffer, 0, sender.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+            
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)sender.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
+            targetMessage.BytesSize = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType UDPPairingMessage(ref NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPairing;
+            bytesToSend += 1;
+
+            ///Writing the pairing number.
+            byteBuffer = System.BitConverter.GetBytes(ssClientReference.CreatePairingCode());
+            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new Message((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
             targetMessage.BytesSize = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }

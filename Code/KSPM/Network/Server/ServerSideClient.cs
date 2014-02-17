@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Globals;
@@ -17,7 +18,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// ServerSide status.
         /// </summary>
-        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, Authenticated, UDPConnecting, Connected, AwaitingACK, AwaitingReply };
+        public enum ClientStatus : byte { Handshaking = 0, Handshaked, Authenticating, Authenticated, UDPConnecting, Connected, AwaitingACK, AwaitingReply, UDPSettingUp };
         protected enum MessagesThreadStatus : byte { None = 0, AwaitingReply, ListeningForCommands };
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// UDP socket to handle the non-oriented packages.
         /// </summary>
-        protected Socket udpSocket;
+        public NetworkBaseCollection udpCollection;
 
         /// <summary>
         /// Holds the udp information about the remote client.
@@ -81,7 +82,12 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Tells if the udp socket is properly set and fully operational.
         /// </summary>
-        protected bool udpReady;
+        protected bool usingUdpConnection;
+
+        /// <summary>
+        /// Pairing code used to test the udp connection with the remote client.
+        /// </summary>
+        protected int pairingCode;
 
         #endregion
 
@@ -101,7 +107,7 @@ namespace KSPM.Network.Server
 
             this.commandStatus = MessagesThreadStatus.None;
             this.ableToRun = true;
-            this.udpReady = false;
+            this.usingUdpConnection = false;
         }
 
         /// <summary>
@@ -124,6 +130,17 @@ namespace KSPM.Network.Server
             ssClient.id = baseNetworkEntity.Id;
             baseNetworkEntity.Dispose();
             return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Creates a pairing code using a Random generator, so it is slow and take care about how much you use it.
+        /// </summary>
+        public int CreatePairingCode()
+        {
+            System.Random rand = new System.Random((int) System.DateTime.Now.Ticks & 0x0000FFFF);
+            this.pairingCode = rand.Next();
+            rand = null;
+            return this.pairingCode;
         }
 
         #endregion
@@ -159,7 +176,7 @@ namespace KSPM.Network.Server
                     case ClientStatus.AwaitingReply:
                         break;
                     case ClientStatus.Authenticated:
-                        this.currentStatus = ClientStatus.Connected;
+                        this.currentStatus = ClientStatus.UDPSettingUp;
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
                         break;
                     case ClientStatus.Connected:
@@ -251,12 +268,27 @@ namespace KSPM.Network.Server
 
         #region UDPCode
 
+        /// <summary>
+        /// Initializes the udp socket to listening mode.
+        /// </summary>
+        /// <returns>If there is some exception caught the return is ServerClientUnableToRun</returns>
         protected Error.ErrorType InitializeUDPConnection()
         {
             IPEndPoint remoteNetInformation;
-            this.udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            this.udpCollection = new NetworkBaseCollection(ServerSettings.ServerBufferSize);
+            this.udpCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             remoteNetInformation = (IPEndPoint)this.ownerSocket.RemoteEndPoint;
-            this.udpRemoteNetworkInformation = new IPEndPoint(remoteNetInformation.Address, 0);//0 because should be any available port.
+            this.udpRemoteNetworkInformation = new IPEndPoint(remoteNetInformation.Address, 0);//0 because It should be any available port.
+            try
+            {
+                this.udpCollection.socketReference.Bind(this.udpRemoteNetworkInformation);
+                this.usingUdpConnection = false;
+            }
+            catch (System.Exception ex)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+                return Error.ErrorType.ServerClientUnableToRun;
+            }
             return Error.ErrorType.Ok;
         }
 
@@ -274,7 +306,7 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
-                    if (this.udpReady)
+                    if (this.usingUdpConnection)
                     {
 
                     }
@@ -283,7 +315,7 @@ namespace KSPM.Network.Server
             }
             catch (ThreadAbortException)
             {
-                this.udpReady = false;
+                this.usingUdpConnection = false;
                 this.aliveFlag = false;
             }
         }
@@ -302,15 +334,16 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
-                    if (this.udpReady)
+                    if (this.usingUdpConnection)
                     {
+
                     }
                     Thread.Sleep(3);
                 }
             }
             catch (ThreadAbortException)
             {
-                this.udpReady = false;
+                this.usingUdpConnection = false;
                 this.aliveFlag = false;
             }
         }
@@ -401,6 +434,17 @@ namespace KSPM.Network.Server
         }
 
         #endregion
-        
+
+        #region Setters/Getters
+
+        public int PairingCode
+        {
+            get
+            {
+                return this.pairingCode;
+            }
+        }
+
+        #endregion
     }
 }

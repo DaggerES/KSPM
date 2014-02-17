@@ -55,6 +55,7 @@
     <Compile Include="Network\Common\IAsyncSender.cs" />
     <Compile Include="Network\Common\Message.cs" />
     <Compile Include="Network\Common\Packet\ByteDecoder.cs" />
+    <Compile Include="Network\Common\Packet\NetworkBaseCollection.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Server\AbstractSettings.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
