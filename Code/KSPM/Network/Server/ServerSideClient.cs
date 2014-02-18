@@ -13,7 +13,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Represents a client handled by the server.
     /// </summary>
-    public class ServerSideClient : NetworkEntity
+    public class ServerSideClient : NetworkEntity, IAsyncReceiver
     {
         /// <summary>
         /// ServerSide status.
@@ -89,6 +89,18 @@ namespace KSPM.Network.Server
         /// </summary>
         protected int pairingCode;
 
+        /// <summary>
+        /// UDPMessages queue to hold those incoming packets.
+        /// </summary>
+        protected CommandQueue incomingPackets;
+
+        #endregion
+
+        #region ThreadingProperties
+        /// <summary>
+        /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
+        /// </summary>
+        protected static readonly ManualResetEvent SignalHandler = new ManualResetEvent(false);
         #endregion
 
         #region InitializingCode
@@ -108,6 +120,8 @@ namespace KSPM.Network.Server
             this.commandStatus = MessagesThreadStatus.None;
             this.ableToRun = true;
             this.usingUdpConnection = false;
+
+            this.InitializeUDPConnection();
         }
 
         /// <summary>
@@ -177,10 +191,13 @@ namespace KSPM.Network.Server
                         break;
                     case ClientStatus.Authenticated:
                         this.currentStatus = ClientStatus.UDPSettingUp;
+                        Message.UDPSettingUpMessage(ref myNetworkEntityReference, out tempMessage);
+                        PacketHandler.EncodeRawPacket(ref myNetworkEntityReference);
+                        KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+                        this.usingUdpConnection = true;
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
                         break;
                     case ClientStatus.Connected:
-
                         break;
                     case ClientStatus.Handshaked:
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
@@ -297,6 +314,7 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleIncomingUDPPacketsThreadMethod()
         {
+            EndPoint remoteEndPoint = this.udpRemoteNetworkInformation;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -308,7 +326,9 @@ namespace KSPM.Network.Server
                 {
                     if (this.usingUdpConnection)
                     {
-
+                        ServerSideClient.SignalHandler.Reset();
+                        this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, new System.AsyncCallback(this.AsyncReceiverCallback), this);
+                        ServerSideClient.SignalHandler.WaitOne();
                     }
                     Thread.Sleep(3);
                 }
@@ -347,6 +367,28 @@ namespace KSPM.Network.Server
                 this.aliveFlag = false;
             }
         }
+
+        public void AsyncReceiverCallback(System.IAsyncResult result)
+        {
+            int readBytes;
+            EndPoint receivedReference;
+            SocketFlags receivedFlags = SocketFlags.None;
+            IPPacketInformation packetInformation;
+            ServerSideClient.SignalHandler.Set();
+            ServerSideClient ssClientReference = (ServerSideClient)result.AsyncState;
+            receivedReference = ssClientReference.udpCollection.socketReference.RemoteEndPoint;
+            readBytes = ssClientReference.udpCollection.socketReference.EndReceiveMessageFrom(result, ref receivedFlags, ref receivedReference, out packetInformation);
+            if (readBytes > 0)
+            {
+                if (this.currentStatus == ClientStatus.UDPSettingUp)
+                {
+                    if (PacketHandler.DecodeRawPacket(ref ssClientReference.udpCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                    {
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Management

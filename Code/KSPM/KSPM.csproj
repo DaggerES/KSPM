@@ -57,6 +57,8 @@
     <Compile Include="Network\Common\Packet\ByteDecoder.cs" />
     <Compile Include="Network\Common\NetworkBaseCollection.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
+    <Compile Include="Network\Common\RawMessage.cs" />
+    <Compile Include="Network\Common\UDPMessage.cs" />
     <Compile Include="Network\Server\AbstractSettings.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Common\NetworkEntity.cs" />

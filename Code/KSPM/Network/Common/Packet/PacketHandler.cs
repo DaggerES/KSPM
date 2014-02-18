@@ -58,10 +58,6 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 }
             }
-            /*
-            if (bytesBlockSize != bytesOwner.Length)
-                return Error.ErrorType.MessageIncompleteBytes;
-            */
             messageTarget = new Message((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], ref bytesOwner);
             messageTarget.BytesSize = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
@@ -110,6 +106,37 @@ namespace KSPM.Network.Common.Packet
                 PacketHandler.CompressingObject.Compress(ref owner.ownerNetworkCollection.rawBuffer, out compressedBytes);
                 System.Buffer.BlockCopy(compressedBytes, 0, owner.ownerNetworkCollection.rawBuffer, 0, owner.ownerNetworkCollection.rawBuffer.Length);
             }
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Secont level of the KSPM Network model.
+        /// Creates a Message object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
+        /// </summary>
+        /// <param name="bytesOwner">Reference to the NetworkEntity who holds the raw bytes, this reference is set as the message owner ether.</param>
+        /// <param name="messageTarget">Message object which should have the result of handling the raw bytes.</param>
+        /// <returns></returns>
+        public static Error.ErrorType InflateUDPMessage(ref NetworkBaseCollection bytesOwner, out UDPMessage messageTarget)
+        {
+            int bytesBlockSize;
+            int byteCounter;
+            messageTarget = null;
+            if (bytesOwner.secondaryRawBuffer.Length < 4)
+                return Error.ErrorType.MessageBadFormat;
+            bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.secondaryRawBuffer, 0);
+            if (bytesBlockSize < 4)
+                return Error.ErrorType.MessageBadFormat;
+            ///Verifying the packet end of message command.
+            for (byteCounter = 1; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
+            {
+                if ((bytesOwner.secondaryRawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != bytesOwner.secondaryRawBuffer[bytesBlockSize - byteCounter])
+                {
+                    return Error.ErrorType.MessageBadFormat;
+                }
+            }
+            messageTarget = new UDPMessage();
+            messageTarget.messageOwner = null;
+            messageTarget.messageRawLenght = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
         }
     }
