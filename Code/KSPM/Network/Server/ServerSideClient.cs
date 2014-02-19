@@ -4,6 +4,7 @@ using System.Threading;
 
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
+using KSPM.Network.Common.Messages;
 using KSPM.Globals;
 using KSPM.Game;
 
@@ -13,7 +14,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Represents a client handled by the server.
     /// </summary>
-    public class ServerSideClient : NetworkEntity, IAsyncReceiver
+    public class ServerSideClient : NetworkEntity, IAsyncReceiver, IAsyncSender
     {
         /// <summary>
         /// ServerSide status.
@@ -94,6 +95,11 @@ namespace KSPM.Network.Server
         /// </summary>
         protected CommandQueue incomingPackets;
 
+        /// <summary>
+        /// UDPMessages queue to be send to the remote client.
+        /// </summary>
+        public CommandQueue outgoingPackets;
+
         #endregion
 
         #region ThreadingProperties
@@ -120,6 +126,9 @@ namespace KSPM.Network.Server
             this.commandStatus = MessagesThreadStatus.None;
             this.ableToRun = true;
             this.usingUdpConnection = false;
+
+            this.incomingPackets = new CommandQueue();
+            this.outgoingPackets = new CommandQueue();
 
             this.InitializeUDPConnection();
         }
@@ -165,6 +174,7 @@ namespace KSPM.Network.Server
         protected void HandleMainBodyMethod()
         {
             Message tempMessage = null;
+            ManagedMessage managedMessageReference = null;
             NetworkEntity myNetworkEntityReference = this;
 
             if (!this.ableToRun)
@@ -180,8 +190,9 @@ namespace KSPM.Network.Server
                 {
                         ///This is the starting status of each ServerSideClient.
                     case ClientStatus.Handshaking:
-                        Message.HandshakeAccetpMessage(ref myNetworkEntityReference, out tempMessage);
-                        PacketHandler.EncodeRawPacket(ref myNetworkEntityReference);
+                        Message.HandshakeAccetpMessage(myNetworkEntityReference, out tempMessage);
+                        managedMessageReference = (ManagedMessage)tempMessage;
+                        PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         this.currentStatus = ClientStatus.AwaitingReply;
                         this.commandStatus = MessagesThreadStatus.AwaitingReply;
@@ -191,11 +202,14 @@ namespace KSPM.Network.Server
                         break;
                     case ClientStatus.Authenticated:
                         this.currentStatus = ClientStatus.UDPSettingUp;
-                        Message.UDPSettingUpMessage(ref myNetworkEntityReference, out tempMessage);
-                        PacketHandler.EncodeRawPacket(ref myNetworkEntityReference);
+                        Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
+                        managedMessageReference = (ManagedMessage)tempMessage;
+                        PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         this.usingUdpConnection = true;
                         this.commandStatus = MessagesThreadStatus.ListeningForCommands;
+                        break;
+                    case ClientStatus.UDPSettingUp:
                         break;
                     case ClientStatus.Connected:
                         break;
@@ -238,9 +252,8 @@ namespace KSPM.Network.Server
                                 {
                                     if (PacketHandler.DecodeRawPacket(ref this.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                                     {
-                                        if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                        if (PacketHandler.InflateManagedMessage(ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
                                         {
-                                            incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
                                             KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
                                             this.commandStatus = MessagesThreadStatus.None;
                                         }
@@ -258,9 +271,8 @@ namespace KSPM.Network.Server
                                 {
                                     if (PacketHandler.DecodeRawPacket(ref this.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                                     {
-                                        if (PacketHandler.InflateMessage(ref ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                        if (PacketHandler.InflateManagedMessage(ownNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
                                         {
-                                            incomingMessage.SetOwnerMessageNetworkEntity(ref ownNetworkEntity);
                                             KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
                                             this.commandStatus = MessagesThreadStatus.None;
                                         }
@@ -315,6 +327,10 @@ namespace KSPM.Network.Server
         protected void HandleIncomingUDPPacketsThreadMethod()
         {
             EndPoint remoteEndPoint = this.udpRemoteNetworkInformation;
+            Message incomingMessage = null;
+            Message responseMessage = null;
+            RawMessage rawMessageReference = null;
+            int intBuffer;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -329,6 +345,46 @@ namespace KSPM.Network.Server
                         ServerSideClient.SignalHandler.Reset();
                         this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, new System.AsyncCallback(this.AsyncReceiverCallback), this);
                         ServerSideClient.SignalHandler.WaitOne();
+
+                        if (!this.incomingPackets.IsEmpty())
+                        {
+                            this.incomingPackets.DequeueCommandMessage(out incomingMessage);
+                            rawMessageReference = (RawMessage)incomingMessage;
+                            switch (incomingMessage.Command)
+                            {
+                                case Message.CommandType.UDPPairing:
+                                    intBuffer = System.BitConverter.ToInt32( rawMessageReference.bodyMessage, (int)PacketHandler.RawMessageHeaderSize + 1 );
+                                    intBuffer = ~intBuffer;
+                                    if ((this.pairingCode & intBuffer) == 0)//UDP tested.
+                                    {
+                                        Message.UDPPairingOkMessage(this, out responseMessage);
+                                        if (responseMessage != null)
+                                        {
+                                            rawMessageReference = (RawMessage)responseMessage;
+                                            if (PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage) == Error.ErrorType.Ok)
+                                            {
+                                                this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Message.UDPPairingFailMessage(this, out responseMessage);
+                                        if (responseMessage != null)
+                                        {
+                                            rawMessageReference = (RawMessage)responseMessage;
+                                            if (PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage) == Error.ErrorType.Ok)
+                                            {
+                                                this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", Thread.CurrentThread.Name, incomingMessage.Command));
+                                    break;
+                            }
+                        }
                     }
                     Thread.Sleep(3);
                 }
@@ -345,6 +401,8 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleOutgoingUDPPacketsThreadMethod()
         {
+            Message outgoingMessage = null;
+            RawMessage rawMessage = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -356,7 +414,16 @@ namespace KSPM.Network.Server
                 {
                     if (this.usingUdpConnection)
                     {
-
+                        if (!this.outgoingPackets.IsEmpty())
+                        {
+                            this.outgoingPackets.DequeueCommandMessage(out outgoingMessage);
+                            rawMessage = (RawMessage)outgoingMessage;
+                            if( outgoingMessage != null )
+                            {
+                                this.udpCollection.socketReference.BeginSendTo(rawMessage.bodyMessage, 0, (int)rawMessage.MessageBytesSize, SocketFlags.None, this.udpCollection.socketReference.RemoteEndPoint, null, this);
+                            }
+                            outgoingMessage.Release();
+                        }
                     }
                     Thread.Sleep(3);
                 }
@@ -371,6 +438,7 @@ namespace KSPM.Network.Server
         public void AsyncReceiverCallback(System.IAsyncResult result)
         {
             int readBytes;
+            Message incomingMessage = null;
             EndPoint receivedReference;
             SocketFlags receivedFlags = SocketFlags.None;
             IPPacketInformation packetInformation;
@@ -384,8 +452,26 @@ namespace KSPM.Network.Server
                 {
                     if (PacketHandler.DecodeRawPacket(ref ssClientReference.udpCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                     {
+                        if (PacketHandler.InflateRawMessage(ssClientReference.udpCollection.secondaryRawBuffer, out incomingMessage) == Error.ErrorType.Ok)
+                        {
+                            this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
+                        }
                     }
                 }
+            }
+        }
+
+        public void AsyncSenderCallback(System.IAsyncResult result)
+        {
+            int sentBytes;
+            ServerSideClient owner = null;
+            try
+            {
+                owner = (ServerSideClient)result.AsyncState;
+                sentBytes = owner.udpCollection.socketReference.EndSendTo(result);
+            }
+            catch (System.Exception)
+            {
             }
         }
 

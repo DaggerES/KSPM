@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using KSPM.Network.Common;
+using KSPM.Network.Common.Messages;
 
 namespace KSPM.Network.Server.UserManagement
 {
@@ -73,6 +74,9 @@ namespace KSPM.Network.Server.UserManagement
             }
         }
 
+        /// <summary>
+        /// Gets the connected clients.
+        /// </summary>
         public int ConnectedClients
         {
             get
@@ -80,6 +84,19 @@ namespace KSPM.Network.Server.UserManagement
                 lock (this.clients)
                 {
                     return this.clients.Count;
+                }
+            }
+        }
+
+        public void UDPBroadcastClients(Message messageToSend)
+        {
+            Message outgoingMessage = null;
+            lock (this.clients)
+            {
+                for (int i = 0; i < this.clients.Count; i++)
+                {
+                    outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
+                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
                 }
             }
         }

@@ -27,7 +27,7 @@ namespace FakeKSPMClient
         public Form1()
         {
             InitializeComponent();
-            this.comboBoxCommands.Items.AddRange( Enum.GetNames( typeof(KSPM.Network.Common.Message.CommandType) ) );
+            this.comboBoxCommands.Items.AddRange( Enum.GetNames( typeof(KSPM.Network.Common.Messages.Message.CommandType) ) );
             System.Guid asd = Guid.NewGuid();
         }
 
@@ -46,7 +46,7 @@ namespace FakeKSPMClient
 
         private void button1_Click(object sender, EventArgs e)
         {
-            KSPM.Network.Common.Message messageToSend = null;
+            KSPM.Network.Common.Messages.Message messageToSend = null;
             string tmpUserName;
             string[] splitedUserInfo;
             int bytesCount;
@@ -54,41 +54,40 @@ namespace FakeKSPMClient
             byte[] hashCode;
             GameUser user;
             UTF8Encoding utf8Strings = new UTF8Encoding();
-            switch ((KSPM.Network.Common.Message.CommandType)this.comboBoxCommands.SelectedIndex)
+            switch ((KSPM.Network.Common.Messages.Message.CommandType)this.comboBoxCommands.SelectedIndex)
             {
-                case KSPM.Network.Common.Message.CommandType.NewClient:
-                    KSPM.Network.Common.Message.NewUserMessage(ref myNetworkEntity, out messageToSend);
-                    PacketHandler.EncodeRawPacket(ref myNetworkEntity);
-                    this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                case KSPM.Network.Common.Messages.Message.CommandType.NewClient:
+                    KSPM.Network.Common.Messages.Message.NewUserMessage(myNetworkEntity, out messageToSend);
+                    PacketHandler.EncodeRawPacket(ref myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
-
-                case KSPM.Network.Common.Message.CommandType.Disconnect:
-                    KSPM.Network.Common.Message.DisconnectMessage(ref myNetworkEntity, out messageToSend);
-                    PacketHandler.EncodeRawPacket(ref myNetworkEntity);
-                    this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                case KSPM.Network.Common.Messages.Message.CommandType.Disconnect:
+                    KSPM.Network.Common.Messages.Message.DisconnectMessage(myNetworkEntity, out messageToSend);
+                    PacketHandler.EncodeRawPacket(ref myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
-                case  KSPM.Network.Common.Message.CommandType.Authentication:
+                case  KSPM.Network.Common.Messages.Message.CommandType.Authentication:
                     tmpUserName = textBoxCommands.Text;
                     utf8Bytes = utf8Strings.GetBytes(tmpUserName);
                     KSPM.IO.Security.Hash.GetHash(ref utf8Bytes, 0, (uint)utf8Bytes.Length, out hashCode);
                     user = new GameUser(ref tmpUserName, ref hashCode);
                     User asd = user;
-                    KSPM.Network.Common.Message.AuthenticationMessage(ref myNetworkEntity, ref asd, out messageToSend);
-                    this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
+                    KSPM.Network.Common.Messages.Message.AuthenticationMessage(myNetworkEntity, ref asd, out messageToSend);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            KSPM.Network.Common.Message messageToSend = null;
-            if (myNetworkEntity.ownerSocket.Connected)
+            KSPM.Network.Common.Messages.Message messageToSend = null;
+            if (myNetworkEntity.ownerNetworkCollection.socketReference.Connected)
             {
-                KSPM.Network.Common.Message.DisconnectMessage(ref myNetworkEntity, out messageToSend);
-                PacketHandler.EncodeRawPacket(ref myNetworkEntity);
-                this.myNetworkEntity.ownerSocket.Send(myNetworkEntity.rawBuffer);
-                this.myNetworkEntity.ownerSocket.Disconnect(true);
-                this.checkBox1.Checked = this.myNetworkEntity.ownerSocket.Connected;
+                KSPM.Network.Common.Messages.Message.DisconnectMessage(myNetworkEntity, out messageToSend);
+                PacketHandler.EncodeRawPacket(ref myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                this.myNetworkEntity.ownerNetworkCollection.socketReference.Disconnect(true);
+                this.checkBox1.Checked = this.myNetworkEntity.ownerNetworkCollection.socketReference.Connected;
             }
         }
     }

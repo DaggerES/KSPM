@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using KSPM.Network.Common.Messages;
+
 namespace KSPM.Network.Common
 {
     /// <summary>
@@ -57,17 +59,32 @@ namespace KSPM.Network.Common
             }
         }
 
+        /// <summary>
+        /// Removes all messages and calls the Release method on each one.
+        /// </summary>
+        /// <param name="threadSafe">Tells if the call should be ThreadSafe and lock the queue.</param>
         public void Purge( bool threadSafe)
         {
+            Message [] messages;
             if (threadSafe)
             {
                 lock (this.commandMessagesQueue)
                 {
+                    messages = this.commandMessagesQueue.ToArray();
+                    for (int i = 0; i < messages.Length; i++)
+                    {
+                        messages[i].Release();
+                    }
                     this.commandMessagesQueue.Clear();
                 }
             }
             else
             {
+                messages = this.commandMessagesQueue.ToArray();
+                for (int i = 0; i < messages.Length; i++)
+                {
+                    messages[i].Release();
+                }
                 this.commandMessagesQueue.Clear();
             }
         }

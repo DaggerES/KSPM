@@ -3,9 +3,9 @@ using KSPM.Network.Server;
 using KSPM.Network.Common.Packet;
 using KSPM.Game;
 
-namespace KSPM.Network.Common
+namespace KSPM.Network.Common.Messages
 {
-    public class Message
+    public abstract class Message
     {
         /// <summary>
         /// An enum representing what kind of commands could be handled by the server and the client.
@@ -62,8 +62,8 @@ namespace KSPM.Network.Common
 
             #region UDPSettingUp
             /// <summary>
-            /// Command sent by the server to tell the remote client wich port has been assigned to it, and either works to test the connection.
-            /// [Header {byte:4}][ Command {byte:1} ][ PortNumber{byte:4}][ EndOfMessage {byte:4} ]
+            /// Command sent by the server to tell the remote client wich port has been assigned to it also sends the pairing code. Either it works to test the connection.
+            /// [Header {byte:4}][ Command {byte:1} ][ PortNumber{byte:4}][ PairingCode {byte:4} ][ EndOfMessage {byte:4} ]
             /// </summary>
             UDPSettingUp,
 
@@ -71,8 +71,23 @@ namespace KSPM.Network.Common
             /// Command send by the remote client to test the UDP connection, and the client establishes the message structure. <b>*It is sent through the UDP socket.*</b>
             /// [Header {byte:4}][ Command {byte:1} ][ PairingNumber{byte:4} ][ EndOfMessage {byte:4} ]
             /// </summary>
-            UDPairing,
+            UDPPairing,
 
+            /// <summary>
+            /// Command sent by the server to tell the remote client that everything is ok.
+            /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            /// </summary>
+            UDPPairingOk,
+
+            /// <summary>
+            /// Command sent by the server to tell the remote client that its message has been received but its pairing code was wrong, anyway the connection works.
+            /// [Header {byte:4}][ Command {byte:1} ]
+            UDPPairingFail,
+
+            /// <summary>
+            /// 
+            /// </summary>
+            UDPBroadcast,
 
             #endregion
             /// <summary>
@@ -94,25 +109,19 @@ namespace KSPM.Network.Common
         protected CommandType command;
 
         /// <summary>
-        /// A network entity which is owner of the message.
-        /// </summary>
-        protected NetworkEntity messageOwner;
-
-        /// <summary>
         /// How many bytes of the buffer are usable, only used when the messages is being sent.
         /// </summary>
-        protected uint messageRawLenght;
+        protected uint messageRawLength;
 
         /// <summary>
         /// Constructor, I have to rethink this method.
         /// </summary>
         /// <param name="kindOfMessage">Command kind</param>
         /// <param name="messageOwner">Network entity who is owner of this message.</param>
-        public Message(CommandType kindOfMessage, ref NetworkEntity messageOwner)
+        public Message(CommandType kindOfMessage)
         {
             this.command = kindOfMessage;
-            this.messageOwner= messageOwner;
-            this.messageRawLenght = 0;
+            this.messageRawLength = 0;
         }
 
         /// <summary>
@@ -130,37 +139,19 @@ namespace KSPM.Network.Common
         /// Gets or sets the amount of usable bytes inside the buffer and that amount of bytes are going to be sent.
         /// Use this property instead of the ServerSettings.ServerBufferSize property.
         /// </summary>
-        public uint BytesSize
+        public uint MessageBytesSize
         {
             get
             {
-                return this.messageRawLenght;
+                return this.messageRawLength;
             }
             set
             {
-                this.messageRawLenght = value;
+                this.messageRawLength = value;
             }
         }
 
-        /// <summary>
-        /// Sets a new NetworkEntity owner for this message.
-        /// </summary>
-        /// <param name="messageOwner"></param>
-        public void SetOwnerMessageNetworkEntity(ref NetworkEntity messageOwner)
-        {
-            this.messageOwner = messageOwner;
-        }
-
-        /// <summary>
-        /// Return the current NetworkEntity owner of this message.
-        /// </summary>
-        public NetworkEntity OwnerNetworkEntity
-        {
-            get
-            {
-                return this.messageOwner;
-            }
-        }
+        public abstract void Release();
 
         #region AuthenticationCode
 
@@ -170,7 +161,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType HandshakeAccetpMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType HandshakeAccetpMessage( NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -179,14 +170,21 @@ namespace KSPM.Network.Common
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
+
+            ///Writing the command.
             sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Handshake;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes( bytesToSend );
             System.Buffer.BlockCopy( messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length );
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -196,7 +194,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType NewUserMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType NewUserMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -205,14 +203,20 @@ namespace KSPM.Network.Common
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
+
+            ///Writing the command.
             sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.NewClient;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -223,7 +227,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType ServerFullMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType ServerFullMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -238,8 +242,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -249,7 +253,7 @@ namespace KSPM.Network.Common
         /// <param name="sender"></param>
         /// <param name="targetMessage"></param>
         /// <returns></returns>
-        public static Error.ErrorType AuthenticationMessage(ref NetworkEntity sender, ref User userInfo, out Message targetMessage)
+        public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, ref User userInfo, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             short hashSize;
@@ -293,8 +297,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -304,7 +308,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType AuthenticationFailMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType AuthenticationFailMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -319,8 +323,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -330,7 +334,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType AuthenticationSuccessMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType AuthenticationSuccessMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -345,8 +349,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -359,7 +363,7 @@ namespace KSPM.Network.Common
         /// <param name="sender"></param>
         /// <param name="targetMessage"></param>
         /// <returns></returns>
-        public static Error.ErrorType DisconnectMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType DisconnectMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             targetMessage = null;
@@ -374,8 +378,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -383,10 +387,10 @@ namespace KSPM.Network.Common
 
         #region UDPCommands
 
-        public static Error.ErrorType UDPSettingUpMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType UDPSettingUpMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
-            int portNumber;
+            int intBuffer;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -401,9 +405,14 @@ namespace KSPM.Network.Common
             bytesToSend += 1;
 
             ///Writing the port number.
-            portNumber = ((System.Net.IPEndPoint)ssClientReference.udpCollection.socketReference.LocalEndPoint).Port;
-            byteBuffer = System.BitConverter.GetBytes(portNumber);
+            intBuffer = ((System.Net.IPEndPoint)ssClientReference.udpCollection.socketReference.LocalEndPoint).Port;
+            byteBuffer = System.BitConverter.GetBytes(intBuffer);
             System.Buffer.BlockCopy(byteBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+
+            ///Writintg the paring code.
+            byteBuffer = System.BitConverter.GetBytes(ssClientReference.CreatePairingCode());
+            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
             
             ///Writint the EndOfMessageCommand.
@@ -411,8 +420,8 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
@@ -422,7 +431,7 @@ namespace KSPM.Network.Common
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
         /// <returns></returns>
-        public static Error.ErrorType UDPPairingMessage(ref NetworkEntity sender, out Message targetMessage)
+        public static Error.ErrorType UDPPairingMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
@@ -435,11 +444,11 @@ namespace KSPM.Network.Common
             }
 
             ///Writing the Command byte.
-            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPairing;
+            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairing;
             bytesToSend += 1;
 
             ///Writing the pairing number.
-            byteBuffer = System.BitConverter.GetBytes(ssClientReference.CreatePairingCode());
+            byteBuffer = System.BitConverter.GetBytes(ssClientReference.PairingCode);
             System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
 
@@ -448,8 +457,67 @@ namespace KSPM.Network.Common
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new Message((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ref sender);
-            targetMessage.BytesSize = (uint)bytesToSend;
+            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType UDPPairingOkMessage(NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairingOk;
+            bytesToSend += 1;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType UDPPairingFailMessage(NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairingFail;
+            bytesToSend += 1;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 

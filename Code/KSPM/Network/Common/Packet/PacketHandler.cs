@@ -1,5 +1,7 @@
 ﻿using KSPM.IO.Compression;
 
+using KSPM.Network.Common.Messages;
+
 namespace KSPM.Network.Common.Packet
 {
     public class PacketHandler
@@ -35,12 +37,12 @@ namespace KSPM.Network.Common.Packet
 
         /// <summary>
         /// Secont level of the KSPM Network model.
-        /// Creates a Message object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
+        /// Creates a ManagedMessage object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
         /// </summary>
         /// <param name="bytesOwner">Reference to the NetworkEntity who holds the raw bytes, this reference is set as the message owner ether.</param>
         /// <param name="messageTarget">Message object which should have the result of handling the raw bytes.</param>
         /// <returns></returns>
-        public static Error.ErrorType InflateMessage(ref NetworkEntity bytesOwner, out Message messageTarget)
+        public static Error.ErrorType InflateManagedMessage(NetworkEntity bytesOwner, out Message messageTarget)
         {
             int bytesBlockSize;
             int byteCounter;
@@ -58,8 +60,8 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 }
             }
-            messageTarget = new Message((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], ref bytesOwner);
-            messageTarget.BytesSize = (uint)bytesBlockSize;
+            messageTarget = new ManagedMessage((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], bytesOwner);
+            messageTarget.MessageBytesSize = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
         }
 
@@ -94,49 +96,45 @@ namespace KSPM.Network.Common.Packet
         /// <param name="owner">NetworkEntity who is owner of the message.</param>
         /// <param name="messageTarget">An out reference to the Message.</param>
         /// <returns>Error.ErrorType.Ok if there was not error.</returns>
-        public static Error.ErrorType EncodeRawPacket(ref NetworkEntity owner)
+        public static Error.ErrorType EncodeRawPacket(ref byte[] rawBytes)
         {
             byte [] compressedBytes = null;
-            Message.CommandType command;
-            if (owner == null)
-                return Error.ErrorType.InvalidNetworkEntity;
-            command = (Message.CommandType)owner.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize];
+            if (rawBytes == null)
+                return Error.ErrorType.InvalidArray;
             if (PacketHandler.CompressingPacketsEnabled)
             {
-                PacketHandler.CompressingObject.Compress(ref owner.ownerNetworkCollection.rawBuffer, out compressedBytes);
-                System.Buffer.BlockCopy(compressedBytes, 0, owner.ownerNetworkCollection.rawBuffer, 0, owner.ownerNetworkCollection.rawBuffer.Length);
+                PacketHandler.CompressingObject.Compress(ref rawBytes, out compressedBytes);
+                System.Buffer.BlockCopy(compressedBytes, 0, rawBytes, 0, rawBytes.Length);
             }
             return Error.ErrorType.Ok;
         }
 
         /// <summary>
         /// Secont level of the KSPM Network model.
-        /// Creates a Message object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
+        /// Creates a RawMessage object from the given byte array.
         /// </summary>
-        /// <param name="bytesOwner">Reference to the NetworkEntity who holds the raw bytes, this reference is set as the message owner ether.</param>
-        /// <param name="messageTarget">Message object which should have the result of handling the raw bytes.</param>
+        /// <param name="rawBytes">Byte array contaning the message in raw format.</param>
+        /// <param name="messageTarget">Out reference to the message to create.</param>
         /// <returns></returns>
-        public static Error.ErrorType InflateUDPMessage(ref NetworkBaseCollection bytesOwner, out UDPMessage messageTarget)
+        public static Error.ErrorType InflateRawMessage(byte[] rawBytes, out Message messageTarget)
         {
             int bytesBlockSize;
             int byteCounter;
             messageTarget = null;
-            if (bytesOwner.secondaryRawBuffer.Length < 4)
+            if (rawBytes.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.secondaryRawBuffer, 0);
+            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, 0);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
             ///Verifying the packet end of message command.
             for (byteCounter = 1; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
             {
-                if ((bytesOwner.secondaryRawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != bytesOwner.secondaryRawBuffer[bytesBlockSize - byteCounter])
+                if ((rawBytes[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != rawBytes[bytesBlockSize - byteCounter])
                 {
                     return Error.ErrorType.MessageBadFormat;
                 }
             }
-            messageTarget = new UDPMessage();
-            messageTarget.messageOwner = null;
-            messageTarget.messageRawLenght = (uint)bytesBlockSize;
+            messageTarget = new RawMessage((Message.CommandType)rawBytes[ PacketHandler.RawMessageHeaderSize ], rawBytes, (uint)bytesBlockSize);
             return Error.ErrorType.Ok;
         }
     }
