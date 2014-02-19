@@ -20,6 +20,7 @@ namespace FakeKSPMClient
     public partial class Form1 : Form
     {
         Socket clientSocket;
+        Socket udpSocket;
         IPEndPoint serverIPEndPoint;
         NetworkEntity myNetworkEntity;
         string userName;
@@ -35,6 +36,8 @@ namespace FakeKSPMClient
         {
             serverIPEndPoint = new IPEndPoint(IPAddress.Parse(textBoxIP.Text), Int32.Parse(textBoxPort.Text));
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            udpSocket.Bind(new IPEndPoint(IPAddress.Any, 0));
             clientSocket.Bind( new IPEndPoint( IPAddress.Any, 0 ));
             myNetworkEntity = new NetworkEntity(ref this.clientSocket);
             clientSocket.Connect(serverIPEndPoint);

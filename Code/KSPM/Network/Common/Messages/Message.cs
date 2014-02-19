@@ -412,7 +412,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Writintg the paring code.
             byteBuffer = System.BitConverter.GetBytes(ssClientReference.CreatePairingCode());
-            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, byteBuffer.Length);
+            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.ownerNetworkCollection.rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
             
             ///Writint the EndOfMessageCommand.

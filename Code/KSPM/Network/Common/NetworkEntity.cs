@@ -77,7 +77,8 @@ namespace KSPM.Network.Common
         /// </summary>
         public void Dispose()
         {
-            this.ownerNetworkCollection.Dispose();
+            //this.ownerNetworkCollection.Dispose();
+            this.ownerNetworkCollection = null;
         }
 
         /// <summary>

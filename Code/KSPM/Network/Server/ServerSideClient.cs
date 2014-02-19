@@ -129,8 +129,6 @@ namespace KSPM.Network.Server
 
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
-
-            this.InitializeUDPConnection();
         }
 
         /// <summary>
@@ -147,11 +145,17 @@ namespace KSPM.Network.Server
                 return Error.ErrorType.InvalidNetworkEntity;
             }
             ssClient = new ServerSideClient();
+            baseNetworkEntity.ownerNetworkCollection.Clone(out ssClient.ownerNetworkCollection);
+            //ssClient.ownerNetworkCollection = baseNetworkEntity.ownerNetworkCollection;
+            /*
             ssClient.ownerNetworkCollection.socketReference = baseNetworkEntity.ownerNetworkCollection.socketReference;
             ssClient.ownerNetworkCollection.rawBuffer = baseNetworkEntity.ownerNetworkCollection.rawBuffer;
             ssClient.ownerNetworkCollection.secondaryRawBuffer = baseNetworkEntity.ownerNetworkCollection.secondaryRawBuffer;
+            */
             ssClient.id = baseNetworkEntity.Id;
             baseNetworkEntity.Dispose();
+            //baseNetworkEntity
+            ssClient.InitializeUDPConnection();
             return Error.ErrorType.Ok;
         }
 
@@ -306,7 +310,7 @@ namespace KSPM.Network.Server
             IPEndPoint remoteNetInformation;
             this.udpCollection = new NetworkBaseCollection(ServerSettings.ServerBufferSize);
             this.udpCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            remoteNetInformation = (IPEndPoint)this.ownerNetworkCollection.socketReference.RemoteEndPoint;
+            remoteNetInformation = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             this.udpRemoteNetworkInformation = new IPEndPoint(remoteNetInformation.Address, 0);//0 because It should be any available port.
             try
             {

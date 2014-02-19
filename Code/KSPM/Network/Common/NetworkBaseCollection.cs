@@ -33,5 +33,13 @@ namespace KSPM.Network.Common
             this.secondaryRawBuffer = null;
             this.socketReference = null;
         }
+
+        public virtual void Clone(out NetworkBaseCollection newReference)
+        {
+            newReference = this;
+            newReference.rawBuffer = this.rawBuffer;
+            newReference.secondaryRawBuffer = this.secondaryRawBuffer;
+            newReference.socketReference = this.socketReference;
+        }
     }
 }
