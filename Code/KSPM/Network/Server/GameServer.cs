@@ -244,7 +244,6 @@ namespace KSPM.Network.Server
                                                 if (newClientAttempt.StartClient())
                                                 {
                                                     this.clientsHandler.AddNewClient(newClientAttempt);
-                                                    KSPMGlobals.Globals.Log.WriteTo(this.tcpSocket.Connected.ToString());
                                                 }
                                             }
                                         }
