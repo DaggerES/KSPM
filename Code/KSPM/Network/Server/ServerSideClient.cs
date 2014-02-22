@@ -170,8 +170,7 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
                 return;
             }
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Going alive {1}", this.id, this.ownerNetworkCollection.socketReference.RemoteEndPoint.ToString()));
-            this.aliveFlag = true;
+			KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]Going alive {1}", this.id, this.ownerNetworkCollection.socketReference.RemoteEndPoint.ToString()));
             while (this.aliveFlag)
             {
                 switch (this.currentStatus)
@@ -219,7 +218,7 @@ namespace KSPM.Network.Server
                 while (this.aliveFlag)
                 {
                     this.TCPSignalHandler.Reset();
-                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, new System.AsyncCallback(this.AsyncTCPReceiver), this);
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     Thread.Sleep(3);
                 }
@@ -287,7 +286,7 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Handles the incoming udp packets.
+		/// Handles the incoming udp packets.<b>Not using Socket.BeginReceiveMessageFrom method, because it is not implemented yet inside Mono, instead is used Socket.BeginReceiveFrom method.</b>
         /// </summary>
         protected void HandleIncomingUDPPacketsThreadMethod()
         {
@@ -308,8 +307,9 @@ namespace KSPM.Network.Server
                     if (this.usingUdpConnection)
                     {
                         ServerSideClient.SignalHandler.Reset();
-                        remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
-                        this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
+						remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
+						this.udpCollection.socketReference.BeginReceiveFrom( this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this );
+						//this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
                         ServerSideClient.SignalHandler.WaitOne();
 
                         if (!this.incomingPackets.IsEmpty())
@@ -407,14 +407,13 @@ namespace KSPM.Network.Server
             int readBytes;
             Message incomingMessage = null;
             EndPoint receivedReference;
-            SocketFlags receivedFlags = SocketFlags.None;
-            IPPacketInformation packetInformation;
             ServerSideClient.SignalHandler.Set();
             ServerSideClient ssClientReference = (ServerSideClient)result.AsyncState;
             try
             {
                 receivedReference = ssClientReference.udpCollection.socketReference.RemoteEndPoint;
-                readBytes = ssClientReference.udpCollection.socketReference.EndReceiveMessageFrom(result, ref receivedFlags, ref receivedReference, out packetInformation);
+				//readBytes = ssClientReference.udpCollection.socketReference.EndReceiveMessageFrom(result, ref receivedFlags, ref receivedReference, out packetInformation);
+				readBytes = ssClientReference.udpCollection.socketReference.EndReceiveFrom( result, ref receivedReference );
                 if (readBytes > 0)
                 {
                     if (this.currentStatus == ClientStatus.UDPSettingUp)
@@ -464,6 +463,8 @@ namespace KSPM.Network.Server
             }
             try
             {
+				this.aliveFlag = true;
+
                 this.mainThread.Start();
                 this.messageHandlerTread.Start();
 
@@ -507,8 +508,8 @@ namespace KSPM.Network.Server
             ///***********************Sockets code
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
+				//this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.ownerNetworkCollection.socketReference.Disconnect(false);
-                this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();
@@ -516,7 +517,7 @@ namespace KSPM.Network.Server
 
             if (this.udpCollection.socketReference != null)
             {
-                this.udpCollection.socketReference.Shutdown(SocketShutdown.Both);
+				//this.udpCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.udpCollection.socketReference.Close();
             }
             this.udpCollection.Dispose();

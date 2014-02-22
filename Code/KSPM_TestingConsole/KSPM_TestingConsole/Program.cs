@@ -20,10 +20,10 @@ namespace KSPM_TestingConsole
             ServerSettings gameSettings = null;
             ServerSettings.ReadSettings(ref gameSettings);
             GameServer server = new GameServer(ref gameSettings);
-            KSPMGlobals.Globals.SetServerReference(ref server);
+			KSPMGlobals.Globals.SetServerReference (ref server);
             server.StartServer();
             Console.ReadLine();
-            server.ShutdownServer();
+			//server.ShutdownServer();
             Console.ReadLine();
         }
 
