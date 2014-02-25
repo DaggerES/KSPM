@@ -62,12 +62,14 @@ namespace FakeKSPMClient
                 case KSPM.Network.Common.Messages.Message.CommandType.NewClient:
                     KSPM.Network.Common.Messages.Message.NewUserMessage(myNetworkEntity, out messageToSend);
                     PacketHandler.EncodeRawPacket(ref myNetworkEntity.ownerNetworkCollection.rawBuffer);
-                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer, (int)messageToSend.MessageBytesSize, SocketFlags.None);
+                    //this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
                 case KSPM.Network.Common.Messages.Message.CommandType.Disconnect:
                     KSPM.Network.Common.Messages.Message.DisconnectMessage(myNetworkEntity, out messageToSend);
                     PacketHandler.EncodeRawPacket(ref myNetworkEntity.ownerNetworkCollection.rawBuffer);
-                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer, (int)messageToSend.MessageBytesSize, SocketFlags.None);
+                    //this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
                 case  KSPM.Network.Common.Messages.Message.CommandType.Authentication:
                     tmpUserName = textBoxCommands.Text;
@@ -76,7 +78,8 @@ namespace FakeKSPMClient
                     user = new GameUser(ref tmpUserName, ref hashCode);
                     User asd = user;
                     KSPM.Network.Common.Messages.Message.AuthenticationMessage(myNetworkEntity, ref asd, out messageToSend);
-                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
+                    this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer, (int)messageToSend.MessageBytesSize, SocketFlags.None);
+                    //this.myNetworkEntity.ownerNetworkCollection.socketReference.Send(myNetworkEntity.ownerNetworkCollection.rawBuffer);
                     break;
             }
         }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxUTF8 = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -42,7 +43,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxIP = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textBoxUTF8 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,6 +67,14 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "TCP commands";
+            // 
+            // textBoxUTF8
+            // 
+            this.textBoxUTF8.Location = new System.Drawing.Point(128, 233);
+            this.textBoxUTF8.Multiline = true;
+            this.textBoxUTF8.Name = "textBoxUTF8";
+            this.textBoxUTF8.Size = new System.Drawing.Size(225, 53);
+            this.textBoxUTF8.TabIndex = 12;
             // 
             // button2
             // 
@@ -174,7 +182,7 @@
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.Size = new System.Drawing.Size(121, 20);
             this.textBoxIP.TabIndex = 0;
-            this.textBoxIP.Text = "192.168.15.11";
+            this.textBoxIP.Text = "192.168.15.10";
             // 
             // groupBox2
             // 
@@ -184,14 +192,6 @@
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "groupBox2";
-            // 
-            // textBoxUTF8
-            // 
-            this.textBoxUTF8.Location = new System.Drawing.Point(128, 233);
-            this.textBoxUTF8.Multiline = true;
-            this.textBoxUTF8.Name = "textBoxUTF8";
-            this.textBoxUTF8.Size = new System.Drawing.Size(225, 53);
-            this.textBoxUTF8.TabIndex = 12;
             // 
             // Form1
             // 
