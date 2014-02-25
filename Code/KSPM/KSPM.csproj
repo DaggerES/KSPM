@@ -49,6 +49,9 @@
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Security\Hash.cs" />
+    <Compile Include="Network\Client\ClientSettings.cs" />
+    <Compile Include="Network\Client\GameClient.cs" />
+    <Compile Include="Network\Client\ServerInformation.cs" />
     <Compile Include="Network\Common\CommandQueue.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\IAsyncReceiver.cs" />
@@ -61,7 +64,9 @@
     <Compile Include="Network\Common\NetworkBaseCollection.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
-    <Compile Include="Network\Server\AbstractSettings.cs" />
+    <Compile Include="Network\Common\AbstractSettings.cs" />
+    <Compile Include="Network\NAT\NATTraversal.cs" />
+    <Compile Include="Network\NAT\NATNone.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Common\NetworkEntity.cs" />
     <Compile Include="Network\Common\NetworkRawEntity.cs" />

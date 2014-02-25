@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
 using System.IO;
@@ -11,7 +8,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Class to handle the settings used by the server for its proper operation.
     /// </summary>
-    public class ServerSettings : AbstractSettings
+    public class ServerSettings : KSPM.Network.Common.AbstractSettings
     {
         [XmlIgnore]
         public static string SettingsFilename = "serverSettings.xml";
@@ -52,7 +49,7 @@ namespace KSPM.Network.Server
             StreamReader settingsStreamReader;
             XmlSerializer settingsSerializer;
             XmlTextReader settingsReader;
-            settingsStreamReader = new StreamReader(ServerSettings.SettingsFilename, UTF8Encoding.UTF8);
+            settingsStreamReader = new StreamReader(ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
             settingsReader = new XmlTextReader(settingsStreamReader);
             settingsSerializer = new XmlSerializer(typeof(ServerSettings));
             try
@@ -79,7 +76,7 @@ namespace KSPM.Network.Server
             XmlSerializer settingsSerializer;
             if (settings == null)
                 return false;
-            settingsWriter = new XmlTextWriter(ServerSettings.SettingsFilename, UTF8Encoding.UTF8);
+            settingsWriter = new XmlTextWriter(ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
             settingsWriter.Formatting = Formatting.Indented;
             settingsSerializer = new XmlSerializer(typeof(ServerSettings));
             try

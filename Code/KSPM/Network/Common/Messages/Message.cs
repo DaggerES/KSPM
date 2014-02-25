@@ -253,7 +253,7 @@ namespace KSPM.Network.Common.Messages
         /// <param name="sender"></param>
         /// <param name="targetMessage"></param>
         /// <returns></returns>
-        public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, ref User userInfo, out Message targetMessage)
+        public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             short hashSize;

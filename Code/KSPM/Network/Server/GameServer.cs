@@ -48,6 +48,7 @@ namespace KSPM.Network.Server
 
         /// <summary>
         /// UDP socket used to receive those messages which don't require the confirmation receipt.
+        /// <b>It could be erased so you do not uset it.</b>
         /// </summary>
         protected Socket udpSocket;
 
@@ -450,7 +451,7 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Method which remova a client, and is used to set the callback inside the networkentity.
+        /// Method which removes a client, and is used to set the callback inside the networkentity.
         /// </summary>
         /// <param name="caller"></param>
         /// <param name="arg"></param>

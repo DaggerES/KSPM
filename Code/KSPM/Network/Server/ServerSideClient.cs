@@ -508,7 +508,6 @@ namespace KSPM.Network.Server
             ///***********************Sockets code
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
-				//this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.ownerNetworkCollection.socketReference.Disconnect(false);
                 this.ownerNetworkCollection.socketReference.Close();
             }
@@ -517,7 +516,6 @@ namespace KSPM.Network.Server
 
             if (this.udpCollection.socketReference != null)
             {
-				//this.udpCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.udpCollection.socketReference.Close();
             }
             this.udpCollection.Dispose();
@@ -530,6 +528,10 @@ namespace KSPM.Network.Server
             }
 
             this.ableToRun = false;
+
+            ///Cleaning up the UDP queues;
+            this.outgoingPackets.Purge(false);
+            this.incomingPackets.Purge(false);
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed!!!", this.id));
         }

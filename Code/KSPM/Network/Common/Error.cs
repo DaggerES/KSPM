@@ -29,6 +29,13 @@ namespace KSPM.Network.Common
             ServerClientUnableToRun,
             #endregion
 
+            #region Client
+            ClientUnableToRun,
+            ClientInvalidGameUser,
+            ClientInvalidServerInformation,
+            ClientUnableToConnect,
+            #endregion
+
             #region UserErrors
             UserIncompleteBytes,
             UserBadFormatString,

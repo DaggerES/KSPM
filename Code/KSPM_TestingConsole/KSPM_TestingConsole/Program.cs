@@ -23,7 +23,7 @@ namespace KSPM_TestingConsole
 			KSPMGlobals.Globals.SetServerReference (ref server);
             server.StartServer();
             Console.ReadLine();
-			//server.ShutdownServer();
+			server.ShutdownServer();
             Console.ReadLine();
         }
 

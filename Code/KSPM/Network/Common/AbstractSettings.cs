@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace KSPM.Network.Server
+namespace KSPM.Network.Common
 {
     public class AbstractSettings
     {
