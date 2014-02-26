@@ -227,6 +227,14 @@ namespace KSPM.Network.Server
             {
                 this.aliveFlag = false;
             }
+            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it...", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                
+            }
         }
 
         /// <summary>

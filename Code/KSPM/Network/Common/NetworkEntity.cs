@@ -89,7 +89,6 @@ namespace KSPM.Network.Common
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
                 this.ownerNetworkCollection.socketReference.Disconnect(false);
-                this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();
