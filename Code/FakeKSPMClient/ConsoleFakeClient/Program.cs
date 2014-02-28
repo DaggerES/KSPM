@@ -33,7 +33,7 @@ namespace ConsoleFakeClient
             client.InitializeClient();
             while ( !exit )
             {
-                
+                /*
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");
                 Console.WriteLine("Press d to disconnect");
@@ -54,14 +54,14 @@ namespace ConsoleFakeClient
                     default:
                         break;
                 }
+                */
                 
-                /*
                 client.SetGameUser(myUser);
                 client.SetServerHostInformation(server);
                 client.Connect();
-                System.Threading.Thread.Sleep(5000);
+                System.Threading.Thread.Sleep(10000);
                 client.Disconnect();
-                */
+                
             }
 
             client.Disconnect();
