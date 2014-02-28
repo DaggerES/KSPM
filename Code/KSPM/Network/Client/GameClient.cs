@@ -19,6 +19,8 @@ namespace KSPM.Network.Client
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected};
 
+        public ClientSettings workingSettings;
+
         /// <summary>
         /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
         /// </summary>
@@ -106,6 +108,8 @@ namespace KSPM.Network.Client
             this.aliveFlag = false;
             this.holePunched = false;
 
+            this.workingSettings = null;
+
             this.currentStatus = ClientStatus.None;
 
             ///Threading code
@@ -150,6 +154,7 @@ namespace KSPM.Network.Client
         /// <returns>Ok if everything went fine, and ClientUnableToRun if an error ocurred.</returns>
         public Error.ErrorType InitializeClient()
         {
+            Error.ErrorType result = Error.ErrorType.Ok;
             try
             {
                 this.aliveFlag = true;
@@ -157,6 +162,11 @@ namespace KSPM.Network.Client
                 this.holePunched = false;
 
                 this.currentStatus = ClientStatus.None;
+
+                ///If Settings could not be loaded properly, a default one is created and tried to write it.
+                ///If the writer could not be able to write down the settings, a message is showed into the log, but this not break the game because the settings references
+                ///is created.
+                result = ClientSettings.ReadSettings(out this.workingSettings);
 
                 this.mainBodyThread.Start();
                 this.handleOutgoingTCPMessagesThread.Start();
@@ -168,9 +178,9 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
                 this.ShutdownClient();
                 this.aliveFlag = false;
-                return Error.ErrorType.ClientUnableToRun;
+                result = Error.ErrorType.ClientUnableToRun;
             }
-            return Error.ErrorType.Ok;
+            return result;
         }
 
         /// <summary>
@@ -214,7 +224,7 @@ namespace KSPM.Network.Client
                 ///Avoiding to bind the same Address and port.
                 if (!this.reassignAddress)
                 {
-                    this.ownerNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, ClientSettings.ClientTCPPort));
+                    this.ownerNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, (int)this.workingSettings.tcpPort));
                 }
                 connectThread = new Thread(new ThreadStart(this.HandleConnectThreadMethod));
                 this.currentStatus = ClientStatus.Handshaking;
@@ -222,7 +232,7 @@ namespace KSPM.Network.Client
                 this.outgoingTCPMessages.Purge(true);
                 this.commandsQueue.Purge(true);
                 connectThread.Start();
-                if (!connectThread.Join((int)ClientSettings.ConnectionTimeOut))
+                if (!connectThread.Join((int)this.workingSettings.connectionTimeout))
                 {
                     ///Killing the thread because it has taken too much.
                     connectThread.Abort();

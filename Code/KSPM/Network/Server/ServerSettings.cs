@@ -90,5 +90,9 @@ namespace KSPM.Network.Server
             }
             return success;
         }
+
+        public override void Release()
+        {
+        }
     }
 }

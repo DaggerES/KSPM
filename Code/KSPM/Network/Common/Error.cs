@@ -40,6 +40,9 @@ namespace KSPM.Network.Common
             NATAdrressInUse,
             #endregion
 
+            #region Settings
+            SettingsCanNotBeWritten,
+            #endregion
 
             #region UserErrors
             UserIncompleteBytes,

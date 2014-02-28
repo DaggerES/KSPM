@@ -22,7 +22,7 @@ namespace ConsoleFakeClient
             utf8Bytes = utf8Encoder.GetBytes(userName);
             GameUser myUser = new GameUser(ref userName, ref utf8Bytes);
             ServerInformation server = new ServerInformation();
-            //server.ip = "189.209.114.245";
+            //server.ip = "189.210.119.226";
             server.ip = "192.168.15.16";
             server.port = 4700;
             GameClient client = new GameClient();
@@ -33,6 +33,7 @@ namespace ConsoleFakeClient
             client.InitializeClient();
             while ( !exit )
             {
+                
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");
                 Console.WriteLine("Press d to disconnect");
@@ -53,13 +54,13 @@ namespace ConsoleFakeClient
                     default:
                         break;
                 }
+                
                 /*
-                while (client.Connect() != KSPM.Network.Common.Error.ErrorType.Ok)
-                {
-                    Console.WriteLine("Prese enter to Recconnecting...");
-                    Console.ReadLine();
-                    
-                }
+                client.SetGameUser(myUser);
+                client.SetServerHostInformation(server);
+                client.Connect();
+                System.Threading.Thread.Sleep(5000);
+                client.Disconnect();
                 */
             }
 
