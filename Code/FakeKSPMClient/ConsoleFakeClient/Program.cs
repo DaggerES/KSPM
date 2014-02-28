@@ -22,14 +22,47 @@ namespace ConsoleFakeClient
             utf8Bytes = utf8Encoder.GetBytes(userName);
             GameUser myUser = new GameUser(ref userName, ref utf8Bytes);
             ServerInformation server = new ServerInformation();
-            server.ip = "192.168.15.11";
+            //server.ip = "189.209.114.245";
+            server.ip = "192.168.15.16";
             server.port = 4700;
             GameClient client = new GameClient();
-            client.SetGameUser(myUser);
-            client.SetServerHostInformation(server);
+            ConsoleKeyInfo pressedKey;
+            bool exit = false;
+            //client.SetGameUser(myUser);
+            //client.SetServerHostInformation(server);
             client.InitializeClient();
-            client.Connect();
-            Console.ReadLine();
+            while ( !exit )
+            {
+                Console.WriteLine("Press q to quit");
+                Console.WriteLine("Press r to connect");
+                Console.WriteLine("Press d to disconnect");
+                pressedKey = Console.ReadKey();
+                switch( pressedKey.Key )
+                {
+                    case ConsoleKey.Q:
+                        exit = true;
+                        break;
+                    case ConsoleKey.R:
+                        client.SetGameUser(myUser);
+                        client.SetServerHostInformation(server);
+                        client.Connect();
+                        break;
+                    case ConsoleKey.D:
+                        client.Disconnect();
+                        break;
+                    default:
+                        break;
+                }
+                /*
+                while (client.Connect() != KSPM.Network.Common.Error.ErrorType.Ok)
+                {
+                    Console.WriteLine("Prese enter to Recconnecting...");
+                    Console.ReadLine();
+                    
+                }
+                */
+            }
+
             client.Disconnect();
             Console.ReadLine();
             client.Release();

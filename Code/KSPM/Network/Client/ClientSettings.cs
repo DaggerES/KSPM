@@ -14,5 +14,10 @@ namespace KSPM.Network.Client
         /// Sets in which port the client will be working with UDP packets.
         /// </summary>
         public static readonly int ClientUDPPort = 4801;
+
+        /// <summary>
+        /// Sets the maximum amount of time to be awaited for when a connection process is performed.
+        /// </summary>
+        public static long ConnectionTimeOut = 5000;
     }
 }

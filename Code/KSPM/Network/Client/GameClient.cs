@@ -17,7 +17,7 @@ namespace KSPM.Network.Client
     /// </summary>
     public class GameClient : NetworkEntity, IAsyncTCPReceiver, IAsyncTCPSender
     {
-        public enum ClientStatus : byte { None = 0, Handshaking, Authenticating, UDPSettingUp, Awaiting};
+        public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected};
 
         /// <summary>
         /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
@@ -37,7 +37,12 @@ namespace KSPM.Network.Client
         /// <summary>
         /// Holds information requiered to stablish a connection to the PC who is hosting the game server. <b>This is not released when the client is closed.</b>
         /// </summary>
-        protected ServerInformation gameServer;
+        protected ServerInformation gameServerInformation;
+        
+        /// <summary>
+        /// Tells if the server needs to reassign a new address to the game. <b>It means to use a free port.</b>
+        /// </summary>
+        protected bool reassignAddress;
 
         /// <summary>
         /// Flag to tells if everything has been set up and the client is ready to run.
@@ -94,8 +99,9 @@ namespace KSPM.Network.Client
         /// </summary>
         public GameClient() : base()
         {
+            this.reassignAddress= false;
             this.clientOwner = null;
-            this.gameServer = null;
+            this.gameServerInformation = null;
             this.ableToRun = false;
             this.aliveFlag = false;
             this.holePunched = false;
@@ -132,7 +138,10 @@ namespace KSPM.Network.Client
         /// <param name="hostInformation"></param>
         public void SetServerHostInformation(ServerInformation hostInformation)
         {
-            this.gameServer = hostInformation;
+            if (!hostInformation.Equals(this.gameServerInformation))
+            {
+                this.gameServerInformation = hostInformation;
+            }
         }
 
         /// <summary>
@@ -146,6 +155,9 @@ namespace KSPM.Network.Client
                 this.aliveFlag = true;
                 this.ableToRun = true;
                 this.holePunched = false;
+
+                this.currentStatus = ClientStatus.None;
+
                 this.mainBodyThread.Start();
                 this.handleOutgoingTCPMessagesThread.Start();
                 this.handleIncomingTCPMessagesThread.Start();
@@ -173,26 +185,54 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
                 return Error.ErrorType.ClientUnableToRun;
             }
+
+            if (this.currentStatus != ClientStatus.None)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client already connected...", this.id));
+                return Error.ErrorType.Ok;
+            }
+
             ///Checking if the required information is already provided.
             if (this.clientOwner == null)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientInvalidGameUser.ToString());
                 return Error.ErrorType.ClientInvalidGameUser;
             }
-            if (this.gameServer == null)
+            if (this.gameServerInformation == null)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientInvalidServerInformation.ToString());
                 return Error.ErrorType.ClientInvalidServerInformation;
             }
+
+            ///Creating sockets and connecting and setting up everything
             try
             {
                 this.ownerNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                this.ownerNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, ClientSettings.ClientTCPPort));
+                this.ownerNetworkCollection.socketReference.LingerState = new LingerOption(false, 0);
+                this.ownerNetworkCollection.socketReference.NoDelay = true;
+
+                ///Avoiding to bind the same Address and port.
+                if (!this.reassignAddress)
+                {
+                    this.ownerNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, ClientSettings.ClientTCPPort));
+                }
                 connectThread = new Thread(new ThreadStart(this.HandleConnectThreadMethod));
                 this.currentStatus = ClientStatus.Handshaking;
                 this.udpServerInformation.Dispose();
+                this.outgoingTCPMessages.Purge(true);
+                this.commandsQueue.Purge(true);
                 connectThread.Start();
-                connectThread.Join();
+                if (!connectThread.Join((int)ClientSettings.ConnectionTimeOut))
+                {
+                    ///Killing the thread because it has taken too much.
+                    connectThread.Abort();
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection timeout...", this.id));
+                    this.BreakConnections(this, null);
+                }
+                if (!this.holePunched)
+                {
+                    return Error.ErrorType.ClientUnableToConnect;
+                }
             }
             catch (System.Exception ex)
             {
@@ -213,34 +253,51 @@ namespace KSPM.Network.Client
             bool connected = false;
             Message outgoingMessage = null;
             ManagedMessage managedMessageReference = null;
+            Error.ErrorType connectingError = Error.ErrorType.Ok;
             this.holePunched = false;
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to connect...", this.id));
-            KSPMGlobals.Globals.NAT.Punch(ref this.ownerNetworkCollection.socketReference, this.gameServer.ip, this.gameServer.port);
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1}...", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
-            this.holePunched = true;
-            while (!connected)
+            try
             {
-                switch (this.currentStatus)
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to connect...", this.id));
+                connectingError = KSPMGlobals.Globals.NAT.Punch(ref this.ownerNetworkCollection.socketReference, this.gameServerInformation.ip, this.gameServerInformation.port);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1}...", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
+                this.holePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
+                if (!this.holePunched)
                 {
-                    case ClientStatus.Handshaking:
-                        Message.NewUserMessage(this, out outgoingMessage);
-                        managedMessageReference = (ManagedMessage)outgoingMessage;
-                        PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
-                        this.outgoingTCPMessages.EnqueueCommandMessage(ref outgoingMessage);
-                        this.currentStatus = ClientStatus.Awaiting;
-                        break;
-                    case ClientStatus.Authenticating:
-                        this.AuthenticateClient(this, null);
-                        this.currentStatus = ClientStatus.Awaiting;
-                        break;
-                    case ClientStatus.UDPSettingUp:
-                        connected = true;
-                        break;
-                    case ClientStatus.Awaiting:
-                        Thread.Sleep(11);
-                        break;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Hole punching can not be done, reassigning connection... Try again", this.id));
+                    this.reassignAddress = true;
+                    this.BreakConnections(this, null);
+                    return;
                 }
-                Thread.Sleep(11);
+                this.reassignAddress = false;
+                while (!connected)
+                {
+                    switch (this.currentStatus)
+                    {
+                        case ClientStatus.Handshaking:
+                            Message.NewUserMessage(this, out outgoingMessage);
+                            managedMessageReference = (ManagedMessage)outgoingMessage;
+                            PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                            this.outgoingTCPMessages.EnqueueCommandMessage(ref outgoingMessage);
+                            this.currentStatus = ClientStatus.Awaiting;
+                            break;
+                        case ClientStatus.Authenticating:
+                            this.AuthenticateClient(this, null);
+                            this.currentStatus = ClientStatus.Awaiting;
+                            break;
+                        case ClientStatus.UDPSettingUp:
+                            connected = true;
+                            this.currentStatus = ClientStatus.Connected;
+                            break;
+                        case ClientStatus.Awaiting:
+                            Thread.Sleep(11);
+                            break;
+                    }
+                    Thread.Sleep(11);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                connected = true;
             }
         }
 
@@ -249,15 +306,18 @@ namespace KSPM.Network.Client
         /// </summary>
         public void Disconnect()
         {
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnecting...", this.id));
-            Message disconnectMessage = null;
-            this.outgoingTCPMessages.Purge(true);
-            this.commandsQueue.Purge(true);
+            if (this.holePunched)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnecting...", this.id));
+                Message disconnectMessage = null;
+                this.outgoingTCPMessages.Purge(true);
+                this.commandsQueue.Purge(true);
 
-            Message.DisconnectMessage(this, out disconnectMessage);
-            PacketHandler.EncodeRawPacket(ref this.ownerNetworkCollection.rawBuffer);
-            this.SetMessageSentCallback(this.BreakConnections);
-            this.outgoingTCPMessages.EnqueueCommandMessage(ref disconnectMessage);
+                Message.DisconnectMessage(this, out disconnectMessage);
+                PacketHandler.EncodeRawPacket(ref this.ownerNetworkCollection.rawBuffer);
+                this.SetMessageSentCallback(this.BreakConnections);
+                this.outgoingTCPMessages.EnqueueCommandMessage(ref disconnectMessage);
+            }
         }
 
         /// <summary>
@@ -442,12 +502,19 @@ namespace KSPM.Network.Client
             this.ShutdownClient();
         }
 
+        /// <summary>
+        /// Shutdowns everything on the client.
+        /// </summary>
         protected void ShutdownClient()
         {
-
+            ///Avoiding to shutdown the client twice or more.
+            if (!this.aliveFlag)
+                return;
             this.ableToRun = false;
             this.aliveFlag = false;
             this.holePunched = false;
+
+            this.currentStatus = ClientStatus.None;
 
             ///*****************Killing threads.
             this.mainBodyThread.Abort();
@@ -469,7 +536,7 @@ namespace KSPM.Network.Client
             ///***********************Sockets code
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
-                this.ownerNetworkCollection.socketReference.Disconnect(false);
+                this.ownerNetworkCollection.socketReference.Disconnect(true);
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();
@@ -494,13 +561,17 @@ namespace KSPM.Network.Client
             this.holePunched = false;
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
-                this.ownerNetworkCollection.socketReference.Disconnect(false);
-                this.ownerNetworkCollection.socketReference.Close();
+                this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
+                this.ownerNetworkCollection.socketReference.Disconnect(true);
             }
+
+            ///Closing the socket either it is connected or not.
+            this.ownerNetworkCollection.socketReference.Close();
+            this.ownerNetworkCollection.socketReference = null;
 
             this.clientOwner = null;
 
-            this.gameServer = null;
+            //this.gameServerInformation = null;
 
             ///*********************Releasing server information objects.
             this.udpServerInformation.Dispose();
@@ -508,6 +579,8 @@ namespace KSPM.Network.Client
             ///**********************Cleaning up the messages's Queues.
             this.commandsQueue.Purge(true);
             this.outgoingTCPMessages.Purge(true);
+
+            this.currentStatus = ClientStatus.None;
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected...", this.id));
         }
 

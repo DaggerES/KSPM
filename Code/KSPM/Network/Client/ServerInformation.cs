@@ -20,5 +20,23 @@
             this.ip = null;
             this.port = -1;
         }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                ServerInformation reference = (ServerInformation)obj;
+                return reference.ip.Equals(this.ip) && reference.port == this.port;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return this.ip.GetHashCode() + this.port.GetHashCode();
+        }
     }
 }

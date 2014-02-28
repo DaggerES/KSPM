@@ -36,6 +36,11 @@ namespace KSPM.Network.Common
             ClientUnableToConnect,
             #endregion
 
+            #region NAT
+            NATAdrressInUse,
+            #endregion
+
+
             #region UserErrors
             UserIncompleteBytes,
             UserBadFormatString,
