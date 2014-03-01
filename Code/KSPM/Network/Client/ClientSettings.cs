@@ -98,7 +98,7 @@ namespace KSPM.Network.Client
             }
             catch (System.Exception ex)
             {
-                result = Common.Error.ErrorType.SettingsCanNotBeWritten;
+                result = Common.Error.ErrorType.IOFileCanNotBeWritten;
                 KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(ex.Message);
             }
             return result;

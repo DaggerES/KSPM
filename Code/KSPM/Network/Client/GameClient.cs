@@ -7,6 +7,7 @@ using KSPM.Network.Common.Packet;
 using KSPM.Game;
 using KSPM.Globals;
 using KSPM.Network.NAT;
+using KSPM.Network.Client.RemoteServer;
 
 using System.Threading;
 
@@ -19,6 +20,9 @@ namespace KSPM.Network.Client
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected};
 
+        /// <summary>
+        /// Client settings to be used to work.
+        /// </summary>
         public ClientSettings workingSettings;
 
         /// <summary>
@@ -61,6 +65,8 @@ namespace KSPM.Network.Client
         /// </summary>
         protected bool holePunched;
 
+        #region TCPProperties
+
         /// <summary>
         /// Thread safe Queue to hold all the commands.
         /// </summary>
@@ -86,15 +92,56 @@ namespace KSPM.Network.Client
         /// </summary>
         protected Thread handleIncomingTCPMessagesThread;
 
+        #endregion
+
+        #region UDPPRoperties
+
+        /// <summary>
+        /// Thread to handle the outgoing UDP messages.
+        /// </summary>
+        protected Thread handleOutgoingUDPMessagesThread;
+
+        /// <summary>
+        /// Thread to handle the incoming UDP messages.
+        /// </summary>
+        protected Thread handleIncomingUDPMessagesThread;
+
         /// <summary>
         /// Server information to connect through UDP
         /// </summary>
         protected ServerInformation udpServerInformation;
 
         /// <summary>
+        /// Holds the requiered properties to stablish a UDP connection with the Server.
+        /// </summary>
+        public NetworkBaseCollection udpNetworkCollection;
+
+        /// <summary>
+        /// Holds the incoming messages through an UDP connection.
+        /// </summary>
+        protected CommandQueue incomingUDPMessages;
+
+        /// <summary>
+        /// Holds the outgoing messages through an UDP connection.
+        /// </summary>
+        protected CommandQueue outgoingUDPMessages;
+
+        /// <summary>
+        /// Tells if the UDP connection is already stablished.
+        /// </summary>
+        protected bool usingUDP;
+
+        /// <summary>
+        /// Tells if the UDP hole has been punched.
+        /// </summary>
+        protected bool udpHolePunched;
+
+        /// <summary>
         /// Pairing code.
         /// </summary>
         protected int pairingCode;
+
+        #endregion
 
         /// <summary>
         /// Creates a GameClient reference a initialize some properties.
@@ -107,6 +154,7 @@ namespace KSPM.Network.Client
             this.ableToRun = false;
             this.aliveFlag = false;
             this.holePunched = false;
+            this.udpHolePunched = false;
 
             this.workingSettings = null;
 
@@ -117,14 +165,23 @@ namespace KSPM.Network.Client
             this.handleOutgoingTCPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingTCPMessagesThreadMethod));
             this.handleIncomingTCPMessagesThread = new Thread(new ThreadStart(this.HandleIncomingTCPMessagesThreadMethod));
 
+            this.handleIncomingUDPMessagesThread = new Thread(new ThreadStart(this.HandleIncomingUDPMessagesThreadMethod));
+            this.handleOutgoingUDPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingUDPMessagesThreadMethod));
+
             this.commandsQueue = new CommandQueue();
+            this.outgoingTCPMessages = new CommandQueue();
+
+            this.incomingUDPMessages = new CommandQueue();
             this.outgoingTCPMessages = new CommandQueue();
 
             ///Initializing the TCP Network
             this.ownerNetworkCollection = new NetworkBaseCollection(ClientSettings.ClientBufferSize);
+            ///Initializing the UDP Network
+            this.udpNetworkCollection = new NetworkBaseCollection(ClientSettings.ClientBufferSize);
 
             ///Network init
             this.udpServerInformation = new ServerInformation();
+            this.usingUDP = false;
         }
 
         /// <summary>
@@ -160,6 +217,8 @@ namespace KSPM.Network.Client
                 this.aliveFlag = true;
                 this.ableToRun = true;
                 this.holePunched = false;
+                this.udpHolePunched = false;
+                this.usingUDP = false;
 
                 this.currentStatus = ClientStatus.None;
 
@@ -171,6 +230,9 @@ namespace KSPM.Network.Client
                 this.mainBodyThread.Start();
                 this.handleOutgoingTCPMessagesThread.Start();
                 this.handleIncomingTCPMessagesThread.Start();
+
+                this.handleIncomingUDPMessagesThread.Start();
+                this.handleOutgoingUDPMessagesThread.Start();
             }
             catch (System.Exception ex)
             {
@@ -263,8 +325,10 @@ namespace KSPM.Network.Client
             bool connected = false;
             Message outgoingMessage = null;
             ManagedMessage managedMessageReference = null;
+            RawMessage rawMessageReference = null;
             Error.ErrorType connectingError = Error.ErrorType.Ok;
             this.holePunched = false;
+            this.udpHolePunched = false;
             try
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to connect...", this.id));
@@ -295,8 +359,27 @@ namespace KSPM.Network.Client
                             this.currentStatus = ClientStatus.Awaiting;
                             break;
                         case ClientStatus.UDPSettingUp:
+                            this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                            this.udpNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.workingSettings.udpPort));
+                            connectingError = KSPMGlobals.Globals.NAT.Punch(ref this.udpNetworkCollection.socketReference, this.udpServerInformation.ip, this.udpServerInformation.port);
+                            this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
+                            if (this.udpHolePunched)
+                            {
+                                Message.UDPPairingMessage(this, out outgoingMessage);
+                                rawMessageReference = (RawMessage)outgoingMessage;
+                                PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage);
+                                this.outgoingUDPMessages.EnqueueCommandMessage(ref outgoingMessage);
+                                this.currentStatus = ClientStatus.Awaiting;
+                            }
+                            else
+                            {
+                                this.udpNetworkCollection.socketReference.Close();
+                                this.udpNetworkCollection.socketReference = null;
+                            }
+                            /*
                             connected = true;
                             this.currentStatus = ClientStatus.Connected;
+                             */
                             break;
                         case ClientStatus.Awaiting:
                             Thread.Sleep(11);
@@ -369,6 +452,7 @@ namespace KSPM.Network.Client
                                     this.udpServerInformation.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
                                     this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
                                     this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
+                                    this.pairingCode = ~this.pairingCode;
                                     this.currentStatus = ClientStatus.UDPSettingUp;
                                     break;
                             }
@@ -386,6 +470,8 @@ namespace KSPM.Network.Client
                 this.aliveFlag = false;
             }
         }
+
+        #region TCPCode
 
         /// <summary>
         /// Handles the outgoing messages through the TCP connection.
@@ -504,6 +590,75 @@ namespace KSPM.Network.Client
             }
         }
 
+        #endregion
+
+        #region UDPCode
+
+        protected void HandleIncomingUDPMessagesThreadMethod()
+        {
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle incoming TCP messages...", this.id));
+                while (this.aliveFlag)
+                {
+                    if (this.holePunched)
+                    {
+                        this.TCPSignalHandler.Reset();
+                        this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                        this.TCPSignalHandler.WaitOne();
+                    }
+                    Thread.Sleep(11);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.aliveFlag = false;
+            }
+        }
+
+        protected void HandleOutgoingUDPMessagesThreadMethod()
+        {
+            Message outgoingMessage = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle outgoing messages...", this.id));
+                while (this.aliveFlag)
+                {
+                    if (this.holePunched)
+                    {
+                        if (!this.outgoingTCPMessages.IsEmpty())
+                        {
+                            this.outgoingTCPMessages.DequeueCommandMessage(out outgoingMessage);
+                            if (outgoingMessage != null)
+                            {
+                                this.ownerNetworkCollection.socketReference.BeginSend(this.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
+                            }
+                            ///Cleaning up
+                            outgoingMessage.Release();
+                            outgoingMessage = null;
+                        }
+                    }
+                    Thread.Sleep(7);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.aliveFlag = false;
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Overrides Release method inherited from NetworkEntity, this method shutdowns the client.<b>Making it unable to run again, unless you create a new instance.</b>
         /// </summary>
@@ -565,6 +720,11 @@ namespace KSPM.Network.Client
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client killed!!!", this.id));
         }
 
+        /// <summary>
+        /// Closes the connections, cleans references used by the client itself, such as sockets, and buffers.
+        /// </summary>
+        /// <param name="caller"></param>
+        /// <param name="arg"></param>
         protected void BreakConnections(NetworkEntity caller, object arg)
         {
             ///***********************Sockets code
@@ -591,6 +751,7 @@ namespace KSPM.Network.Client
             this.outgoingTCPMessages.Purge(true);
 
             this.currentStatus = ClientStatus.None;
+
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected...", this.id));
         }
 
@@ -608,6 +769,14 @@ namespace KSPM.Network.Client
             managedMessageReference = (ManagedMessage)authenticationMessage;
             PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
             this.outgoingTCPMessages.EnqueueCommandMessage(ref authenticationMessage);
+        }
+
+        public int PairingCode
+        {
+            get
+            {
+                return this.pairingCode;
+            }
         }
     }
 }

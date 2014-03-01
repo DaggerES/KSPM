@@ -16,6 +16,7 @@ using KSPM.Network.Common.Packet;
 using KSPM.Game;
 
 using KSPM.Network.Client;
+using KSPM.Network.Client.RemoteServer;
 using KSPM.Network.NAT;
 
 namespace FakeKSPMClient

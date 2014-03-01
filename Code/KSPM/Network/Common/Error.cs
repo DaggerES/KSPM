@@ -41,7 +41,7 @@ namespace KSPM.Network.Common
             #endregion
 
             #region Settings
-            SettingsCanNotBeWritten,
+            IOFileCanNotBeWritten,
             #endregion
 
             #region UserErrors
