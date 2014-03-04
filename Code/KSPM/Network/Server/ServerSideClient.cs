@@ -382,7 +382,8 @@ namespace KSPM.Network.Server
                     {
                         ServerSideClient.UDPSignalHandler.Reset();
 						//remoteEndPoint = this.udpCollection.socketReference.RemoteEndPoint;
-                        remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        //remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
 						this.udpCollection.socketReference.BeginReceiveFrom( this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this );
 						//this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
                         ServerSideClient.UDPSignalHandler.WaitOne();
