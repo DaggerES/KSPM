@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KSPM.Network.Common.Message" Collapsed="true">
+    <Position X="6.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAACAEAAAAAAAJAAAIARBAAAAAAAwAAQAIAA=</HashCode>
+      <FileName>Network\Common\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.AbstractSettings" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\AbstractSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.GameServer" Collapsed="true">
+    <Position X="4.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ARACkgAgAQCAAAghAAEQgQAABIACCEAEiAAACAAkEQA=</HashCode>
+      <FileName>Network\Server\GameServer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KSPM.Network.Server.ServerSettings" Collapsed="true">
+    <Position X="2.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AoCAAAACAAAAAAJAAAAAAAAAAABAAABAAQAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\ServerSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Diagnostics.RealTimer" Collapsed="true">
+    <Position X="11.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Diagnostics\RealTimer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.FileLog" Collapsed="true">
+    <Position X="4.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAACAAABIAIAAAAAAAAAAAAAAgAAEAAgAAQAA=</HashCode>
+      <FileName>IO\Logging\FileLog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.Log" Collapsed="true">
+    <Position X="6.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>IO\Logging\Log.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KSPM.Network.Common.Error" Collapsed="true">
+    <Position X="13" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Common\Error.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Globals.KSPMGlobals" Collapsed="true">
+    <Position X="19" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAABAAAAAAAAAAAAAQCADIQAgAAAACAAAACAAIIAA=</HashCode>
+      <FileName>Globals\KSPMGlobals.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.ConsoleLog" Collapsed="true">
+    <Position X="6.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>IO\Logging\ConsoleLog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Logging.DevNullLog" Collapsed="true">
+    <Position X="8.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>IO\Logging\DevNullLog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Common.CommandQueue" Collapsed="true">
+    <Position X="17.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAAAAAAIAgAAAAAAAAAgAAACA=</HashCode>
+      <FileName>Network\Common\CommandQueue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Common.NetworkEntity" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIACAAACACAAAAQAgAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Network\Common\NetworkEntity.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KSPM.Network.Common.NetworkRawEntity" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAABAAAAAAACAAAAAAAAAAAAABCAAgA=</HashCode>
+      <FileName>Network\Common\NetworkRawEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Common.Packet.ByteDecoder" Collapsed="true">
+    <Position X="15.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Common\Packet\ByteDecoder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Common.Packet.PacketHandler" Collapsed="true">
+    <Position X="15.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAQAAAAAgAAAAQAAQAAABI=</HashCode>
+      <FileName>Network\Common\Packet\PacketHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.ServerSideClient" Collapsed="true">
+    <Position X="0.5" Y="3.25" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="KSPM.Network.Server.ServerSideClient.ClientStatus" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Network\Server\ServerSideClient.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="KSPM.Network.Server.ServerSideClient.MessagesThreadStatus" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Network\Server\ServerSideClient.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAACAABQAAAAAAAAAICAAIBAAAAgAEAAAAAAQJIAAAA=</HashCode>
+      <FileName>Network\Server\ServerSideClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.UserManagement.LowlevelUserManagmentSystem" Collapsed="true">
+    <Position X="2.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\UserManagement\LowlevelUserManagmentSystem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.UserManagement.UserManagementSystem" Collapsed="true">
+    <Position X="2.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAEAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\UserManagement\UserManagementSystem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.UserManagement.Filters.Filter" Collapsed="true">
+    <Position X="0.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\UserManagement\Filters\Filter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.Network.Server.UserManagement.Filters.NoneFilter" Collapsed="true">
+    <Position X="0.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Server\UserManagement\Filters\NoneFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KSPM.IO.Compression.Compressor" Collapsed="true">
+    <Position X="8.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAAACAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IO\Compression\Compressor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="KSPM.IO.ILoadableFromFile" Collapsed="true">
+    <Position X="8" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IO\ILoadableFromFile.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="KSPM.Network.Common.IAsyncReceiver" Collapsed="true">
+    <Position X="4.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Common\IAsyncReceiver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="KSPM.Network.Common.IAsyncSender" Collapsed="true">
+    <Position X="6.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Common\IAsyncSender.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,5 @@
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM_TestingConsole/KSPM_TestingConsole/bin/Debug/KSPM_TestingConsole.exe.mdb
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM_TestingConsole/KSPM_TestingConsole/bin/Debug/KSPM_TestingConsole.exe
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM_TestingConsole/KSPM_TestingConsole/obj/x86/Debug/KSPM_TestingConsole.exe
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM_TestingConsole/KSPM_TestingConsole/obj/x86/Debug/KSPM_TestingConsole.exe.mdb
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM_TestingConsole/KSPM_TestingConsole/bin/Debug/KSPM.dll

@@ -1,0 +1,11 @@
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\bin\Release\FakeKSPMClient.exe
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\bin\Release\FakeKSPMClient.pdb
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\bin\Release\KSPM.dll
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\bin\Release\KSPM.pdb
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\ResolveAssemblyReference.cache
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\FakeKSPMClient.Form1.resources
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\FakeKSPMClient.Properties.Resources.resources
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\GenerateResource.read.1.tlog
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\GenerateResource.write.1.tlog
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\FakeKSPMClient.exe
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\FakeKSPMClient\obj\x86\Release\FakeKSPMClient.pdb
