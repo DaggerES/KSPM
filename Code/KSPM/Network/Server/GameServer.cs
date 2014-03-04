@@ -47,12 +47,6 @@ namespace KSPM.Network.Server
         #endregion
 
         /// <summary>
-        /// UDP socket used to receive those messages which don't require the confirmation receipt.
-        /// <b>It could be erased so you do not uset it.</b>
-        /// </summary>
-        protected Socket udpSocket;
-
-        /// <summary>
         /// Settings to operate at low level, like listening ports and the like.
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
@@ -140,7 +134,7 @@ namespace KSPM.Network.Server
 
         public bool StartServer()
         {
-            KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server...");
+            KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server.");
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -150,7 +144,6 @@ namespace KSPM.Network.Server
             this.tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             this.tcpSocket.NoDelay = true;
 
-            this.udpSocket = null;
             try
             {
                 this.tcpSocket.Bind(this.tcpIpEndPoint);
@@ -269,7 +262,7 @@ namespace KSPM.Network.Server
                                     {
                                         Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("{0} has connected", serverSideClientReference.gameUser.Username));
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", serverSideClientReference.Id,serverSideClientReference.gameUser.Username));
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
                                     }
                                     else
@@ -353,7 +346,7 @@ namespace KSPM.Network.Server
 
         public void ShutdownServer()
         {
-            KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server ...");
+            KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server .");
 
             ///*************************Killing threads code
             this.alive = false;
@@ -362,11 +355,11 @@ namespace KSPM.Network.Server
             this.outgoingMessagesThread.Abort();
 
             this.connectionsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread ...");
+            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
             this.commandsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread ...");
+            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread .");
             this.outgoingMessagesThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread ...");
+            KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
 
 
             ///*************************Killing TCP socket code

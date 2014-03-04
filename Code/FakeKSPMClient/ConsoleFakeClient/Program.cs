@@ -50,7 +50,7 @@ namespace ConsoleFakeClient
                         break;
                     case ConsoleKey.R:
                         client.SetGameUser(myUser);
-                        client.SetServerHostInformation(server);
+                        client.SetServerHostInformation(hosts.Hosts[ 0 ]);
                         client.Connect();
                         break;
                     case ConsoleKey.D:

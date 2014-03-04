@@ -54,6 +54,7 @@
     <Compile Include="Network\Client\RemoteServer\ServerInformation.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerList.cs" />
     <Compile Include="Network\Common\CommandQueue.cs" />
+    <Compile Include="Network\Common\ConnectionlessNetworkCollection.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\IAsyncReceiver.cs" />
     <Compile Include="Network\Common\IAsyncSender.cs" />

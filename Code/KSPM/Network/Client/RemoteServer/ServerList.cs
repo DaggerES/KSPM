@@ -32,6 +32,7 @@ namespace KSPM.Network.Client.RemoteServer
                 serverListReader = new XmlTextReader(serverListStreamReader);
                 serverListSerializer = new XmlSerializer(typeof(ServerList));
                 list = (ServerList)serverListSerializer.Deserialize(serverListReader);
+                serverListReader.Close();
             }
             catch (FileNotFoundException)///If the file can not be loaded a default one is created iand written.
             {

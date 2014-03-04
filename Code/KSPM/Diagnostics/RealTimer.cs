@@ -18,7 +18,7 @@ namespace KSPM.Diagnostics
         /// <returns>The current date time with miliseconds as an string.</returns>
         public static string GetCurrentDateTime()
         {
-            return System.DateTime.Now.ToString("[dd-MM-yyyy_HH:mm:ss:ffff]");
+            return System.DateTime.Now.ToString("[dd-MM-yyyy_HH:mm:ss:fffffff]");
         }
 
         public static Stopwatch Timer
