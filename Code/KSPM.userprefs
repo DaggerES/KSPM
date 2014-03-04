@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="KSPM/Network/Server/ServerSideClient.cs">
+    <Files>
+      <File FileName="KSPM_TestingConsole/KSPM_TestingConsole/Program.cs" Line="26" Column="6" />
+      <File FileName="KSPM/Network/Server/GameServer.cs" Line="398" Column="9" />
+      <File FileName="KSPM/Network/Server/ServerSideClient.cs" Line="482" Column="10" />
+      <File FileName="KSPM/Network/Common/Messages/Message.cs" Line="22" Column="43" />
+      <File FileName="KSPM/Network/Common/NetworkBaseCollection.cs" Line="30" Column="9" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
