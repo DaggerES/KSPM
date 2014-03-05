@@ -22,9 +22,9 @@ namespace KSPM.Network.Client.RemoteServer
         public static KSPM.Network.Common.Error.ErrorType ReadServerList(out ServerList list)
         {
             KSPM.Network.Common.Error.ErrorType result = Common.Error.ErrorType.Ok;
-            StreamReader serverListStreamReader;
-            XmlSerializer serverListSerializer;
-            XmlTextReader serverListReader;
+			StreamReader serverListStreamReader = null;
+			XmlSerializer serverListSerializer = null;
+			XmlTextReader serverListReader = null;
             list = null;
             try
             {
@@ -37,8 +37,17 @@ namespace KSPM.Network.Client.RemoteServer
             catch (FileNotFoundException)///If the file can not be loaded a default one is created iand written.
             {
                 list = new ServerList();
+				list.hosts.Add (ServerInformation.LoopbackServerInformation);
                 result = ServerList.WriteServerList(ref list);
             }
+			///Something went wrong trying to parse the XML file.
+			catch( XmlException)
+			{
+				serverListReader.Close();
+				list = new ServerList();
+				list.hosts.Add (ServerInformation.LoopbackServerInformation);
+				result = ServerList.WriteServerList(ref list);
+			}
             catch (DirectoryNotFoundException)
             { }
             catch (IOException)

@@ -357,6 +357,7 @@ namespace KSPM.Network.Client
                 this.reassignAddress = false;
                 while (!connected)
                 {
+					KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Switch {1}.", this.id, this.currentStatus.ToString()));
                     switch (this.currentStatus)
                     {
                         case ClientStatus.Handshaking:
@@ -378,6 +379,7 @@ namespace KSPM.Network.Client
                             this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
                             if (this.udpHolePunched)
                             {
+								KSPMGlobals.Globals.Log.WriteTo("Punched" );
                                 Message.UDPPairingMessage(this, out outgoingMessage);
                                 rawMessageReference = (RawMessage)outgoingMessage;
                                 PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage);
@@ -386,6 +388,7 @@ namespace KSPM.Network.Client
                             }
                             else
                             {
+								KSPMGlobals.Globals.Log.WriteTo("NO UDP HOLE FUCK!!!" );
                                 this.udpNetworkCollection.socketReference.Close();
                                 this.udpNetworkCollection.socketReference = null;
                             }
@@ -468,13 +471,13 @@ namespace KSPM.Network.Client
                                     this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
                                     this.pairingCode = ~this.pairingCode;
                                     this.currentStatus = ClientStatus.UDPSettingUp;
+									KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Recv UDP info. {1}", this.id, this.currentStatus.ToString()));
                                     break;
                             }
+							///Cleaning up.
+							command.Release();
+							command = null;
                         }
-
-                        ///Cleaning up.
-                        command.Release();
-                        command = null;
                     }
                     Thread.Sleep(5);
                 }
@@ -687,7 +690,8 @@ namespace KSPM.Network.Client
                             rawMessageReference = (RawMessage)outgoingMessage;
                             if (outgoingMessage != null)
                             {
-                                this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpNetworkCollection.socketReference.RemoteEndPoint, this.AsyncReceiverCallback, this);
+								KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sending.", this.id));
+								this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpNetworkCollection.socketReference.RemoteEndPoint, this.AsyncSenderCallback, this);
                             }
                             ///Cleaning up
                             outgoingMessage.Release();
@@ -711,10 +715,13 @@ namespace KSPM.Network.Client
             try
             {
                 owner = (GameClient)result.AsyncState;
+				KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sent step a.", this.id));
                 sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
+				KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sent.", this.id));
             }
-            catch (System.Exception)
+			catch (System.Exception ex)
             {
+				KSPMGlobals.Globals.Log.WriteTo(ex.Message);
             }
         }
 

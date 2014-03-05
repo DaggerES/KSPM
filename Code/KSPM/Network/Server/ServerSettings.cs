@@ -18,6 +18,8 @@ namespace KSPM.Network.Server
         protected static int ServerConnectionsBacklog = 10;
         [XmlIgnore]
         protected static int ServerAuthenticationAllowingTries = 3;
+		[XmlIgnore]
+		public static readonly int DefaultTCPListeningPort = 4700;
 
         /// <summary>
         /// The maximun amount of time that the socket will wait for an incoming connection, after that time has reached a

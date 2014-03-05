@@ -4,6 +4,8 @@ namespace KSPM.Network.Client.RemoteServer
 {
     public class ServerInformation : System.IDisposable
     {
+		public static readonly ServerInformation LoopbackServerInformation = new ServerInformation( "Loopback", "127.0.0.1", KSPM.Network.Server.ServerSettings.DefaultTCPListeningPort );
+
         /// <summary>
         /// Server name, it is used by the user to identify them best.
         /// </summary>
@@ -21,6 +23,22 @@ namespace KSPM.Network.Client.RemoteServer
         /// </summary>
         [XmlElement("PortNumber")]
         public int port;
+
+		/// <summary>
+		/// Creates a ServerInformation with the given parameters.
+		/// </summary>
+		/// <param name="serverName">Server name.</param>
+		/// <param name="ip">Ip.</param>
+		/// <param name="port">Port.</param>
+		public ServerInformation( string serverName, string ip, int port )
+		{
+			this.name = serverName;
+			this.ip = ip;
+			this.port = port;
+		}
+
+		public ServerInformation()
+		{}
 
         /// <summary>
         /// Releases the properties and set them to null.
