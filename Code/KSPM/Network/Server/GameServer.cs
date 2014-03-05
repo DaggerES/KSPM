@@ -436,7 +436,10 @@ namespace KSPM.Network.Server
                 net = (NetworkEntity)result.AsyncState;
                 //callingSocket = (Socket)result.AsyncState;
                 sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
-                net.MessageSent(net, null);
+				if( sentBytes > 0 )
+				{
+                	net.MessageSent(net, null);
+				}
             }
             catch (System.Exception)
             {

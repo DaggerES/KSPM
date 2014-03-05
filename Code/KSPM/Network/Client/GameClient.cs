@@ -338,13 +338,12 @@ namespace KSPM.Network.Client
             Message outgoingMessage = null;
             ManagedMessage managedMessageReference = null;
             RawMessage rawMessageReference = null;
-            Error.ErrorType connectingError = Error.ErrorType.Ok;
             this.holePunched = false;
             this.udpHolePunched = false;
             try
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to connect.", this.id));
-                connectingError = KSPMGlobals.Globals.NAT.Punch(ref this.ownerNetworkCollection.socketReference, this.gameServerInformation.ip, this.gameServerInformation.port);
+                KSPMGlobals.Globals.NAT.Punch(ref this.ownerNetworkCollection.socketReference, this.gameServerInformation.ip, this.gameServerInformation.port);
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] TCP hole status: {1}.", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
                 this.holePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
                 if (!this.holePunched)
@@ -357,6 +356,7 @@ namespace KSPM.Network.Client
                 this.reassignAddress = false;
                 while (!connected)
                 {
+					KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Switch {1}.", this.id, this.currentStatus.ToString()));
                     switch (this.currentStatus)
                     {
                         case ClientStatus.Handshaking:
@@ -373,7 +373,7 @@ namespace KSPM.Network.Client
                         case ClientStatus.UDPSettingUp:
                             this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                             this.udpNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.workingSettings.udpPort));
-                            connectingError = KSPMGlobals.Globals.NAT.Punch(ref this.udpNetworkCollection.socketReference, this.udpServerInformation.ip, this.udpServerInformation.port);
+                            KSPMGlobals.Globals.NAT.Punch(ref this.udpNetworkCollection.socketReference, this.udpServerInformation.ip, this.udpServerInformation.port);
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP hole status: {1}.", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
                             this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
                             if (this.udpHolePunched)
@@ -392,7 +392,7 @@ namespace KSPM.Network.Client
                             break;
                         ///Already received the UDPPairingOK message.
                         case ClientStatus.Connected:
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, ((IPEndPoint)this.udpNetworkCollection.socketReference.RemoteEndPoint).Address));
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, this.udpServerInformation.NetworkEndPoint.ToString()));
                             connected = true;
                             break;
                         case ClientStatus.Awaiting:
@@ -468,13 +468,13 @@ namespace KSPM.Network.Client
                                     this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
                                     this.pairingCode = ~this.pairingCode;
                                     this.currentStatus = ClientStatus.UDPSettingUp;
+									KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Recv UDP info. {1}", this.id, this.currentStatus.ToString()));
                                     break;
                             }
+							///Cleaning up.
+							command.Release();
+							command = null;
                         }
-
-                        ///Cleaning up.
-                        command.Release();
-                        command = null;
                     }
                     Thread.Sleep(5);
                 }
@@ -597,7 +597,10 @@ namespace KSPM.Network.Client
             {
                 networkReference = (NetworkEntity)result.AsyncState;
                 sentBytes = networkReference.ownerNetworkCollection.socketReference.EndSend(result);
-                networkReference.MessageSent(networkReference, null);
+				if( sentBytes > 0 )
+				{
+                	networkReference.MessageSent(networkReference, null);
+				}
             }
             catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
@@ -669,6 +672,7 @@ namespace KSPM.Network.Client
         {
             Message outgoingMessage = null;
             RawMessage rawMessageReference = null;
+            
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
@@ -687,11 +691,12 @@ namespace KSPM.Network.Client
                             rawMessageReference = (RawMessage)outgoingMessage;
                             if (outgoingMessage != null)
                             {
-                                this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpNetworkCollection.socketReference.RemoteEndPoint, this.AsyncReceiverCallback, this);
+								KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sending.", this.id));
+								this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpServerInformation.NetworkEndPoint, this.AsyncSenderCallback, this);
+                                ///Cleaning up
+                                outgoingMessage.Release();
+                                outgoingMessage = null;
                             }
-                            ///Cleaning up
-                            outgoingMessage.Release();
-                            outgoingMessage = null;
                         }
                     }
                     Thread.Sleep(7);
@@ -704,6 +709,10 @@ namespace KSPM.Network.Client
             }
         }
 
+		/// <summary>
+		/// Sends data in an async way. <b> Required to implement some way to inform to the upside levels.</b>
+		/// </summary>
+		/// <param name="result"></param>
         public void AsyncSenderCallback(System.IAsyncResult result)
         {
             int sentBytes;
@@ -713,8 +722,9 @@ namespace KSPM.Network.Client
                 owner = (GameClient)result.AsyncState;
                 sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
             }
-            catch (System.Exception)
+			catch (System.Exception ex)
             {
+				KSPMGlobals.Globals.Log.WriteTo(ex.Message);
             }
         }
 

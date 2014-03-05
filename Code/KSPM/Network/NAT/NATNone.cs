@@ -16,8 +16,13 @@ namespace KSPM.Network.NAT
             Error.ErrorType error = Error.ErrorType.Ok;
             try
             {
-                this.currentStatus = NATStatus.Connecting;
-                client.Connect(ip, port);
+				this.currentStatus = NATStatus.Connecting;
+				///Due to an specific Berkeley socket description which regards that a connectionless socket does not support to call sendTo on an already connected socket.
+				/// So to avoid that Socket errorcode (10056) the Socket.Connect method is only called when it is not using a connectionless protocol.
+				if( client.ProtocolType != ProtocolType.Udp )
+				{
+                	client.Connect(ip, port);
+				}
                 this.currentStatus = NATStatus.Connected;
             }
             catch (System.Exception ex)

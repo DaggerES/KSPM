@@ -4,6 +4,9 @@ namespace KSPM.Network.Client.RemoteServer
 {
     public class ServerInformation : System.IDisposable
     {
+        [XmlIgnore]
+		public static readonly ServerInformation LoopbackServerInformation = new ServerInformation( "Loopback", "127.0.0.1", KSPM.Network.Server.ServerSettings.DefaultTCPListeningPort );
+
         /// <summary>
         /// Server name, it is used by the user to identify them best.
         /// </summary>
@@ -21,6 +24,36 @@ namespace KSPM.Network.Client.RemoteServer
         /// </summary>
         [XmlElement("PortNumber")]
         public int port;
+
+        [XmlIgnore]
+        protected System.Net.IPEndPoint networkEndPoint;
+
+		/// <summary>
+		/// Creates a ServerInformation with the given parameters.
+		/// </summary>
+		/// <param name="serverName">Server name.</param>
+		/// <param name="ip">Ip.</param>
+		/// <param name="port">Port.</param>
+		public ServerInformation( string serverName, string ip, int port )
+		{
+			this.name = serverName;
+			this.ip = ip;
+			this.port = port;
+            try
+            {
+                this.networkEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(this.ip), this.port);
+            }
+            catch (System.Exception)
+            {
+                ///If anything happens a generic IpEndPoint is created.
+                this.networkEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 0);
+            }
+		}
+
+		public ServerInformation()
+		{
+            this.networkEndPoint = null;
+        }
 
         /// <summary>
         /// Releases the properties and set them to null.
@@ -47,6 +80,29 @@ namespace KSPM.Network.Client.RemoteServer
         public override int GetHashCode()
         {
             return this.ip.GetHashCode() + this.port.GetHashCode();
+        }
+
+        /// <summary>
+        /// Gets the underlying IpEndPoint filled with the stored information.
+        /// </summary>
+        public System.Net.IPEndPoint NetworkEndPoint
+        {
+            get
+            {
+                if (this.networkEndPoint == null)
+                {
+                    try
+                    {
+                        this.networkEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(this.ip), this.port);
+                    }
+                    catch (System.Exception)
+                    {
+                        ///If anything wrong happens a generic IpEndPoint is created.
+                        this.networkEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 0);
+                    }
+                }
+                return this.networkEndPoint;
+            }
         }
     }
 }
