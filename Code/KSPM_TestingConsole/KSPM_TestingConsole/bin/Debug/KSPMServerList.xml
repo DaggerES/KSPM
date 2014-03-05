@@ -16,20 +16,5 @@
       <IP_Address>192.168.15.114</IP_Address>
       <PortNumber>4700</PortNumber>
     </ServerInformation>
-    <ServerInformation>
-      <ServerName>Testeando</ServerName>
-      <IP_Address>192.168.15.114</IP_Address>
-      <PortNumber>4700</PortNumber>
-    </ServerInformation>
-    <ServerInformation>
-      <ServerName>Testeando</ServerName>
-      <IP_Address>192.168.15.114</IP_Address>
-      <PortNumber>4700</PortNumber>
-    </ServerInformation>
-    <ServerInformation>
-      <ServerName>Testeando</ServerName>
-      <IP_Address>192.168.15.114</IP_Address>
-      <PortNumber>4700</PortNumber>
-    </ServerInformation>
   </KSPMServers>
 </ServerList>

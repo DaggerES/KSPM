@@ -26,6 +26,9 @@ namespace KSPM.Network.NAT
             this.currentStatus = NATStatus.Ready;
         }
 
+        /// <summary>
+        /// Gets the current status of the puching process.
+        /// </summary>
         public NATStatus Status
         {
             get

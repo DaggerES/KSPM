@@ -61,7 +61,7 @@ namespace KSPM_TestingConsole
 			client.InitializeClient();
 
 			client.SetGameUser (myUser);
-			client.SetServerHostInformation (hosts.Hosts [1]);
+			client.SetServerHostInformation (hosts.Hosts [2]);
 			client.Connect ();
 			Thread.Sleep (10000);
 			client.Disconnect();

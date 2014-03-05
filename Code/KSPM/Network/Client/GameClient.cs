@@ -395,7 +395,8 @@ namespace KSPM.Network.Client
                             break;
                         ///Already received the UDPPairingOK message.
                         case ClientStatus.Connected:
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, ((IPEndPoint)this.udpNetworkCollection.socketReference.RemoteEndPoint).Address));
+                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id));
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, this.udpServerInformation.NetworkEndPoint.ToString()));
                             connected = true;
                             break;
                         case ClientStatus.Awaiting:
@@ -672,6 +673,7 @@ namespace KSPM.Network.Client
         {
             Message outgoingMessage = null;
             RawMessage rawMessageReference = null;
+            
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
@@ -691,11 +693,11 @@ namespace KSPM.Network.Client
                             if (outgoingMessage != null)
                             {
 								KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sending.", this.id));
-								this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpNetworkCollection.socketReference.RemoteEndPoint, this.AsyncSenderCallback, this);
+								this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpServerInformation.NetworkEndPoint, this.AsyncSenderCallback, this);
+                                ///Cleaning up
+                                outgoingMessage.Release();
+                                outgoingMessage = null;
                             }
-                            ///Cleaning up
-                            outgoingMessage.Release();
-                            outgoingMessage = null;
                         }
                     }
                     Thread.Sleep(7);
