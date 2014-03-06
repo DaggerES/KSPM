@@ -356,7 +356,6 @@ namespace KSPM.Network.Client
                 this.reassignAddress = false;
                 while (!connected)
                 {
-					KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Switch {1}.", this.id, this.currentStatus.ToString()));
                     switch (this.currentStatus)
                     {
                         case ClientStatus.Handshaking:
@@ -691,7 +690,6 @@ namespace KSPM.Network.Client
                             rawMessageReference = (RawMessage)outgoingMessage;
                             if (outgoingMessage != null)
                             {
-								KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Sending.", this.id));
 								this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpServerInformation.NetworkEndPoint, this.AsyncSenderCallback, this);
                                 ///Cleaning up
                                 outgoingMessage.Release();

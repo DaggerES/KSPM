@@ -262,7 +262,6 @@ namespace KSPM.Network.Server
                                     {
                                         Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", serverSideClientReference.Id,serverSideClientReference.gameUser.Username));
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
                                     }
                                     else

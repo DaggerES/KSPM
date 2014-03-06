@@ -100,7 +100,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
         /// </summary>
-        protected static readonly ManualResetEvent UDPSignalHandler = new ManualResetEvent(false);
+        protected readonly ManualResetEvent UDPSignalHandler = new ManualResetEvent(false);
 
         /// <summary>
         /// ManualResetEvent reference to manage the signaling among the threads which handle the TCP connections.
@@ -201,6 +201,8 @@ namespace KSPM.Network.Server
                         this.usingUdpConnection = true;
                         break;
                     case ClientStatus.Connected:
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
+                        this.currentStatus = ClientStatus.Awaiting;
                         break;
                 }
                 Thread.Sleep(3);
@@ -380,13 +382,13 @@ namespace KSPM.Network.Server
                 {
                     if (this.usingUdpConnection)
                     {
-                        ServerSideClient.UDPSignalHandler.Reset();
+                        this.UDPSignalHandler.Reset();
 						//remoteEndPoint = this.udpCollection.socketReference.RemoteEndPoint;
                         //remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                         remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
 						this.udpCollection.socketReference.BeginReceiveFrom( this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this );
 						//this.udpCollection.socketReference.BeginReceiveMessageFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
-                        ServerSideClient.UDPSignalHandler.WaitOne();
+                        this.UDPSignalHandler.WaitOne();
                     }
                     Thread.Sleep(3);
                 }
@@ -403,17 +405,17 @@ namespace KSPM.Network.Server
             int readBytes;
             Message incomingMessage = null;
             EndPoint receivedReference;
-            ServerSideClient.UDPSignalHandler.Set();
+            this.UDPSignalHandler.Set();
             ServerSideClient ssClientReference = (ServerSideClient)result.AsyncState;
             try
             {
                 //receivedReference = ssClientReference.udpCollection.socketReference.RemoteEndPoint;
-                receivedReference = new IPEndPoint(IPAddress.Any, 0);
+                //receivedReference = new IPEndPoint(IPAddress.Any, 0);
                 //readBytes = ssClientReference.udpCollection.socketReference.EndReceiveMessageFrom(result, ref receivedFlags, ref receivedReference, out packetInformation);
-                readBytes = ssClientReference.udpCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
+                readBytes = ssClientReference.udpCollection.socketReference.EndReceiveFrom(result, ref this.udpCollection.remoteEndPoint);
                 if (readBytes > 0)
                 {
-                    ssClientReference.udpCollection.remoteEndPoint = receivedReference;
+                    //ssClientReference.udpCollection.remoteEndPoint = receivedReference;
                     if (this.currentStatus == ClientStatus.UDPSettingUp)
                     {
                         if (PacketHandler.DecodeRawPacket(ref ssClientReference.udpCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
