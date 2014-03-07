@@ -193,12 +193,13 @@ namespace KSPM.Network.Server
                     case ClientStatus.Awaiting:
                         break;
                     case ClientStatus.Authenticated:
+                        Thread.Sleep(1000);
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
                         managedMessageReference = (ManagedMessage)tempMessage;
                         PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, this.pairingCode));
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
                         break;
                     case ClientStatus.Connected:
@@ -324,7 +325,7 @@ namespace KSPM.Network.Server
                         {
                             case Message.CommandType.UDPPairing:
                                 intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.RawMessageHeaderSize + 1);
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, intBuffer));
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
                                 if ((this.pairingCode & intBuffer) == 0)//UDP tested.
                                 {
                                     Message.UDPPairingOkMessage(this, out responseMessage);
@@ -427,7 +428,7 @@ namespace KSPM.Network.Server
             }
             catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", this.id, ex.Message));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===AsyncReceiverCallback_Error==={1}.", this.id, ex.Message));
             }
         }
 

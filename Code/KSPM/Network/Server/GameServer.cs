@@ -323,6 +323,7 @@ namespace KSPM.Network.Server
                         managedReference = (ManagedMessage)outgoingMessage;
                         if (outgoingMessage != null)
                         {
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer[ 4 ], outgoingMessage.Command));
                             managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                         }
                         outgoingMessage = null;
