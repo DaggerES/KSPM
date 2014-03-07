@@ -260,8 +260,10 @@ namespace KSPM.Network.Server
                                     messageOwner = serverSideClientReference;
                                     if (this.usersAccountManager.Query(ref messageOwner))
                                     {
+                                        /*
                                         Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                         */
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
                                     }
                                     else

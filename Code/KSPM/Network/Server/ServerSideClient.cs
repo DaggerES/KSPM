@@ -193,7 +193,7 @@ namespace KSPM.Network.Server
                     case ClientStatus.Awaiting:
                         break;
                     case ClientStatus.Authenticated:
-                        Thread.Sleep(1000);
+                        //Thread.Sleep(1000);
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
                         managedMessageReference = (ManagedMessage)tempMessage;
