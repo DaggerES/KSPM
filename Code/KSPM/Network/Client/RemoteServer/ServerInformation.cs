@@ -62,6 +62,8 @@ namespace KSPM.Network.Client.RemoteServer
         {
             this.ip = null;
             this.port = -1;
+            this.name = null;
+            this.networkEndPoint = null;
         }
 
         public override bool Equals(object obj)
@@ -103,6 +105,22 @@ namespace KSPM.Network.Client.RemoteServer
                 }
                 return this.networkEndPoint;
             }
+        }
+
+        /// <summary>
+        /// Clones its content to the target reference.
+        /// </summary>
+        /// <param name="target"></param>
+        public void Clone(ref ServerInformation target)
+        {
+            if (target == null)
+            {
+                target = new ServerInformation();
+            }
+            target.ip = this.ip;
+            target.name = this.name;
+            target.port = this.port;
+            target.networkEndPoint = this.networkEndPoint;
         }
     }
 }

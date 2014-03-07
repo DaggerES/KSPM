@@ -433,6 +433,7 @@ namespace KSPM.Network.Client
         {
             Message command = null;
             ManagedMessage managedMessageReference = null;
+            ServerInformation udpServerInformationFromNetwork = new ServerInformation();
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
@@ -462,16 +463,15 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                                                       ///Reads the information sent by the server and starts the UDP setting up process.
                                     managedMessageReference = (ManagedMessage)command;
-                                    ServerInformation recvInfo = new ServerInformation();
-                                    recvInfo.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
-                                    recvInfo.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
-                                    if (!this.udpServerInformation.Equals(recvInfo))
+                                    udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
+                                    udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
+                                    this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, this.pairingCode));
+                                    this.pairingCode = ~this.pairingCode;
+                                    if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork))
                                     {
-                                        this.udpServerInformation = recvInfo;
-                                        this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
-                                        this.pairingCode = ~this.pairingCode;
+                                        udpServerInformationFromNetwork.Clone(ref this.udpServerInformation);
                                         this.currentStatus = ClientStatus.UDPSettingUp;
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Recv UDP info. {1}", this.id, this.currentStatus.ToString()));
                                     }
                                     //this.udpServerInformation.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
                                     //this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
@@ -634,7 +634,6 @@ namespace KSPM.Network.Client
                     if (this.udpHolePunched)///Checking if the UDP hole is already punched.
                     {
                         this.UDPSignalHandler.Reset();
-                        
                         remoteEndPoint = this.udpNetworkCollection.socketReference.LocalEndPoint;
                         this.udpNetworkCollection.socketReference.BeginReceiveFrom(this.udpNetworkCollection.secondaryRawBuffer, 0, this.udpNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
                         this.UDPSignalHandler.WaitOne();
@@ -676,7 +675,7 @@ namespace KSPM.Network.Client
             }
             catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]==={1}.", this.id, ex.Message));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", this.id, ex.Message));
             }
         }
 
