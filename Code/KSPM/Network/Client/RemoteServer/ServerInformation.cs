@@ -66,7 +66,7 @@ namespace KSPM.Network.Client.RemoteServer
 
         public override bool Equals(object obj)
         {
-            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()) || this.port < 0 || this.ip == null)
             {
                 return false;
             }

@@ -346,6 +346,7 @@ namespace KSPM.Network.Server
                                         if (PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage) == Error.ErrorType.Ok)
                                         {
                                             this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
+                                            this.currentStatus = ClientStatus.Connected;
                                         }
                                     }
                                 }
@@ -428,7 +429,7 @@ namespace KSPM.Network.Server
                     }
                 }
             }
-            catch (System.Exception) { }///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            catch (System.Exception ex) { }///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
         }
 
         /// <summary>
@@ -550,9 +551,12 @@ namespace KSPM.Network.Server
             this.udpHandlingCommandsThread = null;
 
             ///***********************Sockets code
-            if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
+            if (this.ownerNetworkCollection.socketReference != null)
             {
-                this.ownerNetworkCollection.socketReference.Disconnect(false);
+                if (this.ownerNetworkCollection.socketReference.Connected)
+                {
+                    this.ownerNetworkCollection.socketReference.Disconnect(false);
+                }
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();

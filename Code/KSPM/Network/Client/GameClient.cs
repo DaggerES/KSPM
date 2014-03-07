@@ -462,12 +462,19 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                                                       ///Reads the information sent by the server and starts the UDP setting up process.
                                     managedMessageReference = (ManagedMessage)command;
-                                    this.udpServerInformation.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
-                                    this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
-                                    this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
-                                    this.pairingCode = ~this.pairingCode;
-                                    this.currentStatus = ClientStatus.UDPSettingUp;
-									KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Recv UDP info. {1}", this.id, this.currentStatus.ToString()));
+                                    ServerInformation recvInfo = new ServerInformation();
+                                    recvInfo.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
+                                    recvInfo.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
+                                    if (!this.udpServerInformation.Equals(recvInfo))
+                                    {
+                                        this.udpServerInformation = recvInfo;
+                                        this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
+                                        this.pairingCode = ~this.pairingCode;
+                                        this.currentStatus = ClientStatus.UDPSettingUp;
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Recv UDP info. {1}", this.id, this.currentStatus.ToString()));
+                                    }
+                                    //this.udpServerInformation.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
+                                    //this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
                                     break;
                             }
 							///Cleaning up.
@@ -652,9 +659,11 @@ namespace KSPM.Network.Client
             try
             {
                 receivedReference = new IPEndPoint(IPAddress.Any, 0);
-                readBytes = myClientRerence.udpNetworkCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
-                if (readBytes > 0)
+                if (this.udpNetworkCollection.socketReference != null)
                 {
+                    readBytes = myClientRerence.udpNetworkCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
+                    if (readBytes > 0)
+                    {
                         if (PacketHandler.DecodeRawPacket(ref myClientRerence.udpNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
                             if (PacketHandler.InflateRawMessage(myClientRerence.udpNetworkCollection.secondaryRawBuffer, out incomingMessage) == Error.ErrorType.Ok)
@@ -662,9 +671,13 @@ namespace KSPM.Network.Client
                                 this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
                             }
                         }
+                    }
                 }
             }
-            catch (System.Exception) { }///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]==={1}.", this.id, ex.Message));
+            }
         }
 
         protected void HandleOutgoingUDPMessagesThreadMethod()
@@ -719,6 +732,7 @@ namespace KSPM.Network.Client
             {
                 owner = (GameClient)result.AsyncState;
                 sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
+                KSPMGlobals.Globals.Log.WriteTo("Sent");
             }
 			catch (System.Exception ex)
             {
@@ -859,16 +873,14 @@ namespace KSPM.Network.Client
         protected void BreakConnections(NetworkEntity caller, object arg)
         {
             ///***********************Sockets code
+            this.udpHolePunched = false;
             this.holePunched = false;
+            this.usingUDP = false;
             if (this.ownerNetworkCollection.socketReference != null && this.ownerNetworkCollection.socketReference.Connected)
             {
                 this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                 this.ownerNetworkCollection.socketReference.Disconnect(true);
             }
-
-            this.udpHolePunched = false;
-            this.holePunched = false;
-            this.usingUDP = false;
 
             ///Closing the socket either it is connected or not.
             this.ownerNetworkCollection.socketReference.Close();
