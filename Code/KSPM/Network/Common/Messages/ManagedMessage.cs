@@ -43,11 +43,12 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
-        /// Does nothing in this moment.
+        /// Sets messageOwner to null and he messageRawLength to 0.<b>If you want to clean everythin you have to set to null this reference.</b>
         /// </summary>
         public override void Release()
         {
-
+            this.messageOwner = null;
+            this.messageRawLength = 0;
         }
 
         public void CloneContent(Message otherMessage)

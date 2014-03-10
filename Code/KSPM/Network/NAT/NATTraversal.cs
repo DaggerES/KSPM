@@ -6,7 +6,9 @@ namespace KSPM.Network.NAT
     public abstract class NATTraversal
     {
 
-        public enum NATStatus : byte { Connecting, Connected, Error };
+        public static readonly long NATCONNECTION_TIMEOUT = 1000;
+
+        public enum NATStatus : byte { Ready, Connecting, Connected, Error, AddresInUse };
 
         /// <summary>
         /// Tries to connect to the specified ip using the given port.
@@ -19,6 +21,14 @@ namespace KSPM.Network.NAT
 
         protected NATStatus currentStatus;
 
+        protected NATTraversal()
+        {
+            this.currentStatus = NATStatus.Ready;
+        }
+
+        /// <summary>
+        /// Gets the current status of the puching process.
+        /// </summary>
         public NATStatus Status
         {
             get
@@ -26,6 +36,5 @@ namespace KSPM.Network.NAT
                 return this.currentStatus;
             }
         }
-
     }
 }

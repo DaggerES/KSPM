@@ -10,7 +10,7 @@ namespace KSPM.Diagnostics
         /// <summary>
         /// Performance stopwatch
         /// </summary>
-        public static Stopwatch Clock = new Stopwatch();
+        protected static Stopwatch Clock = new Stopwatch();
 
         /// <summary>
         /// Return the current time in a preformatted string.
@@ -18,7 +18,17 @@ namespace KSPM.Diagnostics
         /// <returns>The current date time with miliseconds as an string.</returns>
         public static string GetCurrentDateTime()
         {
-            return System.DateTime.Now.ToString("[dd-MM-yyyy_HH:mm:ss:ffff]");
+            return System.DateTime.Now.ToString("[dd-MM-yyyy_HH:mm:ss:fffffff]");
+        }
+
+        public static Stopwatch Timer
+        {
+            get
+            {
+                if (!RealTimer.Clock.IsRunning)
+                    RealTimer.Clock.Start();
+                return RealTimer.Clock;
+            }
         }
     }
 }
