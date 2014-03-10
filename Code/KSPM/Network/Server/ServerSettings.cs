@@ -21,12 +21,6 @@ namespace KSPM.Network.Server
 		[XmlIgnore]
 		public static readonly int DefaultTCPListeningPort = 4700;
 
-        /// <summary>
-        /// The maximun amount of time that the socket will wait for an incoming connection, after that time has reached a
-        /// </summary>
-        [XmlIgnore]
-        protected static int SocketListeningTimeout = 1000;
-
         [XmlElement("TCPPort")]
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
