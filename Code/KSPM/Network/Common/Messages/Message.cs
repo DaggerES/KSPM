@@ -91,6 +91,13 @@ namespace KSPM.Network.Common.Messages
             UDPBroadcast,
 
             #endregion
+
+            /// <summary>
+            /// Chat command.
+            /// [Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ To ( [UsernameLength{byte:1}][Username{byte:1-}] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// </summary>
+            Chat,
+
             /// <summary>
             /// Disconnect command to a nicely way to say goodbye.
             /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
@@ -381,6 +388,12 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
             targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
             targetMessage.messageRawLength = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
+        public static Error.ErrorType ChatMessage(NetworkEntity sender, out Message targetMessage)
+        {
+            targetMessage = null;
             return Error.ErrorType.Ok;
         }
 

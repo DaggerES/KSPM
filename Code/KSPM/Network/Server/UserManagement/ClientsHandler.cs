@@ -100,5 +100,19 @@ namespace KSPM.Network.Server.UserManagement
                 }
             }
         }
+
+        public void TCPBroadcastTo(List<NetworkEntity> targets, Message messageToSend)
+        {
+            Message outgoingMessage = null;
+            lock (this.clients)
+            {
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    outgoingMessage = new ManagedMessage(Message.CommandType.Chat, targets[i]);
+                    ((ManagedMessage)outgoingMessage).CloneContent((ManagedMessage)messageToSend);
+                    KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
+                }
+            }
+        }
     }
 }

@@ -53,6 +53,7 @@ namespace KSPM.Network.Common
 
             #region ByteErrors
             InvalidArray,
+            ByteBadFormat,
             #endregion
         };
     }

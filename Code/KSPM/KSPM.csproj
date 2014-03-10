@@ -44,11 +44,17 @@
     <Compile Include="Game\User.cs" />
     <Compile Include="Globals\KSPMGlobals.cs" />
     <Compile Include="IO\Compression\Compressor.cs" />
+    <Compile Include="IO\Encoding\Encoder.cs" />
+    <Compile Include="IO\Encoding\UTF8Encoder.cs" />
     <Compile Include="IO\Logging\ConsoleLog.cs" />
     <Compile Include="IO\Logging\DevNullLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Security\Hash.cs" />
+    <Compile Include="Network\Chat\ChatManager.cs" />
+    <Compile Include="Network\Chat\Group\ChatGroup.cs" />
+    <Compile Include="Network\Chat\Messages\ChatMessage.cs" />
+    <Compile Include="Network\Chat\Messages\GeneralMessage.cs" />
     <Compile Include="Network\Client\ClientSettings.cs" />
     <Compile Include="Network\Client\GameClient.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerInformation.cs" />

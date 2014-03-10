@@ -51,9 +51,9 @@ namespace KSPM.Network.Common.Messages
             this.messageRawLength = 0;
         }
 
-        public void CloneContent(Message otherMessage)
+        public void CloneContent(ManagedMessage otherMessage)
         {
-            //this.command
+            System.Buffer.BlockCopy( otherMessage.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0,this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
         }
     }
 }

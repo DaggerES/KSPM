@@ -1,4 +1,5 @@
 ﻿using KSPM.IO.Logging;
+using KSPM.IO.Encoding;
 using KSPM.Diagnostics;
 using KSPM.Network.Server;
 using KSPM.Network.NAT;
@@ -32,6 +33,12 @@ namespace KSPM.Globals
 
         #endregion
 
+        #region IO
+
+        protected Encoder stringEncoder;
+
+        #endregion
+
         protected KSPMGlobals()
         {
             this.nullLogger = new DevNullLog();
@@ -39,6 +46,8 @@ namespace KSPM.Globals
             this.gameServer = null;
 
             this.natTraversingMethod = new NATNone();
+
+            this.stringEncoder = new UTF8Encoder();
         }
 
         /// <summary>
@@ -103,6 +112,14 @@ namespace KSPM.Globals
             get
             {
                 return this.natTraversingMethod;
+            }
+        }
+
+        public Encoder StringEncoder
+        {
+            get
+            {
+                return this.stringEncoder;
             }
         }
     }
