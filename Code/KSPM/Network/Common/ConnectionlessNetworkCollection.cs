@@ -10,7 +10,7 @@
         public ConnectionlessNetworkCollection(int bufferSize)
             : base(bufferSize)
         {
-            this.remoteEndPoint = null;
+            this.remoteEndPoint = new System.Net.IPEndPoint(0, 0);
         }
 
         /// <summary>

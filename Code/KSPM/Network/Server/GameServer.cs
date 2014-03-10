@@ -260,9 +260,10 @@ namespace KSPM.Network.Server
                                     messageOwner = serverSideClientReference;
                                     if (this.usersAccountManager.Query(ref messageOwner))
                                     {
+                                        /*
                                         Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", serverSideClientReference.Id,serverSideClientReference.gameUser.Username));
+                                         */
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
                                     }
                                     else
@@ -324,6 +325,7 @@ namespace KSPM.Network.Server
                         managedReference = (ManagedMessage)outgoingMessage;
                         if (outgoingMessage != null)
                         {
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer[ 4 ], outgoingMessage.Command));
                             managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                         }
                         outgoingMessage = null;
@@ -436,7 +438,10 @@ namespace KSPM.Network.Server
                 net = (NetworkEntity)result.AsyncState;
                 //callingSocket = (Socket)result.AsyncState;
                 sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
-                net.MessageSent(net, null);
+				if( sentBytes > 0 )
+				{
+                	net.MessageSent(net, null);
+				}
             }
             catch (System.Exception)
             {
