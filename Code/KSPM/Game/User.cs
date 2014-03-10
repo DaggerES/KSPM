@@ -126,9 +126,9 @@ namespace KSPM.Game
         }
 
         /// <summary>
-        /// Contructor.
+        /// Constructs a User reference and sets the hash with the given value.
         /// </summary>
-        /// <param name="hashCode"></param>
+        /// <param name="hashCode">Hash code to be assigned to the new reference.</param>
         public User(ref byte[] hashCode)
         {
             this.hash = hashCode;
@@ -175,6 +175,18 @@ namespace KSPM.Game
             {
                 this.authenticationAttempts = value;
             }
+        }
+
+        /// <summary>
+        /// Releases all the resources utilized by User class.
+        /// </summary>
+        public virtual void Release()
+        {
+            this.username = null;
+            this.hash = null;
+            this.humanHash = null;
+            this.authenticationAttempts = int.MaxValue;
+            this.id = 0;
         }
     }
 }

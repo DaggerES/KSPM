@@ -1,6 +1,7 @@
 ﻿
 using KSPM.Network.Server;
 using KSPM.Network.Common.Packet;
+using KSPM.Network.Client;
 using KSPM.Game;
 
 namespace KSPM.Network.Common.Messages
@@ -253,7 +254,7 @@ namespace KSPM.Network.Common.Messages
         /// <param name="sender"></param>
         /// <param name="targetMessage"></param>
         /// <returns></returns>
-        public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, ref User userInfo, out Message targetMessage)
+        public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
             short hashSize;
@@ -434,7 +435,7 @@ namespace KSPM.Network.Common.Messages
         public static Error.ErrorType UDPPairingMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
-            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            GameClient gameClientReference = (GameClient)sender;
             targetMessage = null;
             byte[] messageHeaderContent = null;
             byte[] byteBuffer;
@@ -444,20 +445,20 @@ namespace KSPM.Network.Common.Messages
             }
 
             ///Writing the Command byte.
-            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairing;
+            gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairing;
             bytesToSend += 1;
 
             ///Writing the pairing number.
-            byteBuffer = System.BitConverter.GetBytes(ssClientReference.PairingCode);
-            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, byteBuffer.Length);
+            byteBuffer = System.BitConverter.GetBytes(gameClientReference.PairingCode);
+            System.Buffer.BlockCopy(byteBuffer, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
 
             ///Writint the EndOfMessageCommand.
-            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, gameClientReference.udpNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], gameClientReference.udpNetworkCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 

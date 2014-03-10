@@ -1,6 +1,7 @@
 ﻿using KSPM.IO.Logging;
 using KSPM.Diagnostics;
 using KSPM.Network.Server;
+using KSPM.Network.NAT;
 
 namespace KSPM.Globals
 {
@@ -27,6 +28,8 @@ namespace KSPM.Globals
 
         protected GameServer gameServer;
 
+        protected NATTraversal natTraversingMethod;
+
         #endregion
 
         protected KSPMGlobals()
@@ -34,6 +37,8 @@ namespace KSPM.Globals
             this.nullLogger = new DevNullLog();
             this.log = this.nullLogger;
             this.gameServer = null;
+
+            this.natTraversingMethod = new NATNone();
         }
 
         /// <summary>
@@ -64,6 +69,11 @@ namespace KSPM.Globals
             }
         }
 
+        public void SetNATTraversingMethod(NATTraversal method)
+        {
+            this.natTraversingMethod = method;
+        }
+
         public void SetServerReference(ref GameServer reference)
         {
             this.gameServer = reference;
@@ -82,6 +92,17 @@ namespace KSPM.Globals
             get
             {
                 return this.gameServer;
+            }
+        }
+
+        /// <summary>
+        /// Gets the NAT traversing method used by the KSPM model. <b>By default it is set to None.</b>
+        /// </summary>
+        public NATTraversal NAT
+        {
+            get
+            {
+                return this.natTraversingMethod;
             }
         }
     }

@@ -1,0 +1,4 @@
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM/bin/Debug/KSPM.dll.mdb
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM/bin/Debug/KSPM.dll
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM/obj/Debug/KSPM.dll
+/Users/miniSquad1/Projects/CSharp/KSPM/Code/KSPM/obj/Debug/KSPM.dll.mdb
