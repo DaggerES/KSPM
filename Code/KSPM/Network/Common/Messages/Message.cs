@@ -390,13 +390,58 @@ namespace KSPM.Network.Common.Messages
             targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
-
-        public static Error.ErrorType ChatMessage(NetworkEntity sender, out Message targetMessage)
+        /*
+        public static Error.ErrorType ChatMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
         {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            short hashSize;
             targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] userBuffer = null;
+            string stringBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            stringBuffer = userInfo.Username;
+            User.EncodeUsernameToBytes(ref stringBuffer, out userBuffer);
+
+            ///Writing the command.
+            sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Chat;
+            bytesToSend += 1;
+
+            ///Writing the hash's length
+            hashSize = (short)userInfo.Hash.Length;
+            userBuffer = null;
+            userBuffer = System.BitConverter.GetBytes(hashSize);
+            System.Buffer.BlockCopy(userBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, userBuffer.Length);
+            bytesToSend += userBuffer.Length;
+
+            ///Writing the user's hash code.
+            System.Buffer.BlockCopy(userInfo.Hash, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, hashSize);
+            bytesToSend += hashSize;
+
+
+
+            ///Writing the username's byte length.
+            sender.ownerNetworkCollection.rawBuffer[bytesToSend] = (byte)userBuffer.Length;
+            bytesToSend += 1;
+
+            ///Writing the username's bytes
+            System.Buffer.BlockCopy(userBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, userBuffer.Length);
+            bytesToSend += userBuffer.Length;            
+
+            ///Writing the EndOfMessage command.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
-
+        */
         #endregion
 
         #region UDPCommands

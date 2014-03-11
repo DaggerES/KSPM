@@ -943,5 +943,16 @@ namespace KSPM.Network.Client
                 return this.pairingCode;
             }
         }
+
+        /// <summary>
+        /// Gets the GameUser who is using the GameClient.
+        /// </summary>
+        public GameUser ClientOwner
+        {
+            get
+            {
+                return this.clientOwner;
+            }
+        }
     }
 }
