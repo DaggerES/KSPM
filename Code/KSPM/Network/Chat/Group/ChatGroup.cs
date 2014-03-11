@@ -5,7 +5,7 @@ using KSPM.Network.Common;
 
 namespace KSPM.Network.Chat.Group
 {
-    abstract class ChatGroup
+    public abstract class ChatGroup
     {
         protected static short ChatGroupCounter = 1;
 
@@ -55,6 +55,11 @@ namespace KSPM.Network.Chat.Group
             }
         }
 
+        public void AddMessage(ChatMessage newMessage)
+        {
+            this.messages.Add(newMessage);
+        }
+
         public short Id
         {
             get
@@ -62,5 +67,15 @@ namespace KSPM.Network.Chat.Group
                 return this.id;
             }
         }
+
+        public List<NetworkEntity> MembersAsList
+        {
+            get
+            {
+                return this.performanceDataStructureMembers;
+            }
+        }
+
+        public abstract void Release();
     }
 }

@@ -55,6 +55,10 @@ namespace KSPM.Network.Common
             InvalidArray,
             ByteBadFormat,
             #endregion
+
+            #region Chat
+            ChatInvalidGroup,
+            #endregion
         };
     }
 }

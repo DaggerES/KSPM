@@ -94,7 +94,7 @@ namespace KSPM.Network.Common.Messages
 
             /// <summary>
             /// Chat command.
-            /// [Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ To ( [UsernameLength{byte:1}][Username{byte:1-}] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// [Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             /// </summary>
             Chat,
 

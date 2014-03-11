@@ -13,6 +13,10 @@ using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
 using KSPM.Game;
 
+using KSPM.Network.Chat;
+using KSPM.Network.Chat.Group;
+using KSPM.Network.Chat.Messages;
+
 namespace KSPM.Network.Server
 {
     public class GameServer : IAsyncSender
@@ -91,6 +95,15 @@ namespace KSPM.Network.Server
 
         #endregion
 
+        #region Chat
+
+        /// <summary>
+        /// Handles the KSPM Chat system.
+        /// </summary>
+        protected ChatManager chatManager;
+
+        #endregion
+
         /// <summary>
         /// Constructor of the server
         /// </summary>
@@ -119,6 +132,8 @@ namespace KSPM.Network.Server
 
             ///It still missing the filter
             this.usersAccountManager = new AccountManager();
+
+            this.chatManager = new ChatManager();
 
             this.ableToRun = true;
             this.alive = false;
@@ -210,6 +225,7 @@ namespace KSPM.Network.Server
             ServerSideClient newClientAttempt = null;
             ServerSideClient serverSideClientReference = null;
             GameUser referredUser = null;
+            ChatMessage chatMessage = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -286,6 +302,13 @@ namespace KSPM.Network.Server
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
                                     this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
+                                    break;
+
+                                case Message.CommandType.Chat:
+                                    if (ChatMessage.InflateChatMessage(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out chatMessage) == Error.ErrorType.Ok)
+                                    {
+                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
+                                    }
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
@@ -382,6 +405,10 @@ namespace KSPM.Network.Server
 
             this.clientsHandler.Clear();
             this.clientsHandler = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
+            this.chatManager.Release();
+            this.chatManager = null;
 
             KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
 
