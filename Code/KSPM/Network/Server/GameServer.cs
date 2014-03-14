@@ -262,6 +262,7 @@ namespace KSPM.Network.Server
                                     {
                                         //Creates the reject message and set the callback to the RejectMessageToClient. Performed in that way because it is needed to send the reject message before to proceed to disconnect the client.
                                         Message.ServerFullMessage(messageOwner, out responseMessage);
+                                        PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
                                         ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
@@ -270,7 +271,8 @@ namespace KSPM.Network.Server
                                     this.ShutdownServer();
                                     break;
                                 case Message.CommandType.Authentication:
-                                    User.InflateUserFromBytes(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
+                                    //User.InflateUserFromBytes(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
+                                    User.InflateUserFromBytes(ref messageToProcess.bodyMessage, out referredUser);
                                     serverSideClientReference = (ServerSideClient)managedMessageReference.OwnerNetworkEntity;
                                     serverSideClientReference.gameUser = referredUser;
                                     messageOwner = serverSideClientReference;
@@ -290,6 +292,7 @@ namespace KSPM.Network.Server
                                         {
                                             ///There is still a chance to authenticate again.
                                             Message.AuthenticationFailMessage(messageOwner, out responseMessage);
+                                            PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
                                         }
                                         else
                                         {
@@ -306,7 +309,7 @@ namespace KSPM.Network.Server
                                     break;
 
                                 case Message.CommandType.Chat:
-                                    if (ChatMessage.InflateChatMessage(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out chatMessage) == Error.ErrorType.Ok)
+                                    if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
                                         //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
@@ -350,8 +353,9 @@ namespace KSPM.Network.Server
                         managedReference = (ManagedMessage)outgoingMessage;
                         if (outgoingMessage != null)
                         {
-                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer[ 4 ], outgoingMessage.Command));
-                            managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
+                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
+                            //managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
+                            managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                         }
                         outgoingMessage = null;
                     }

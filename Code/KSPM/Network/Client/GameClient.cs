@@ -485,9 +485,10 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                                                       ///Reads the information sent by the server and starts the UDP setting up process.
                                     managedMessageReference = (ManagedMessage)command;
-                                    udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
+                                    //udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
+                                    udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 5);
                                     udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
-                                    receivedPairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
+                                    receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 9);
 
                                     //this.pairingCode = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 9);
                                     //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, this.pairingCode));
@@ -503,14 +504,14 @@ namespace KSPM.Network.Client
                                     //this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
                                     break;
                                 case Message.CommandType.ChatSettingUp:
-                                    if (ChatManager.CreateChatManagerFromMessage(((ManagedMessage)command).OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out this.chatSystem) == Error.ErrorType.Ok)
+                                    if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, out this.chatSystem) == Error.ErrorType.Ok)
                                     {
                                         this.chatSystem.Owner = this;
                                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Chat system is online, {1} groups registered.", this.id, this.chatSystem.RegisteredGroups));
                                     }
                                     break;
                                 case Message.CommandType.Chat:
-                                    if (ChatMessage.InflateChatMessage(((ManagedMessage)command).OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out incomingChatMessage) == Error.ErrorType.Ok)
+                                    if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
                                     {
                                         this.chatSystem.AttachMessage(incomingChatMessage);
                                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id,incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
@@ -556,7 +557,8 @@ namespace KSPM.Network.Client
                             this.outgoingTCPMessages.DequeueCommandMessage(out outgoingMessage);
                             if (outgoingMessage != null)
                             {
-                                this.ownerNetworkCollection.socketReference.BeginSend(this.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
+                                //this.ownerNetworkCollection.socketReference.BeginSend(this.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
+                                this.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
                             }
                             ///Cleaning up
                             outgoingMessage.Release();
@@ -622,7 +624,7 @@ namespace KSPM.Network.Client
                         if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                         {
                             this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", callingEntity.ownerNetworkCollection.secondaryRawBuffer[ 4 ], incomingMessage.Command));
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
                         }
                     }
                 }

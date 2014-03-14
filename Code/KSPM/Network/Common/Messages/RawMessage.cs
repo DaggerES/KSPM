@@ -7,11 +7,6 @@ namespace KSPM.Network.Common.Messages
     public class RawMessage : Message
     {
         /// <summary>
-        /// Main body of the message.
-        /// </summary>
-        public byte[] bodyMessage;
-
-        /// <summary>
         /// Creates an RawMessage instance, copying the amount of bytes specified by the messageSize parameter into the bodyMessage array.
         /// </summary>
         /// <param name="kindOfMessage">Command type of the message.</param>

@@ -109,7 +109,8 @@ namespace KSPM.Network.Server.UserManagement
                 for (int i = 0; i < targets.Count; i++)
                 {
                     outgoingMessage = new ManagedMessage(Message.CommandType.Chat, targets[i]);
-                    ((ManagedMessage)outgoingMessage).SwapReceivedBufferToSend((ManagedMessage)messageToSend);
+                    outgoingMessage.SetBodyMessage(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
+                    //((ManagedMessage)outgoingMessage).SwapReceivedBufferToSend((ManagedMessage)messageToSend);
                     KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
                 }
             }

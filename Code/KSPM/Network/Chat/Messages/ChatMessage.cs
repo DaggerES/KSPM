@@ -84,6 +84,7 @@ namespace KSPM.Network.Chat.Messages
         public static Error.ErrorType CreateChatMessage(NetworkEntity sender, ChatGroup targetGroup, string bodyMessage,out Message targetMessage)
         {
             int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            byte[] rawBuffer = new byte[Server.ServerSettings.ServerBufferSize];
             GameClient senderClient;
             short shortBuffer;
             targetMessage = null;
@@ -102,53 +103,54 @@ namespace KSPM.Network.Chat.Messages
             senderClient = (GameClient)sender;
 
             ///Writing the command.
-            sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Chat;
+            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Chat;
             bytesToSend += 1;
 
             ///Writing the hash's length
             shortBuffer = (short)senderClient.ClientOwner.Hash.Length;
             bytesBuffer = null;
             bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
             bytesToSend += bytesBuffer.Length;
 
             ///Writing the user's hash code.
-            System.Buffer.BlockCopy(senderClient.ClientOwner.Hash, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, shortBuffer);
+            System.Buffer.BlockCopy(senderClient.ClientOwner.Hash, 0, rawBuffer, bytesToSend, shortBuffer);
             bytesToSend += shortBuffer;
 
             ///Writing the user name length bytesToSend + 2 to make room to the name's length.
             KSPMGlobals.Globals.StringEncoder.GetBytes(((GameClient)sender).ClientOwner.Username, out bytesBuffer);
             shortBuffer = (short)bytesBuffer.Length;
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend + 2, bytesBuffer.Length);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend + 2, bytesBuffer.Length);
 
             bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
             bytesToSend += bytesBuffer.Length + shortBuffer;
 
             ///Writing the groupId.
             bytesBuffer = System.BitConverter.GetBytes(targetGroup.Id);
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
             bytesToSend += bytesBuffer.Length;
 
             ///Writing the body message.
             KSPMGlobals.Globals.StringEncoder.GetBytes(bodyMessage, out bytesBuffer);
             shortBuffer = (short)bytesBuffer.Length;
             ///bytesToSend + 2 because we have to left room for the size of the messagebody.
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend + 2, shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend + 2, shortBuffer);
 
             ///Writing the body message's size
             bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
-            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
             bytesToSend += shortBuffer + bytesBuffer.Length;
 
 
             ///Writing the EndOfMessage command.
-            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += Message.EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((Message.CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.MessageBytesSize = (uint)bytesToSend;
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            //targetMessage.MessageBytesSize = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
 
