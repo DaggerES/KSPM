@@ -18,7 +18,7 @@ namespace KSPM.Network.Chat.Messages
         public override void Release()
         {
             this.body = null;
-            this.fromUsername = null;
+            this.sendersUsername = null;
             this.GroupId = -1;
             this.messageId = -1;
             this.senderHash = null;

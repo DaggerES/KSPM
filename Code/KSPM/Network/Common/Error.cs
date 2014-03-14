@@ -58,6 +58,7 @@ namespace KSPM.Network.Common
 
             #region Chat
             ChatInvalidGroup,
+            ChatInvalidAvailableGroups,
             #endregion
         };
     }

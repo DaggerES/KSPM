@@ -1,0 +1,2062 @@
+[19/02/2014 08:20:05 a.m.] jim-kb: Hello
+[19/02/2014 08:20:15 a.m.] Mike Geelan: good afternoon
+[19/02/2014 10:05:20 a.m.] Anthony Guzzardo: Good morning
+[19/02/2014 11:28:31 a.m.] Maxmaps: We might not have an open contest yet but people are starting to shoot out logo suggestions and parodies http://i.imgur.com/njMlkrj.png
+[19/02/2014 11:29:04 a.m.] Anthony Guzzardo: Some of the logos have been pretty slick
+[19/02/2014 11:29:45 a.m.] Alejandro Mora: lol
+[19/02/2014 11:31:23 a.m.] Maxmaps: And reddit ofcourse set up a subreddit http://www.reddit.com/r/ksplogos
+[19/02/2014 12:45:52 p.m.] Maxmaps: The beta version of the City clouds and lights mod includes volumetric clouds http://www.youtube.com/watch?v=g3Sl-uTGM14 may be worth looking into.
+[19/02/2014 12:46:40 p.m.] Maxmaps: Not the slightest clue of what it may do to performance, but it certainly looks nice.
+[19/02/2014 12:46:52 p.m.] Chad Jenkins: Looks like particles to me.
+[19/02/2014 01:13:45 p.m.] Mike Geelan: big, big ass particles
+[19/02/2014 01:16:19 p.m.] Ted Everett: Looks great from the side, but blotchy from the top.
+[19/02/2014 01:17:07 p.m.] Ted Everett: They're also oddly purple.
+[19/02/2014 01:19:24 p.m.] Maxmaps: Probably for visibility
+[19/02/2014 01:39:11 p.m.] Alejandro Mora: Does anyone know about this? "Free to Play", first Valve's movie
+[19/02/2014 01:39:11 p.m.] Alejandro Mora: http://www.youtube.com/watch?v=R-RKqGaNq-Y
+[19/02/2014 01:40:23 p.m.] Maxmaps: A dota 2 documentary?
+[19/02/2014 01:40:32 p.m.] Maxmaps: Oh god, an all female team actually went and called themselves PMS
+[19/02/2014 01:41:03 p.m.] Ted Everett: Seems so. Though I contest the claim that e-sports didn't exist 10 years ago.
+[19/02/2014 01:41:24 p.m.] Mike Geelan: i played quake3 competitively 10 years ago
+[19/02/2014 01:41:32 p.m.] Mike Geelan: dont think it was televised or streamed tho :P
+[19/02/2014 01:41:50 p.m.] Maxmaps: Goddamn now I wanna play dotes
+[19/02/2014 01:41:52 p.m.] Maxmaps: What have you done
+[19/02/2014 01:42:00 p.m.] Alejandro Mora: Lol
+[19/02/2014 01:42:09 p.m.] Maxmaps: http://www.youtube.com/watch?v=UPw-3e_pzqU
+[19/02/2014 01:42:17 p.m. | Edited 01:42:24 p.m.] Ted Everett: Heh, I remember there being videos of people playing BF1942 competitevly back when it came out
+[19/02/2014 01:42:34 p.m.] Ted Everett: Heh
+[19/02/2014 01:42:46 p.m.] Anthony Guzzardo: Max - I've known about the Xbox clan for years. Is this PMS one and the same?
+[19/02/2014 01:43:25 p.m.] Alejandro Mora: The trailer looks good...
+[19/02/2014 01:43:38 p.m.] Alejandro Mora: I don't know if I'll see it, tho
+[19/02/2014 01:43:43 p.m.] Maxmaps: Different crew it seems http://en.wikipedia.org/wiki/PMS_Asterisk
+[19/02/2014 01:43:57 p.m.] Daniel Rosas: classy, PMS Asterisk
+[19/02/2014 01:44:24 p.m.] Maxmaps: Very Singaporean crewshot http://fesport.com/wp-content/uploads/2013/09/PMS-_-ASTERISK-.jpg
+[19/02/2014 01:46:21 p.m.] Maxmaps: I hope they do well, ESEX just did a pretty great satire piece on female teams in esports http://esportsexpress.com/2014/02/all-female-lol-tournament-may-threaten-fabric-of-gaming-society/
+[19/02/2014 01:47:21 p.m.] Maxmaps: " According to reports released by Riot in early 2013, 90% of the LoL player base is male, indicating that a frighteningly large 10% of all players are women, and rising."
+[19/02/2014 02:04:01 p.m.] Ted Everett: Haha
+[19/02/2014 02:29:20 p.m.] Anthony Guzzardo: If you haven't seen, I've started featuring a weekly themed "fanworks challenge" on the forum. This week is giant mechs. I can't see anyone coming close to this one: http://i.imgur.com/P1T8nl9.gif
+[19/02/2014 02:29:53 p.m.] Ted Everett: :O
+[19/02/2014 02:30:05 p.m.] Ted Everett: That's impressive.
+[19/02/2014 05:07:18 p.m.] Maxmaps: Hey, we have meta humor. http://i.imgur.com/AKGvN7r.jpg
+[19/02/2014 05:11:37 p.m.] Bob Holtzman: nice
+[19/02/2014 05:41:54 p.m.] Chad Jenkins: Haha
+[19/02/2014 06:12:45 p.m.] jim-kb: eh the in game logo contest post forgot to mention the aspect the logos should have
+[19/02/2014 06:13:28 p.m.] jim-kb: but it might be fine anyways.....
+[19/02/2014 06:14:25 p.m.] Anthony Guzzardo: I can add it in if you'd like, but given the constraints for the submission process, it might be easier to go through that with the individual winners once we contact them for their hi res files.
+[19/02/2014 06:15:13 p.m.] jim-kb: fine by me, i expect i'll have to do some work on the winning submissions either way
+[19/02/2014 06:15:35 p.m.] Anthony Guzzardo: alright
+[19/02/2014 06:23:40 p.m.] Bob Holtzman: What is the aspect ratio?
+[19/02/2014 06:47:16 p.m.] Anthony Guzzardo: The limit right now is a 1MB file
+[19/02/2014 06:52:29 p.m.] Alejandro Mora: Yeah, I set it that way because we don't one the server to store a bunch of huge files
+[19/02/2014 08:09:08 p.m.] Bob Holtzman: That makes sense Alex. Thanks.
+[20/02/2014 10:33:09 a.m.] jim-kb: Hello
+[20/02/2014 10:34:11 a.m.] Chad Jenkins: Hi Jim
+[20/02/2014 10:35:34 a.m.] Ted Everett: Good morning
+[20/02/2014 10:35:44 a.m.] Mike Geelan: howdy peeps
+[20/02/2014 10:36:47 a.m.] Bob Holtzman: hello.
+[20/02/2014 10:36:50 a.m.] Bob Holtzman: how goes it Mike?
+[20/02/2014 10:36:56 a.m.] Bob Holtzman: Did you get my request for 0.24 assets?
+[20/02/2014 10:45:39 a.m.] Lalo Re: Hola
+[20/02/2014 10:46:18 a.m.] Mike Geelan: i saw something about screenshots. we dont really have any atm
+[20/02/2014 10:46:25 a.m.] Daniel Rosas: buenos dias
+[20/02/2014 10:46:48 a.m.] Bob Holtzman: Please respond in Podio so I know the status.
+[20/02/2014 10:46:52 a.m.] Bob Holtzman: (in the future.)
+[20/02/2014 10:47:02 a.m.] Lalo Re: (y)
+[20/02/2014 10:47:07 a.m.] Bob Holtzman: (and don't have to bother you here when we could be sharing funny .gifs or something.)
+[20/02/2014 10:47:23 a.m.] Mike Geelan: i did not see a podio request
+[20/02/2014 10:47:33 a.m.] Bob Holtzman: you're in the marketing workspace, right?
+[20/02/2014 10:47:37 a.m.] Bob Holtzman: Maybe I didn't post it there.
+[20/02/2014 10:48:03 a.m.] Bob Holtzman: Hmm. I'm cleaning up our podio right now so I'll add it there if it's not already. Then you can post when assets are ready to go!
+[20/02/2014 10:48:07 a.m.] Mike Geelan: i recall being added to marketing at some point
+[20/02/2014 10:48:15 a.m.] Mike Geelan: cheers my good man
+[20/02/2014 10:48:18 a.m.] Bob Holtzman: yeah - just make sure to check it from time to time. :D
+[20/02/2014 11:16:30 a.m.] Ted Everett: Grabbing dinner, back in a bit.
+[20/02/2014 11:16:35 a.m.] Marco Antonio Salcedo: Good morining
+[20/02/2014 11:17:21 a.m. | Edited 11:18:02 a.m.] Marco Antonio Salcedo: I thought you may appreciate some spanish - english humour
+[20/02/2014 11:17:27 a.m.] Marco Antonio Salcedo: Mi papá tiene 47 años = Mi dad is 47 years old
+Mi papa tiene 47 anos = Mi potato has 47 assholes
+I love Spanish
+[20/02/2014 11:17:47 a.m.] Alejandro Mora: Lol
+[20/02/2014 11:18:05 a.m.] Chad Jenkins: This is why I have a hard time learning spanish lol
+[20/02/2014 11:18:19 a.m.] Bob Holtzman: lolz
+[20/02/2014 11:18:19 a.m. | Edited 11:18:29 a.m.] Alejandro Mora: Yeah... Spanish without accents is craziness
+[20/02/2014 11:18:33 a.m.] Mike Geelan: so that's why spanish people look at me all weird when, with my english keyboard, i say how old i am
+[20/02/2014 11:18:44 a.m.] Mike Geelan: i cant make years not assholes
+[20/02/2014 02:04:08 p.m.] Felipe Falanghe: Hi
+[20/02/2014 02:04:20 p.m.] Maxmaps: Hey Felipe
+[20/02/2014 02:04:29 p.m.] Felipe Falanghe: the ñ char in US/Intl keyboards can be done with rght alt+N
+[20/02/2014 02:04:38 p.m.] Felipe Falanghe: or apostrophe deadkey + n
+[20/02/2014 02:04:47 p.m.] Maxmaps: Or alt+164
+[20/02/2014 02:05:10 p.m.] Felipe Falanghe: had to relearn to type on the G19 here
+[20/02/2014 02:05:14 p.m.] Felipe Falanghe: it's US layout
+[20/02/2014 02:05:46 p.m.] Felipe Falanghe: I do hate that the curly braces are on shift rather than the indexer braces
+[20/02/2014 02:05:57 p.m.] Felipe Falanghe: I'm tempted to swap those around
+[20/02/2014 02:06:02 p.m.] Felipe Falanghe: and turn the keys upside down
+[20/02/2014 02:06:41 p.m.] Maxmaps: hah
+[20/02/2014 02:19:18 p.m. | Edited 02:19:24 p.m.] Daniel Rosas: lol I always thought that US keyboards were more oriented to coding
+[20/02/2014 02:25:05 p.m.] Felipe Falanghe: yeah, they have a few issues
+[20/02/2014 02:25:37 p.m.] Felipe Falanghe: the thing that most annoyed me is that the apostrophe is a dead key, so to get quotes or double quotes you have to press the key plus space
+[20/02/2014 02:25:46 p.m.] Felipe Falanghe: I changed that now, I have a layout editor app
+[20/02/2014 02:26:18 p.m.] Felipe Falanghe: turns out, all the dead key chars in the apostrophe key can be reproduced using altGr (right alt or ctrl+alt) and the letter
+[20/02/2014 02:26:31 p.m.] Felipe Falanghe: oh and Chad, there is a key for the degree symbol
+[20/02/2014 02:26:43 p.m.] Felipe Falanghe: right alt+shift+;
+[20/02/2014 02:26:48 p.m.] Felipe Falanghe: °
+[20/02/2014 02:27:59 p.m.] Felipe Falanghe: alll set up now!
+[20/02/2014 02:28:03 p.m.] Felipe Falanghe: I feel vindicated!
+[20/02/2014 02:28:57 p.m.] Felipe Falanghe: ok, now getting back to work here... heh
+[20/02/2014 02:29:14 p.m.] Chad Jenkins: haha
+[20/02/2014 02:29:18 p.m.] Felipe Falanghe: today I want to set up either the asteroid sizes on the procedural generation, or their science events
+[20/02/2014 02:29:58 p.m.] Felipe Falanghe: the trouble with the science experiments around asteroids is that while we could just give them experiment modules and call it a day, that would mean every asteroid would be performing the same experiment
+[20/02/2014 02:30:18 p.m.] Felipe Falanghe: and we want each asteroid to be its own location for the experiment
+[20/02/2014 02:30:55 p.m.] Felipe Falanghe: we can also cheat the system, and not have experiments at all, just have an action that'll give you a science subject ready to go
+[20/02/2014 02:31:03 p.m.] Felipe Falanghe: but IDK how that would show in the science archives
+[20/02/2014 02:31:13 p.m.] Felipe Falanghe: it's the same issue we had wth the recovery "experiments"
+[20/02/2014 02:31:20 p.m.] Felipe Falanghe: that they're not really experiments
+[20/02/2014 02:31:32 p.m.] Felipe Falanghe: they're just subjects, created on the fly
+[20/02/2014 02:31:54 p.m.] Felipe Falanghe: hm
+[20/02/2014 02:32:14 p.m.] Felipe Falanghe: another possiblity is that each asteroid would create a variation of the sample experiment, for itself
+[20/02/2014 02:32:27 p.m.] Felipe Falanghe: but that would create a huge amount of experiments abuot asteroids
+[20/02/2014 02:32:47 p.m.] Felipe Falanghe: but it would free up location, situation and biome to their usual uses
+[20/02/2014 02:33:33 p.m.] Felipe Falanghe: hmmm
+[20/02/2014 02:33:38 p.m.] Felipe Falanghe: there might be another way
+[20/02/2014 02:51:26 p.m.] Felipe Falanghe: hehe, I think I got it
+[20/02/2014 02:51:40 p.m.] Chad Jenkins: Oh? What's the solution?
+[20/02/2014 02:52:04 p.m.] Felipe Falanghe: I added a new constructor to Science Subject
+[20/02/2014 02:52:18 p.m.] Felipe Falanghe: which takes the usual experiment, situation, celestial body and biome parameters
+[20/02/2014 02:52:28 p.m.] Felipe Falanghe: but also another parameter called Source
+[20/02/2014 02:52:36 p.m.] Felipe Falanghe: which in this case, is the name of the asteroid
+[20/02/2014 02:52:50 p.m.] Felipe Falanghe: so it creates a proper title for the subjects, like so:
+[20/02/2014 02:52:57 p.m. | Edited 02:53:01 p.m.] Felipe Falanghe: where on a normal experiment you'd get
+[20/02/2014 02:53:19 p.m.] Felipe Falanghe: "surface sample from the mun's surface"
+[20/02/2014 02:53:44 p.m.] Felipe Falanghe: or "goo experiment from Kerbin orbit"
+[20/02/2014 02:53:56 p.m.] Felipe Falanghe: with this you'd get:
+[20/02/2014 02:54:31 p.m.] Felipe Falanghe: "sample from asteroid #132456 at kerbin's biome"
+[20/02/2014 02:54:40 p.m.] Chad Jenkins: Ah, neat.
+[20/02/2014 02:54:51 p.m.] Felipe Falanghe: hence adding a new dimension for the subject tree
+[20/02/2014 02:55:14 p.m.] Felipe Falanghe: basically, if you can take an asteroid around on a grand tour, you'd be able to exploit it for oodles of science
+[20/02/2014 02:55:38 p.m.] Chad Jenkins: Haha, that would be something.
+[20/02/2014 02:55:39 p.m.] Felipe Falanghe: or, you could just bring back a couple of asteroids, and get science from the same situation again and again, with new asteroids
+[20/02/2014 02:56:01 p.m.] Felipe Falanghe: alternatively, we could not use the asteroid's unique name, but it's class
+[20/02/2014 02:56:08 p.m.] Felipe Falanghe: so instead of asteroid #1465
+[20/02/2014 02:56:24 p.m. | Edited 02:56:25 p.m.] Felipe Falanghe: you'd get " sample from a class 3 asteroid at Kerbin orbit"
+[20/02/2014 02:56:42 p.m.] Chad Jenkins: The class looks nicer.
+[20/02/2014 02:56:51 p.m.] Felipe Falanghe: IDK though, because then the asteroids wouldn't give you unlimited science
+[20/02/2014 02:57:39 p.m.] Felipe Falanghe: of course, the asteroids aren't going to be named like that
+[20/02/2014 02:57:39 p.m.] Chad Jenkins: Fair enough. Heh, an asteroid name generator would be better.
+[20/02/2014 02:57:42 p.m.] Felipe Falanghe: yeah
+[20/02/2014 02:58:04 p.m.] Felipe Falanghe: in fact, just yesterday I thought of that, and remembered a game that does randomly name asteroids
+[20/02/2014 02:58:08 p.m.] Chad Jenkins: Jeb-macher levi 9
+[20/02/2014 02:58:17 p.m.] Felipe Falanghe: Fragile Allegiance
+[20/02/2014 02:58:39 p.m.] Felipe Falanghe: the asteroids were named with a combination of three letters, dash, three numbers
+[20/02/2014 02:58:47 p.m.] Felipe Falanghe: so it would be AST: DGT-305
+[20/02/2014 02:58:51 p.m.] Chad Jenkins: Yea, that would work.
+[20/02/2014 02:58:56 p.m.] Felipe Falanghe: then you'd get to rename them
+[20/02/2014 02:59:06 p.m.] Chad Jenkins: That was a heck of a game back in the day.
+[20/02/2014 02:59:19 p.m.] Felipe Falanghe: plus, it would be a nice throwback easter egg for those that get the reference
+[20/02/2014 02:59:29 p.m.] Felipe Falanghe: I was playing it yesterday actually
+[20/02/2014 02:59:40 p.m.] Felipe Falanghe: I installed DOSBox, ironically enough, on the macbook
+[20/02/2014 02:59:47 p.m.] Felipe Falanghe: and got to playing it
+[20/02/2014 02:59:49 p.m.] Felipe Falanghe: man that game is good
+[20/02/2014 03:00:54 p.m.] Chad Jenkins: I got a bunch of classics on GOG after they gave away the dungeon keeper game for free.
+[20/02/2014 03:01:00 p.m.] Felipe Falanghe: nice
+[20/02/2014 03:01:13 p.m.] Felipe Falanghe: FA is a big reference for KSP
+[20/02/2014 03:01:18 p.m.] Felipe Falanghe: not the resources ofc
+[20/02/2014 03:01:41 p.m.] Felipe Falanghe: but it is the only game that I know of that successfully pulled off having 9 different resources to mine
+[20/02/2014 03:02:05 p.m.] Felipe Falanghe: bear in mind also, however, that this is a pure strategy game
+[20/02/2014 03:02:19 p.m.] Bob Holtzman: lol Chad, buying video games you'll never play!
+[20/02/2014 03:02:30 p.m.] Bob Holtzman: BTW, anybody else play Titanfall beta last weekend?
+[20/02/2014 03:02:33 p.m.] Chad Jenkins: I never have time! But it's comforting to have them on my shelf.
+[20/02/2014 03:02:37 p.m.] Felipe Falanghe: lol
+[20/02/2014 03:02:42 p.m.] Felipe Falanghe: that is so sad
+[20/02/2014 03:03:12 p.m.] Chad Jenkins: Well, I get all nostalgic for masters of orion, and I know I can go and play it. Someday..
+[20/02/2014 03:03:16 p.m.] Chad Jenkins: Hehe
+[20/02/2014 03:03:22 p.m.] Felipe Falanghe: I've realized yesterday that this isn't about nostalgia though
+[20/02/2014 03:03:34 p.m.] Chad Jenkins: I have a large list of games I need to play on steam :/
+[20/02/2014 03:03:40 p.m.] Felipe Falanghe: because just before FA, I was playing TDU (2006) here at nights
+[20/02/2014 03:03:47 p.m.] Chad Jenkins: There was some really good gameplay mechanics back then.
+[20/02/2014 03:03:53 p.m.] Felipe Falanghe: not TDU2, but the first one
+[20/02/2014 03:04:17 p.m.] Felipe Falanghe: I realized then that games are not automatically better as a function of time
+[20/02/2014 03:04:32 p.m.] Felipe Falanghe: games that were good in 1995 are still good today
+[20/02/2014 03:04:34 p.m.] Chad Jenkins: Yea, they're really not.
+[20/02/2014 03:04:45 p.m.] Felipe Falanghe: and games that were shit in 1995 are still shit today :P
+[20/02/2014 03:04:58 p.m.] Chad Jenkins: I find the same thing going back and playing classic games. Back then, they often spent all their time on gameplay.
+[20/02/2014 03:05:04 p.m.] Felipe Falanghe: yeah
+[20/02/2014 03:05:05 p.m.] Chad Jenkins: Since they couldn't do much by way of graphics.
+[20/02/2014 03:05:21 p.m.] Felipe Falanghe: there was no way to make it look any better, so they focused on making it fun
+[20/02/2014 03:05:40 p.m.] Felipe Falanghe: then the GPUs came along, and people got into the graphics train
+[20/02/2014 03:05:48 p.m.] Felipe Falanghe: better graphics = better game it seemed
+[20/02/2014 03:06:07 p.m.] Chad Jenkins: Well, development time is limited. If you spend 50% on graphics, you only have 50% left for gameplay.
+[20/02/2014 03:06:16 p.m.] Felipe Falanghe: this was the undisputed norm until about 3 or 4 years ago
+[20/02/2014 03:06:29 p.m.] Chad Jenkins: Although, I'd argue something like Call of duty is more like 90 / 10.
+[20/02/2014 03:06:30 p.m.] Felipe Falanghe: then indies (yay) came along
+[20/02/2014 03:07:14 p.m.] Felipe Falanghe: it's had an impact now... the big names are still trying to stop the proverbial supertanker and take a different approach
+[20/02/2014 03:07:37 p.m.] Felipe Falanghe: which is hard when you've spent the last 15 years biulding up a thousand-strong army of graphics experts
+[20/02/2014 03:08:32 p.m.] Chad Jenkins: Well heck, look what happened to Irrational. Ken Levine wanted to go back to doing smaller games. The whole studio shut down.
+[20/02/2014 03:08:37 p.m.] Felipe Falanghe: but it's already happened. The gaming industry might actually be getting itself back on track after a wayward decade of pursuing graphics alone
+[20/02/2014 03:09:03 p.m.] Chad Jenkins: Although, I'm curious how much of that was by choice.
+[20/02/2014 03:09:08 p.m.] Felipe Falanghe: hehe
+[20/02/2014 03:09:31 p.m.] Felipe Falanghe: yeah, you can't say, it was that guy's fault, back in 2001
+[20/02/2014 03:09:56 p.m.] Felipe Falanghe: he should have made a gameplay feature instead of spending the day making the grass look better :D
+[20/02/2014 03:10:14 p.m.] Felipe Falanghe: it was a process, in which players were as much at fault as the developers
+[20/02/2014 03:10:21 p.m.] Chad Jenkins: Well, bioshock infinite did get the awards book thrown at it.
+[20/02/2014 03:10:40 p.m.] Felipe Falanghe: is it good? I haven't even checked it out
+[20/02/2014 03:10:55 p.m.] Chad Jenkins: It's quite good, as far as a FPS game goes.
+[20/02/2014 03:10:57 p.m.] Felipe Falanghe: the first one was "good" in the way a game from the graphics decade can be good
+[20/02/2014 03:11:00 p.m.] Bob Holtzman: I hate to say this because it's going to upset a few of you but indies didn't kill the graphics star. free-to-play and mobile did.
+[20/02/2014 03:11:01 p.m.] Chad Jenkins: It was a work of art.
+[20/02/2014 03:11:27 p.m.] Chad Jenkins: Oh dear, here comes Bob with mobile games haha.
+[20/02/2014 03:11:37 p.m.] Felipe Falanghe: not really... free-to-play is the nemesis of gameplay
+[20/02/2014 03:11:49 p.m.] Felipe Falanghe: it is, in fact, subverting gameplay into a business model
+[20/02/2014 03:11:54 p.m.] Felipe Falanghe: but mobile I can agree with
+[20/02/2014 03:12:13 p.m.] Chad Jenkins: Yea, how's that new Dungeon keeper working out for EA.
+[20/02/2014 03:12:18 p.m.] Felipe Falanghe: having smaller les capable platforms puts devs under the same constraints as the old timers
+[20/02/2014 03:12:21 p.m.] Bob Holtzman: Felipe, are you going to tell me arcade games were subverting gameplay into a business model?
+[20/02/2014 03:12:28 p.m.] Felipe Falanghe: yes
+[20/02/2014 03:12:39 p.m.] Chad Jenkins: Yea, they kinda were. They wanted your quarter.
+[20/02/2014 03:12:49 p.m.] Bob Holtzman: Exactly.
+[20/02/2014 03:13:00 p.m.] Chad Jenkins: Did you know, you can actually adjust how the game plays to get more money?
+[20/02/2014 03:13:04 p.m.] Bob Holtzman: Well every gameplay is beholden to its business model.
+[20/02/2014 03:13:08 p.m.] Felipe Falanghe: that's precisely what arcade games did, but at least they were honest in asking for the quarter up front, heh
+[20/02/2014 03:13:15 p.m.] Chad Jenkins: It's actually in the configurations of the arcade games. I've done work on them.
+[20/02/2014 03:13:28 p.m.] Bob Holtzman: The reason games got so long is because it had to be to get gamers to pay $60.
+[20/02/2014 03:13:47 p.m.] Bob Holtzman: The games weren't necessarily better because they were longer. They just had to be longer to justify the business model.
+[20/02/2014 03:14:14 p.m.] Bob Holtzman: And MMOs don't need to be subscriptions but they had to give you a reason to keep coming back and consuming new content because how else would they keep getting your money?
+[20/02/2014 03:14:23 p.m.] Felipe Falanghe: long doesn't imply good... that's not what I was saying either
+[20/02/2014 03:14:27 p.m.] Chad Jenkins: There's quite a few free 2 play games that have very high end graphics.
+[20/02/2014 03:14:34 p.m.] Chad Jenkins: Yea, long and good are not the same.
+[20/02/2014 03:14:58 p.m.] Felipe Falanghe: longer came from the advent of the CD-ROM, and being able to stuff it with a lot more things
+[20/02/2014 03:15:02 p.m.] Bob Holtzman: Any F2P game that costs $40M and up is probably a colossal bust. That's how much it costs to make a AAA console title these days.
+[20/02/2014 03:15:08 p.m.] Bob Holtzman: And charge more Felipe.
+[20/02/2014 03:15:14 p.m.] Bob Holtzman: CD-ROMs cost more.
+[20/02/2014 03:15:17 p.m.] Chad Jenkins: I think if anything each of these studios was one upping the other graphically. Which drove up the cost they needed to sell the product at.
+[20/02/2014 03:15:27 p.m.] Felipe Falanghe: yeah, I think it started there
+[20/02/2014 03:15:44 p.m.] Chad Jenkins: Then publishers realized they could fix the price of console games.
+[20/02/2014 03:16:01 p.m.] Chad Jenkins: This whole 60 dollar thing, is from consoles.
+[20/02/2014 03:16:12 p.m.] Bob Holtzman: Before $60, it was $50 and before $50, it was $40.
+[20/02/2014 03:16:21 p.m.] Bob Holtzman: It's not from consoles, its from retail.
+[20/02/2014 03:16:41 p.m.] Bob Holtzman: I used to go buy C64 games at my Target and they were all pretty much priced with $10 of each other.
+[20/02/2014 03:16:42 p.m.] Chad Jenkins: Consoles and retail have gone hand in hand for a long time.
+[20/02/2014 03:16:44 p.m.] Felipe Falanghe: aye, but that's the same for everything... games aren't unique in becoming more expensive over the years
+[20/02/2014 03:16:58 p.m.] Chad Jenkins: It's only recently that digital distribution became an option on consoles.
+[20/02/2014 03:17:08 p.m.] Bob Holtzman: I'm just saying that whether it's graphics or how long the game is - the developers had to make those decisions based on market realities.
+[20/02/2014 03:17:13 p.m.] Felipe Falanghe: that aside, the 60 buck game model is fallig apart because of the graphics > gameplay fallacy
+[20/02/2014 03:17:43 p.m.] Felipe Falanghe: because charging 60 bucks for a game you'll only end up playing for a few hours is unreasonable
+[20/02/2014 03:17:55 p.m.] Bob Holtzman: I don't think that's the case Felipe. I think the $60 game model is falling apart because the console market has been outflanked by its competitors.
+[20/02/2014 03:18:07 p.m.] Felipe Falanghe: F2P isn't a solution to that though, it's an exploit of the problem
+[20/02/2014 03:18:07 p.m.] Chad Jenkins: Eh, let them keep shucking out Call Of Duty 2014 each year, or madden 2015. That's why indies have a nice niche.
+[20/02/2014 03:18:11 p.m.] Felipe Falanghe: like a war profiteer
+[20/02/2014 03:18:36 p.m.] Bob Holtzman: F2P is a solution. It's a highly profitable one too.
+[20/02/2014 03:18:49 p.m.] Bob Holtzman: Done poorly, sure it's an exploit.
+[20/02/2014 03:18:59 p.m.] Chad Jenkins: There are good F2P games. But they're also quite a few terrible ones.
+[20/02/2014 03:19:02 p.m.] Bob Holtzman: Done well, it's enabling players to avoid the $60 traps.
+[20/02/2014 03:19:09 p.m.] Bob Holtzman: You can say that about all games Chad.
+[20/02/2014 03:19:14 p.m.] Felipe Falanghe: that's where all our arguments end up at.... bad F2P is the norm
+[20/02/2014 03:19:18 p.m.] Felipe Falanghe: the good ones are the exceptions
+[20/02/2014 03:19:26 p.m.] Bob Holtzman: I'd argue that on all fronts.
+[20/02/2014 03:19:31 p.m.] Bob Holtzman: Lot of crappy indie games out there too Felipe.
+[20/02/2014 03:19:33 p.m.] Bob Holtzman: More than good ones.
+[20/02/2014 03:19:36 p.m.] Felipe Falanghe: oh indeed
+[20/02/2014 03:19:41 p.m.] Felipe Falanghe: and bad AAA as well
+[20/02/2014 03:19:43 p.m.] Felipe Falanghe: bad games are all around
+[20/02/2014 03:19:47 p.m.] Bob Holtzman: exactly.
+[20/02/2014 03:19:49 p.m.] Chad Jenkins: There's crap all around in every medium.
+[20/02/2014 03:20:00 p.m.] Bob Holtzman: so saying F2P is an exploit because a lot of games suck is a fallacy.
+[20/02/2014 03:20:27 p.m.] Bob Holtzman: League of Legends, while not my sort of game, is clearly not a shitty game.
+[20/02/2014 03:20:30 p.m.] Chad Jenkins: There's a difference between free to play, and pay to play as well.
+[20/02/2014 03:20:34 p.m.] Felipe Falanghe: the underlying premise of it, the basis of F2P is an evil practice, like arcade was too
+[20/02/2014 03:20:46 p.m.] Bob Holtzman: Telling me the arcade was an evil place is quite sad.
+[20/02/2014 03:20:49 p.m.] Bob Holtzman: I loved the arcade.
+[20/02/2014 03:20:57 p.m.] Chad Jenkins: How did it work out for the industry though?
+[20/02/2014 03:21:01 p.m.] Bob Holtzman: So you're saying I spent my childhood days learning my love for games in an evil place?
+[20/02/2014 03:21:05 p.m.] Felipe Falanghe: the thing that's backwards with F2P is that to be good, you have to not let the F2P get in the way of the game
+[20/02/2014 03:21:07 p.m.] Bob Holtzman: Arcade had its time and place.
+[20/02/2014 03:21:20 p.m.] Bob Holtzman: And it still is a niche business.
+[20/02/2014 03:21:37 p.m.] Bob Holtzman: You just haven't developed a F2P game yet Felipe.
+[20/02/2014 03:21:45 p.m.] Chad Jenkins: Heck, I just set up an arcade machine last week for the local comic book shop.
+[20/02/2014 03:21:50 p.m.] Felipe Falanghe: yes, but here' where it's differnet fom arcade though
+[20/02/2014 03:21:59 p.m.] Chad Jenkins: But, to be fair. He leaves it on free play. So it doesn't take quarters.
+[20/02/2014 03:22:01 p.m.] Felipe Falanghe: the arcade machine won't let you play until you drop your quarter
+[20/02/2014 03:22:19 p.m.] Felipe Falanghe: the F2P game lures you in on a promise of free gaming
+[20/02/2014 03:22:28 p.m.] Felipe Falanghe: which then turns out to not be free
+[20/02/2014 03:22:37 p.m.] Bob Holtzman: What F2P games are you playing?
+[20/02/2014 03:22:52 p.m.] Bob Holtzman: I have played a ton of Loadout, a brand new F2P game and haven't even thought about spending money.
+[20/02/2014 03:23:02 p.m.] Ted Everett: Loadout is great.
+[20/02/2014 03:23:08 p.m.] Chad Jenkins: The mobile sector tends to have the worst offenders.
+[20/02/2014 03:23:12 p.m.] Bob Holtzman: core F2P games are usually not something you need to spend on unles syou want to do it.
+[20/02/2014 03:23:16 p.m.] Chad Jenkins: You can't compare PC f2p and mobile.
+[20/02/2014 03:23:49 p.m.] Chad Jenkins: Mobile is rife with crystals, energy, ads, and every get rich trick in the book.
+[20/02/2014 03:23:54 p.m.] Bob Holtzman: the social/mobile F2P is most definitely the most egregious of offenders for what Felipe doesn't like but who ever spends $$ on Bejeweled Blitz, which is an AWESOME game?
+[20/02/2014 03:24:15 p.m.] Chad Jenkins: Apparently enough for them to make a lot of money.
+[20/02/2014 03:24:21 p.m.] Bob Holtzman: exactly.
+[20/02/2014 03:24:23 p.m.] Chad Jenkins: For shops like Zynga and King to exist.
+[20/02/2014 03:24:28 p.m.] Bob Holtzman: but there's nothing sinister about it.
+[20/02/2014 03:24:48 p.m.] Chad Jenkins: Where they can rip off other people's content, legally bully them, and exploit the habits of children to rack up charges.
+[20/02/2014 03:24:52 p.m.] Bob Holtzman: Also, if people want to spend money on slot machines that never pay real money, it's a free world - go for it.
+[20/02/2014 03:25:16 p.m.] Bob Holtzman: And I also hear a lot of complaining about EA and every other big business.
+[20/02/2014 03:25:18 p.m.] Chad Jenkins: Though, the law and regulation is starting to catch up with it.
+[20/02/2014 03:25:36 p.m.] Bob Holtzman: The reality is that nobody is paying these children's charges. Apple killed that a long time ago.
+[20/02/2014 03:26:02 p.m.] Bob Holtzman: But frankly, parents should be paying attention to their children on the tablet devices. (And I do agree, a lot of the children's f2p apps are not good.)
+[20/02/2014 03:26:16 p.m.] Chad Jenkins: I have to wonder if you've played any free to play games for kids.
+[20/02/2014 03:26:20 p.m.] Chad Jenkins: They're really bad.
+[20/02/2014 03:26:29 p.m.] Bob Holtzman: I told my wife to stop downloading them, Chad.
+[20/02/2014 03:26:42 p.m.] Chad Jenkins: Luckilly I have my kids tablets sandboxed, so those apps can't do much.
+[20/02/2014 03:27:02 p.m.] Chad Jenkins: But, it's crazy the crap they pull. Mobile is by and large a cesspit.
+[20/02/2014 03:27:10 p.m.] Felipe Falanghe: http://cdn.baekdal.com/2014/taxi-inapp.gif
+[20/02/2014 03:27:21 p.m.] Chad Jenkins: Sure, there are gems in there, and not everything is that way.
+[20/02/2014 03:30:14 p.m.] Chad Jenkins: But, download say 10 f2p games on the tablet, and most of them will be utter money grabs.
+[20/02/2014 03:30:40 p.m.] Felipe Falanghe: heh, Chad you mentioned Dungeon Keeper the other day... you're going to like this article, or get really really angry: http://www.baekdal.com/opinion/how-inapp-purchases-has-destroyed-the-industry/
+[20/02/2014 03:31:11 p.m.] Felipe Falanghe: the guy does take a pretty extreme view of things, mostly I think because he's outraged at this one case
+[20/02/2014 03:31:30 p.m.] Chad Jenkins: Well, it's got a 1/10 review on eurogamer for instance.
+[20/02/2014 03:31:54 p.m.] Felipe Falanghe: ouch, heh
+[20/02/2014 03:33:49 p.m.] Chad Jenkins: I think we've run poor Bob off again hehe.
+[20/02/2014 03:34:40 p.m.] Bob Holtzman: on call with adrian and santeri sorry
+[20/02/2014 03:35:48 p.m.] Chad Jenkins: No worries. We're just talking shop anyways.
+[20/02/2014 03:36:09 p.m.] Felipe Falanghe: http://www.baekdal.com/insights/when-done-right-inapp-purchases-can-be-based-on-trust/
+[20/02/2014 03:36:19 p.m.] Felipe Falanghe: this is a follow up, on how F2P can be done right
+[20/02/2014 03:36:32 p.m.] Felipe Falanghe: it's pretty brilliant, and he exposes the problem very clearly now
+[20/02/2014 03:37:36 p.m.] Felipe Falanghe: the bad F2P is the sort that's based on deception, where they entice you in with a promise of a free ride, then annoy you so much you give in to not have to suffer so much
+[20/02/2014 03:38:04 p.m.] Felipe Falanghe: the good kind is the kind that gives you a real honest good game, with the possiblity of more content after an in-app purchase
+[20/02/2014 03:38:13 p.m.] Felipe Falanghe: games like The Room did that for instance
+[20/02/2014 03:38:21 p.m.] Felipe Falanghe: the tutorial/demo is free
+[20/02/2014 03:38:29 p.m.] Felipe Falanghe: then an IAP unlocks the rest of the game
+[20/02/2014 03:38:47 p.m.] Felipe Falanghe: and after you finish, another IAP unlocks the 'epilogue' chapter
+[20/02/2014 03:39:13 p.m.] Felipe Falanghe: all of which are very good, and at no point does the game hold you back because you should rather pay to not wait
+[20/02/2014 03:40:23 p.m.] Chad Jenkins: Man, have you played the original dungeon keeper recently? It is quite good.
+[20/02/2014 03:41:58 p.m.] Bob Holtzman: IAP should be about giving players options and more opportunity, not as a series of gates.
+[20/02/2014 03:42:08 p.m.] Bob Holtzman: or like quarters at the arcade, extra lives.
+[20/02/2014 03:42:15 p.m.] Bob Holtzman: oK I have to listen to this call! :)
+[20/02/2014 03:42:30 p.m.] Chad Jenkins: haha, okay Bob.
+[20/02/2014 03:51:21 p.m.] Bob Holtzman: Adios Chivas USA: http://www.mlssoccer.com/news/article/2014/02/20/major-league-soccer-purchases-chivas-usa
+[20/02/2014 03:51:53 p.m.] Chad Jenkins: I don't even know what Chivas is.
+[20/02/2014 03:52:17 p.m.] Anthony Guzzardo: This was the MLS sister team to a popular mexican club
+[20/02/2014 03:52:27 p.m.] Maxmaps: It's basically the world's worst team that somehow managed to stay in first division down here.
+[20/02/2014 03:52:35 p.m.] Maxmaps: They're like
+[20/02/2014 03:52:44 p.m.] Maxmaps: The Red Sox of our league
+[20/02/2014 03:52:57 p.m.] Maxmaps: But somehow worse
+[20/02/2014 03:53:02 p.m.] Anthony Guzzardo: Except the red sox aren't bad
+[20/02/2014 03:53:16 p.m.] Maxmaps: Propaganda and trickery, all of it
+[20/02/2014 03:53:27 p.m.] Chad Jenkins: haha, interesting. I'm glad I asked.
+[20/02/2014 03:53:50 p.m.] Maxmaps: (They're actually a good team but they're the equivalent of the Red Sox to my team's Yankees)
+[20/02/2014 03:54:09 p.m.] Alejandro Mora: Hahaha, excellent description of the team, Max
+[20/02/2014 03:54:11 p.m.] Alejandro Mora: ;)
+[20/02/2014 03:54:26 p.m.] Alejandro Mora: [jueves, 20 de febrero de 2014 03:52 p.m.] Maxmaps: 
+
+<<< It's basically the world's worst team that somehow managed to stay in first division down here.
+[20/02/2014 03:54:27 p.m.] Maxmaps: :P
+[20/02/2014 03:54:35 p.m.] Chad Jenkins: Hehe
+[20/02/2014 03:54:44 p.m.] Maxmaps: Could be worse though, could be Pumas.
+[20/02/2014 03:55:04 p.m.] Alejandro Mora: Naaah.. nothing's worse than Chivas
+[20/02/2014 03:55:22 p.m.] Anthony Guzzardo: Chivas USA is worse than Chivas by far
+[20/02/2014 03:55:24 p.m.] Felipe Falanghe: gotta say, I'm loving my hacked key layout :D
+[20/02/2014 03:55:38 p.m.] Alejandro Mora: Yeah, I think so Anthony... haha
+[20/02/2014 03:56:18 p.m. | Edited 03:56:30 p.m.] Alejandro Mora: Obviously, the best team is America
+[20/02/2014 03:56:21 p.m.] Alejandro Mora: Right Max?
+[20/02/2014 03:56:34 p.m.] Alejandro Mora: :P
+[20/02/2014 03:56:47 p.m.] Maxmaps: Undisputably.
+[20/02/2014 03:57:31 p.m.] Daniel Rosas: they were the last tournament champions of course, right?
+[20/02/2014 03:57:44 p.m.] Alejandro Mora: But they got to the final
+[20/02/2014 03:57:47 p.m.] Alejandro Mora: Not like Chivas..
+[20/02/2014 03:57:51 p.m.] Daniel Rosas: they weren't goaled by 5
+[20/02/2014 03:57:55 p.m.] Alejandro Mora: They were at the bottom...
+[20/02/2014 03:58:08 p.m.] Daniel Rosas: chivas is just saving it's ass, because of the tradition, and the mexican economy
+[20/02/2014 03:58:14 p.m.] Alejandro Mora: (I was just waiting for the Chivas guy here:  Dan)
+[20/02/2014 03:58:30 p.m.] Bob Holtzman: Viva la goats
+[20/02/2014 03:58:39 p.m.] Daniel Rosas: lol the sacred goats
+[20/02/2014 03:58:46 p.m.] Bob Holtzman: I covered Chivas USA and I have to say, it was a failed marketing attempt.
+[20/02/2014 03:59:11 p.m.] Bob Holtzman: The biggest problem with Chivas USA was that the team almost always sucked and the few years it was good, was because it had a bunch of gringos.
+[20/02/2014 03:59:28 p.m.] Alejandro Mora: And Cuauhtemoc Blanco, haha
+[20/02/2014 03:59:31 p.m.] jim-kb: https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-ash3/t1/1959324_701774909842688_286290866_n.jpg
+[20/02/2014 03:59:37 p.m.] Bob Holtzman: Blanco was on the Fire I thought.
+[20/02/2014 03:59:45 p.m.] Bob Holtzman: Pretty sure he wasn't on Chivas USA.
+[20/02/2014 03:59:59 p.m.] Maxmaps: Yeah, he was on Fire
+[20/02/2014 04:00:03 p.m.] Alejandro Mora: Ahh right
+[20/02/2014 04:00:04 p.m.] Alejandro Mora: Yeah
+[20/02/2014 04:00:20 p.m.] Alejandro Mora: So.. nevermind, hehe
+[20/02/2014 04:00:32 p.m.] Maxmaps: Trust me I would have gone home to my dad hanging from a lampost if Cuau had worn that jersey even as a joke.
+[20/02/2014 04:00:33 p.m.] Bob Holtzman: It was Brad Guzan, Jesse Marsch and Bob Bradley as coach.
+[20/02/2014 04:01:06 p.m.] Bob Holtzman: Chad, Chivas de Guadalajara is proud to hire ONLY Mexican nationals to play on its team.
+[20/02/2014 04:01:41 p.m.] Bob Holtzman: Of course, you can't have a hiring policy like that in the USA so Chivas USA was basically seen as a pure sham by all sides.
+[20/02/2014 04:02:13 p.m.] Bob Holtzman: oh they had some reallllly old man defender too that played at OG Chivas ... Dan do you remember his name?
+[20/02/2014 04:03:32 p.m.] Daniel Rosas: nah, I don't know, I only remember Palencia :P
+[20/02/2014 04:03:52 p.m.] Maxmaps: On other sports, someone's using the northamerican summit well http://i.imgur.com/GnTMz1Z.jpg
+[20/02/2014 04:04:51 p.m.] Daniel Rosas: ahh El Bofo
+[20/02/2014 04:05:18 p.m.] Alejandro Mora: Adolfo "El Bofo" Bautista
+[20/02/2014 04:34:36 p.m.] Maxmaps: Not hyper scientific but Reddit its polling itself on their game progress http://poll.pollcode.com/7618597_result_duplicate
+[20/02/2014 04:34:59 p.m.] Maxmaps: I thought Eeloo was the loneliest body but I guess no one likes Tylo
+[20/02/2014 04:35:13 p.m.] Ted Everett: Tylo is beastly to land on.
+[20/02/2014 04:35:23 p.m.] Ted Everett: Has almost the same G as Kerbin.
+[20/02/2014 05:17:52 p.m.] Anthony Guzzardo: In case you're interested, myndflame is making quite the ksp monstrosity right now: http://www.twitch.tv/myndflame
+[20/02/2014 06:58:04 p.m.] Felipe Falanghe: we have progress! http://i.imgur.com/O5QvuyF.png
+[20/02/2014 06:58:21 p.m.] Felipe Falanghe: scientific progress even!
+[20/02/2014 06:58:29 p.m.] Alejandro Mora: Nice!
+[20/02/2014 06:58:47 p.m.] Chad Jenkins: Woohoo!
+[20/02/2014 06:58:57 p.m.] Lalo Re: (y)
+[20/02/2014 06:59:04 p.m.] Felipe Falanghe: The experiments are set up now in a way that each asteroid will generate a new science subject of its own, so every asteroid is a new fresh source of science
+[20/02/2014 06:59:16 p.m.] Felipe Falanghe: and experiments on it can be performed everywhere
+[20/02/2014 06:59:16 p.m.] Maxmaps: Nice
+[20/02/2014 07:00:26 p.m.] Felipe Falanghe: the asteroid itself doesn't have a regular experiment module, what it has is some borrowed code from the original experiment module, which generates the science subject, but immediately passes it on to the Kerbal EVA
+[20/02/2014 07:01:20 p.m.] Felipe Falanghe: so it may be en event happening on the asteroid, but it definitely works for EVAs being able to take samples of it
+[20/02/2014 07:11:07 p.m.] Felipe Falanghe: ok, seems to be working nicely now
+[20/02/2014 07:12:05 p.m.] Felipe Falanghe: I added a measure against collecting multiple samples repeatedly, and the rest of the science storage system works as usual, so you can only store the data as long as it's not a duplicate
+[20/02/2014 07:12:29 p.m.] Felipe Falanghe: meaning you can store multiple samples on multiple science containers for a return trip
+[20/02/2014 07:12:56 p.m.] Felipe Falanghe: although how much more value you'll get from a second recovery is somewhat questionable
+[20/02/2014 08:02:23 p.m.] Felipe Falanghe: ok, added a name generator for the asteroids
+[20/02/2014 08:02:35 p.m.] Felipe Falanghe: it generates names in the same style as Fragile Allegiance
+[20/02/2014 08:02:52 p.m.] Felipe Falanghe: like "AST: XFO-162"
+[20/02/2014 08:03:23 p.m.] Chad Jenkins: Nice.
+[20/02/2014 08:08:08 p.m.] Felipe Falanghe: about the renaming of  asteroids and the science subjects they generate though, I realized it's not so much of a problem now that the part id is going along with the part title... the only thing is that if you run an experiment then rename the asteroid, the stored subject will still show the old name, until you run the same experiment again
+[20/02/2014 08:08:21 p.m.] Felipe Falanghe: which to me is pretty much fine
+[20/02/2014 08:09:03 p.m.] Felipe Falanghe: btw, renaming the vessel holding the asteroid does not rename the asteroid itself, you might be building a base around the rock and you want to give it a name, the asteroid still has its own name
+[20/02/2014 08:09:14 p.m.] Felipe Falanghe: like Kerbals on EVA change their part names to their own names
+[20/02/2014 08:15:17 p.m.] Chad Jenkins: Ah neat.
+[20/02/2014 09:27:45 p.m.] Bob Holtzman: https://lanfest.intel.com/events/sxsw-2014/tournaments
+[20/02/2014 09:35:10 p.m.] Chad Jenkins: Aww yea. looking forward to that.
+[20/02/2014 09:35:49 p.m.] Chad Jenkins: heh, that picture is out of date though.
+[20/02/2014 09:38:32 p.m.] Maxmaps: Not sure what the FASA pack is doing, but I like it. http://i.imgur.com/b9xATuF.jpg
+[20/02/2014 09:39:20 p.m.] Chad Jenkins: It's unity's stock reflective shader, with cube maps being generated from the scene.
+[20/02/2014 09:39:30 p.m.] Chad Jenkins: Which is a function of Unity cameras.
+[20/02/2014 09:39:39 p.m.] Maxmaps: Looks cool!
+[20/02/2014 09:39:45 p.m.] Chad Jenkins: It's just really costly for performance.
+[20/02/2014 09:39:50 p.m.] Maxmaps: I figured
+[20/02/2014 09:40:01 p.m.] Chad Jenkins: Well, it is if you update the cube maps regularly. Otherwise it's not so bad.
+[21/02/2014 10:48:54 a.m.] Ted Everett: Afternoon all
+[21/02/2014 10:49:01 a.m.] Anthony Guzzardo: Afternoon
+[21/02/2014 10:49:28 a.m.] Maxmaps: Hi Ted. How's the weather?
+[21/02/2014 10:49:55 a.m.] Ted Everett: Not too bad, just the usual rain and damp. How's yours?
+[21/02/2014 10:51:34 a.m.] Maxmaps: Averagely pleasant.
+[21/02/2014 11:03:31 a.m.] Alejandro Mora: Morning everyone
+[21/02/2014 11:04:09 a.m.] Alejandro Mora: Just to let you know that Multiplay guys are going to do some maintenance on our Server there... this will affect the Forums and Game downloads for about 20 min
+[21/02/2014 11:04:26 a.m.] Alejandro Mora: They will do this today (or at leat the rest of the day for them, hehe)
+[21/02/2014 11:04:26 a.m.] Anthony Guzzardo: When will it start?
+[21/02/2014 11:04:29 a.m.] Maxmaps: Thanks for the headsup.
+[21/02/2014 11:04:56 a.m.] Alejandro Mora: So, I think we should let the users know about this posting something on FB and Twitter
+[21/02/2014 11:05:17 a.m.] Anthony Guzzardo: Absolutely, but do you have any inclination as to when it will begin?
+[21/02/2014 11:05:39 a.m.] Alejandro Mora: The exact time I don't know, but it will be today
+[21/02/2014 11:06:36 a.m.] Alejandro Mora: I'm guessing that it will be in the next hours, since it's late in the UK (where Multiplay is)
+[21/02/2014 11:26:54 a.m.] Alejandro Mora: OK... maintenance is  happening right now
+[21/02/2014 11:26:55 a.m.] Alejandro Mora: Hehe
+[21/02/2014 11:27:05 a.m.] Anthony Guzzardo: Just saw it
+[21/02/2014 11:27:06 a.m.] Alejandro Mora: That was fast
+[21/02/2014 11:38:55 a.m.] Alejandro Mora: And we're back! Maintenance complete
+[21/02/2014 11:39:09 a.m.] Chad Jenkins: Nice, that didn't take long.
+[21/02/2014 11:42:09 a.m.] Alejandro Mora: Yeah, indeed.
+[21/02/2014 11:43:09 a.m. | Edited 11:43:30 a.m.] Alejandro Mora: But they found an issue in our SSD, so they'll have to replace it and will do maintenance again next week. They believe that to replace the disk they won't take the site offline
+[21/02/2014 11:43:19 a.m.] Alejandro Mora: But if it's needed, they'll let me know
+[21/02/2014 11:43:50 a.m.] Anthony Guzzardo: Thanks
+[21/02/2014 11:49:10 a.m.] jim-kb: arf how annoying. The power went out in the whole town :(
+[21/02/2014 11:49:27 a.m.] Anthony Guzzardo: Crummy. What happened?
+[21/02/2014 11:50:24 a.m.] jim-kb: no idea what caused it, but i was in the middle of a refactoring
+[21/02/2014 12:14:49 p.m.] jim-kb: 8 callbacks for each applauncher application :D
+[21/02/2014 12:17:00 p.m.] jim-kb: i was wondering if i should add some kind of standard application template you have to extend in order to add apps to this launcher
+[21/02/2014 02:14:48 p.m.] jim-kb: i think i am happy about the way the callbacks in the application launcher works now :)
+[21/02/2014 05:49:19 p.m.] Felipe Falanghe: working on the asteroid materials now: http://i.imgur.com/1NdJeyL.png
+[21/02/2014 05:49:50 p.m.] Felipe Falanghe: they have a mix of dust, rock and ice layered
+[21/02/2014 05:50:02 p.m.] Felipe Falanghe: which I figure is about right..
+[21/02/2014 05:50:11 p.m.] Felipe Falanghe: although the green stuff was fun too
+[21/02/2014 05:50:41 p.m.] Chad Jenkins: Nice
+[21/02/2014 05:51:09 p.m.] Felipe Falanghe: http://i.imgur.com/zqUdvZx.png
+[21/02/2014 05:52:05 p.m.] Chad Jenkins: https://www.dropbox.com/s/c6hhyc7zlxkc1zq/Screenshot%202014-02-21%2018.51.37.png
+[21/02/2014 05:52:22 p.m.] Chad Jenkins: First batch of finished assets. All of that is on one material.
+[21/02/2014 05:52:45 p.m.] Felipe Falanghe: awesome
+[21/02/2014 05:52:59 p.m.] Lalo Re: cool
+[21/02/2014 05:53:06 p.m.] Chad Jenkins: Yep, got all the pipeline issues taken care of. He's cranking on the assets now.
+[21/02/2014 05:57:36 p.m.] Felipe Falanghe: nice!
+[21/02/2014 05:58:31 p.m.] Felipe Falanghe: today I got the asteroid renaming thing working, so they get auto generated names, and you can also rename them if you happen to disagree with it
+[21/02/2014 05:58:52 p.m.] Felipe Falanghe: also added vessel renaming through the tracking station, you can click on the name header on the kb panel, and it'll bring up the rename dialog
+[21/02/2014 05:59:28 p.m.] Chad Jenkins: Ah, very cool.
+[21/02/2014 06:00:17 p.m.] Chad Jenkins: I'm committing another large batch of asset work. I'm hoping to be done with it all by monday.
+[21/02/2014 06:00:35 p.m.] Chad Jenkins: Or, at least as much as I can until I get the final textures.
+[21/02/2014 06:00:59 p.m.] Felipe Falanghe: ahh cool
+[21/02/2014 06:01:46 p.m.] Felipe Falanghe: yeah, not much left on my list here either, hopefully during the weekend I'll be able to get the size ranges implemented properly, maybe have more than one base type of asteroid to choose from
+[21/02/2014 06:03:05 p.m.] Felipe Falanghe: after that's in, the last thing missing is to have asteroids let you target the vessel CoM, which is a bit of a chore to get right... but it's not necessarily critical, although it would be a useful feature
+[21/02/2014 06:03:35 p.m.] Chad Jenkins: Ah yea, that would be useful.
+[21/02/2014 06:04:18 p.m.] Felipe Falanghe: it will take some fiddling though, because grappled objects being part of your own vessel, means they can't be targeted (because the vessel can't be its own target)
+[21/02/2014 06:04:33 p.m.] Felipe Falanghe: but they can create a CoM tracker object which follows the vessel CoM and is targetable
+[21/02/2014 06:05:45 p.m.] Chad Jenkins: Nice.
+[21/02/2014 06:05:48 p.m.] Felipe Falanghe: and finally, give the asteroids proper moments of inertia... which right now are a bit weird
+[21/02/2014 06:06:10 p.m.] Felipe Falanghe: that would be the final thing
+[21/02/2014 06:06:21 p.m.] Felipe Falanghe: not bad though, to have only three things on the weekend list
+[21/02/2014 06:06:32 p.m.] Felipe Falanghe: last week I had dozens
+[21/02/2014 06:08:02 p.m.] Felipe Falanghe: heh, earlier today I was reading up on asteroids IRL... was happy to see a lot of similariities between how real asteroids are detected and found and how we're doing it
+[21/02/2014 06:08:25 p.m.] Felipe Falanghe: it is possible to lose an asteroid forever if you don't observe it enough to  plot its orbit
+[21/02/2014 06:09:01 p.m.] Chad Jenkins: Ah, interesting.
+[21/02/2014 06:09:19 p.m.] Felipe Falanghe: and while in KSP just starting to actively track the asteroid will reveal all that information instantly, if you drop the tracking, it will eventually be lost
+[21/02/2014 06:09:32 p.m.] Felipe Falanghe: so it ended up being a simplified version of how it works in real life
+[21/02/2014 06:14:33 p.m.] Chad Jenkins: Yea, I like that.
+[21/02/2014 06:22:24 p.m.] Bob Holtzman: Nice. This sounds good.
+[24/02/2014 08:55:10 a.m.] Mike Geelan: morning chaps
+[24/02/2014 08:55:43 a.m.] Ted Everett: Afternoon
+[24/02/2014 08:56:01 a.m.] Mike Geelan: for you, maybe |-)
+[24/02/2014 08:56:16 a.m.] Ted Everett: Haha, aye, been up since 8
+[24/02/2014 08:56:55 a.m.] Mike Geelan: niece is staying and had two night terrors, one at midnight, one at 4am
+[24/02/2014 08:57:08 a.m.] Mike Geelan: so i've been up since about 10mins ago heh
+[24/02/2014 08:57:25 a.m.] Ted Everett: Ouch, that's not good. Hope she's all good now.
+[24/02/2014 08:57:57 a.m.] Mike Geelan: she is fine. she doesnt wake up, just screams and screams and screams
+[24/02/2014 08:58:07 a.m.] Mike Geelan: i wake up tho
+[24/02/2014 08:58:15 a.m.] Ted Everett: Aye, I can imagine you do
+[24/02/2014 08:58:59 a.m.] Bob Holtzman: wow: http://www.eurogamer.net/articles/2014-02-24-dean-hall-to-leave-bohemia-and-step-down-as-leader-of-dayz
+[24/02/2014 08:59:37 a.m.] Ted Everett: Huh. I did see that on his AMA he was very indicative that he wouldn't be with the project forever, but I didn't expect it to be so soon.
+[24/02/2014 09:00:59 a.m.] Ted Everett: Afaik, he gets royalties from DayZ, so that'll do him well when setting up his new studio.
+[24/02/2014 09:42:27 a.m.] jim-kb: Hello
+[24/02/2014 10:36:58 a.m.] Alejandro Mora: Morning guys
+[24/02/2014 10:37:09 a.m.] Chad Jenkins: Hello
+[24/02/2014 10:37:13 a.m.] Anthony Guzzardo: morning
+[24/02/2014 10:37:14 a.m.] Mike Geelan: howdy
+[24/02/2014 10:37:39 a.m.] Chad Jenkins: Interesting news about Dean though.
+[24/02/2014 10:38:04 a.m.] Chad Jenkins: Didn't really expect him to come out about leaving Bohemia like that. But, it makes sense.
+[24/02/2014 12:50:40 p.m.] Alejandro Mora: Happy Mexican Flag Day! Hehe :)
+[24/02/2014 12:53:18 p.m.] Mike Geelan: (flag:mexico)
+[24/02/2014 12:53:20 p.m.] Mike Geelan: hmm
+[24/02/2014 12:53:49 p.m.] Mike Geelan: (flag:mx)
+[24/02/2014 12:53:51 p.m.] Mike Geelan: :D
+[24/02/2014 12:54:14 p.m.] Mike Geelan: it's ( flag:MX )
+[24/02/2014 12:54:31 p.m.] Alejandro Mora: Ah, ok... I was just looking for it
+[24/02/2014 12:54:36 p.m.] Alejandro Mora: (flag:mx)
+[24/02/2014 12:54:38 p.m.] Alejandro Mora: Haha
+[24/02/2014 12:54:59 p.m. | Edited 12:55:05 p.m.] Mike Geelan: happy learning what mexican flag is on skype day!
+[24/02/2014 12:55:11 p.m.] Alejandro Mora: :P
+[24/02/2014 04:58:52 p.m.] Felipe Falanghe: booya!!!!
+[24/02/2014 04:58:59 p.m.] Felipe Falanghe: fixed the drift when going on rails
+[24/02/2014 04:59:10 p.m.] Felipe Falanghe: solar rendezvous should now work just fine
+[24/02/2014 04:59:14 p.m.] Felipe Falanghe: it's rock solid now
+[24/02/2014 04:59:28 p.m.] Chad Jenkins: Woo!
+[24/02/2014 05:05:08 p.m.] Felipe Falanghe: ok, there is still some small jitter orbiting the sun, I believe this might be double-precision inaccuracy
+[24/02/2014 05:05:27 p.m.] Felipe Falanghe: the only way to find out is to promote those angle values to decimal types, which are 128 bit
+[24/02/2014 05:09:13 p.m.] Felipe Falanghe: but no more of that 200+ meter leap we used to have
+[24/02/2014 05:13:26 p.m.] Maxmaps: Subreddit just broke 65k
+[24/02/2014 08:26:07 p.m.] jim-kb: good night
+[24/02/2014 08:42:11 p.m.] Chad Jenkins: Good night Jim.
+[25/02/2014 08:40:47 a.m.] Mike Geelan: http://www.topgear.com/uk/car-news/hennessey-venom-gt-new-speed-record-video-2014-2-24 getting some new life out of kennedy space center's runway
+[25/02/2014 08:40:53 a.m.] Mike Geelan: vid at bottom :P
+[25/02/2014 10:16:21 a.m.] Maxmaps: Morning guys, how's everyone?
+[25/02/2014 10:16:45 a.m.] Anthony Guzzardo: good as always here
+[25/02/2014 10:23:04 a.m.] Mike Geelan: not so bad thanks
+[25/02/2014 10:31:12 a.m.] Ted Everett: Pretty great, you?
+[25/02/2014 10:37:51 a.m.] Lalo Re: Hi
+[25/02/2014 12:12:51 p.m.] Daniel Rosas: UK chaps should get us one copy! http://www.wired.co.uk/magazine/archive/2014/02/play/you-spaceman
+[25/02/2014 12:17:14 p.m.] Bob Holtzman: Doh. I'm sorry guys.
+[25/02/2014 12:17:15 p.m.] Bob Holtzman: https://www.dropbox.com/s/ccaar95ons3jahm/Wired%20UK%20KSP.pdf
+[25/02/2014 12:18:07 p.m.] Daniel Rosas: cool!
+[25/02/2014 12:23:53 p.m.] Mike Geelan: funky
+[25/02/2014 12:49:52 p.m.] Ted Everett: Very cool
+[25/02/2014 02:56:03 p.m.] Bob Holtzman: soooo anybody played this yet: http://store.steampowered.com/app/244850
+[25/02/2014 02:56:24 p.m.] Chad Jenkins: Yep. What about it?
+[25/02/2014 02:56:26 p.m.] Ted Everett: Couple of the Moderators have iirc.
+[25/02/2014 02:56:43 p.m.] Chad Jenkins: I've got it via steam sharing with my friend.
+[25/02/2014 02:56:46 p.m.] Bob Holtzman: How is it?
+[25/02/2014 02:57:05 p.m.] Chad Jenkins: Really neat idea. But pretty rough at this stage.
+[25/02/2014 02:58:33 p.m.] Chad Jenkins: Heh, I mean what feedback are you looking for exactly? I can be very specific if you need.
+[25/02/2014 03:01:34 p.m.] Maxmaps: All I know about them is that every time they tried to viralize on KSP communities and sites people would rip them up for abandoning miner wars and calling it complete when they stopped selling copies.
+[25/02/2014 03:02:48 p.m.] Chad Jenkins: Yea, the company has a bit of a... history.
+[25/02/2014 03:03:30 p.m.] Chad Jenkins: I don't plan on buying it so far. It's a really neat concept. I just find the execution lacking. There's no real game there. So, you can build something and crash it. But that's about it.
+[25/02/2014 03:03:44 p.m.] Chad Jenkins: But, that's only compelling so many times.
+[25/02/2014 03:13:11 p.m.] Bob Holtzman: well it's compelling enough for them to announce 250K copies sold in four months.
+[25/02/2014 03:13:37 p.m.] Chad Jenkins: I believe it. People really want that game.
+[25/02/2014 03:13:57 p.m.] Chad Jenkins: In the sense, they want a space combat and ship construction simulator.
+[25/02/2014 03:14:17 p.m.] Chad Jenkins: You can see that from how many people are modding weapons into KSP to do that.
+[25/02/2014 03:20:28 p.m.] Chad Jenkins: I think with greenlight, you see a lot of games that are "selling the dream". I think Space Engineers is one of those games. They haven't delivered on the dream yet, but, it's early access and it's quite possible they'll pull it off given enough time.
+[25/02/2014 03:27:54 p.m.] Ted Everett: Yeah, BeamNG is another example of that
+[25/02/2014 03:28:15 p.m.] Chad Jenkins: Well, BeamNG is a lot of fun even now.
+[25/02/2014 03:28:24 p.m.] Chad Jenkins: Since they have the editor, and it's just basically a toybox.
+[25/02/2014 03:28:34 p.m.] Chad Jenkins: But, that has to be your thing. If not, there's not a lot there.
+[25/02/2014 03:28:54 p.m.] Ted Everett: Definitely. I still play it for an hour or so a day. But they've been working on an update since September, and that makes a lot of folks twitch.
+[25/02/2014 03:30:34 p.m.] Chad Jenkins: Hehe yea. They've got nothing on DF though. Which will update someday..
+[25/02/2014 03:30:40 p.m.] Ted Everett: Haha aye
+[25/02/2014 03:33:11 p.m.] jim-kb: i was thinking about buying space engineers at one point, but then again i was thinking about bying a lot of games :D
+[25/02/2014 03:35:10 p.m.] Chad Jenkins: I've got a lot of games just sitting around. I keep buying them, but never have the time to actually play them haha. It's kind of sad.
+[25/02/2014 03:35:27 p.m.] Anthony Guzzardo: I think we can all relate to that
+[25/02/2014 03:35:48 p.m.] Ted Everett: Yeah, I've almost doubled my Steam library in the past year
+[25/02/2014 03:35:52 p.m.] Chad Jenkins: I see a humble bundle now. I just have to go... no.. be strong..
+[25/02/2014 03:35:59 p.m.] Maxmaps: You don't say. http://steamcommunity.com/id/Maxmaps
+[25/02/2014 03:36:43 p.m.] Ted Everett: Hah, I have 63 here
+[25/02/2014 03:36:56 p.m.] Chad Jenkins: Pfft, get on my level.
+[25/02/2014 03:37:04 p.m.] Chad Jenkins: I have 325 XD
+[25/02/2014 03:37:13 p.m.] Ted Everett: Hahaha
+[25/02/2014 03:37:17 p.m.] Maxmaps: This is the one that gets shameful http://steamcommunity.com/id/Maxmaps/games?tab=all
+[25/02/2014 03:37:39 p.m.] Maxmaps: Playing Champions Online while in boring classes nonstop for like a year #justnerdthings
+[25/02/2014 03:37:49 p.m.] Chad Jenkins: The funny thing is, half those games were incredible sales or bundles that I got for dirt cheap.
+[25/02/2014 03:37:58 p.m.] Maxmaps: Same for me
+[25/02/2014 03:38:36 p.m.] Chad Jenkins: I got an entire publisher's collection on sale for the price of one game.
+[25/02/2014 03:38:58 p.m.] Chad Jenkins: I did that for THQ... and SquareEnix.. so that was a ton of games.
+[25/02/2014 03:39:50 p.m.] Chad Jenkins: Wow, I just noticed your play times Max.
+[25/02/2014 03:40:08 p.m.] Maxmaps: As I said, shameful
+[25/02/2014 03:40:19 p.m.] Chad Jenkins: I think you've played that one game more then I've played all my games on steam combined.
+[25/02/2014 03:40:58 p.m.] Maxmaps: When you're locked with 30 or so kids who still act like teenagers and you have more work experience than some of your teachers you have to do something.
+[25/02/2014 03:41:12 p.m.] Maxmaps: And if that something includes throwing buses at people, even better.
+[25/02/2014 03:41:46 p.m.] Bob Holtzman: haha. I just realized I've almost played as much audiosurf as I have KSP.
+[25/02/2014 03:41:59 p.m.] Bob Holtzman: and I'm proud to say it took me fewer than 6 hours to finish the Homefront campaign.
+[25/02/2014 03:42:50 p.m.] Bob Holtzman: Dude I think the amount of hours you've dumped on some of these other games is remarkable. 161 on Terraria Max?
+[25/02/2014 03:43:05 p.m.] Maxmaps: And it cost me like 5 bucks, best money to fun ratio ever
+[25/02/2014 03:43:11 p.m.] jim-kb: how is this possible max? :P
+[25/02/2014 03:43:32 p.m.] Maxmaps: If I have the free time I can easily game for 16 hours straight
+[25/02/2014 03:43:35 p.m.] Chad Jenkins: My max is 130 on Skyrim. Now you're making that seem downright reasonable.
+[25/02/2014 03:44:11 p.m.] Ted Everett: My max is KSP - 844
+[25/02/2014 03:44:15 p.m.] Anthony Guzzardo: You guys look busy in here. perfect tiem to ask you to fill out the dev notes! https://docs.google.com/document/d/1NsTRA3FBbA8h_gk34GkCkJd9pXxw3GfBGC5ENfwmN1o/edit
+[25/02/2014 03:44:18 p.m.] Maxmaps: But now it's like http://steamcommunity.com/id/Maxmaps/games?tab=recent
+[25/02/2014 03:44:44 p.m.] Chad Jenkins: If they had an hour count on 3ds max and Unity. Mine would be epic.
+[25/02/2014 03:45:00 p.m.] Chad Jenkins: Or, visual studio lol.
+[25/02/2014 03:45:01 p.m.] Ted Everett: Haha, I know some audio software has project hours logged.
+[25/02/2014 04:14:14 p.m.] Maxmaps: Haha, mentioned. http://what-if.xkcd.com/85/
+[25/02/2014 04:14:25 p.m.] Maxmaps: "The equation in question—which might be my favorite in all of physics—the Tsiolkovsky rocket equation:
+?v=vexhaustlnminitialmfinal
+
+This equation comes up a lot in What If calculations. I like it both because it says something fundamental about our ability to explore the universe, and because you can use it to get really good at Kerbal Space Program.""
+[25/02/2014 04:15:03 p.m.] Mike Geelan: (y)
+[25/02/2014 04:15:04 p.m.] Ted Everett: Haha
+[25/02/2014 04:15:08 p.m.] Chad Jenkins: Nice
+[25/02/2014 05:22:24 p.m.] Mike Geelan: http://www.theregister.co.uk/2014/02/25/spacex_set_to_try_hover_landing_for_reusable_rockets_on_march_space_station_mission/
+[25/02/2014 05:23:04 p.m.] Mike Geelan: thems some sexy legs
+[25/02/2014 05:27:44 p.m.] Chad Jenkins: I want to make some of those now haha.
+[25/02/2014 06:13:07 p.m.] Anthony Guzzardo: Who among you has not filled out the devnotes today? https://docs.google.com/document/d/1NsTRA3FBbA8h_gk34GkCkJd9pXxw3GfBGC5ENfwmN1o/edit
+[25/02/2014 06:14:26 p.m.] Chad Jenkins: Hmm, I think the empty lines are a dead give away.
+[25/02/2014 06:14:28 p.m.] Chad Jenkins: ;)
+[25/02/2014 06:14:34 p.m.] Chad Jenkins: I'll do it now heh.
+[25/02/2014 06:16:03 p.m. | Removed 06:17:23 p.m.] Bob Holtzman: This message has been removed.
+[26/02/2014 07:10:36 a.m.] Ted Everett: Hmm, Forum seems to be out - Database Error.
+[26/02/2014 08:40:23 a.m.] Ted Everett: Anyone around that can contact Multiplay?
+[26/02/2014 09:04:00 a.m.] Felipe Falanghe: morning
+[26/02/2014 09:04:05 a.m.] Felipe Falanghe: seems to be up atm
+[26/02/2014 09:10:52 a.m.] Felipe Falanghe: unrelated, the latest xkcd is particularly useful for us: http://xkcd.com/1335/
+[26/02/2014 09:11:00 a.m.] Felipe Falanghe: (it rotates)
+[26/02/2014 09:52:27 a.m.] Mike Geelan: is it updated live?
+[26/02/2014 10:12:36 a.m.] Ted Everett: Yeah, it came back. Most odd.
+[26/02/2014 10:56:29 a.m.] Bob Holtzman: http://www.gamesindustry.biz/articles/2014-02-26-minecraft-hits-100m-registered-users
+[26/02/2014 10:57:16 a.m.] Jesus Squad Developer: Hi guys
+[26/02/2014 10:57:20 a.m.] Jesus Squad Developer: we are offline
+[26/02/2014 10:57:22 a.m.] Anthony Guzzardo: Hello
+[26/02/2014 10:57:26 a.m.] Jesus Squad Developer: our internet is down
+[26/02/2014 10:57:31 a.m.] Anthony Guzzardo: lame
+[26/02/2014 10:57:34 a.m.] Ted Everett: Ouch, not good.
+[26/02/2014 10:57:43 a.m.] Jesus Squad Developer: so everything is dead
+[26/02/2014 10:57:57 a.m.] Jesus Squad Developer: build servers and the like
+[26/02/2014 10:58:13 a.m.] Anthony Guzzardo: what happened?
+[26/02/2014 10:59:02 a.m.] Jesus Squad Developer: our router has lost its dns address
+[26/02/2014 10:59:14 a.m.] Jesus Squad Developer: so it can not reach its server provider
+[26/02/2014 11:05:03 a.m.] Bob Holtzman: Oh noes.
+[26/02/2014 11:29:02 a.m.] Alejandro Mora: And we're back!
+[26/02/2014 11:29:08 a.m.] Alejandro Mora: :)
+[26/02/2014 11:30:28 a.m.] Ted Everett: Welcome back
+[26/02/2014 11:43:13 a.m.] Marco Antonio Salcedo: http://unity3d.com/unite/unite2014/
+[26/02/2014 11:43:41 a.m.] Ted Everett: Nice.
+[26/02/2014 11:43:52 a.m.] Marco Antonio Salcedo: It's officially announced!
+[26/02/2014 12:06:57 p.m.] Daniel Rosas: Unite Mx sounds interesting
+[26/02/2014 12:12:46 p.m.] Marco Antonio Salcedo: unite mx? Where is that?
+[26/02/2014 12:22:39 p.m.] Maxmaps: Going to take a wild guess and assume Mexico
+[26/02/2014 12:23:33 p.m.] Marco Antonio Salcedo: ummm....i'll rephrase that
+[26/02/2014 12:23:35 p.m.] Marco Antonio Salcedo: link?
+[26/02/2014 12:23:36 p.m.] Maxmaps: :P
+[26/02/2014 12:24:14 p.m.] Alejandro Mora: Yeah, I was looking in the text but can't find anything about Unite Mx
+[26/02/2014 12:24:29 p.m.] Alejandro Mora: So, don't know where Dan saw that
+[26/02/2014 12:25:10 p.m.] Daniel Rosas: http://unity3d.com/unite
+[26/02/2014 12:25:20 p.m.] Daniel Rosas: lower part, yellow
+[26/02/2014 12:25:30 p.m.] Alejandro Mora: Oh, right
+[26/02/2014 12:25:55 p.m.] Alejandro Mora: :O
+[26/02/2014 12:35:46 p.m.] Bob Holtzman: We need to be the keynote speakers at that!!
+[26/02/2014 12:35:57 p.m.] Bob Holtzman: I'll reach out to my contact at Unity.
+[26/02/2014 01:04:55 p.m.] jim-kb: i made a random animation scheduler :D
+[26/02/2014 01:06:39 p.m.] jim-kb: it's for playing idle animations for Gene Kerman. So i give it a set of animations and a chanse for each animation to play. Then the scheduler has a min and max interval and creates a idle animation from that
+[26/02/2014 01:09:16 p.m.] jim-kb: this way Gene can sit in the control center, drink coffe and type at the keyboard at random intervals, look around and stuff. And when missions are accepted/declined or easy/medium/hard missions are selected he will play an emote, and it's easy to define random fallback animation loops he will go into when that trigger animation is played
+[26/02/2014 01:09:54 p.m.] Daniel Rosas: ahhh nice :D
+[26/02/2014 01:11:29 p.m.] jim-kb: and the animation crossfade feature in unity is real nice so im thinking in the future we can operate with shorter animation segments and just put them into this scheduler to create less repeating idle animations :)
+[26/02/2014 01:12:21 p.m.] Daniel Rosas: that's a good idea, can I see it in action in the editor?
+[26/02/2014 01:12:54 p.m.] jim-kb: it's very much at the prototype stage atm, but i should have something to show in a few hours
+[26/02/2014 01:18:11 p.m.] Daniel Rosas: sure, let me know and I'll do a pull
+[26/02/2014 03:27:34 p.m.] jim-kb: im thinking this prototype is ready for you in a few min, last test ;)
+[26/02/2014 03:30:29 p.m.] jim-kb: allright i got something you can look at now Dan
+[26/02/2014 03:31:23 p.m.] Daniel Rosas: awesome
+[26/02/2014 03:31:42 p.m.] jim-kb: pull from my branch RomfarerGUI, then launch a career mode game and enter the mission control building. There is a test gui there with 3 buttons to test some anmiation scripts
+[26/02/2014 03:33:52 p.m.] Daniel Rosas: got it
+[26/02/2014 03:50:42 p.m.] Lalo Re: hi team, i just want to ask all of you, if you already saw the mail about QA timesç?
+[26/02/2014 03:51:46 p.m.] Chad Jenkins: Yep.
+[26/02/2014 03:53:16 p.m.] Lalo Re: (y)  thanks Chad
+[26/02/2014 04:00:04 p.m.] jim-kb: im not sure when we will be ready to QA the mission control / applauncher / message system things
+[26/02/2014 04:01:23 p.m.] Lalo Re: now we are over time, we need to hurry as much as possible
+[26/02/2014 05:09:15 p.m.] Felipe Falanghe: QA testing for the NASA pack support features seems to be going alright
+[26/02/2014 05:09:20 p.m.] Felipe Falanghe: already caught and fixed a few bugs here
+[26/02/2014 05:09:58 p.m.] Lalo Re: cool
+[26/02/2014 05:10:02 p.m.] Lalo Re: thank you Felipe
+[26/02/2014 05:32:40 p.m.] Felipe Falanghe: will run a new build now
+[26/02/2014 05:34:07 p.m.] Chad Jenkins: Cool.
+[26/02/2014 05:34:12 p.m.] Lalo Re: (y)
+[26/02/2014 06:47:38 p.m.] jim-kb: has there been many submissions for the logo competition?
+[26/02/2014 06:47:48 p.m.] Alejandro Mora: Yep
+[26/02/2014 06:48:49 p.m. | Edited 06:49:08 p.m.] Alejandro Mora: At least, we know that 120 people have submitted something
+[26/02/2014 06:49:03 p.m.] jim-kb: :D every company covered?
+[26/02/2014 06:49:28 p.m.] Alejandro Mora: Haven't checked them all
+[26/02/2014 06:49:40 p.m.] Alejandro Mora: I think that Anthony can answer that better
+[26/02/2014 06:49:41 p.m.] Alejandro Mora: hehe
+[26/02/2014 06:53:32 p.m.] Anthony Guzzardo: Man, I haven't even gone through all the entries yet. There's so many. I'm organizing all my favorites once I get the final folder.
+[26/02/2014 06:58:11 p.m.] jim-kb: might be a good idea to post some kind of submission count per manufacturer, so the contestors can make logos for those manufacturers with few submissions
+[26/02/2014 07:16:37 p.m.] Anthony Guzzardo: I'll give that thought for sure
+[26/02/2014 08:06:19 p.m.] Felipe Falanghe: http://imgur.com/a/0mr0P#0
+[26/02/2014 08:06:27 p.m.] Felipe Falanghe: caught a class E rock
+[26/02/2014 08:06:36 p.m.] Felipe Falanghe: or rather... landed on it :D
+[26/02/2014 08:06:55 p.m.] Ted Everett: Heh, impressive. I chased my Class E into Kerbin :/
+[26/02/2014 08:07:20 p.m.] Felipe Falanghe: heh, yeah, this one is going there too
+[26/02/2014 08:07:41 p.m.] Felipe Falanghe: I'm not even going to attempt to move it, once it gets close enough I'll just detach and head home
+[26/02/2014 08:09:17 p.m.] Ted Everett: Heh, a poodle would have trouble moving that indeed
+[26/02/2014 08:09:37 p.m.] Felipe Falanghe: it weighs over 2100 tonnes
+[26/02/2014 08:09:41 p.m.] Ted Everett: Wow
+[26/02/2014 08:09:57 p.m.] Chad Jenkins: I think that rock caught you.
+[26/02/2014 08:10:08 p.m.] Felipe Falanghe: heh, yeah, I pretty much landed on it
+[26/02/2014 08:10:20 p.m.] Felipe Falanghe: I didn't 'catch' anything :D
+[26/02/2014 08:10:21 p.m.] Chad Jenkins: Apparently our intrepid testers have already landed rocks.
+[26/02/2014 08:10:29 p.m.] Felipe Falanghe: wow
+[26/02/2014 08:10:37 p.m.] Felipe Falanghe: how large?
+[26/02/2014 08:10:51 p.m. | Edited 08:10:59 p.m.] Ted Everett: Aye, hermes landed one near the KSC. Class C iirc. Yargnit landed a Class B or A in the KSC R&D centre.
+[26/02/2014 08:11:00 p.m.] Felipe Falanghe: lol
+[26/02/2014 08:11:04 p.m.] Chad Jenkins: Yea, they landed em right on the doorstep at that.
+[26/02/2014 08:11:07 p.m.] Chad Jenkins: No cheats apparently.
+[26/02/2014 08:11:13 p.m.] Felipe Falanghe: hah, nice
+[26/02/2014 08:11:32 p.m.] Felipe Falanghe: and here I was gloating at a successful capture and maneuvering into a circular orbit yesterday
+[26/02/2014 08:11:46 p.m.] Felipe Falanghe: they brough it to the scientists and pretty much handed it to them
+[26/02/2014 08:11:47 p.m.] Chad Jenkins: I talked to Yarg and apparently he was trying to make a rock garden or something.
+[26/02/2014 08:11:58 p.m.] Felipe Falanghe: lol!!
+[26/02/2014 08:12:21 p.m.] Chad Jenkins: He was testing the logistics of moving them around once landed.
+[26/02/2014 08:12:53 p.m.] Felipe Falanghe: hmm, shouldn't be impossible to land it on a flatbed with wheels
+[26/02/2014 08:13:14 p.m.] Felipe Falanghe: the flatbed having clamps facing up as a "platform"
+[26/02/2014 08:13:39 p.m.] Felipe Falanghe: drop it there, decouple, drive the rock around proudly, (?), profit!
+[26/02/2014 08:13:41 p.m.] Chad Jenkins: Don't give me ideas heh.
+[26/02/2014 08:13:57 p.m.] Chad Jenkins: I think people will enjoy the claws.
+[26/02/2014 08:14:07 p.m.] Chad Jenkins: How are the testers liking that part by the way Ted?
+[26/02/2014 08:14:34 p.m.] Ted Everett: Definitely. They like it very much so - especially the fact that you're able to grab pretty much anything with it heh
+[26/02/2014 08:14:57 p.m.] Felipe Falanghe: hehe
+[26/02/2014 08:15:43 p.m.] Felipe Falanghe: I think we're going to see a lot more people docking
+[26/02/2014 08:16:00 p.m. | Edited 08:16:04 p.m.] Felipe Falanghe: the claw as a docking port is far more forgiving than the actual ports
+[26/02/2014 08:16:05 p.m.] Ted Everett: Yeah
+[26/02/2014 08:16:30 p.m.] Felipe Falanghe: you don't have to line up to a mate node or anything, just get close enough and slow enough and you're hitched
+[26/02/2014 08:17:13 p.m.] Felipe Falanghe: in fact, I want to try and build a refueling orbiting city around a large rock
+[26/02/2014 08:17:36 p.m.] Felipe Falanghe: they make for awesome building blocks for stations
+[26/02/2014 08:17:58 p.m.] Ted Everett: Yeah, they do. I didn't really think about it until you mentioned bringing a docking port with you yesterday.
+[26/02/2014 08:18:06 p.m.] Felipe Falanghe: ahh heh
+[26/02/2014 08:18:24 p.m.] Felipe Falanghe: what I've been doing is mounting the claw right after a pair of pre-attached nodes
+[26/02/2014 08:18:35 p.m.] Felipe Falanghe: that way you can detach yourself but leave a docking port installed
+[26/02/2014 08:18:49 p.m.] Chad Jenkins: Neat.
+[26/02/2014 08:19:10 p.m.] Ted Everett: Aye, great idea.
+[26/02/2014 08:19:36 p.m.] Chad Jenkins: I just looked everwhere for my tablet pen, until I realized it was on my ear...
+[26/02/2014 08:19:43 p.m.] Ted Everett: Heh
+[26/02/2014 08:19:46 p.m.] Chad Jenkins: (facepalm)
+[26/02/2014 08:19:46 p.m.] Felipe Falanghe: I was trying to find the most absurd test case I could think of... this was one of the ideas
+[26/02/2014 08:20:16 p.m.] Felipe Falanghe: in terms of what's happening to the ship hierarchy as you 'install' docking ports on an asteroid... it's pretty insane
+[26/02/2014 08:20:19 p.m.] Felipe Falanghe: and it needs to work properly
+[26/02/2014 08:21:03 p.m.] Felipe Falanghe: well, I should get going here
+[26/02/2014 08:21:59 p.m.] Felipe Falanghe: I ended up posting the majority of the issues I fixed today... the testers should still have a go at confirmng them just to be sure
+[26/02/2014 08:22:29 p.m.] Ted Everett: Okay, see you. I'll give a few a confirm here and post the relevant ones in IRC for when they wake up.
+[26/02/2014 08:22:35 p.m.] Felipe Falanghe: cool thanks!
+[26/02/2014 08:22:39 p.m.] Felipe Falanghe: gn!
+[26/02/2014 08:24:06 p.m.] Chad Jenkins: Good night Felipe.
+[27/02/2014 01:16:28 p.m.] Daniel Rosas: hey guys, I think we have a winner for the Mission Control music https://www.dropbox.com/s/3rv7q46e5kykf39/KSP%20-%20Mission%20Control%202.1%20LOOP.m4a
+[27/02/2014 01:19:52 p.m.] Mike Geelan: its alright but would grate a lil on repeat
+[27/02/2014 01:20:58 p.m.] Mike Geelan: or.. well.. i dunno
+[27/02/2014 01:21:04 p.m.] Mike Geelan: sounds alright anyway :P
+[27/02/2014 01:21:34 p.m.] Anthony Guzzardo: i like it
+[27/02/2014 01:22:06 p.m.] Ted Everett: Aye, I do as well. Suits a mission control room well
+[27/02/2014 01:22:15 p.m.] Felipe Falanghe: ooh, checking it now
+[27/02/2014 01:23:41 p.m.] Felipe Falanghe: it sounds very cool, I like how it uses the main theme as a base
+[27/02/2014 01:24:20 p.m.] Felipe Falanghe: but it is going to get repetitive quick on a loop
+[27/02/2014 01:24:27 p.m.] Mike Geelan: my thoughts too
+[27/02/2014 01:24:43 p.m.] Felipe Falanghe: I think it needs a minute of a slow 'lull' after the end
+[27/02/2014 01:25:07 p.m.] Felipe Falanghe: it sounds like it was about to start doing just that in fact, right as it ends
+[27/02/2014 01:25:53 p.m.] Felipe Falanghe: if it goes into a minute or two of slow attack tones and just lets it rest for a while, it should be a lot better
+[27/02/2014 01:26:03 p.m.] Felipe Falanghe: it does sound very cool
+[27/02/2014 01:26:38 p.m.] Felipe Falanghe: I would skip that one bit with the dissonant chord though, it exceeds the 'ambience' threshold there
+[27/02/2014 01:26:56 p.m. | Edited 01:26:58 p.m.] Felipe Falanghe: at around 0:30
+[27/02/2014 01:27:50 p.m.] Felipe Falanghe: In fact, what I would do is add the resting moments not all at the end, but add them between the repetitions of the theme
+[27/02/2014 01:28:16 p.m.] Felipe Falanghe: like one theme, rest for a while with some slow tones and just the snare
+[27/02/2014 01:28:22 p.m.] Felipe Falanghe: then another, then rest again
+[27/02/2014 01:28:30 p.m.] Felipe Falanghe: that way it will breathe much better
+[27/02/2014 01:28:37 p.m.] Felipe Falanghe: and not get very tiresome when it loops
+[27/02/2014 01:35:32 p.m.] Daniel Rosas: yeah, let me check that with Edu
+[27/02/2014 01:35:39 p.m.] Daniel Rosas: like a second part
+[27/02/2014 01:35:42 p.m.] Daniel Rosas: just humming around
+[27/02/2014 01:35:49 p.m.] Daniel Rosas: the beat going rounds and rounds
+[27/02/2014 01:45:40 p.m.] Daniel Rosas: how long are you going to be on the MC scene? 30secs tops no?
+[27/02/2014 01:45:56 p.m.] Mike Geelan: few mins perhaps if you're browsing/reading
+[27/02/2014 01:46:34 p.m.] Ted Everett: Yeah, about 1-2 mins. People will want to spend time comparing missions etc.
+[27/02/2014 01:50:04 p.m.] Felipe Falanghe: yeah, potentially a whlie, let's assume up to 10 mins even
+[27/02/2014 01:50:21 p.m.] Anthony Guzzardo: http://bigsushi.fm/episode-134-squad-talks-kerbal-space-program/
+[27/02/2014 01:50:46 p.m.] Felipe Falanghe: not that the loop ought to be 10m long, but that players would be ok with hearing up to 3 or 4 loops of the tune without getting tired of it
+[27/02/2014 01:57:07 p.m.] Daniel Rosas: yes, 10mins is too much
+[27/02/2014 05:39:35 p.m.] Felipe Falanghe: I've compiled all the current submissions for the logo contest by manufacturer here
+[27/02/2014 05:39:53 p.m.] Felipe Falanghe: it's an impressive list, none of them have less than 10 entries already
+[27/02/2014 05:40:09 p.m. | Edited 05:40:11 p.m.] Felipe Falanghe: c7's has 83
+[27/02/2014 05:41:27 p.m.] Alejandro Mora: Yeah, i've seen some of them here
+[27/02/2014 05:43:53 p.m.] Chad Jenkins: Haha wow.
+[27/02/2014 05:44:24 p.m. | Edited 05:44:32 p.m.] Alejandro Mora: How did you separate the files? I mean... will you know to what person each file belongs to?
+[27/02/2014 05:44:55 p.m.] Felipe Falanghe: I did a search for filenames
+[27/02/2014 05:44:59 p.m.] Felipe Falanghe: for each manufacturer
+[27/02/2014 05:45:25 p.m.] Felipe Falanghe: this loses the submission info, but it's a better way to pick the best ones
+[27/02/2014 05:45:34 p.m.] Felipe Falanghe: then we can go through and find where it comes from
+[27/02/2014 05:45:42 p.m.] Felipe Falanghe: or just search for it
+[27/02/2014 05:46:07 p.m.] Alejandro Mora: Ah ok ok
+[27/02/2014 05:46:13 p.m.] Felipe Falanghe: some of these logos look like they're professionally designed actually
+[27/02/2014 05:46:17 p.m.] Felipe Falanghe: others... well
+[27/02/2014 05:46:41 p.m.] Felipe Falanghe: let's just say there is a reason why graphic design is a college major
+[27/02/2014 05:47:03 p.m.] Chad Jenkins: lol
+[27/02/2014 05:47:19 p.m.] Chad Jenkins: Where can I view the logo images?
+[27/02/2014 05:47:43 p.m.] Chad Jenkins: Do we have one for the new NASA parts though?
+[27/02/2014 05:47:58 p.m.] Felipe Falanghe: ahhh, that we have not
+[27/02/2014 05:48:25 p.m.] Felipe Falanghe: although someone did submit a logo for RocketDyne, I never knew we had that in the game
+[27/02/2014 05:48:35 p.m.] Chad Jenkins: I don't think we do...
+[27/02/2014 05:49:30 p.m.] Chad Jenkins: http://wiki.kerbalspaceprogram.com/wiki/Category:Manufacturers
+[27/02/2014 05:49:43 p.m.] Alejandro Mora: Well.... the Companies listed for the submission doesn't have that one
+[27/02/2014 05:49:49 p.m.] Alejandro Mora: https://kerbalspaceprogram.com/logoSubmission.php
+[27/02/2014 05:49:51 p.m.] Chad Jenkins: Yea, heh.
+[27/02/2014 05:50:23 p.m.] Felipe Falanghe: it's pretty interesting though, how all these submissions, from all different people, have very similar themes going
+[27/02/2014 05:50:40 p.m.] Felipe Falanghe: just from the name alone, people usually visualize similar things
+[27/02/2014 05:50:59 p.m.] Felipe Falanghe: although I suspect on more than one case there's been people "borrowing" some design shared on reddit or something
+[27/02/2014 05:51:22 p.m.] Chad Jenkins: Yea, quite likely. Or inspired from one or another.
+[27/02/2014 05:51:54 p.m.] Anthony Guzzardo: There already has been a case on the forum where someone had the same idea as someone else without actually having seen the other submission before.
+[27/02/2014 05:52:15 p.m.] Felipe Falanghe: for the moving parts experts group, for instance, almost everyone submitted a design featuring cogs
+[27/02/2014 05:52:33 p.m.] Chad Jenkins: Nice.
+[27/02/2014 05:53:07 p.m.] Felipe Falanghe: but man, there are going to be some tough choices ahead
+[27/02/2014 05:53:21 p.m.] Felipe Falanghe: there's a lot of cases where multiple ideas are very good
+[27/02/2014 05:54:38 p.m.] Alejandro Mora: And that's why I gave you the links to download the image everyday, hahaha
+[27/02/2014 05:54:51 p.m.] Chad Jenkins: Very cool.
+[27/02/2014 05:54:52 p.m.] Alejandro Mora: If we waited til the end of the contest...
+[27/02/2014 05:55:16 p.m.] Alejandro Mora: I don't want to imagine how long that could take
+[27/02/2014 05:55:19 p.m.] Alejandro Mora: hehe
+[27/02/2014 05:55:20 p.m.] Felipe Falanghe: heh yeah
+[27/02/2014 05:55:29 p.m.] Felipe Falanghe: well, this is why I'm compiling by manufacturer
+[27/02/2014 05:55:42 p.m.] Felipe Falanghe: so we can select them from logos for the same thing
+[27/02/2014 05:55:46 p.m.] Felipe Falanghe: otherwise it would be impossible
+[27/02/2014 05:55:58 p.m.] Alejandro Mora: yeah, indeed
+[27/02/2014 05:56:00 p.m.] Alejandro Mora: hehe
+[27/02/2014 05:59:54 p.m.] Felipe Falanghe: heh, mad props to everyone who did Rokea logos which weren't IKEA spoofs
+[27/02/2014 06:00:24 p.m.] Chad Jenkins: haha, isn't that kind of the point?
+[27/02/2014 06:03:15 p.m.] Felipe Falanghe: heh, that's much too easy isn't it?
+[27/02/2014 06:03:23 p.m.] Felipe Falanghe: but now, this one is clever:
+[27/02/2014 06:03:25 p.m.] *** Felipe Falanghe sent Zaltonic Electronics (3).jpg ***
+[27/02/2014 06:08:57 p.m.] Maxmaps: Hah! It is
+[27/02/2014 06:11:44 p.m.] Felipe Falanghe: heh, turns out, the "rocketdyne" logo was just a filename... it was actually for Rockomax
+[27/02/2014 06:11:51 p.m.] Felipe Falanghe: better to not ask
+[27/02/2014 06:12:32 p.m.] Felipe Falanghe: for the new kerbdyne parts, we could definitely repurpose one of the honorable mentions we're sure to end up with
+[27/02/2014 06:16:05 p.m.] Chad Jenkins: Yea, certainly.
+[27/02/2014 06:16:16 p.m.] Chad Jenkins: That's straight up the GE logo heh.
+[27/02/2014 06:16:32 p.m.] Felipe Falanghe: man... Steadler is going to be a total waste of good ideas... there's so many good ones
+[27/02/2014 06:16:56 p.m.] Chad Jenkins: Any nice ones for C7? :D
+[27/02/2014 06:17:12 p.m.] Felipe Falanghe: you're the record-holder actually... with 80+ entries
+[27/02/2014 06:18:33 p.m.] Chad Jenkins: Very nice XD
+[27/02/2014 06:24:49 p.m.] Felipe Falanghe: https://www.dropbox.com/sh/urzyujksamtv8fn/Z6BjtRIrLl/manufacturers
+[27/02/2014 06:24:56 p.m.] Felipe Falanghe: here's a dropbox link for the folder
+[27/02/2014 06:25:05 p.m.] Felipe Falanghe: IDK if you can see it right away
+[27/02/2014 06:26:51 p.m.] Felipe Falanghe: it's still uploading tho
+[27/02/2014 06:30:29 p.m.] Chad Jenkins: Yea, I'll give it a bit. Looking neat though.
+[28/02/2014 09:02:39 a.m.] Mike Geelan: http://www.bbc.co.uk/news/magazine-26372277
+[28/02/2014 09:05:55 a.m.] Bob Holtzman: All I see is Hindenburg
+[28/02/2014 09:07:00 a.m.] Mike Geelan: have you ever seen Archer?
+[28/02/2014 09:07:41 a.m.] Mike Geelan: there is an episode where they go on a perfectly safe helium filled zepplin and he constantly screams about how they're all going to die in a hydrogen fuelled fireball
+[28/02/2014 09:08:00 a.m.] Mike Geelan: quite an amusing series
+[28/02/2014 09:20:10 a.m.] Bob Holtzman: I've never watched it but have heard its funny.
+[28/02/2014 09:20:35 a.m.] Mike Geelan: it was great stuff
+[28/02/2014 12:21:27 p.m.] Felipe Falanghe: morning
+[28/02/2014 12:21:37 p.m.] Maxmaps: Morning Felipe.
+[28/02/2014 12:22:07 p.m.] Felipe Falanghe: the build servers seem to be offline
+[28/02/2014 12:23:05 p.m.] Alejandro Mora: nop, I can see them here
+[28/02/2014 12:23:18 p.m.] Felipe Falanghe: hmm, the IP may have changed then
+[28/02/2014 12:23:19 p.m.] Alejandro Mora: Oh, I know why
+[28/02/2014 12:23:31 p.m.] Alejandro Mora: Yeah, after our Network crash, the IP changed
+[28/02/2014 12:23:33 p.m.] Alejandro Mora: let me fix that
+[28/02/2014 12:23:34 p.m.] Bob Holtzman: morning? are you talking to anthony because it is after noon Felipe! :)
+[28/02/2014 12:23:34 p.m.] Felipe Falanghe: ahh
+[28/02/2014 12:23:40 p.m.] Felipe Falanghe: heh
+[28/02/2014 12:23:48 p.m.] Felipe Falanghe: it's all a matter of perspective :D
+[28/02/2014 12:23:52 p.m.] Felipe Falanghe: it's morning somewhere
+[28/02/2014 12:24:34 p.m.] Maxmaps: Man, the bitcoin thing gets way less funny when you realize a friend had just about the entirety of his daughter's college fund in mt. gox.
+[28/02/2014 12:25:00 p.m.] Marco Antonio Salcedo: yeah, no, that's still funny
+[28/02/2014 12:25:22 p.m.] Anthony Guzzardo: oh man awful
+[28/02/2014 12:38:15 p.m.] Felipe Falanghe: can you post the external IP for the office?
+[28/02/2014 12:38:25 p.m.] Felipe Falanghe: I still can't connect here
+[28/02/2014 12:38:44 p.m.] Felipe Falanghe: the DNS could take a while to propagate
+[28/02/2014 12:39:39 p.m.] Felipe Falanghe: write 'ip' in chrome and it'll tell you
+[28/02/2014 12:43:48 p.m.] Alejandro Mora: 189.210.119.226
+[28/02/2014 12:43:56 p.m.] Alejandro Mora: Sorry, I was checking something
+[28/02/2014 12:44:48 p.m.] Felipe Falanghe: thanks!
+[28/02/2014 12:52:58 p.m.] Felipe Falanghe: today's submissions added to the by-manufacturer folder in dropbox
+[28/02/2014 01:00:37 p.m.] Alejandro Mora: ah.. i think those are yesterday's submissions hehe
+[28/02/2014 01:01:22 p.m.] Alejandro Mora: i'll give you today's submissions link after I shut down the submission page.. that will be at 6:00 pm CST
+[28/02/2014 01:02:30 p.m.] Felipe Falanghe: ah yes, the 27th
+[28/02/2014 01:02:43 p.m.] Felipe Falanghe: I have 4 days here of submissions
+[28/02/2014 01:02:49 p.m. | Edited 01:02:51 p.m.] Felipe Falanghe: from the 24th to the 27th
+[28/02/2014 01:03:02 p.m.] Alejandro Mora: Yep, today's the last day
+[28/02/2014 01:03:08 p.m.] Felipe Falanghe: so far there's been 1060 submissions
+[28/02/2014 01:03:21 p.m.] Felipe Falanghe: for 26 categories
+[28/02/2014 01:06:39 p.m.] Ted Everett: Impressive
+[28/02/2014 01:12:29 p.m.] Felipe Falanghe: heh, I was just thinking here... real companies can only dream of having this much choice in graphic design proposals
+[28/02/2014 01:12:50 p.m.] Felipe Falanghe: it's like shopping for logos now
+[28/02/2014 01:17:22 p.m.] Felipe Falanghe: :D
+[28/02/2014 01:17:22 p.m.] Felipe Falanghe: https://www.dropbox.com/s/w5o7cl8ba9nk2oj/Seans%20Cannery%20%282%29.png
+[28/02/2014 01:56:33 p.m.] Felipe Falanghe: I'm creating a new git branch here
+[28/02/2014 01:56:41 p.m.] Felipe Falanghe: called NASAPackSupportFeatures
+[28/02/2014 01:56:57 p.m.] Felipe Falanghe: it's the same as the Tweakables024 branch, but without all the content that's not going on 0.24
+[28/02/2014 01:57:19 p.m.] Felipe Falanghe: this is the branch we are going to integrate
+[28/02/2014 01:58:35 p.m.] Felipe Falanghe: it's got the timewarp controls, all the usability improvements we did, but no asteroids, no new parts, no ActiveJoint framework (it does have the improved PartJoints, ActiveJoint is what makes them pivot and rotate)
+[28/02/2014 02:00:25 p.m.] Ted Everett: Excellent, sounds good
+[28/02/2014 02:01:55 p.m.] Felipe Falanghe: ok, pushed, we can run a build of this as soon as the testers have had a chance to try build 412
+[28/02/2014 02:02:11 p.m.] Felipe Falanghe: but we should definitely tell them what's been removed
+[28/02/2014 02:02:14 p.m.] Ted Everett: Cool, just going through it now.
+[28/02/2014 02:02:17 p.m.] Ted Everett: Will do.
+[28/02/2014 02:04:08 p.m.] Felipe Falanghe: the fact that it compiled and ran here shows that we did a good job in keeping the NASA content isolated
+[28/02/2014 02:04:24 p.m.] Felipe Falanghe: I just straight out deleted the stuff that wasn't going
+[28/02/2014 02:05:55 p.m.] Ted Everett: Very nice
+[28/02/2014 02:31:32 p.m.] Felipe Falanghe: ok, from what I can test here, it looks like removing all those assets hasn't caused any issues... it will of course make all saves from build 407 through 412 invalid
+[28/02/2014 02:32:06 p.m.] Felipe Falanghe: actually, let me test it to see how much it complains
+[28/02/2014 02:33:19 p.m.] Felipe Falanghe: heh, the usual... lots of vessels not loaded from missing parts, and a error from a missing scenario module
+[28/02/2014 02:33:33 p.m.] Felipe Falanghe: even so it fell back to a usable vessel and ran
+[28/02/2014 02:34:20 p.m.] Ted Everett: Ah not bad
+[28/02/2014 02:34:53 p.m.] Ted Everett: Just getting to the bottom of a grapple-on-grapple bug here, then we should be good to go. - http://i.imgur.com/nFBQVAR.png
+[28/02/2014 02:37:58 p.m.] Felipe Falanghe: wow, that is a weird thing to do
+[28/02/2014 02:38:28 p.m.] Felipe Falanghe: one of them should manage to couple first though, and the second one should fall into a same-vessel joint case
+[28/02/2014 02:39:03 p.m.] Ted Everett: Yeah, that does occur initially. But if you then ungrapple, switch to the vessel you weren't in control of on the first grapple and then grapple again, it appears to fail.
+[28/02/2014 02:39:12 p.m.] Felipe Falanghe: ah
+[28/02/2014 02:39:27 p.m.] Felipe Falanghe: damn
+[28/02/2014 02:40:16 p.m.] Felipe Falanghe: careful to not cut yourself on that edge case, it's quite sharp :)
+[28/02/2014 02:40:32 p.m.] Ted Everett: Haha very correct there.
+[28/02/2014 02:41:29 p.m.] Felipe Falanghe: I think I know what it could be though... I've noticed the same-vessel grapple not clearing its grapple node info properly sometimes
+[28/02/2014 02:41:49 p.m.] Ted Everett: It had popped up in other cases though, but this was just the most reliable way we had managed to narrow it down. iirc, Yargnit managed to get it with docking two asteroids together and hermes had it occur with two vessels grappling an asteroid and it disliking that.
+[28/02/2014 02:42:29 p.m.] Felipe Falanghe: I had a test here with three vessels around an asteroid... it seemed fine
+[28/02/2014 02:42:55 p.m. | Edited 02:42:56 p.m.] Felipe Falanghe: but this seems like a good way to isolate whatever it is that happens wrong
+[28/02/2014 02:45:49 p.m.] Ted Everett: Yeah
+[28/02/2014 02:52:10 p.m.] Felipe Falanghe: well, I'll be off to eat then... if that bug can't be isolated in time, don't worry too much about it... you need the grapple to make it happen, which is a NASA pack feature
+[28/02/2014 02:52:18 p.m.] Felipe Falanghe: we can continue testing that one after 0.24
+[28/02/2014 02:52:48 p.m.] Ted Everett: Okay, sounds good. Hermes is just writing it up now, he's the one that managed to narrow it down to grappling a grabber. Enjoy!
+[28/02/2014 02:53:02 p.m.] Felipe Falanghe: cheers, back later
+[28/02/2014 03:41:51 p.m.] Maxmaps: 15 days later, over a hundredthousand people face the Elite Four http://www.twitch.tv/twitchplayspokemon
+[28/02/2014 05:22:28 p.m.] Felipe Falanghe: I think I solved the bug
+[28/02/2014 05:22:47 p.m.] Felipe Falanghe: it was a case of miscommunication between the grapples
+[28/02/2014 05:22:59 p.m.] Felipe Falanghe: both expected the other to take care of setting up the active vessel again
+[28/02/2014 05:23:25 p.m.] Felipe Falanghe: and it ended up in no one doing it, which left it null
+[28/02/2014 05:23:50 p.m.] Felipe Falanghe: running a new build now
+[28/02/2014 05:24:04 p.m.] Chad Jenkins: I'm trying to diagnose the FX issue.
+[28/02/2014 05:24:19 p.m.] Chad Jenkins: For whatever reason it can find the FX in editor, but not in builds.
+[28/02/2014 05:25:28 p.m.] Felipe Falanghe: hmm
+[28/02/2014 05:25:34 p.m.] Felipe Falanghe: obfuscation maybe?
+[28/02/2014 05:25:41 p.m.] Felipe Falanghe: did you create any new MonoBehaviours?
+[28/02/2014 05:25:45 p.m.] Chad Jenkins: Nope.
+[28/02/2014 05:25:48 p.m.] Felipe Falanghe: hm
+[28/02/2014 05:26:01 p.m.] Chad Jenkins: Well, maybe so. For the joints.
+[28/02/2014 05:26:07 p.m.] Felipe Falanghe: ah
+[28/02/2014 05:26:14 p.m.] Felipe Falanghe: joints?
+[28/02/2014 05:26:24 p.m.] Chad Jenkins: Motorized joints.
+[28/02/2014 05:26:30 p.m.] Felipe Falanghe: ahh that
+[28/02/2014 05:26:42 p.m.] Chad Jenkins: They're all public
+[28/02/2014 05:26:44 p.m.] Felipe Falanghe: yeah
+[28/02/2014 05:26:48 p.m.] Felipe Falanghe: that rules that out
+[28/02/2014 05:27:07 p.m.] Felipe Falanghe: plus, it would only really affect that module directly
+[28/02/2014 05:27:13 p.m.] Chad Jenkins: It quotes the exact path with the files in the error.
+[28/02/2014 05:27:20 p.m.] Felipe Falanghe: this is an fx asset?
+[28/02/2014 05:27:22 p.m.] Chad Jenkins: The files are all there.
+[28/02/2014 05:27:27 p.m.] Chad Jenkins: Yea, it's only the new FX assets.
+[28/02/2014 05:27:34 p.m.] Felipe Falanghe: hmm
+[28/02/2014 05:27:37 p.m.] Chad Jenkins: They all have the issue. Fine in editor, not it build.
+[28/02/2014 05:27:50 p.m.] Chad Jenkins: I'm trying putting them in with the stock FX now.
+[28/02/2014 05:28:02 p.m.] Felipe Falanghe: there could be a bug loading fx from outside the Squad folder in GameData maybe?
+[28/02/2014 05:28:16 p.m.] Chad Jenkins: Could be. That's why I moved em.
+[28/02/2014 05:30:05 p.m.] Chad Jenkins: Yea, they work fine in the stock FX folder.
+[28/02/2014 05:30:10 p.m.] Chad Jenkins: So I can just move them for now.
+[28/02/2014 05:35:05 p.m.] Chad Jenkins: Allright, I've got everything moved over and rebound. Seems to be working fine now.
+[28/02/2014 05:35:58 p.m.] Felipe Falanghe: nice
+[28/02/2014 05:36:19 p.m.] Felipe Falanghe: ok, so apparently fx loading assumes the 'Squad' folder then.
+[28/02/2014 05:36:33 p.m.] Chad Jenkins: Might be, or something else like that.
+[28/02/2014 05:36:38 p.m.] Felipe Falanghe: I can have a look, but I have no idea where that would be
+[28/02/2014 05:36:42 p.m.] Chad Jenkins: Me either heh.
+[28/02/2014 05:36:50 p.m.] Chad Jenkins: It's odd it works fine in editor though.
+[28/02/2014 05:37:49 p.m.] Felipe Falanghe: hm
+[28/02/2014 05:38:08 p.m.] Felipe Falanghe: oh, hang on
+[28/02/2014 05:38:30 p.m.] Felipe Falanghe: hm, odd
+[28/02/2014 05:40:04 p.m.] Felipe Falanghe: oh, I think I know what it could be, maybe
+[28/02/2014 05:40:30 p.m.] Felipe Falanghe: smartgit was updated a few days ago, because it wasn't parsing a few gitignore patterns very well
+[28/02/2014 05:40:53 p.m.] Felipe Falanghe: the NASAmission folder is in a gitignore exclusion rule
+[28/02/2014 05:41:07 p.m.] Chad Jenkins: The files are there though.
+[28/02/2014 05:41:10 p.m.] Felipe Falanghe: hm
+[28/02/2014 05:41:36 p.m.] Felipe Falanghe: true, they are
+[28/02/2014 05:41:45 p.m.] Felipe Falanghe: back to square one then
+[28/02/2014 05:42:25 p.m.] Chad Jenkins: Allright, I've pushed my changes.
+[28/02/2014 05:42:35 p.m.] Chad Jenkins: I also went through and removed the motors and testing parts.
+[28/02/2014 05:42:37 p.m.] Felipe Falanghe: it's not the build script also, if the files are all there
+[28/02/2014 05:42:49 p.m.] Felipe Falanghe: ahh ok
+[28/02/2014 05:42:59 p.m.] Felipe Falanghe: I just ran a build tho, we'll have to start a new one
+[28/02/2014 05:43:39 p.m.] Felipe Falanghe: hm, the OSX build might be on the right commit tho
+[28/02/2014 05:43:41 p.m.] Maxmaps: http://i.imgur.com/OOhxcGS.png
+[28/02/2014 05:43:56 p.m.] Maxmaps: That's a spicy meatball(s)
+[28/02/2014 05:44:06 p.m.] Felipe Falanghe: :D
+[28/02/2014 05:44:43 p.m.] Maxmaps: Can we share that? I am seriously in love with that pic.
+[28/02/2014 05:45:10 p.m.] Chad Jenkins: Yargnit actually docked two asteroids of that class. He is a madman.
+[28/02/2014 05:45:15 p.m.] Felipe Falanghe: lol
+[28/02/2014 05:45:33 p.m.] Felipe Falanghe: and here I was thinking it was going to be challenging
+[28/02/2014 05:45:45 p.m.] Maxmaps: Don't take Yarg as our skill level yardstick
+[28/02/2014 05:45:57 p.m.] Felipe Falanghe: heh yeah, these guys are on a whole other league
+[28/02/2014 05:46:00 p.m.] Maxmaps: Yep
+[28/02/2014 05:46:17 p.m.] Felipe Falanghe: it is easier than docking with a space station at least
+[28/02/2014 05:46:33 p.m.] Felipe Falanghe: you can just move in and grab, you don't have to find a mate node or anything
+[28/02/2014 05:46:56 p.m.] Felipe Falanghe: so it's not outside the existing range of difficulty
+[28/02/2014 05:47:32 p.m.] Felipe Falanghe: that there is quite another game though... he is a madman
+[28/02/2014 05:48:01 p.m.] Felipe Falanghe: I was thinking though, now would be an excellent time to have Vernier thrusters added
+[28/02/2014 05:48:15 p.m.] Felipe Falanghe: (and RCS thruster which consumes regular engine fuel)
+[28/02/2014 05:48:18 p.m.] Maxmaps: So can we use it? I think that's about as good of a teaser for the update from here to the SXSW infodump
+[28/02/2014 05:48:36 p.m.] Felipe Falanghe: we haven't even shown other less extreme shots though
+[28/02/2014 05:48:43 p.m.] Felipe Falanghe: that can't be our opening act
+[28/02/2014 05:48:50 p.m.] Maxmaps: Good point, do we have anything milder?
+[28/02/2014 05:49:13 p.m.] Felipe Falanghe: yeah, but apart from my Class E encounter album, all the other shots are still usign placeholder assets
+[28/02/2014 05:49:21 p.m.] Felipe Falanghe: and the Class E is also not a good example
+[28/02/2014 05:49:29 p.m.] Felipe Falanghe: it's an extremely large asteroid
+[28/02/2014 05:49:42 p.m.] Maxmaps: The planet killers.
+[28/02/2014 05:59:22 p.m.] Maxmaps: Hmm, how's this look for a nibble http://i.imgur.com/wZ8KtTX.png ?
+[28/02/2014 05:59:32 p.m.] Maxmaps: Or the action shot http://i.imgur.com/tpj092Y.png
+[28/02/2014 06:01:00 p.m.] Alejandro Mora: Ok, time for logo submissions is over
+[28/02/2014 06:01:23 p.m.] Alejandro Mora: The page is not accepting more entries
+[28/02/2014 06:02:16 p.m.] Anthony Guzzardo: Thanks for the notice
+[28/02/2014 06:06:10 p.m.] Maxmaps: http://en.wikipedia.org/wiki/Squad_(disambiguation) I'm offended. I'll make one over the weekend.
+[28/02/2014 06:06:45 p.m.] Anthony Guzzardo: Are you telling me we aren't a chilean thrash band?
+[28/02/2014 06:07:40 p.m.] Chad Jenkins: http://en.wikipedia.org/wiki/Squad_(game_developer)
+[28/02/2014 06:07:48 p.m.] Chad Jenkins: That will make you feel even better.
+[28/02/2014 06:08:25 p.m.] Chad Jenkins: There was a linked entry and a wikipedia moderator removed it.
+[28/02/2014 06:20:54 p.m.] Felipe Falanghe: ok, ready do run a new build here
+[28/02/2014 06:21:16 p.m.] Felipe Falanghe: I un-deleted the PotatoRoid part, because the asteroid spawner does use it as a base for the protovessel
+[28/02/2014 06:21:45 p.m.] Chad Jenkins: Oh, that I did not know.
+[28/02/2014 06:21:56 p.m.] Chad Jenkins: It's going to show up in the VAB though won't it?
+[28/02/2014 06:22:23 p.m.] Felipe Falanghe: no, I set its cfg file to category 'none' and tech node 'unresearcheable'
+[28/02/2014 06:22:32 p.m.] Chad Jenkins: Didn't even know that was a thing.
+[28/02/2014 06:22:35 p.m.] Chad Jenkins: TDIL
+[28/02/2014 06:22:40 p.m.] Felipe Falanghe: heh
+[28/02/2014 06:23:05 p.m.] Chad Jenkins: Hehe, well I was just trying to do some housekeeping.
+[28/02/2014 06:23:20 p.m.] Chad Jenkins: I'm sad to see the motors go heh.
+[28/02/2014 06:24:44 p.m.] Felipe Falanghe: yeah, me too, I feel like we had to take something away
+[28/02/2014 06:25:11 p.m.] Felipe Falanghe: but it needed to be done... the motors are horriby buggy atm
+[28/02/2014 06:25:51 p.m.] Chad Jenkins: Yep
+[28/02/2014 06:28:39 p.m.] Felipe Falanghe: well, new builds underway
+[28/02/2014 06:28:45 p.m.] Chad Jenkins: Cool.
+[28/02/2014 06:32:33 p.m.] Felipe Falanghe: ok, excepting some very serious bug with a 0.24 feature, this will be the last Tweakables024 build for now, we have to move on with testing the integration branch next
+[28/02/2014 06:32:51 p.m.] Felipe Falanghe: so if you were feeling bad about taking the motors away...
+[28/02/2014 06:33:05 p.m.] Felipe Falanghe: you might want to look away for the next build
+[28/02/2014 06:59:10 p.m.] Chad Jenkins: I will avert my gaze heh.
+[28/02/2014 07:00:48 p.m.] Felipe Falanghe: well, that's going to be tomorrow, heh, today I gotta run
+[28/02/2014 07:01:03 p.m.] Felipe Falanghe: btw, I finished compiling the submission for the logo contest, by manufacturer
+[28/02/2014 07:01:09 p.m.] Felipe Falanghe: it's all on dropbox
+[28/02/2014 07:01:30 p.m.] Ted Everett: Ah nice. I've got 414 here btw, so hopefully tomorrow you'll awake to a nice clean tracker heh
+[28/02/2014 07:01:40 p.m.] Felipe Falanghe: aye, here's hoping
+[28/02/2014 07:02:35 p.m.] Felipe Falanghe: here are the logos, by manufacturer. I went through all files to make sure I got the ones who named their entries "logo" and such
+[28/02/2014 07:02:36 p.m.] Felipe Falanghe: https://www.dropbox.com/sh/4ticugmw48f58y6/grQRCAmLYR
+[28/02/2014 07:02:45 p.m.] Felipe Falanghe: this should be all of them
+[28/02/2014 07:02:49 p.m.] Chad Jenkins: Nice
+[28/02/2014 07:03:05 p.m.] Felipe Falanghe: a total of 1323 submissions, in 27 categories
+[28/02/2014 07:03:18 p.m.] Chad Jenkins: That's mighty impressive.
+[28/02/2014 07:03:22 p.m.] Felipe Falanghe: there's a wtf? category too, for logos that just don't seem to be about anything
+[28/02/2014 07:03:34 p.m.] Ted Everett: Wahey, FX is finally there. Nicely fixed.
+[28/02/2014 07:03:45 p.m.] Felipe Falanghe: w00t!
+[28/02/2014 07:03:47 p.m.] Chad Jenkins: Cool, I hope you enjoy them.
+[28/02/2014 07:03:53 p.m.] Ted Everett: Heh, thanks, I shall :)
+[28/02/2014 07:03:53 p.m.] Chad Jenkins: I'm finishing up the flags right now.
+[28/02/2014 07:04:04 p.m.] Chad Jenkins: I got delayed due to some issues, but they should be done shortly.
+[28/02/2014 07:04:09 p.m.] Felipe Falanghe: nice
+[28/02/2014 07:04:38 p.m.] Felipe Falanghe: well, tomorrow we'll test the support feature branch for integration, and hopefully by Monday we can start QA on Contracts
+[28/02/2014 07:04:46 p.m.] Chad Jenkins: Nice
+[28/02/2014 07:05:02 p.m.] Felipe Falanghe: which leaves about 3 days for experimentals... but oh well
+[28/02/2014 07:05:20 p.m.] Maxmaps: Do we get a little bit of breakroom>
+[28/02/2014 07:05:21 p.m.] Maxmaps: ?
+[28/02/2014 07:05:31 p.m.] Maxmaps: Or better structured
+[28/02/2014 07:05:35 p.m. | Edited 07:05:37 p.m.] Felipe Falanghe: hm?
+[28/02/2014 07:05:39 p.m.] Maxmaps: Do we get to put the NASA stuff as a 24.1?
+[28/02/2014 07:05:44 p.m.] Felipe Falanghe: ahh
+[28/02/2014 07:05:54 p.m.] Felipe Falanghe: yeah, the plan is to not create a totally separate addon thing
+[28/02/2014 07:06:05 p.m.] Felipe Falanghe: which would jsut be another thing we'd be forced to maintain later
+[28/02/2014 07:06:08 p.m.] Maxmaps: Cause then, well, two birds with one stone and do cleanup
+[28/02/2014 07:07:05 p.m.] Felipe Falanghe: next week I'll be working with Lalo to plan out the month for everyone, so we're not idle during conference season
+[28/02/2014 07:07:15 p.m.] Felipe Falanghe: so we'll see how we put everything together then
+[28/02/2014 07:07:19 p.m.] Ted Everett: Yeah. we'll only have the 6th to the 10th for Exp, at best.
+[28/02/2014 07:07:22 p.m.] Maxmaps: Sweet!
+[28/02/2014 07:07:33 p.m.] Felipe Falanghe: exp can still happen while we're at SXSW
+[28/02/2014 07:07:36 p.m.] Maxmaps: Could I tease the masses with this class A jawbreaker over the weekend? :P http://i.imgur.com/wZ8KtTX.png
+[28/02/2014 07:07:40 p.m.] Felipe Falanghe: only me and Chad will be out
+[28/02/2014 07:07:43 p.m.] Ted Everett: Yeah
+[28/02/2014 07:08:03 p.m.] Felipe Falanghe: heh, that one is ok, but as a teaser, it shows a lot doesn't it?
+[28/02/2014 07:08:10 p.m.] Felipe Falanghe: I can see the whole asteroid
+[28/02/2014 07:08:26 p.m.] Maxmaps: I'll  do you one better http://i.imgur.com/hd71skE.png
+[28/02/2014 07:08:35 p.m.] Felipe Falanghe: hmm
+[28/02/2014 07:09:08 p.m.] Felipe Falanghe: I was thinking maybe something like this http://imgur.com/0uB7agK
+[28/02/2014 07:09:12 p.m.] Felipe Falanghe: but that one is all placeholder
+[28/02/2014 07:09:17 p.m.] Felipe Falanghe: we could re-do it
+[28/02/2014 07:09:32 p.m.] Maxmaps: We can turn it into a silhouette
+[28/02/2014 07:09:39 p.m.] Maxmaps: Take that make it pitch black on a grey background
+[28/02/2014 07:09:43 p.m.] Felipe Falanghe: hmmm
+[28/02/2014 07:09:49 p.m.] Felipe Falanghe: now that's teasing
+[28/02/2014 07:09:52 p.m.] Felipe Falanghe: yeah, I like that
+[28/02/2014 07:10:26 p.m.] Chad Jenkins: Dun... dunn... dun... dunaaaaaa
+[28/02/2014 07:10:39 p.m.] Felipe Falanghe: especially because on that one shot, the key thing about the capture system, the claw, is hidden inside the sillouette
+[28/02/2014 07:10:43 p.m.] Chad Jenkins: Cue obelisk shot.
+[28/02/2014 07:10:55 p.m.] Felipe Falanghe: so you can't see how you capture it, hehe
+[28/02/2014 07:11:29 p.m.] Felipe Falanghe: ok, I gotta go now... in any case, I want to see the teaser shot before it goes up, just in case
+[28/02/2014 07:11:36 p.m.] Felipe Falanghe: I'll be here all weekend
+[28/02/2014 07:11:44 p.m.] Felipe Falanghe: gn!
+[28/02/2014 07:12:08 p.m.] Ted Everett: Have a good one
+[28/02/2014 07:14:30 p.m.] Maxmaps: 3 minute rushjob http://imgur.com/DX5i20V
+[28/02/2014 07:14:36 p.m.] Maxmaps: Obviously to be polished :P
+[28/02/2014 07:19:36 p.m.] Maxmaps: I don't often say this but I have outdone myself. http://imgur.com/2qRCLzq
+[28/02/2014 07:19:45 p.m.] Ted Everett: Hahaha
+[28/02/2014 07:20:00 p.m.] Chad Jenkins: Much asteroid.
+[28/02/2014 07:20:07 p.m.] Ted Everett: So grapple.
+[28/02/2014 07:25:25 p.m.] Maxmaps: Holy cow, age of mythology is coming to Steam
+[02/03/2014 01:43:05 p.m.] Felipe Falanghe: hi
+[02/03/2014 01:43:38 p.m.] Mike Geelan: ello
+[02/03/2014 01:43:49 p.m.] Chad Jenkins: Hello
+[02/03/2014 01:43:50 p.m.] Ted Everett: Evening
+[02/03/2014 01:46:40 p.m.] Felipe Falanghe: I've been going through the tracker here, seems like the separation of NASA and 0.24 features went well
+[02/03/2014 01:46:56 p.m.] Felipe Falanghe: none of the issues reported are related to something going bad with the fork
+[02/03/2014 01:47:15 p.m.] Ted Everett: Aye, I've been keeping a keen eye out for issues of that nature.
+[02/03/2014 01:53:04 p.m.] Felipe Falanghe: If nothing else comes up, later today I'm going to go ahead and integrate the NASASupportFeatures branch into develop
+[02/03/2014 01:53:24 p.m.] Felipe Falanghe: then from tomorrow onwards it's Mike and Jim's turn to start QA on Contracts and all
+[02/03/2014 01:53:48 p.m.] Ted Everett: Sounds good. I was surprised to see the 'rainbow lights' issue back, but it seems fairly rare. Hopefully enough so that we're safe with it.
+[02/03/2014 01:54:02 p.m.] Chad Jenkins: Rainbow lights?
+[02/03/2014 01:54:14 p.m.] Ted Everett: http://bugs.kerbalspaceprogram.com/issues/2134
+[02/03/2014 01:55:02 p.m.] Ted Everett: It's an odd one that seems to occur somewhat randomly upon resuming a vessel with maneuvers planned out - either from the tracking station or quickload. Even from a quicksave that caused it previously it doesn't happen again.
+[02/03/2014 01:55:12 p.m.] Chad Jenkins: Looks like something is breaking on load
+[02/03/2014 01:55:23 p.m.] Chad Jenkins: You get weird visual artifacts if you NRE in the right place.
+[02/03/2014 01:55:36 p.m.] Ted Everett: Aye, which this does I believe.
+[02/03/2014 01:55:54 p.m.] Ted Everett: Ah, it doesn't actually.
+[02/03/2014 01:56:00 p.m.] Ted Everett: That was an unrelated NRE.
+[02/03/2014 01:56:46 p.m.] Chad Jenkins: Huh, no NRE as at all?
+[02/03/2014 01:57:19 p.m. | Edited 01:57:26 p.m.] Ted Everett: Just double-checked the player.log and it does have a couple actually. Which interestingly enough weren't there when it occurred to Maxmurder and myself.
+[02/03/2014 01:58:14 p.m.] Chad Jenkins: Interesting.
+[02/03/2014 01:58:41 p.m.] Chad Jenkins: yea, I've only seen it when an NRE interuppts the proper load order. The cameras fail to get correctly configured.
+[02/03/2014 01:58:54 p.m.] Chad Jenkins: Then they render over eachother and all kinds of weirdness.
+[02/03/2014 01:59:07 p.m.] Chad Jenkins: Usually, it's a symptom, not the actual issue.
+[02/03/2014 01:59:22 p.m.] Ted Everett: Well these two occur prior to flight initialisation. I'm just going to double-check something here.
+[02/03/2014 01:59:38 p.m.] Chad Jenkins: Yea, flight init is really sensitive to loading issues and NRE.
+[02/03/2014 02:00:06 p.m.] Chad Jenkins: Even if the problem was earlier on in some place like the part loader. You're invoking all the modules and parts which may be messed up now.
+[02/03/2014 02:00:29 p.m.] Chad Jenkins: They don't run the same code in the editor. (Depending on the module)
+[02/03/2014 02:03:01 p.m.] Felipe Falanghe: hmm, that last save sal_vager posted doesn't have any nodes on the vessel flight plan at all
+[02/03/2014 02:03:25 p.m.] Felipe Falanghe: ahh I had the wrong one, nvm
+[02/03/2014 02:03:29 p.m.] Ted Everett: Yeah, the persistence sfs didn't.
+[02/03/2014 02:04:50 p.m.] Felipe Falanghe: the file looks alright in fact... three nodes ahead with some prograde dV
+[02/03/2014 02:05:13 p.m.] Felipe Falanghe: I don't think this is as related to having a flight plan as it would seem
+[02/03/2014 02:05:25 p.m.] Ted Everett: Aye, perhaps not.
+[02/03/2014 02:09:17 p.m.] Felipe Falanghe: https://www.youtube.com/watch?v=vKA4w2O61Xo
+[02/03/2014 02:09:21 p.m.] Felipe Falanghe: fitting to the situation
+[02/03/2014 02:09:44 p.m.] Chad Jenkins: Haha
+[02/03/2014 02:09:54 p.m.] Chad Jenkins: I love that video.
+[02/03/2014 02:11:12 p.m. | Edited 02:11:18 p.m.] Chad Jenkins: His channel is full of really neat science videos.
+[02/03/2014 02:12:42 p.m.] Ted Everett: Haha, very.
+[02/03/2014 02:16:39 p.m.] Bob Holtzman: Hi
+[02/03/2014 02:16:55 p.m.] Chad Jenkins: Hi Bob.
+[02/03/2014 02:17:05 p.m.] Bob Holtzman: How do we want to send the NASA stuff to NASA?
+[02/03/2014 02:17:24 p.m.] Bob Holtzman: Should we set up a presentation with screen share Felipe?
+[02/03/2014 02:17:27 p.m.] Felipe Falanghe: hm
+[02/03/2014 02:17:37 p.m.] Felipe Falanghe: do it live you mean?
+[02/03/2014 02:17:48 p.m.] Bob Holtzman: Perhaps.
+[02/03/2014 02:18:00 p.m.] Bob Holtzman: Or just send them the art and a quick video?
+[02/03/2014 02:18:00 p.m.] Felipe Falanghe: could be... that way we don't have to record any videos
+[02/03/2014 02:18:18 p.m.] Felipe Falanghe: we do need to prepare something in advance though... at least a few saves to show stuff
+[02/03/2014 02:18:53 p.m.] Bob Holtzman: We need a video for Saturday and to give to press for the event so I am just trying to make sure NASA has approved everything before we share with media.
+[02/03/2014 02:19:14 p.m.] Chad Jenkins: All the art should be in place and ready to go.
+[02/03/2014 02:19:38 p.m.] Chad Jenkins: We could have a build of it on hand if you want to show anything live.
+[02/03/2014 02:20:46 p.m.] Felipe Falanghe: As far as testing goes, we've got everything working well enough to show off
+[02/03/2014 02:28:40 p.m.] Felipe Falanghe: I've already split off the branches here for integrating the support features ahead of the NASA content... so the latest build off the nightly branch no longer has any NASA stuff
+[02/03/2014 02:28:46 p.m.] Felipe Falanghe: we can always run a local build tho
+[02/03/2014 02:32:06 p.m.] Chad Jenkins: Yea, it would be good to have one on hand if we want to show it.
+[02/03/2014 02:32:21 p.m.] Chad Jenkins: I can make a build here and have it on my laptop.
+[02/03/2014 02:33:23 p.m.] Felipe Falanghe: aye, good thing you reminded me
+[02/03/2014 02:33:37 p.m.] Felipe Falanghe: I cloned the repo on my laptop, but haven't imported the project
+[02/03/2014 02:33:46 p.m.] Felipe Falanghe: I should do that today
+[02/03/2014 04:22:34 p.m.] Felipe Falanghe: well, that went surprisingly well
+[02/03/2014 04:22:58 p.m.] Felipe Falanghe: project installed and imported on the macbook, it can play and run builds and all
+[02/03/2014 04:23:22 p.m.] Felipe Falanghe: not sure how it's going to be without VS tho... but MD should do fine for a few days at least
+[02/03/2014 04:23:48 p.m.] Felipe Falanghe: much better than working by proxy through skype like last time, heh
+[02/03/2014 04:25:30 p.m.] Felipe Falanghe: ok, so, I believe it's fair to say the NASA Support Features branch doesn't have any gamebreaking regressions
+[02/03/2014 04:25:58 p.m.] Felipe Falanghe: although that persistent manuevers issue is a bit unsettling... but if no one can reproduce it consistently... IDK
+[02/03/2014 04:26:06 p.m.] Chad Jenkins: You poor man, to have to go back to monodevelop.
+[02/03/2014 04:26:10 p.m.] Felipe Falanghe: heh
+[02/03/2014 04:26:24 p.m.] Chad Jenkins: You can always install a virtual machine
+[02/03/2014 04:26:39 p.m.] Felipe Falanghe: aye, but that would be more suffering I think
+[02/03/2014 04:26:49 p.m.] Chad Jenkins: Hehe, or dual boot.
+[02/03/2014 04:26:51 p.m.] Felipe Falanghe: one time I did have an OSX VM on the workstation here
+[02/03/2014 04:27:03 p.m.] Felipe Falanghe: it ran ksp at a whopping 0.8 FPS
+[02/03/2014 04:27:11 p.m.] Felipe Falanghe: or something like that
+[02/03/2014 04:27:29 p.m.] Chad Jenkins: I'm just saying for running Visual studio. Not the project.
+[02/03/2014 04:27:38 p.m.] Chad Jenkins: Using something like parallels.
+[02/03/2014 04:27:41 p.m.] Felipe Falanghe: ah, but file sharing is a pain isn't it?
+[02/03/2014 04:27:55 p.m.] Felipe Falanghe: I'd have to set up all sorts of tunnels through the file system
+[02/03/2014 04:28:18 p.m.] Chad Jenkins: I don't think it's too bad. But, I did have to set that stuff all the time for clients.
+[02/03/2014 04:28:30 p.m.] Chad Jenkins: Dual booting is my preferred solution. Just run windows natively with bootcamp.
+[02/03/2014 04:28:33 p.m.] Felipe Falanghe: yeah
+[02/03/2014 04:29:05 p.m.] Felipe Falanghe: but the prospect of installing an OS again isn't very uplifting
+[02/03/2014 04:29:21 p.m.] Chad Jenkins: True, but it's pretty nice actually.
+[02/03/2014 04:29:31 p.m.] Felipe Falanghe: plus, I got unity installed on OSX now, and smartgit and all the rest
+[02/03/2014 04:29:42 p.m.] Chad Jenkins: hehe, fair enough.
+[02/03/2014 04:29:48 p.m.] Chad Jenkins: I'll have my pc with me anyways.
+[02/03/2014 04:29:54 p.m.] Felipe Falanghe: I don't want to be constantly switching back and forth just to see if it will compile, heh
+[02/03/2014 04:30:29 p.m.] Felipe Falanghe: if it's too unbearable to part with VS for a few days, I'll see about a VM to run it
+[02/03/2014 04:30:51 p.m.] Felipe Falanghe: but MD has improved a lot since I last used it I hear
+[02/03/2014 04:31:13 p.m.] Felipe Falanghe: I've only used it to browse assemblies lately, but the latest versions are totally overhauled
+[02/03/2014 04:31:28 p.m.] Chad Jenkins: Yea, I use it for assembly browsing as well.
+[02/03/2014 04:33:06 p.m.] Felipe Falanghe: I'm going to try reproducing that bug 2134 here on the support features branch
+[02/03/2014 04:39:37 p.m.] Ted Everett: Cool, good luck
+[02/03/2014 04:40:47 p.m.] Felipe Falanghe: got it!
+[02/03/2014 04:41:15 p.m.] Felipe Falanghe: I think I know what it is
+[02/03/2014 04:41:40 p.m.] Felipe Falanghe: the planetarium camera was focused on one of the maneuver nodes it seems
+[02/03/2014 04:41:51 p.m.] Chad Jenkins: Oh, interesting.
+[02/03/2014 04:42:23 p.m.] Felipe Falanghe: if that's the case, it should be possible to reproduce it consistently by having the camera focus on it before switching into flight
+[02/03/2014 04:43:04 p.m.] Felipe Falanghe: ahh, heh, the thing is, if that happens, the persistent file skips saving the flight plan it seems, then no more reproduction case for you
+[02/03/2014 04:43:38 p.m.] Chad Jenkins: Ah, tricky.
+[02/03/2014 04:44:08 p.m.] Felipe Falanghe: damn, it's not the focusing that causes it though
+[02/03/2014 04:44:18 p.m.] Felipe Falanghe: just tried it here, and it fell back fine
+[02/03/2014 04:44:33 p.m.] Felipe Falanghe: something else causes the planetarium camera to lose its pivot object on scene switch
+[02/03/2014 04:45:34 p.m.] Felipe Falanghe: hmm, there it goes again
+[02/03/2014 04:45:37 p.m.] Felipe Falanghe: I'm getting closer
+[02/03/2014 04:46:07 p.m.] Felipe Falanghe: it's not as simple as just focusing the object though, there are a few steps involved
+[02/03/2014 04:47:38 p.m.] Felipe Falanghe: hmmmm
+[02/03/2014 04:47:57 p.m.] Felipe Falanghe: it has to do with the map camera and the maneuver nodes being focusable
+[02/03/2014 04:50:26 p.m.] Felipe Falanghe: here's my suspicion
+[02/03/2014 04:50:54 p.m.] Felipe Falanghe: as the tracking station scene ends, all objects in it, except those in the PSystem setup are destroyed
+[02/03/2014 04:51:11 p.m.] Felipe Falanghe: that includes the vessels, and their spawned nodes, and the nodes' map objects
+[02/03/2014 04:51:36 p.m.] Felipe Falanghe: what I think is happening is that, as the scene gets destroyed like that, the camera attempts to switch targets
+[02/03/2014 04:51:50 p.m.] Felipe Falanghe: sometimes, it finds one of the maneuver nodes as a valid target
+[02/03/2014 04:52:04 p.m.] Felipe Falanghe: which one frame later, gets destroyed and takes the camera with it
+[02/03/2014 04:52:36 p.m.] Felipe Falanghe: now, the question is, why is it that it happens sometimes but not others?
+[02/03/2014 04:52:52 p.m.] Chad Jenkins: First thought, is script execution order.
+[02/03/2014 04:54:29 p.m.] Felipe Falanghe: ahhh, found something already
+[02/03/2014 04:54:51 p.m.] Felipe Falanghe: something makes it possible for targets registered in the MapCamera targets list to become null and not get cleaned off
+[02/03/2014 04:55:00 p.m.] Felipe Falanghe: that's a problem already
+[02/03/2014 04:55:13 p.m.] Felipe Falanghe: and I suspect, not a new one
+[02/03/2014 04:55:45 p.m.] Chad Jenkins: When does it check and clean?
+[02/03/2014 04:57:03 p.m.] Felipe Falanghe: IDK if it does, I think it expects objects to remove themselves
+[02/03/2014 04:57:40 p.m.] Felipe Falanghe: ahhh, indeed
+[02/03/2014 04:57:53 p.m.] Felipe Falanghe: on scene change, the planetarium camera does not clean off its targets
+[02/03/2014 04:58:03 p.m.] Chad Jenkins: Aha
+[02/03/2014 04:58:05 p.m.] Felipe Falanghe: it should at least go through them and clean off any nulls
+[02/03/2014 04:58:35 p.m.] Chad Jenkins: Yea, faulty assumptions cause a lot of bugs heh.
+[02/03/2014 04:58:56 p.m.] Felipe Falanghe: this is all just speculation though
+[02/03/2014 04:59:09 p.m.] Felipe Falanghe: I don't want to change anything until I find a way to get this bug to happen every time
+[02/03/2014 04:59:27 p.m.] Felipe Falanghe: otherwise there's no way to know if we really fixed it or just buried it deeper
+[02/03/2014 05:00:15 p.m.] Felipe Falanghe: ahh, well, here's how the nulls get created in the first place
+[02/03/2014 05:00:23 p.m.] Chad Jenkins: Fair enough. The real question is how they are becoming null in the first place and not being removed.
+[02/03/2014 05:00:36 p.m.] Felipe Falanghe: when you attach a patched conics renderer to a vessel they spawn their nodes, and map targets
+[02/03/2014 05:00:37 p.m.] Chad Jenkins: Ah, there you go then.
+[02/03/2014 05:00:56 p.m.] Felipe Falanghe: but on removing them, nothing apparently removes the focus points
+[02/03/2014 05:01:08 p.m.] Chad Jenkins: Ah okay.
+[02/03/2014 05:01:10 p.m.] Felipe Falanghe: as you focus and un-focus them, they keep popping in and duplicating themselves
+[02/03/2014 05:01:24 p.m.] Chad Jenkins: Uff
+[02/03/2014 05:01:35 p.m.] Felipe Falanghe: ahhh makes sense... in flight this isn't an issue
+[02/03/2014 05:01:48 p.m.] Felipe Falanghe: because nothing detaches the patched conics from the active ship
+[02/03/2014 05:02:03 p.m.] Felipe Falanghe: so we can create these objects and not delete them
+[02/03/2014 05:02:05 p.m.] Felipe Falanghe: or could
+[02/03/2014 05:02:22 p.m.] Felipe Falanghe: these do clear themselves after the scene ends
+[02/03/2014 05:03:32 p.m.] Felipe Falanghe: aha, here we go
+[02/03/2014 05:04:08 p.m.] Felipe Falanghe: OnVesselDestroy attempts to focus the map camera on the nearest target
+[02/03/2014 05:04:20 p.m.] Felipe Falanghe: which might chance to be a maneuver node about to get destroyed as well
+[02/03/2014 05:04:42 p.m.] Felipe Falanghe: ok, I can cure the breakdown with one rule here... always fall back to a celestial body target
+[02/03/2014 05:04:48 p.m.] Felipe Falanghe: then take care of the nulls
+[02/03/2014 05:05:32 p.m.] Chad Jenkins: There you go.
+[02/03/2014 05:05:46 p.m.] Chad Jenkins: Yea, things don't get destroyed all at once.
+[02/03/2014 05:06:27 p.m.] Felipe Falanghe: aye, the map objects for the nodes can very well be alive when the camera is faling back from the vessel
+[02/03/2014 05:06:46 p.m.] Felipe Falanghe: because to give the camera time to save itself, it has to switch focus on JustAboutToBeDestroyed
+[02/03/2014 05:06:51 p.m.] Felipe Falanghe: at that point, the nodes are still alive
+[02/03/2014 05:08:15 p.m.] Chad Jenkins: Nice, yea. I can see destroying the main camera causing those weird visual issues.
+[02/03/2014 05:08:25 p.m.] Chad Jenkins: Cool, glad you found the problem.
+[02/03/2014 05:09:05 p.m.] Felipe Falanghe: here's hoping that was it... but in fact, there are quite a few other problems here
+[02/03/2014 05:09:17 p.m.] Felipe Falanghe: first that the maneuver nodes are spamming their map targets and not cleaning them up
+[02/03/2014 05:09:47 p.m.] Felipe Falanghe: it's not that the map camera isn't keeping a clean list, the nodes are getting actually duplicated
+[02/03/2014 05:09:57 p.m.] Felipe Falanghe: every time you re-focus a vessel, it spawns new ones
+[02/03/2014 05:10:08 p.m.] Chad Jenkins: Yea, that's not good.
+[02/03/2014 05:10:25 p.m.] Felipe Falanghe: makes sense actually... the only time when we needed to clear these objects before was when the scene changed
+[02/03/2014 05:10:41 p.m.] Felipe Falanghe: now we need to make sure they go away when the patched conics renderer is removed
+[02/03/2014 05:10:53 p.m.] Chad Jenkins: Fair enough.
+[02/03/2014 05:13:31 p.m.] Felipe Falanghe: also, I'm going to undo the fix and make sure I can break the game with some specific set of actions, to make sure my fix works
+[02/03/2014 05:15:42 p.m.] Felipe Falanghe: aha
+[02/03/2014 05:15:47 p.m.] Felipe Falanghe: got it, I can reproduce it every time
+[02/03/2014 05:15:56 p.m.] Ted Everett: Ah excellent!
+[02/03/2014 05:15:57 p.m.] Chad Jenkins: Ah, what's the step?
+[02/03/2014 05:15:59 p.m.] Felipe Falanghe: here's how
+[02/03/2014 05:16:14 p.m.] Felipe Falanghe: go to tracking station, make sure your vessel is approaching a maneuver
+[02/03/2014 05:16:26 p.m.] Felipe Falanghe: make sure the vessel is the camera focus, and that it's closer to the maneuver than to Kerbin
+[02/03/2014 05:16:37 p.m.] Felipe Falanghe: then here's where it gets interesting
+[02/03/2014 05:16:43 p.m.] Felipe Falanghe: focus the vessel not once, but twice
+[02/03/2014 05:16:51 p.m.] Felipe Falanghe: as in select, deselect and select it again
+[02/03/2014 05:17:09 p.m.] Felipe Falanghe: that way, you'll have created a duplicate of your maneuver focus node
+[02/03/2014 05:17:43 p.m.] Felipe Falanghe: then, switch into flight by double-clicking the vessel widget (nowhere else, as that might deselect the vessel and clear off the patched conics)
+[02/03/2014 05:18:28 p.m.] Felipe Falanghe: if all that happens as expected, the camera will find the first maneuver map object, which is now a leaked object because PCR is using the second one
+[02/03/2014 05:18:44 p.m.] Felipe Falanghe: and as that object gets destroyed with nothing to manage it, the map camera will die along with it
+[02/03/2014 05:19:09 p.m.] Chad Jenkins: This is why reproduction steps are so important.
+[02/03/2014 05:19:13 p.m.] Felipe Falanghe: yep
+[02/03/2014 05:19:15 p.m.] Chad Jenkins: That's very specific.
+[02/03/2014 05:19:31 p.m.] Felipe Falanghe: and that's the least amount of steps to reproduce... anything else you do will fail
+[02/03/2014 05:19:52 p.m.] Felipe Falanghe: if the vessel is closer to Kerbin, then the camera will fall to a valid target and everything will go on its merry way
+[02/03/2014 05:20:32 p.m.] Felipe Falanghe: if you don't focus the vessel twice, the maneuver targets from the first time you select the vessel are valid and being managed by the PCR, so those will be removed properly also
+[02/03/2014 05:20:37 p.m.] Felipe Falanghe: and everything goes on its merry way
+[02/03/2014 05:21:15 p.m.] Felipe Falanghe: and if you click the button to switch vessels, there's a chance it'll detach the patched conics solver before switching vessels, which clears off everything
+[02/03/2014 05:21:21 p.m.] Felipe Falanghe: and everything goes on its merry way
+[02/03/2014 05:21:33 p.m.] Felipe Falanghe: this is one of the dodgiest bugs we've ever seen
+[02/03/2014 05:21:51 p.m.] Felipe Falanghe: it does all it can to hide from you, and when you least expect, it breaks the game
+[02/03/2014 05:22:48 p.m.] Felipe Falanghe: sneaky bastard
+[02/03/2014 05:23:14 p.m.] Felipe Falanghe: good thing we found it... this is the kind of bug that can easily slip through testing and find its way into a release
+[02/03/2014 05:23:23 p.m.] Felipe Falanghe: we dismissed it twice as a persistence fluke
+[02/03/2014 05:23:49 p.m.] Chad Jenkins: Well, it didn't even make it to experimentals. So that's pretty good.
+[02/03/2014 05:24:06 p.m.] Felipe Falanghe: aye
+[02/03/2014 05:25:22 p.m.] Felipe Falanghe: and here's the source of the duplication of maneuver targets
+[02/03/2014 05:25:30 p.m.] Felipe Falanghe: PCR will clear them off, on scene switch
+[02/03/2014 05:25:32 p.m.] Felipe Falanghe: not on destroy
+[02/03/2014 05:30:25 p.m.] Felipe Falanghe: ok, removing them when PCR gets destroyed apparently works very well
+[02/03/2014 05:30:32 p.m.] Chad Jenkins: Nice.
+[02/03/2014 05:31:01 p.m.] Felipe Falanghe: no more duplicates, and to make doubly sure, the camera itself is rigged to never fall back to something that isn't a celestial body
+[02/03/2014 05:34:56 p.m.] Chad Jenkins: I think that should do it.
+[02/03/2014 05:35:20 p.m.] Chad Jenkins: It's nice when you find other issues when tracking down a bug. Things that would of been hard to discover otherwise.
+[02/03/2014 05:45:13 p.m.] Ted Everett: Fantastic! Reproduced perfectly here. I do wonder how it's done during flight and without heading to the tracking station. But it could be that it was previously a persistence issue causing the same symptoms.
+[02/03/2014 05:46:20 p.m.] Felipe Falanghe: ahh it can also happen in flight I think
+[02/03/2014 05:46:33 p.m.] Felipe Falanghe: it's not impossible, because it's the same maneuver camera
+[02/03/2014 05:46:42 p.m.] Felipe Falanghe: it might involve targeting other vessels with flight plans
+[02/03/2014 05:47:11 p.m.] Felipe Falanghe: targeting a vessel will attach a patched conics solver to it, which will render its flight plan as well
+[02/03/2014 05:47:50 p.m.] Felipe Falanghe: you should be able to get this to happen by repeatedly targeting a vessel with maneuvers, then switching scenes in a way that will cause the map to default to one of the leaked nodes
+[02/03/2014 05:48:19 p.m.] Felipe Falanghe: not as simple as in the tracking station, but also possible
+[02/03/2014 05:49:58 p.m. | Edited 05:50:09 p.m.] Ted Everett: Yeah. Excellent, sounds good
+[02/03/2014 05:50:03 p.m. | Edited 05:50:10 p.m.] Felipe Falanghe: well, will run a new build here, hopefully that'll be fixed now
+[02/03/2014 05:50:26 p.m.] Felipe Falanghe: so, can you reproduce in flight using those steps?
+[02/03/2014 05:50:36 p.m.] Ted Everett: Will try now
+[02/03/2014 05:50:45 p.m.] Felipe Falanghe: just out of curiosity
+[02/03/2014 05:50:50 p.m.] Ted Everett: Aye
+[02/03/2014 05:51:53 p.m.] Felipe Falanghe: build 421 running now
+[02/03/2014 06:28:58 p.m.] Ted Everett: Hmm, can't quite get it in-flight. It's difficult to get it to 'leak' the node.
+[02/03/2014 06:29:39 p.m.] Felipe Falanghe: yeah, it's hard, especially since your active vessel needs to be closer to the node than anything else
+[02/03/2014 06:42:27 p.m.] Felipe Falanghe: I'm going to start merging into develop here... I have to be done here today
+[02/03/2014 06:44:06 p.m. | Edited 06:44:12 p.m.] Ted Everett: Okay, sounds good
+[02/03/2014 06:49:25 p.m.] Ted Everett: Just tested on the new build - all fixed here. That was some very good bug hunting work, nicely done!
+[02/03/2014 06:51:30 p.m.] Felipe Falanghe: thanks! :)
+[02/03/2014 06:52:22 p.m.] Felipe Falanghe: and thanks for helping find that one too! I had dismissed it completely as a save quirk here, heh
+[02/03/2014 06:52:39 p.m.] Felipe Falanghe: merged NASA support features into develop here
+[02/03/2014 06:52:55 p.m.] Chad Jenkins: (y)
+[02/03/2014 06:52:58 p.m.] Felipe Falanghe: I'd run a new build but it is exactly the same as the last one atm
+[02/03/2014 06:53:05 p.m.] Felipe Falanghe: I could have done a fast-forward
+[02/03/2014 06:53:25 p.m.] Ted Everett: Excellent, very good news.
+[02/03/2014 06:53:36 p.m.] Felipe Falanghe: pushed to develop
+[02/03/2014 06:53:42 p.m.] Felipe Falanghe: NASA support features are integrated
+[03/03/2014 06:36:35 a.m.] jim-kb: Hello
+[03/03/2014 06:36:51 a.m.] Chad Jenkins: Good morning Jim.
+[03/03/2014 06:40:10 a.m.] jim-kb: how is the update coming along?
+[03/03/2014 06:40:55 a.m.] Chad Jenkins: Well, Felipe just integrated the support features into develop. So we're pretty good there.
+[03/03/2014 06:41:34 a.m.] jim-kb: we as well, just some issues with gui hiding atm, due to the changes made to that system
+[03/03/2014 06:41:53 a.m.] jim-kb: and message system persistence
+[03/03/2014 06:41:57 a.m.] Chad Jenkins: Nice.
+[03/03/2014 09:28:35 a.m.] Mike Geelan: morning |-)
+[03/03/2014 10:08:40 a.m.] jim-kb: morn
+[03/03/2014 10:08:56 a.m.] jim-kb: i've been to sweeden today, and then i went training :P
+[03/03/2014 10:09:06 a.m.] Mike Geelan: how was sweden?
+[03/03/2014 10:09:31 a.m.] jim-kb: snowy
+[03/03/2014 10:10:32 a.m.] Mike Geelan: isnt that basically what norway is like?
+[03/03/2014 10:20:23 a.m.] jim-kb: not quite, we just went up to a mountain resort cross the border to buy stuff, then we went back
+[03/03/2014 10:49:19 a.m.] Maxmaps: For anyone who didnt see it on Friday I've outdone myself with the teaser image http://imgur.com/2qRCLzq
+[03/03/2014 10:49:54 a.m.] Maxmaps: If you never see me again it's because Dan has killed me
+[03/03/2014 10:50:08 a.m.] Mike Geelan: :P yes i saw it. much outdone.
+[03/03/2014 10:51:11 a.m.] Chad Jenkins: Such quality, wow.
+[03/03/2014 10:51:32 a.m.] Maxmaps: Crimes against design, etc
+[03/03/2014 10:52:06 a.m.] Chad Jenkins: The font is just adding to it.
+[03/03/2014 10:52:14 a.m.] Daniel Rosas: haha
+[03/03/2014 10:53:40 a.m.] Felipe Falanghe: oh yes, this is very much theright typeface for the art style you're going for, much design, so typography, wow
+[03/03/2014 10:53:48 a.m.] Felipe Falanghe: http://9gag.com/gag/azbRYvz?ref=fsidebar
+[03/03/2014 10:53:50 a.m.] Felipe Falanghe: and that
+[03/03/2014 11:05:17 a.m.] Ted Everett: Haha, that's great
+[03/03/2014 12:05:05 p.m.] Maxmaps: Hey guys, whats the capacity of the new tanks vs the jumbo orange ones?
+[03/03/2014 12:06:02 p.m.] Chad Jenkins: 2.25x
+[03/03/2014 12:06:18 p.m.] Maxmaps: nice
+[03/03/2014 02:03:58 p.m.] Felipe Falanghe: question, anyone remember the date we released 0.21?
+[03/03/2014 02:04:25 p.m.] Felipe Falanghe: nvm, the wiki does
+[03/03/2014 02:05:34 p.m.] Felipe Falanghe: I'm cleaning up the KSP Filtered tracker
+[03/03/2014 02:05:49 p.m.] Ted Everett: Yeah, my inbox is crying heh. Looking good so far
+[03/03/2014 02:05:51 p.m.] Alejandro Mora: KSP 0.21 was released July 24th 2013
+[03/03/2014 02:06:20 p.m.] Alejandro Mora: KSP 0.21.1 was released July 25th 2013
+[03/03/2014 02:06:58 p.m.] Felipe Falanghe: aye, I've removed revision versions from the tracker though, to make it simpler
+[03/03/2014 02:07:05 p.m.] Ted Everett: That's a good idea
+[03/03/2014 02:07:39 p.m.] Felipe Falanghe: it's all ordered by version now, from 0.19 (when filtered started) onwards to 0.23
+[03/03/2014 02:09:22 p.m.] Felipe Falanghe: I wanted to remove all old issues from develop here, to make sure all the issues we are seeing there are about the latest update
+[03/03/2014 02:09:52 p.m.] Felipe Falanghe: they are now, and at the moment we have 55 open issues
+[03/03/2014 02:10:06 p.m.] Felipe Falanghe: how many of those are actually things we need to worry about is another matter
+[03/03/2014 02:12:24 p.m.] Ted Everett: Indeed, a lot are feedback, a few are ready to test once we hit Exp and some are features.
+[03/03/2014 02:16:23 p.m.] Felipe Falanghe: ok, I've cleaned out experimentals too, moved it all to filtered and set the versions there
+[03/03/2014 02:17:23 p.m.] Ted Everett: Awesome, nicely done. I think you've made some of the Experimental testers quite jittery in the process heh
+[03/03/2014 02:20:26 p.m.] Felipe Falanghe: heh
+[03/03/2014 02:20:51 p.m.] Felipe Falanghe: well, it needed to get done at some point... I'm trying to make the best use of time here
+[03/03/2014 02:21:01 p.m.] Ted Everett: Yeah, definitely.
+[03/03/2014 03:00:34 p.m.] Felipe Falanghe: ok, fixed a couple small issues, running a new build off develop
+[03/03/2014 03:01:04 p.m.] Felipe Falanghe: let me know once we're ready to start testing Contracts
+[03/03/2014 03:01:29 p.m.] Mike Geelan: will do. we have a few ui bugs still to nuke
+[03/03/2014 03:01:40 p.m.] Felipe Falanghe: aye, have at it
+[03/03/2014 03:01:47 p.m.] Mike Geelan: having
+[03/03/2014 04:02:37 p.m.] Maxmaps: Kerbal Transport Transport http://gfycat.com/BothObedientCaracal
+[03/03/2014 04:05:10 p.m.] Ted Everett: Haha
+[03/03/2014 04:05:22 p.m.] Mike Geelan: kerbal transport transport transport
+[03/03/2014 04:16:54 p.m.] Felipe Falanghe: rofl!!! I love that scene!
+[03/03/2014 04:23:22 p.m.] Maxmaps: Hey guys, are we looking like we have a definitive date for experimentals yet?
+[03/03/2014 04:23:55 p.m.] Ted Everett: I'm hoping Wednesday or at the latest Thursday if we're to make the 11th.
+[03/03/2014 04:24:11 p.m.] Ted Everett: Even with Wednesday we're only left with 3 working days of Experimentals.
+[03/03/2014 04:44:36 p.m.] Felipe Falanghe: yeah, it's very, very tight
+[03/03/2014 04:57:56 p.m.] Lalo Re: Yes but we should give our best in order to have the release asap
+[03/03/2014 04:58:11 p.m.] Lalo Re: If somebody need something that i can help
+[03/03/2014 04:58:14 p.m.] Lalo Re: let me know
+[03/03/2014 04:58:16 p.m.] Lalo Re: please
+[03/03/2014 04:58:23 p.m.] Lalo Re: :)
+[03/03/2014 04:58:58 p.m.] Ted Everett: Will do, thanks :)
+[03/03/2014 05:00:19 p.m.] Maxmaps: Lalo I think things would be smoother if we had a soda vending machine at the office :)
+[03/03/2014 05:01:06 p.m.] Alejandro Mora: I think you should change the word "soda" for "Coca-Cola"
+[03/03/2014 05:01:13 p.m.] Alejandro Mora: Haha
+[03/03/2014 05:01:21 p.m. | Edited 05:01:32 p.m.] Marco Antonio Salcedo: ....he didn't mean you, you just shut up and work Max
+[03/03/2014 05:01:24 p.m.] Marco Antonio Salcedo: lol
+[03/03/2014 05:01:43 p.m.] Maxmaps: yeah but I'm far less likely to get a machine that just throws a coke zero at me when my blood caffeine level goes under the perceptible parts per million
+[03/03/2014 05:02:17 p.m.] Ted Everett: I just need an IV drip of caffeine and saline.
+[03/03/2014 05:02:18 p.m.] Maxmaps: I'll take an IV drip too
+[03/03/2014 05:02:20 p.m.] Maxmaps: yesss
+[03/03/2014 05:02:24 p.m.] Maxmaps: Ted knows what's up
+[03/03/2014 05:02:28 p.m.] Ted Everett: Haha aye
+[03/03/2014 06:20:52 p.m.] Maxmaps: For anyone who may wonder what our fastest growing community looked like back in 2011 http://web.archive.org/web/20110714140351/http://www.reddit.com/r/KerbalSpaceProgram
+[03/03/2014 06:21:16 p.m.] Maxmaps: "0.8.4 released. Fixes attachment issues."
+[03/03/2014 06:21:36 p.m.] Maxmaps: Releases didnt even make it to the top 5 submissions
+[04/03/2014 09:30:26 a.m.] Felipe Falanghe: wow, I didn't even know we had a subreddit that long ago
+[04/03/2014 09:30:35 a.m. | Edited 09:30:39 a.m.] Felipe Falanghe: I thought it only came along much later
+[04/03/2014 09:31:56 a.m.] Felipe Falanghe: I have to head down to immigration just now, will be back later
+[04/03/2014 11:55:10 a.m.] Felipe Falanghe: back
+[04/03/2014 11:55:31 a.m.] Maxmaps: wb
+[04/03/2014 01:28:19 p.m.] Maxmaps: Hey Gang, if anyone wants to try a voice chat alternative, Curse.com set us up with CurseVoice beta keys
+[04/03/2014 01:28:23 p.m.] jim-kb: when are we selecting the winners of the logo contest?
+[04/03/2014 01:28:37 p.m.] Maxmaps: It's way more geared towards gaming but the codec is two generations past Skype and sounds fantastic
+[04/03/2014 01:41:56 p.m.] Bob Holtzman: Max, sounds good.
+[04/03/2014 01:42:14 p.m.] Bob Holtzman: I think Felipe is going through the contest applicants, yeah?
+[04/03/2014 01:47:46 p.m.] jim-kb: going out for about 2 hours
+[04/03/2014 01:48:14 p.m.] Lalo Re: ok
+[04/03/2014 01:48:22 p.m.] jim-kb: and if mike gets on we can have them set up by tomorrow
+[04/03/2014 02:56:47 p.m.] Mike Geelan: i am awake and on (wave)
+[04/03/2014 02:57:06 p.m.] Mike Geelan: setting up the agency stuff is pretty simple
+[04/03/2014 02:57:27 p.m.] Mike Geelan: AGENCY
+{
+  name = Kerbal Rocket Parts
+  logoURL = Squad/Agencies/cannery
+}
+[04/03/2014 02:57:43 p.m.] Mike Geelan: if you give me the images/info then i shall blitz em onto our branch
+[04/03/2014 02:58:05 p.m.] Anthony Guzzardo: Awake and on? Perfect time for you and the team to fill out this week's dev notes: https://docs.google.com/document/d/1NsTRA3FBbA8h_gk34GkCkJd9pXxw3GfBGC5ENfwmN1o/edit
+[04/03/2014 02:58:26 p.m.] Mike Geelan: I shall step to it
+[04/03/2014 02:58:35 p.m.] Ted Everett: Wb Mike
+[04/03/2014 03:01:13 p.m.] Mike Geelan: thanks, i had to take a power nap which turned into a unpowered descent into unconciousness
+[04/03/2014 03:31:26 p.m.] Maxmaps: http://forum.kerbalspaceprogram.com/threads/71133-Community-Mod-Repository-and-The-Majiir-Challenge?s=7442bc677812cb896d07f8bcae3c1538 this motherf*****
+[04/03/2014 03:32:44 p.m.] Ted Everett: It's been done before and they were pretty bad and had major security issues. I highly doubt that anyone will do it for gratis or donations. It's a lot of maintenence
+[04/03/2014 03:33:01 p.m.] Maxmaps: Ted, you say the best things.
+[04/03/2014 03:34:37 p.m.] Ted Everett: heh, thanks
+[04/03/2014 03:36:21 p.m.] Felipe Falanghe: heh, yeah actually, if he wants to go ahead and take on that full-time job onto himself for free
+[04/03/2014 03:36:41 p.m.] Felipe Falanghe: it's his soul to put under the crusher... :P
+[04/03/2014 03:41:10 p.m.] Maxmaps: Curse is just about ready to wine and dine us :P
+[04/03/2014 04:35:01 p.m.] jim-kb: so when can i see the contest logos?
+[04/03/2014 04:35:24 p.m.] Ted Everett: There was a dropbox link floating around
+[04/03/2014 04:41:02 p.m. | Edited 04:41:10 p.m.] Alejandro Mora: The winners, I don't know when they'll be picked up
+[04/03/2014 04:59:04 p.m.] Felipe Falanghe: https://www.dropbox.com/sh/4ticugmw48f58y6/grQRCAmLYR
+[04/03/2014 05:00:09 p.m.] Mike Geelan: thanks. this lot will get compressed down into a chosen few tho  take it?
+[04/03/2014 05:00:35 p.m.] Felipe Falanghe: well, yeah, we should start thinning it down to a few candidates for each
+[04/03/2014 05:00:51 p.m.] Mike Geelan: cool. some nice ones in there
+[04/03/2014 05:00:56 p.m.] Felipe Falanghe: shouldn't be hard to pick the good ones from the MS Paint ones on a first pass, heh
+[04/03/2014 05:01:17 p.m.] jim-kb: a lot of nice ones :D
+[04/03/2014 05:01:19 p.m.] Felipe Falanghe: I went through them all, I do think there's a winner for every category already
+[04/03/2014 05:01:30 p.m.] Felipe Falanghe: some are properly professional jobs
+[04/03/2014 05:02:02 p.m.] Felipe Falanghe: on some cases, we're going to have to make a few hard choices... there are several good ones for a few brands
+[04/03/2014 05:09:39 p.m.] jim-kb: https://www.dropbox.com/sh/4ticugmw48f58y6/z3ShaMaTc1/KWFRKS too bad some of the good ones there put an image of the earth in there :P
+[04/03/2014 05:09:51 p.m.] Felipe Falanghe: heh
+[04/03/2014 05:09:58 p.m. | Edited 05:10:01 p.m.] Felipe Falanghe: there is one there that I like best
+[04/03/2014 05:10:12 p.m.] Felipe Falanghe: https://www.dropbox.com/sh/4ticugmw48f58y6/z3ShaMaTc1/KWFRKS#lh:null-The%20Kerbin%20World-Firsts%20Record-Keeping%20Society.png
+[04/03/2014 05:10:15 p.m.] Felipe Falanghe: this one
+[04/03/2014 05:10:30 p.m.] jim-kb: earth
+[04/03/2014 05:10:38 p.m.] Felipe Falanghe: that's Kerbin
+[04/03/2014 05:10:50 p.m.] Felipe Falanghe: https://www.dropbox.com/sh/4ticugmw48f58y6/z3ShaMaTc1/KWFRKS#lh:null-The%20Kerbin%20World-Firsts%20Record-Keeping%20Society%20(4).png
+[04/03/2014 05:10:51 p.m.] jim-kb: its africa and spain above it
+[04/03/2014 05:10:55 p.m.] Felipe Falanghe: this one is also very good
+[04/03/2014 05:11:09 p.m.] Felipe Falanghe: no, look at the continents around it, it's the KSC peninsula
+[04/03/2014 05:11:30 p.m. | Edited 05:11:50 p.m.] Ted Everett: http://www.kerbalmaps.com/ (For reference)
+[04/03/2014 05:11:35 p.m.] jim-kb: hmmm
+[04/03/2014 05:11:44 p.m.] jim-kb: ooook
+[04/03/2014 05:12:05 p.m.] Ted Everett: Some parts do look similar, which is what I like best about Kerbin
+[04/03/2014 05:12:19 p.m.] jim-kb: i like both of those felipe
+[04/03/2014 05:12:25 p.m.] Felipe Falanghe: heh, I guess that's why a lot of people call it Kerfrica (man I hate that name) :D
+[04/03/2014 05:12:41 p.m.] Felipe Falanghe: aye, those two are the top choices for the KWFRKS
+[04/03/2014 05:13:25 p.m.] Mike Geelan: yeah that is really nice
+[04/03/2014 05:13:28 p.m.] jim-kb: https://www.dropbox.com/sh/4ticugmw48f58y6/qhiq2pKuWB/maxo#lh:null-Maxo%20Construction%20Toys%20%285%29.jpg like
+[04/03/2014 05:14:16 p.m.] Felipe Falanghe: heh hadn't seen that one
+[04/03/2014 05:14:51 p.m.] Felipe Falanghe: that's very good
+[04/03/2014 05:14:56 p.m.] Felipe Falanghe: I also like this one https://www.dropbox.com/sh/4ticugmw48f58y6/qhiq2pKuWB/maxo#lh:null-Maxo%20Construction%20Toys%20(3).jpg
+[04/03/2014 05:15:09 p.m.] jim-kb: that was my second choice
+[04/03/2014 05:15:10 p.m.] Felipe Falanghe: and this one, for some reason: https://www.dropbox.com/sh/4ticugmw48f58y6/qhiq2pKuWB/maxo#lh:null-Maxo%20Construction%20Toys%20(12).png
+[04/03/2014 05:15:22 p.m. | Edited 05:15:23 p.m.] Felipe Falanghe: IDK why, that last one always makes me laugh
+[04/03/2014 05:15:24 p.m.] Felipe Falanghe: ot
+[04/03/2014 05:15:24 p.m.] jim-kb: its soo many good contributions im amazed
+[04/03/2014 05:15:41 p.m.] Felipe Falanghe: it's so naive and toy-like, for a company making rocket components :D
+[04/03/2014 05:15:55 p.m.] Felipe Falanghe: heh, hard choices ahead
+[04/03/2014 05:17:35 p.m.] Felipe Falanghe: but I think we can easily narrow it down to a list of finalists
+[04/03/2014 05:17:46 p.m.] Felipe Falanghe: how about we each pick our top 3, then compare the lists
+[04/03/2014 05:17:53 p.m.] jim-kb: https://www.dropbox.com/sh/4ticugmw48f58y6/6teHtw47Bk/periapsis#lh:null-image (2).jpg lol
+[04/03/2014 05:17:57 p.m.] Felipe Falanghe: they'll probably end up with some overlap
+[04/03/2014 05:18:02 p.m.] Ted Everett: Sounds good. I can have a look through later tonight
+[04/03/2014 05:18:13 p.m.] jim-kb: where do we post them?
+[04/03/2014 05:18:17 p.m.] Felipe Falanghe: hm
+[04/03/2014 05:18:24 p.m.] Ted Everett: Podio?
+[04/03/2014 05:18:27 p.m.] jim-kb: top 3 for each category?
+[04/03/2014 05:18:31 p.m.] Felipe Falanghe: yeah
+[04/03/2014 05:18:43 p.m.] Felipe Falanghe: or top one of there aren't three good ones to make the cut
+[04/03/2014 05:19:19 p.m.] Felipe Falanghe: podio might work to post our favorites
+[04/03/2014 05:19:31 p.m.] Felipe Falanghe: it's good that it parses the img links and we can see thumbs of it
+[04/03/2014 05:25:42 p.m.] jim-kb: lots of logos with transparency in them, that won't show up properly
+[04/03/2014 05:27:12 p.m.] Felipe Falanghe: yeah, there's that too
+[04/03/2014 05:33:58 p.m.] Mike Geelan: transparency should be fine, we're not putting them over complex backgrounds
+[04/03/2014 05:34:13 p.m.] Anthony Guzzardo: Hey everyone. Please remember to fill out the dev notes if you haven't already: https://docs.google.com/document/d/1NsTRA3FBbA8h_gk34GkCkJd9pXxw3GfBGC5ENfwmN1o/edit
+[04/03/2014 06:05:30 p.m. | Removed 06:23:04 p.m.] Maxmaps: This message has been removed.
+[04/03/2014 06:42:51 p.m.] jim-kb: hmmm, hard to like any of the R&D logo contributions tbh....
+[04/03/2014 06:53:58 p.m.] jim-kb: i have made a list now :)
+[04/03/2014 06:57:11 p.m.] Alejandro Mora: So, we can choose 3 for each category?
+[04/03/2014 07:33:03 p.m.] jim-kb: for some of the manufacturers it is hard to pick only 3
+[04/03/2014 07:33:27 p.m.] Anthony Guzzardo: With so many C7's even
+[04/03/2014 07:44:38 p.m.] Mike Geelan: oh nice got sent some jobs by linked in
+[04/03/2014 07:44:54 p.m.] Mike Geelan: car dealer, accountancy manager, travel consultant
+[04/03/2014 07:45:11 p.m.] Mike Geelan: they've really got me down to a tee
+[04/03/2014 08:34:02 p.m.] jim-kb: good night
+[04/03/2014 08:34:18 p.m.] Mike Geelan: gn
+[05/03/2014 07:44:10 a.m.] jim-kb: morning
+[05/03/2014 07:44:29 a.m.] Chad Jenkins: Morning
+[05/03/2014 07:49:02 a.m.] jim-kb: time to have another look at the logos i guess
+[05/03/2014 08:31:04 a.m.] jim-kb: there are so many awesome logos im amazed :D
+[05/03/2014 08:32:10 a.m.] Bob Holtzman: Wow. Just looking at the Maxo Construction Toys list... some seriously good logos in there.
+[05/03/2014 08:51:48 a.m.] jim-kb: https://www.dropbox.com/sh/4ticugmw48f58y6/6teHtw47Bk/periapsis#lh:null-image%20%282%29.jpg this one makes me smile every time i see it :P
+[05/03/2014 09:31:43 a.m.] jim-kb: got my list ready now, where do i submit it?
+[05/03/2014 12:03:35 p.m.] jim-kb: anyone up?
+[05/03/2014 12:09:24 p.m.] Bob Holtzman: What's up Jim? I don't think I'm who you're looking for though. :)
+[05/03/2014 12:11:43 p.m.] jim-kb: just wondering about the list i made for the logo competition, i've selected my favourites
+[05/03/2014 12:12:17 p.m.] Maxmaps: I'm sure as soon as Felipe's hair stops being on fire you two can sit down and hash out who won
+[05/03/2014 12:13:14 p.m.] Bob Holtzman: Yeah to be honest, Felipe is seriously under the gun for SXSW, as we all are right now on the NASA stuff.
+[05/03/2014 12:13:15 p.m.] jim-kb: i thought we were going to add our lists to podio or something
+[05/03/2014 12:13:28 p.m.] Bob Holtzman: so he probably won't get to it until we get a few things hammered out.
+[05/03/2014 12:14:24 p.m.] jim-kb: as i understand it these logos won't be used in the game for a while, and it's probably a good thing because seriously, the community has spent hundreds of hours on this put together, so we should really take care on selecting the winners
+[05/03/2014 12:15:14 p.m.] Maxmaps: Glad to see I'm not the only one who got floored by the quality.
+[05/03/2014 12:16:00 p.m.] Maxmaps: Sure we got a gaggle of really enthusiastic 10 year olds who figured out MSPaint but the rest is just wow.
+[05/03/2014 12:16:29 p.m.] jim-kb: i have selected a few "mspaint" logos as favs
+[05/03/2014 12:16:47 p.m.] jim-kb: cause i was judging the logos as if i were the manufacturer
+[05/03/2014 12:18:12 p.m.] jim-kb: 
+https://www.dropbox.com/sh/4ticugmw48f58y6/_1m__Ol_rP/jeb%27s%20junkyard#lh:null-Jebediah%20Kermans%20Junkyard%20and%20Spaceship%20Parts%20co.jpg :D
+[05/03/2014 12:19:27 p.m.] jim-kb: https://www.dropbox.com/sh/4ticugmw48f58y6/Q_6iKvvwiw/dinkelsteins#lh:null-Dinkelstein%20Kerman%27s%20Construction%20Emporium%20%283%29.png really liked this one for some reason, allthough this one here ... https://www.dropbox.com/sh/4ticugmw48f58y6/Q_6iKvvwiw/dinkelsteins#lh:null-Dinkelstein_Kerman%27s_Construction_Emporium.jpg might be the winner
+[05/03/2014 12:25:42 p.m.] jim-kb: need any assistance from me with the SXSW and NASA stuff?
+[05/03/2014 01:37:06 p.m.] Bob Holtzman: http://www.gamefront.com/kerbal-space-program-will-receive-new-ship-parts-from-nasa-collaboration/
+[05/03/2014 03:08:31 p.m.] Maxmaps: Hey guys. Considering  experimentals are upon us, are we set for the usual media team bids and marathon over the weekend?
+[05/03/2014 03:21:59 p.m.] Bob Holtzman: http://www.polygon.com/2014/3/5/5474688/kerbal-space-program-nasa-mission
+[05/03/2014 03:23:11 p.m.] Felipe Falanghe: I can run a new build right now if we need one, we've got new flag decals on a lot of parts, and also supporting transparent flag graphics
+[05/03/2014 03:23:59 p.m.] Maxmaps: Cool, but is it stuff we can start showing the fans or do we have to hold on to it til postbrunch?
+[05/03/2014 03:24:15 p.m.] Felipe Falanghe: ah, indeed, it is all NASA stuff
+[05/03/2014 03:24:31 p.m.] Felipe Falanghe: so IDK, current secrecy rules apply
+[05/03/2014 03:24:34 p.m.] Bob Holtzman: http://venturebeat.com/2014/03/05/nasa-puts-its-asteroid-moving-mission-into-a-video-game/
+[05/03/2014 03:25:04 p.m.] Bob Holtzman: I don't want to surrender a few days of testing, but can the experimentals folks be trusted to keep this top secret?
+[05/03/2014 03:25:09 p.m.] Felipe Falanghe: should we keep this off the exp team during the trip then?
+[05/03/2014 03:25:15 p.m.] Felipe Falanghe: aye, my doubts exactly
+[05/03/2014 03:25:29 p.m.] Bob Holtzman: I'd prefer to get them testing, as I think we all would.
+[05/03/2014 03:25:37 p.m.] Bob Holtzman: But this is really important that we don't get any leaks.
+[05/03/2014 03:25:43 p.m.] Maxmaps: Oh, the experimental group can be trusted no doubt. Just figuring out if we should schedule the usual ksptv marathon and the media group video blitz to be released post-brunch.
+[05/03/2014 03:25:45 p.m.] Bob Holtzman: Not just for Saturday but through to GDC.
+[05/03/2014 03:25:51 p.m.] Felipe Falanghe: ahh the media group
+[05/03/2014 03:26:03 p.m.] Bob Holtzman: None of that can go live until after GDC.
+[05/03/2014 03:26:07 p.m.] Felipe Falanghe: yeah, those shouldn't get access just yet
+[05/03/2014 03:26:20 p.m.] Felipe Falanghe: so, they're on the same key as the exp team right?
+[05/03/2014 03:26:22 p.m.] Maxmaps: But the NASA stuff will be released before GDC :v
+[05/03/2014 03:26:25 p.m.] Bob Holtzman: And we need to discus that as we should embargo ALL NASA coverage until Monday.
+[05/03/2014 03:26:31 p.m.] Bob Holtzman: No, NASA is not being released before GDC.
+[05/03/2014 03:26:35 p.m.] Bob Holtzman: It is being released afterward.
+[05/03/2014 03:27:12 p.m.] Maxmaps: But Lalo's email from the morning?
+[05/03/2014 03:27:16 p.m.] Bob Holtzman: Felipe?
+[05/03/2014 03:27:38 p.m.] Bob Holtzman: I'm confused.
+[05/03/2014 03:27:39 p.m.] Felipe Falanghe: Lalo's email was off there... I think it was from before our chat yesterday
+[05/03/2014 03:27:48 p.m.] Felipe Falanghe: unless I'm out-of-date now
+[05/03/2014 03:27:49 p.m.] Ted Everett: Ah, that makes sense.
+[05/03/2014 03:27:59 p.m.] Bob Holtzman: Lalo?
+[05/03/2014 03:28:16 p.m.] Bob Holtzman: haha this is silly.
+[05/03/2014 03:28:20 p.m.] Bob Holtzman: I'll sidebar Adrian and ask.
+[05/03/2014 03:28:23 p.m.] Felipe Falanghe: but last I heard, we had decided on releasing the NASA pack after GDC
+[05/03/2014 03:28:38 p.m.] Felipe Falanghe: that was the chat we had with Adrian, Bob
+[05/03/2014 03:28:46 p.m.] Bob Holtzman: that's what I thought.
+[05/03/2014 03:29:04 p.m.] Felipe Falanghe: unless there was another chat afterwards none of us was a part of... then I guess that's the latest news
+[05/03/2014 03:29:08 p.m.] Maxmaps: When was that?
+[05/03/2014 03:29:14 p.m.] Felipe Falanghe: afternoon-ish
+[05/03/2014 03:29:17 p.m.] Bob Holtzman: let's stop confusing everybody.
+[05/03/2014 03:29:19 p.m.] Maxmaps: Yesterday?
+[05/03/2014 03:29:21 p.m.] Felipe Falanghe: yes
+[05/03/2014 03:29:22 p.m.] Bob Holtzman: I'll just get Adrian on the phone.
+[05/03/2014 03:36:53 p.m.] Lalo Re: Hi everybody
+[05/03/2014 03:42:30 p.m.] Bob Holtzman: Hi Lalo, let's side bar this.
+[05/03/2014 04:02:50 p.m.] Felipe Falanghe: new build underway
+[05/03/2014 04:02:54 p.m.] Felipe Falanghe: for QA still
+[05/03/2014 04:03:27 p.m.] Ted Everett: Okay, excellent.
+[05/03/2014 04:07:04 p.m.] Felipe Falanghe: the new flag features look pretty cool, I have to say
+[05/03/2014 04:07:14 p.m.] Ted Everett: Aye, I was very impressed with them on the pods
+[05/03/2014 04:07:22 p.m.] Felipe Falanghe: it was a frantic push to get it done in a day, but they do make a difference
+[05/03/2014 04:07:46 p.m.] Felipe Falanghe: especially when you go out on EVA and plant your flag, it feels all the more 'yours'
+[05/03/2014 04:08:18 p.m.] Felipe Falanghe: heh, it ocurred to me we could add a lot of the logos from the contest as flags too
+[05/03/2014 04:08:32 p.m.] Ted Everett: Yeah, definitely
+[05/03/2014 04:11:27 p.m.] jim-kb: Oh cool. Did you get the flags on the tanks?
+[05/03/2014 04:11:51 p.m.] jim-kb: Screenshot?
+[05/03/2014 04:11:53 p.m.] Felipe Falanghe: not the tanks, because those get spammed a lot
+[05/03/2014 04:12:06 p.m.] Felipe Falanghe: we got some on the engine fairings
+[05/03/2014 04:12:49 p.m.] Felipe Falanghe: it's super easy to add decals now to parts, the hard work yesterday was getting them on EVAs and tweaking the shaders to support transparency
+[05/03/2014 04:16:14 p.m.] Felipe Falanghe: going through the reddit thread about the announcement here
+[05/03/2014 04:16:36 p.m.] Felipe Falanghe: you know you're doing something right when the players' speculations fall short of the actual thing
+[05/03/2014 04:17:16 p.m.] Felipe Falanghe: http://www.reddit.com/r/KerbalSpaceProgram/comments/1zng1k/suggestion_asteroids_shouldnt_be_exclusive_to_the/
+[05/03/2014 04:17:18 p.m.] Felipe Falanghe: like this
+[05/03/2014 05:30:30 p.m.] Maxmaps: A lot of people say that 0.24 and ARM will mark the greatest release in the history of KSP, this document says otherwise. http://i.imgur.com/6EUQw8q.png
+[05/03/2014 05:31:37 p.m.] Anthony Guzzardo: oh snap!
+[05/03/2014 05:32:07 p.m.] Alejandro Mora: http://www.youtube.com/watch?v=oShTJ90fC34
+[05/03/2014 05:32:37 p.m.] Maxmaps: Thank you Alex
+[05/03/2014 05:32:43 p.m.] Alejandro Mora: Lol
+[05/03/2014 05:36:16 p.m.] Bob Holtzman: LOL Max
+[05/03/2014 05:58:19 p.m.] Felipe Falanghe: I realized just these days that we've actually been developing two releases simultaneously
+[05/03/2014 05:58:36 p.m.] Felipe Falanghe: like lord of the rings... minus the third part, heh
+[05/03/2014 06:28:20 p.m.] Daniel Rosas: that means we're going to have 10 different endings? heh
+[06/03/2014 09:44:37 a.m.] Bob Holtzman: Some more pub for the NASA mission on Wired.co.uk and Kotaku: http://www.wired.co.uk/news/archive/2014-03/06/kerbal-space-program-nasa-mission
+[06/03/2014 09:45:07 a.m.] Bob Holtzman: http://kotaku.com/kerbal-space-program-to-introduce-nasa-backed-asteroid-1537616600#
+[06/03/2014 10:13:15 a.m.] Bob Holtzman: This headline is awesome: http://www.gameranx.com/updates/id/20719/article/mario-kart-kerbal-space-program-highlights-of-2014-s-sxsw-gaming-expo/
+[06/03/2014 01:20:04 p.m.] Anthony Guzzardo: Hey guys. I'd like to throw together some official quotes on Asteroids and how ARM content will integrate into the stock game for a community post on Friday.
+[06/03/2014 01:20:56 p.m.] Anthony Guzzardo: Think any of you can get me some words to use by tomorrow morning?
+[06/03/2014 01:32:48 p.m.] Maxmaps: Sounds good. Let me wrap up this asset for the asteroid mission and I will get on it
+[06/03/2014 01:54:19 p.m.] Anthony Guzzardo: The founder of unity just tweeted about the nasa partnership
+[06/03/2014 01:54:52 p.m. | Edited 01:55:01 p.m.] Alejandro Mora: Yep, I just RTed that on Squad's account :P
+[06/03/2014 01:55:10 p.m.] Alejandro Mora: And personal one, hehe
+[06/03/2014 01:55:30 p.m.] Anthony Guzzardo: Yeah we're going back and forth
+[06/03/2014 01:55:36 p.m.] Ted Everett: Yeah, just RT'd it here. Pretty great
+[06/03/2014 01:55:40 p.m.] Chad Jenkins: Very cool.
+[06/03/2014 01:55:45 p.m.] Chad Jenkins: Hello from Austin by the way.
+[06/03/2014 01:56:36 p.m.] Alejandro Mora: David is a cool guy
+[06/03/2014 01:56:50 p.m.] Alejandro Mora: Had the pleasure to meet him at Unite last year
+[06/03/2014 01:57:10 p.m.] Alejandro Mora: It's cool to know he knows us :)
+[06/03/2014 02:01:58 p.m.] Bob Holtzman: David wears his collars up of course you think he's cool Alex! ;)
+[06/03/2014 02:03:37 p.m.] Alejandro Mora: Haha
+[06/03/2014 02:04:14 p.m.] Alejandro Mora: At the Unity Party, he was really drunk... in fact, at the Unity Awards (llike 2 hours before the party) he was drunk!
+[06/03/2014 02:04:43 p.m.] Alejandro Mora: He presented the awards in that state, hahaha
+[06/03/2014 02:04:56 p.m.] Chad Jenkins: Heh, that would of been amusing to watch.
+[06/03/2014 02:05:55 p.m.] Alejandro Mora: Yeah, it was. When he was going to give the prize to a winner, he got confused and forgot where the prize was, haha
+[06/03/2014 02:06:22 p.m.] Alejandro Mora: And after the awards event, he left the room running with his glass
+[06/03/2014 02:06:25 p.m.] Alejandro Mora: haha
+[06/03/2014 05:38:36 p.m.] Maxmaps: http://zippy.gfycat.com/MajorCourteousGerenuk.webm
+[06/03/2014 06:33:00 p.m.] Maxmaps: Okay no lie being on the actual NASA website is way cool http://www.nasa.gov/content/nasa-experts-exhibits-at-sxsw-interactive/index.html#.UxkTaPl5N8E
+[06/03/2014 06:33:49 p.m.] Ted Everett: Very
+[06/03/2014 07:26:10 p.m.] jim-kb: :D
+[06/03/2014 08:15:53 p.m.] Maxmaps: Camping at the office, waiting for card delivery.
+[07/03/2014 06:57:24 a.m.] jim-kb: I think my town has the highest ratio of ksp players cs total population...well at least in norway, and ugh, unless there is some small place out in the fjords with 8 people living there and one playing ksp :P
+[07/03/2014 06:57:43 a.m.] Mike Geelan: lol
+[07/03/2014 06:57:55 a.m.] jim-kb: ah yes, then it's not a town so it doesnt count :P
+[07/03/2014 06:58:28 a.m.] Mike Geelan: we need some cool squad/ksp merchandise that would actually be acceptable to wear
+[07/03/2014 06:58:36 a.m.] Mike Geelan: cuz i refuse to wear a hoodie
+[07/03/2014 06:59:16 a.m.] jim-kb: i don't even have a hoodie :(
+[07/03/2014 06:59:32 a.m.] Mike Geelan: well i have alex's :P
+[07/03/2014 06:59:56 a.m.] jim-kb: if i wore ksp merchandise to town here i'd be run down by ksp fans...hahaha
+[07/03/2014 07:00:07 a.m.] Mike Geelan: exactly
+[07/03/2014 07:00:12 a.m.] jim-kb: met a guy last weekend who was completely star struck
+[07/03/2014 07:00:14 a.m.] Mike Geelan: superstar :P
+[07/03/2014 07:01:30 a.m.] jim-kb: they got a community university here and they got a sattelite technology batchelor course there, i think most of those guys play ksp
+[07/03/2014 07:01:43 a.m.] Mike Geelan: right, that would help indeed
+[07/03/2014 07:02:01 a.m.] jim-kb: and some of them haven't landed on the mun yet :/
+[07/03/2014 07:02:34 a.m.] Mike Geelan: my friend who runs the GW shop here said to me that some days the geeks spend more time discussing KSP than they do warhammer
+[07/03/2014 07:03:11 a.m.] jim-kb: they seem to have a real good grasp about the maths and physics stuff, but they can't really explain what an orbit looks like when transfering etc.
+[07/03/2014 07:03:38 a.m.] jim-kb: very little intuitive understanding of what the hell they are doing in general it seems :P
+[07/03/2014 07:04:09 a.m.] Mike Geelan: well they dont need to understand rocketry to make computers work in space
+[07/03/2014 07:04:10 a.m.] jim-kb: so im thinking KSP is helping them with that :)
+[07/03/2014 07:04:11 a.m.] Mike Geelan: ..hopefully
+[07/03/2014 07:04:16 a.m.] Mike Geelan: lol
+[07/03/2014 07:04:39 a.m.] Mike Geelan: https://xkcd.com/1244/
+[07/03/2014 07:04:55 a.m.] jim-kb: haha
+[07/03/2014 07:06:30 a.m.] Mike Geelan: i got a PM through forum today... it's a little suspect..
+[07/03/2014 07:06:33 a.m.] Mike Geelan: I have bought KSP but i really wand 0.16 (Or 0.17) and i can't get it. Is there some way you can verify that i have it and then give me the old versions?
+[07/03/2014 07:07:01 a.m.] Mike Geelan: i think it translates as "please can you give me the unobfuscated version?"
+[07/03/2014 07:07:23 a.m.] jim-kb: yes for sure
+[07/03/2014 07:09:15 a.m.] jim-kb: im working on expanding the application launcher btw
+[07/03/2014 07:09:23 a.m.] Mike Geelan: cool
+[07/03/2014 07:09:33 a.m.] jim-kb: fixing that issue with mods using it
+[07/03/2014 07:09:46 a.m.] Mike Geelan: i'm mulling over some new mission types
+[07/03/2014 07:10:05 a.m.] jim-kb: so vanilla apps will go on the right, and there will be a separator thing, and the mod apps will go to the left of those
+[07/03/2014 07:10:29 a.m.] Mike Geelan: ah yeah that sounds good
+[07/03/2014 07:10:29 a.m.] jim-kb: and when the list of mod apps gets to large, it will turn into a scrollable list with arrows on each side
+[07/03/2014 07:10:52 a.m.] Mike Geelan: perhaps make it so the vanilla apps dont scroll with that area
+[07/03/2014 07:11:02 a.m.] jim-kb: but it will be mouse whell scrollable and draggable and all that too of course :D
+[07/03/2014 07:11:16 a.m.] jim-kb: the vanilla apps will not scroll
+[07/03/2014 07:11:20 a.m.] Mike Geelan: (y)
+[07/03/2014 07:11:42 a.m.] jim-kb: but it they want to, sure they can add to the list of vanilla apps too
+[07/03/2014 07:11:56 a.m.] jim-kb: unless i take measures (devil)
+[07/03/2014 07:12:12 a.m.] Mike Geelan: can make it so that only apps in the core assembly can go in there
+[07/03/2014 07:12:53 a.m.] jim-kb: yes, well the thing is they can always use GetComponent and punk it in there
+[07/03/2014 07:13:00 a.m.] Mike Geelan: well we use the [SerializeField]private List<T>
+[07/03/2014 07:13:03 a.m.] Mike Geelan: thing
+[07/03/2014 07:13:10 a.m.] Mike Geelan: so that you can only set such things up in editor
+[07/03/2014 07:13:24 a.m.] jim-kb: they can still do a getcomponent
+[07/03/2014 07:13:45 a.m.] jim-kb: get the raw scroll list, make their own list item container, and put it in
+[07/03/2014 07:14:04 a.m.] Mike Geelan: well yeah.. but.. arsing :P
+[07/03/2014 07:14:23 a.m.] Mike Geelan: they shouldnt need to if the interface is lovely enough
+[07/03/2014 07:14:48 a.m.] jim-kb: then again, if they want to, they can make a mod that divides by 0 or something, and crash the game... :P
+[07/03/2014 07:15:23 a.m.] Mike Geelan: yup. all kinds of fun stuff
+[07/03/2014 07:16:24 a.m.] jim-kb: unless i can override GetComponent somehow :D
+[07/03/2014 07:17:06 a.m.] Mike Geelan: can we make an app for mission control?
+[07/03/2014 07:17:34 a.m.] Mike Geelan: so they can view/accept/cancel contracts in a small window thing?
+[07/03/2014 07:17:53 a.m.] jim-kb: i think they should have to go to mission control to do that
+[07/03/2014 07:18:10 a.m.] Mike Geelan: i have been playing a few missions and ones like the grand tour you need to complete a list of things
+[07/03/2014 07:18:15 a.m.] jim-kb: but we can show a list of missions
+[07/03/2014 07:18:29 a.m.] Mike Geelan: i constantly forget the list :P
+[07/03/2014 07:18:44 a.m.] jim-kb: a list of missions with objectives would be good
+[07/03/2014 07:19:01 a.m.] jim-kb: also the knowledge base should probably go into that applauncher as well
+[07/03/2014 07:19:10 a.m.] Mike Geelan: that would be cool
+[07/03/2014 07:19:22 a.m.] Mike Geelan: yeah we have a load of lil things which can go in there
+[07/03/2014 07:19:30 a.m.] Mike Geelan: we talked about settings too
+[07/03/2014 07:19:41 a.m.] jim-kb: and maybe split the kb up, and just put it's tabs into applauncher as separate apps
+[07/03/2014 07:20:09 a.m.] Mike Geelan: hmm might be a step too far at the mo. think would be better spending the time on more apps
+[07/03/2014 07:20:11 a.m.] Mike Geelan: brb sec
+[07/03/2014 07:22:29 a.m.] jim-kb: all the kb "apps" would have a good format, and once those are made i could possibly make them into template apps that can be modded, like collapsable lists of things etc.
+[07/03/2014 07:27:12 a.m.] Mike Geelan: perhaps
+[07/03/2014 07:27:51 a.m.] Mike Geelan: we dont want to flood the area with icons. KB is not something that really needed to be there
+[07/03/2014 07:27:58 a.m.] Mike Geelan: it's only used in map at the moment anyway
+[07/03/2014 07:28:52 a.m.] jim-kb: but the applauncher can already modify itself like that :)
+[07/03/2014 07:29:20 a.m.] jim-kb: you can have certain apps showing in flight, and others showing only in the map
+[07/03/2014 07:30:36 a.m.] jim-kb: allthough atm it's handled by the applauncher controller and it is kinda hardcoded into it, but it's just a matter of adding an enum or something to the apps that specifies where the app should be visible
+[07/03/2014 07:31:01 a.m.] Mike Geelan: a System.Flags type enum perhaps
+[07/03/2014 07:31:17 a.m.] jim-kb: or a list of enums
+[07/03/2014 07:31:55 a.m.] Mike Geelan: a single flag one would be easier for people to use imho
+[07/03/2014 07:32:00 a.m.] Mike Geelan: single line/field setup
+[07/03/2014 07:32:12 a.m.] Mike Geelan: easy to expand upon
+[07/03/2014 07:33:14 a.m.] jim-kb: maybe just a method to set on the apps with a "params" of enums
+[07/03/2014 07:33:38 a.m.] Mike Geelan: flags, simple and easy
+[07/03/2014 07:34:26 a.m.] Mike Geelan: AppScene.FlightMain | AppScene.FlightMap | AppScene.SpaceCenter.. etc
+[07/03/2014 07:34:49 a.m.] Mike Geelan: can make AppScene.Flight = AppScene.FlightMain | AppScene.FlightMap
+[07/03/2014 07:34:57 a.m.] Mike Geelan: so no need to have both
+[07/03/2014 07:35:02 a.m.] jim-kb: a System.Flags is just a concatenation of all possibilities of several enums no?
+[07/03/2014 07:35:16 a.m.] Mike Geelan: no it's a bitfield
+[07/03/2014 07:35:56 a.m.] Mike Geelan: tbh you actually dont need [System.Flags] on the enum but it helps in unity inspector to turn a single selector into a multiple one
+[07/03/2014 07:36:37 a.m.] jim-kb: as long as it is easy to modify and expand upon
+[07/03/2014 07:37:26 a.m. | Edited 07:37:28 a.m.] Mike Geelan: easy money
+[07/03/2014 07:38:06 a.m.] jim-kb: it's definately a good idea, would at least make the controller less hardcoded
+[07/03/2014 07:39:11 a.m.] Mike Geelan: i can give you some code/tricks if you like
+[07/03/2014 07:40:04 a.m.] jim-kb: [FlagsAttribute]  right?
+[07/03/2014 07:41:08 a.m.] Mike Geelan: [System.Flags]
+public enum AppScenes
+{
+   SpaceCenter = 1
+   FlightMain = 2
+   FlightMap = 4
+   Flight = FlightMain | FlightMap
+}
+[07/03/2014 07:42:56 a.m.] jim-kb: so what is the difference between [Flags] and [FlagsAttribute] ?
+[07/03/2014 07:43:52 a.m.] Mike Geelan: "Flags is simply shorthand for FlagsAttribute. In C#, you can leave the "Attribute" suffix off an attribute when you're applying it to an element."
+[07/03/2014 07:44:15 a.m.] jim-kb: same thing then :D
+[07/03/2014 07:44:22 a.m.] Mike Geelan: yeah i had to check heh :P
+[07/03/2014 07:44:49 a.m.] Mike Geelan: i never use "using System;" so hence i always prefix System when i say it
+[07/03/2014 07:45:49 a.m.] jim-kb: right, we're on the same page then, just discussing unimportant stuff about how it is represented internally :P
+[07/03/2014 07:46:06 a.m.] Mike Geelan: yeah
+[07/03/2014 07:46:58 a.m.] jim-kb: we have an enum like this as well for the scenes
+[07/03/2014 07:47:18 a.m.] jim-kb: but we just need to add one with all the pseudo scenes we got in space center
+[07/03/2014 07:48:34 a.m.] Mike Geelan: got 32 possible bits in your flags enum, presuming you're using int, so can stick all the pseudo scenes in there
+[07/03/2014 07:49:24 a.m.] jim-kb: so we're good until we add the 33'rd "scene" :D
+[07/03/2014 07:49:44 a.m.] Mike Geelan: well you can use..
+public enum AppScenes : long
+[07/03/2014 07:50:15 a.m.] jim-kb: i think we better do that, just to be sure hehe
+[07/03/2014 07:50:29 a.m.] Mike Geelan: no. no need
+[07/03/2014 07:51:15 a.m.] Mike Geelan: if we need more than 32 bits of data in such an enum we will have gone insane by then
+[07/03/2014 07:53:39 a.m.] jim-kb: just saying, the list of places an app should be showing can extend to more things than just scenes and panels within scenes
+[07/03/2014 07:54:03 a.m.] jim-kb: but i got to run out for an hour or two, bbl...
+[07/03/2014 07:54:08 a.m.] Mike Geelan: have fun
+[07/03/2014 08:58:22 a.m.] Mike Geelan: http://deepskycolors.com/pics/astro/2011/05/2011-05_BigDipper7k.jpg uff, that's some fine astrophotography right there
+[07/03/2014 10:45:28 a.m.] Maxmaps: Chat so quiet when everyone's flying
+[07/03/2014 11:05:31 a.m.] Alejandro Mora: [viernes, 07 de marzo de 2014 06:59 a.m.] Mike Geelan: 
+
+<<< well i have alex's 
+[07/03/2014 11:05:33 a.m.] Alejandro Mora: What?
+[07/03/2014 11:05:34 a.m.] Alejandro Mora: :O
+[07/03/2014 11:22:20 a.m.] jim-kb: So we got 1297 logos submitted
+[07/03/2014 11:28:02 a.m.] jim-kb: here's a screenshot of the applauncher mod extension thing... http://i.imgur.com/apQGyIb.jpg
+[07/03/2014 11:29:03 a.m.] Ted Everett: Looking good
+[07/03/2014 11:31:06 a.m.] jim-kb: the arrows and stipled line there would only be visible when you have so many mods up there that it would extend beyond the altimeter gui, allthough, it could probably stay there all the time, not sure
+[07/03/2014 12:06:53 p.m.] Maxmaps: Holy fuck. http://www.gamesindustry.biz/articles/2014-02-27-developers-can-now-set-their-own-steam-sales
+[07/03/2014 12:07:16 p.m.] Anthony Guzzardo: Oh wow
+[07/03/2014 12:13:21 p.m.] Maxmaps: So I guess we get to make a variable marketing plan based around our release schedule and popularity surges to normalize profit margins across the year :D
+[07/03/2014 12:13:47 p.m.] Maxmaps: It'll be good to not be stuck to the seasonal sales and whenever Valve feels like they have room for us to be a weekly/midweek sale
+[07/03/2014 12:31:41 p.m.] Maxmaps: God those articles on that site are hard to read.
+[07/03/2014 12:32:05 p.m.] Maxmaps: Speculators trying to sell books is the plague or marketing
+[07/03/2014 01:00:03 p.m.] Bob Holtzman: What site?
+[07/03/2014 01:01:36 p.m.] Maxmaps: http://www.gamesbrief.com/2014/03/valve-has-just-started-the-pc-games-race-to-zero/ and the rebuttal here http://www.gamesbrief.com/2014/03/games-are-not-shoes/
+[07/03/2014 01:02:06 p.m.] Bob Holtzman: Oh I like that site but not as much as gamesindustry.biz
+[07/03/2014 01:02:30 p.m.] Bob Holtzman: And they're right about race to zero...
+[07/03/2014 01:03:51 p.m.] Maxmaps: Depends on market competition, we're in a decently comfortable (kinda) position for now where we cover a niche that doesn't get much attention so our depreciation curve can be really forgiving for a while.
+[07/03/2014 01:04:47 p.m.] Maxmaps: Eventually KSP will have competition but by then I figure we'll be close enough to our market cap that the profit loss from scaling down prices won't be huge compared to the units already sold.
+[07/03/2014 01:05:02 p.m.] Maxmaps: Plus we'll be on another project by then and KSP will be on product maintenance at best.
+[07/03/2014 01:06:24 p.m.] Maxmaps: Long as we don't pull a mojang and decide our second project needs to be completely unrelated to our current IP and decide that by sheer force of awesome we can get another recognizable IP out of thin air and have our fans seamlessly transition to it right away.
+[07/03/2014 01:09:59 p.m.] Anthony Guzzardo: And as such, is the dawn of the kerbal kart racer
+[07/03/2014 01:10:12 p.m.] Maxmaps: Look, their second already released project after 9 months almost has 0.12% of the userbase  of Minecraft https://www.facebook.com/mojangscrolls
+[07/03/2014 01:12:00 p.m.] Maxmaps: But that's unfair, that's facebook, maybe they have a core of casual but engaged players on reddit http://www.reddit.com/r/Scrolls/
+[07/03/2014 01:12:36 p.m.] Maxmaps: See, much better, almost 1.5% of the minecraft one.
+[07/03/2014 01:17:12 p.m.] Maxmaps: And it's not even kart racing or whatever, all we need is some sort of point of connection so our fanbase can transition to one game to the other. We sadly don't really live in the times of the NES where you could make both Zelda and Mario at the same time and have them both dominate on quality. Those dudes had no competition.
+[07/03/2014 01:18:18 p.m.] Maxmaps: But hey, still a while til we even have to look into crossing that bridge.
+[07/03/2014 01:31:53 p.m.] Bob Holtzman: We are now competing for time, like any other mature entertainment property.
+[07/03/2014 01:33:29 p.m.] Daniel Rosas: shared by Mitchell from Shapeways. Jeb appears on CNBC in the middle of the video, and the last seconds. It's an interview they did to Shapeways http://video.cnbc.com/gallery/?video=3000253980&play=1
+[07/03/2014 01:34:18 p.m.] Maxmaps: Hah!
+[07/03/2014 01:34:29 p.m.] Anthony Guzzardo: Nice!
+[07/03/2014 01:37:43 p.m.] Mike Geelan: (y)
+[07/03/2014 01:38:18 p.m.] Maxmaps: Isn't that Bob though?
+[07/03/2014 01:38:29 p.m.] Mike Geelan: looks fairly terrified
+[07/03/2014 01:38:44 p.m.] Mike Geelan: probably from being live on CNBC
+[07/03/2014 01:39:09 p.m.] Maxmaps: 'Oh god this isn't the liberal one is it?'
+[07/03/2014 01:39:20 p.m.] Mike Geelan: :P
+[07/03/2014 01:41:33 p.m.] Ted Everett: Haha
+[07/03/2014 01:59:35 p.m.] Daniel Rosas: lol yeah, Jeb's always getting the attention, so I thought it was Jeb by default
+[07/03/2014 02:00:02 p.m.] Bob Holtzman: I tweeted about it on the KSP twitter account and almost made the same mistake but caught it :)
+[07/03/2014 02:00:13 p.m.] Bob Holtzman: CNBC is the business one.
+[07/03/2014 02:00:36 p.m.] Maxmaps: I know :P
+[07/03/2014 02:00:50 p.m.] Anthony Guzzardo: Getting some nice RTs and favs from it
+[07/03/2014 02:00:51 p.m.] Maxmaps: Don't particularly expect Jeb to show up on Maddow's desk one day
+[07/03/2014 06:05:12 p.m.] Daniel Rosas: lol, Scott Manley found out on twitter that Max's ship is "all wrong"
+[07/03/2014 06:05:29 p.m.] Daniel Rosas: the one that we're printing for press
+[07/03/2014 06:05:42 p.m.] Maxmaps: Ahhhhh I've even used it on Squadcast
+[07/03/2014 06:05:52 p.m.] Maxmaps: (it's way more form that function, I'll give him that)
+[07/03/2014 06:06:01 p.m.] Anthony Guzzardo: manley probably didn't see it then
+[07/03/2014 06:06:02 p.m.] Anthony Guzzardo: you're all good
+[07/03/2014 06:06:13 p.m.] Daniel Rosas: haha they all started pointing fingers here at the office
+[07/03/2014 06:06:38 p.m.] Alejandro Mora: No matter what... it's Max or Dan's fault
+[07/03/2014 06:06:42 p.m.] Anthony Guzzardo: Someone's gonna have to pay for this haha
+[07/03/2014 06:06:44 p.m.] Alejandro Mora: Haha
+[07/03/2014 06:06:49 p.m.] Maxmaps: Scott doesn't get my brilliance (cool)
+[07/03/2014 06:07:09 p.m.] Daniel Rosas: which uses comic sans :P
+[07/03/2014 06:07:25 p.m.] Maxmaps: It's the most whimsical of fonts, Dan
+[07/03/2014 06:07:40 p.m.] Maxmaps: If this was Messenger in like 05 I'd totally be changing to bright green comic sans right now.
+[07/03/2014 06:08:07 p.m.] Ted Everett: Hahaa
+[07/03/2014 06:12:11 p.m.] Ted Everett: Best of luck on Squadcast, Marco!
+[07/03/2014 06:12:33 p.m.] Marco Antonio Salcedo: Thanks
+[07/03/2014 06:12:58 p.m.] Bob Holtzman: Yeah Marco!!
+[10/03/2014 12:21:57 p.m.] jim-kb: Hello
+[10/03/2014 12:22:16 p.m.] Ted Everett: Afternoon
+[11/03/2014 10:51:55 a.m.] jim-kb: so quiet here....
+[11/03/2014 10:52:20 a.m.] Maxmaps: Haha, tell me about it.
+[11/03/2014 10:55:03 a.m.] Anthony Guzzardo: Cherish this moment of quiet. Things will soon be louder.
+[11/03/2014 11:03:46 a.m.] Anthony Guzzardo: Is this real? This can't be real: http://www.geekgawk.com/2014/03/11/kerbal-space-program-gets-a-nasa-backed-asteroid-wranging-expansion-2/
+[11/03/2014 11:05:37 a.m.] Maxmaps: 890 followers on twitter
+[11/03/2014 11:05:47 a.m.] Maxmaps: They must be timetravellers from the late 90's
+[11/03/2014 11:06:04 a.m.] Chad Jenkins: They rip stories from other sites and parse them into that speech pattern.
+[11/03/2014 11:06:08 a.m.] Maxmaps: 430 thousand tweets. My. God.
+[11/03/2014 11:06:32 a.m.] Chad Jenkins: Ripd frum Geek.com IE, they ripped the story from Geek.com
+[11/03/2014 11:06:39 a.m.] Maxmaps: He has to have a script that does that
+[11/03/2014 11:06:46 a.m.] Ted Everett: Haha
+[11/03/2014 11:06:48 a.m.] Maxmaps: I refuse to believe this person does this by hand
+[11/03/2014 11:06:57 a.m.] Anthony Guzzardo: Bless you for seeing that, Chad. My brain hurt upon the initial view.
+[11/03/2014 11:13:07 a.m.] jim-kb: i'll read the whole thing next time i want a headache :P
+[11/03/2014 11:57:49 a.m.] Maxmaps: Just realized all my timings are way off because the US went through Daylight Savings already and we're off it for naother two weeks
+[11/03/2014 12:01:25 p.m.] Marco Antonio Salcedo: yep, suddenly i'm getting mail from the future
+[11/03/2014 12:02:36 p.m.] Chad Jenkins: Well, someone in the US thought it would be a good idea to change it. So the kids could go trick or treating in the daylight.
+[11/03/2014 12:03:06 p.m.] Chad Jenkins: "Wyoming Senator Michael Enzi and Michigan Representative Fred Upton advocated the extension from October into November especially to allow children to go trick-or-treating in more daylight"
+[11/03/2014 12:03:30 p.m.] Ted Everett: Heh. It's damn useful here in the UK. Means the sun rises 'later' in the summer.
+[11/03/2014 12:03:52 p.m.] Chad Jenkins: The main issue is that our DST is now out of sync with other places.
+[11/03/2014 12:04:09 p.m.] Ted Everett: Ah. Yeah, ours isn't for another couple of weeks here
+[11/03/2014 12:04:28 p.m.] Chad Jenkins: Yep, basically. We're off with Mexico now as well.
+[11/03/2014 12:05:17 p.m.] Chad Jenkins: So it's even harder to get the times right when working internationally. There's a lot of debate over whether the change did more harm then good.
+[11/03/2014 12:06:50 p.m.] Maxmaps: I love the idea that the hour's daylight worth of difference would help trick or treating be safer
+[11/03/2014 12:07:20 p.m.] Maxmaps: Like some predator out there is looking at unsupervised children and going 'Shit, can't do it, it's slightly brighter than it would be in precisely one hour'
+[11/03/2014 12:10:20 p.m.] Chad Jenkins: More accurately, the candy companies are paying me a lot of money to make sure all the kids can be out there trick-or-treating.
+[11/03/2014 12:10:41 p.m.] Chad Jenkins: But, let's spin it as being family oriented.
+[11/03/2014 01:04:48 p.m.] Bob Holtzman: good story but any idea why this is being called Asteroid Defense in the story? http://www.geek.com/games/kerbal-space-program-gets-a-nasa-backed-asteroid-wranging-expansion-1587391/
+[11/03/2014 01:11:44 p.m.] Chad Jenkins: Seems to be a common misconception, that you're redirecting asteroids so they don't hit the planet.
+[11/03/2014 02:05:05 p.m.] Anthony Guzzardo: It's dev notes time! Please fill this out when you have a few: https://docs.google.com/document/d/1NsTRA3FBbA8h_gk34GkCkJd9pXxw3GfBGC5ENfwmN1o/edit
+[11/03/2014 03:44:16 p.m.] Anthony Guzzardo: This is great - someone uploaded a stock craft file for a bar based on the show Cheers: http://kspadventures.com/the-space-bar/
+[11/03/2014 03:45:19 p.m.] Maxmaps: Haha, they look adorable
+[11/03/2014 06:21:37 p.m.] Maxmaps: Hey guys, trying to schedule things. GDC goers, could you tell me roughly when you'll beocme unavailable
+[11/03/2014 06:34:08 p.m.] Bob Holtzman: I'm pretty much gone all week.
+[11/03/2014 06:57:50 p.m. | Edited 06:57:58 p.m.] jim-kb: im available until god knows when :P
+[12/03/2014 11:17:26 a.m.] Felipe Falanghe: Hi
+[12/03/2014 11:17:39 a.m.] Lalo Re: Hola
+[12/03/2014 11:17:40 a.m.] Maxmaps: Hey Felipe
+[12/03/2014 11:17:45 a.m.] Felipe Falanghe: I'm leaving on Wednesday (not tomorrow), and back on Saturday
+[12/03/2014 11:19:26 a.m.] Maxmaps: So on the 19th?
+[12/03/2014 11:19:32 a.m.] Maxmaps: Since today is wednesday :P
+[12/03/2014 11:24:55 a.m.] Bob Holtzman: Correct. Felipe leaves the 19th. Chad and me leave on 16th and Adrian/Ezequiel leave on the 18th.
+[12/03/2014 11:25:12 a.m.] Bob Holtzman: Chad can confirm when he returns as I know he's got a personal trip on the back end of GDC.
+[12/03/2014 11:27:54 a.m.] Felipe Falanghe: today is wednesday? damn
+[12/03/2014 11:28:16 a.m.] Bob Holtzman: Yeah, tell me about it Felipe!
+[12/03/2014 11:28:48 a.m.] Maxmaps: Felipe played with the +/- orbit buttons too much and ended up a day behind.
+[12/03/2014 11:29:04 a.m.] Felipe Falanghe: heheh
+[12/03/2014 11:32:31 a.m.] Felipe Falanghe: running a new QA build here (428)
+[12/03/2014 11:32:41 a.m.] Felipe Falanghe: seems there were a few things left pending just before we left
+[12/03/2014 11:33:21 a.m.] Felipe Falanghe: if the latest tweaks are all good, I think we can go ahead and move into experimentals
+[12/03/2014 11:34:14 a.m.] Maxmaps: Thats the kind of message that needs a champagne bottle emoticon
+[12/03/2014 11:34:44 a.m.] Felipe Falanghe: only for the outside observers
+[12/03/2014 11:35:02 a.m.] Felipe Falanghe: for me it needs a tense tun-tun-tuuuunnnn soundtrack
+[12/03/2014 11:37:52 a.m.] Maxmaps: Hahaha
+[12/03/2014 12:11:40 p.m.] Maxmaps: It all comes full circle, a player made a Robin and sent it to orbit http://imgur.com/a/9peR8
+[12/03/2014 12:12:07 p.m.] Felipe Falanghe: haha I saw that
+[12/03/2014 12:12:22 p.m.] Felipe Falanghe: the circle is complete
+[12/03/2014 12:42:00 p.m.] Bob Holtzman: Dan's model was used as a prop by the Shapeways CEO for his time on House Committee for Small Business
+[12/03/2014 12:42:41 p.m.] Bob Holtzman: http://gyazo.com/e2a3df9e91da95bffa5b714edebbaa22
+[12/03/2014 12:42:50 p.m.] Maxmaps: Nice!
+[12/03/2014 12:43:02 p.m.] Maxmaps: Kerbals in Congress
+[12/03/2014 12:44:25 p.m.] Ted Everett: Hah, brilliant
+[12/03/2014 12:44:29 p.m.] Bob Holtzman: http://www.ustream.tv/channel/hclive15
+[12/03/2014 12:44:33 p.m.] Bob Holtzman: might be seen here again
+[12/03/2014 12:44:49 p.m.] Bob Holtzman: you can see him in bottom left corner
+[12/03/2014 12:44:53 p.m.] Ted Everett: Yeah
+[12/03/2014 12:44:54 p.m.] Anthony Guzzardo: That's fantastic
+[12/03/2014 12:45:42 p.m.] Bob Holtzman: Bill Goes to Washington
+[12/03/2014 12:46:10 p.m.] Maxmaps: From his expression I think that's Bob!
+[12/03/2014 12:46:20 p.m.] Maxmaps: Or could be any kerbal after seeing how congress works
+[12/03/2014 12:46:28 p.m.] Bob Holtzman: Lol
+[12/03/2014 07:23:52 p.m.] Bob Holtzman: Hey Jim, I think your Facebook account got hacked because I just got invited to play Candy Crush Saga with you.
+[04:15:35 a.m.] jim-kb: oh dear, candy crush is like a virus...
+[04:16:57 a.m.] jim-kb: it was me who sent it btw, i play it when i can't fall asleep
+[06:07:21 a.m.] Ted Everett: Haha, there are worse things to play :P
+[06:15:23 a.m.] Bob Holtzman: Haha - I've played it too Jim.
+[07:57:05 a.m.] Chad Jenkins: http://www.cnn.com/2014/03/13/us/texas-sxsw-crash/index.html?hpt=hp_t2
+[07:57:12 a.m.] Chad Jenkins: Good thing we left SXSW when we did :/
+[07:57:24 a.m.] Mike Geelan: ouch (worry)
+[07:58:49 a.m.] Mike Geelan: where are you now?
+[07:59:06 a.m.] Chad Jenkins: Back home right now. But I'll be heading out again soon.
+[07:59:24 a.m.] Chad Jenkins: Trying to get things done in the meantime before GDC.
+[08:06:18 a.m.] Bob Holtzman: Yeah woke up and saw that on the news. Horrible
+[08:07:40 a.m.] Chad Jenkins: Looks like the 6th street bar area we were walking around in.
+[08:19:31 a.m.] Chad Jenkins: http://kotaku.com/one-kerbal-player-launched-the-silliest-car-of-history-1542874547
+[08:19:40 a.m.] Chad Jenkins: Hah, they covered the reliant robin.
+[08:19:46 a.m.] Mike Geelan: lol
+[08:19:53 a.m. | Edited 08:51:11 a.m.] Mike Geelan: lets get top gear to retweet it :P
+[09:18:44 a.m.] Bob Holtzman: It was on 9th and Red River, so just a few blocks north, Chad.
+[09:19:19 a.m.] Chad Jenkins: Yea, the streets do look alike. I saw the map.
+[09:20:08 a.m.] Chad Jenkins: It's just messed up, that someone would do that. He picked the wrong state though, he's liable to get the death penalty.
+[09:20:48 a.m.] Bob Holtzman: yeah, I was thinking the same thing. Idiotic move by that human.
+[09:21:10 a.m.] Chad Jenkins: He was apparently drunk enough to think running from the police was a good idea.
+[09:27:35 a.m.] Felipe Falanghe: wow
+[09:27:54 a.m.] Felipe Falanghe: oh yeah, when you guys left it was still pretty quiet
+[09:28:22 a.m.] Felipe Falanghe: we went back and tried to have lunch downtown that day, before we left...
+[09:28:31 a.m. | Edited 09:28:35 a.m.] Felipe Falanghe: it was madness, we couldn't even get around
+[09:29:02 a.m.] Felipe Falanghe: we eventually gave up and decided to go early to the airport
+[09:29:41 a.m.] Felipe Falanghe: it seems it only got worse from there on...
+[09:33:00 a.m.] Bob Holtzman: Music is way crazier than Interactive, so that sounds about right Felipe.
+[09:34:15 a.m.] Felipe Falanghe: heh, you know how we were saying that the locals must have been "loving" the whole thing?
+[09:36:07 a.m.] Felipe Falanghe: oh well anyway
+[09:36:14 a.m.] Felipe Falanghe: checking the develop tracker here
+[09:36:42 a.m.] Felipe Falanghe: it looks good, seems to be about ready to start experimentals
+[09:37:02 a.m.] Mike Geelan: the mission branch still hasnt been through testing
+[09:37:06 a.m.] Felipe Falanghe: aye
+[09:37:35 a.m.] Felipe Falanghe: if we move the NASA stuff to experimentals... maybe we can start QA on contracts at the same time?
+[09:37:35 a.m.] Ted Everett: Aye, that's scheduled for QA this coming week, when the NASA pack goes to Experimentals.
+[09:37:50 a.m.] Mike Geelan: cool
+[09:37:54 a.m.] Felipe Falanghe: awesome
+[09:38:50 a.m.] Felipe Falanghe: I added one last feature yesterday here, didn't want to integrate so late...
+[09:39:08 a.m.] Felipe Falanghe: but it does seem to be working ok, and it removes itself easily enough
+[09:39:16 a.m.] Ted Everett: Ah cool
+[09:39:16 a.m.] Mike Geelan: wassat?
+[09:39:23 a.m.] Felipe Falanghe: I added a new resource flow mode called StagePriorityFlow
+[09:39:47 a.m.] Felipe Falanghe: it's essentially exactly the same as all vessel flow, but it separates the sources into groups based on their staging
+[09:40:00 a.m. | Edited 09:40:12 a.m.] Felipe Falanghe: so earlier stages get used up first, as they're more likely to get jettisoned first too
+[09:40:07 a.m.] Mike Geelan: that sounds very good
+[09:41:37 a.m.] Felipe Falanghe: IDK how well it works in weird edge cases.. but it won't do worse than all-vessel trying to preserve the fuel on the topmost sections of a ship I guess
+[09:41:50 a.m.] Chad Jenkins: Very nice.
+[09:42:30 a.m.] Felipe Falanghe: I'll go ahead and merge that in then... shoud be fine, since we do actually have a few other features to integrate after exp begins anyway
+[09:42:36 a.m.] Felipe Falanghe: the scenarios for the NASA pack and all
+[09:42:40 a.m.] Ted Everett: Yeah
+[09:42:59 a.m.] Ted Everett: So aiming to start Experimentals today?
+[09:43:02 a.m.] Felipe Falanghe: aye
+[09:43:13 a.m.] Ted Everett: Cool, I'll start getting things ready then. :)
+[09:43:17 a.m.] Felipe Falanghe: awesome
+[09:52:51 a.m.] Felipe Falanghe: ok, merged well, exp is ready to go then
+[09:55:15 a.m.] Ted Everett: Okay, cool. Just finishing posting the test plan. Feel free to build away
+[10:05:37 a.m.] Bob Holtzman: http://kotaku.com/one-kerbal-player-launched-the-silliest-car-of-history-1542874547
+[10:12:38 a.m.] Felipe Falanghe: ok, ready to go here
+[10:12:45 a.m.] Maxmaps: Video voice over needs only to be pasted together and it
+[10:12:46 a.m.] Maxmaps: is done
+[10:13:02 a.m.] Felipe Falanghe: cool
+[10:13:34 a.m.] Felipe Falanghe: ok, build 430 is running, to deploy as an experimental
+[10:13:43 a.m.] Maxmaps: It only took five drafts and more dumped recordings than a Dragonforce studio album
+[10:14:01 a.m.] Maxmaps: Awesome news Felipe!
+[10:14:16 a.m.] Ted Everett: Wahey
+[10:14:55 a.m.] Felipe Falanghe: cue in the tense soundtrack/champagne
+[10:16:03 a.m.] Chad Jenkins: http://www.youtube.com/watch?v=ZC2Hj5dpb_Y
+[10:17:13 a.m.] Maxmaps: Cruel, Chad
+[10:17:34 a.m.] Chad Jenkins: Haha, he said cue the tense soundtrack.
+[10:17:52 a.m.] Felipe Falanghe: hah nice choice
+[10:17:56 a.m.] Maxmaps: I almost called the fans Kerbros in the video but considering our demographics we're better off going with Kerbonauts.
+[10:18:03 a.m.] Chad Jenkins: I'll save the champagne for when it's released (I'll take the sparkling fruit drink though)
+[10:18:25 a.m.] Felipe Falanghe: "inception BWAAAAAAAAA" is very much what I imagine deploying a build sounds like, if it would make any sound
+[10:18:33 a.m.] Chad Jenkins: haha, yea. I thought it fit.
+[10:18:36 a.m.] Ted Everett: Haha
+[10:18:45 a.m.] Maxmaps: We could hook Jenkins to the speakers and im sure a script can be made :P
+[10:19:00 a.m.] Chad Jenkins: It would be a fun dynamic soundtrack to tetris as well. Every time you drop a block. BWAAAAA
+[10:19:06 a.m.] Felipe Falanghe: haha
+[10:19:25 a.m.] Felipe Falanghe: as for the script, go ahead and rig it up :) this is why I love working remotely :D
+[10:20:03 a.m.] Maxmaps: We'll be having coffee and discussing something and we'll hear the 'bwooooooom' 'oh hey new build coming'
+[10:20:12 a.m.] Felipe Falanghe: :D
+[10:20:49 a.m.] Felipe Falanghe: oh btw, if you got one of the g19s from logitech
+[10:21:04 a.m.] Felipe Falanghe: protip: hook up the RSS feed from github into the RSS reader applet
+[10:21:07 a.m.] Chad Jenkins: http://www.youtube.com/watch?v=3XpImo80neo   (On deploy to steam)
+[10:21:16 a.m.] Felipe Falanghe: you'll get notifications of all commits and also of build tags
+[10:21:31 a.m.] Maxmaps: That little sound still makes my skin crawl, Chad
+[10:21:46 a.m.] Chad Jenkins: haha.. excellent.
+[10:31:58 a.m.] jim-kb: so we really got to select the winners for the logo competition, hopefully before contracts go to QA... ;)
+[10:32:19 a.m.] Maxmaps: Everyone wins, Jim!
+[10:32:47 a.m.] Felipe Falanghe: I'm going to try to set something up
+[10:33:03 a.m.] Chad Jenkins: Wow, it's bizzare. The people in the KSP media group are actually expecting less then what's in the build. They'll be pleasantly surprised I think.
+[10:33:15 a.m.] Chad Jenkins: What madness is this? XD
+[10:33:44 a.m.] Felipe Falanghe: heheh that's how we know we're doing something very right
+[10:33:58 a.m.] Felipe Falanghe: the rest of the community is equally underexpecting
+[10:33:58 a.m.] Chad Jenkins: Yea, I was telling Max how nice it was.
+[10:34:15 a.m.] Chad Jenkins: Under promise, and over deliver.
+[10:34:23 a.m.] jim-kb: im making a contracts "app" for the application launcher, dunno if it will make it in though
+[10:34:27 a.m. | Removed 10:35:20 a.m.] Maxmaps: This message has been removed.
+[10:34:40 a.m.] Maxmaps: I've been reading so much speculation about 'the asteroid'
+[10:54:12 a.m.] Felipe Falanghe: ok, I've created a new app in podio in the KSP development workspace called Logo Finalists
+[10:54:21 a.m.] Felipe Falanghe: it will let you upload your pick for each manufacturer
+[10:54:46 a.m.] Alejandro Mora: Ah ok, so it will be only ONE for each company
+[10:54:58 a.m.] Felipe Falanghe: you can upload more than one, these are the finalists
+[10:55:09 a.m.] Felipe Falanghe: the overlap between our picks will likely determine the winner
+[10:55:40 a.m.] Alejandro Mora: Oh, ok. Cool! :)
+[11:00:03 a.m.] Alejandro Mora: Could you please post the dropbox link again?
+[11:01:45 a.m.] Felipe Falanghe: https://www.dropbox.com/home/KSP%20logo%20contest/manufacturers
+[11:01:59 a.m.] Felipe Falanghe: https://www.dropbox.com/sh/4ticugmw48f58y6/grQRCAmLYR
+[11:07:39 a.m.] jim-kb: hmm it didn't save when i tried to upload multiple files
+[11:07:58 a.m.] Felipe Falanghe: hmm, odd... it's working fine here
+[11:08:10 a.m.] Felipe Falanghe: did you wait until all were uploaded?
+[11:08:26 a.m.] jim-kb: i think so
+[11:12:58 a.m.] jim-kb: oh it's saving them in chunks
+[11:15:32 a.m.] jim-kb: should i upload them one by one then?
+[11:18:54 a.m.] Felipe Falanghe: no need, you can drop multiple files onto the finalists field
+[11:19:05 a.m.] Felipe Falanghe: just make sure they're all uploaded and displaying before saving
+[11:20:19 a.m.] Felipe Falanghe: but I see you made multiple entries for your c7 picks, you can upload mulitple pictures in one 'dev pick' entry
+[11:24:02 a.m.] jim-kb: i'll fix that
+[11:24:20 a.m.] jim-kb: i just saw you made one entry per logo thats all
+[11:25:03 a.m.] Felipe Falanghe: yeah
+[11:25:32 a.m.] Felipe Falanghe: ahh no, I made one entry per manufacurer
+[11:25:36 a.m.] Felipe Falanghe: there are multiple logos inside
+[11:25:54 a.m.] Felipe Falanghe: the main screen doesn't show that for some reason
+[11:35:58 a.m.] Felipe Falanghe: hehe, as I suspected, there is already overlap in our picks
+[11:37:52 a.m.] Felipe Falanghe: ok, I'm heading down to the office today, so I gotta get going here
+[11:37:54 a.m.] Felipe Falanghe: ttyl
+[11:38:17 a.m.] Felipe Falanghe: the exp build is up now I think
+[12:41:59 p.m.] Mike Geelan: many moons ago i might have mentioned that i'm really into this band fronted by one of the people who did the music for bioshock infinite
+[12:43:42 p.m.] Mike Geelan: anyways i congratulated him on bioshock winning the best music award at this year's video game BAFTA and we got talking. he said he would like to do more game work and i said that if we had any more music to write, which i didnt think we did, we might send him the requirements to see if he can come up with something
+[12:44:00 p.m.] Chad Jenkins: Neat
+[12:45:12 p.m.] Mike Geelan: i would have a major nerdgasm if we did get him to do some.. just a thought :P
+[12:45:58 p.m.] Bob Holtzman: (y)
+[03:11:17 p.m.] Ted Everett: Hmm, bug tracker is down.
+[03:11:52 p.m.] Alejandro Mora: Yeah, that was me
+[03:12:02 p.m.] Ted Everett: Ah okay heh. Everything okay?
+[03:12:02 p.m.] Alejandro Mora: It's up again
+[03:12:21 p.m.] Alejandro Mora: Yep, I just cleared the /tmp directory of the server
+[03:12:28 p.m.] Alejandro Mora: it took like less than 2 min
+[03:12:35 p.m.] Alejandro Mora: but everything's up
+[03:12:37 p.m.] Alejandro Mora: again
+[03:12:48 p.m.] Ted Everett: Heh, Experimental testers don't take breaks. Awesome, thanks Alex :)
+[03:13:59 p.m.] Alejandro Mora: Hehe, I can see that
+[03:14:01 p.m.] Alejandro Mora: Yeah, np
+[03:14:03 p.m.] Alejandro Mora: ;)
+[04:07:07 p.m.] Alejandro Mora: I'm picking logos and found this one
+[04:07:08 p.m.] Alejandro Mora: https://www.dropbox.com/sh/4ticugmw48f58y6/ZzLHO5BkbG/probodobodyne#lh:null-Probodobodyne%20Inc%20(6).jpg
+[04:07:12 p.m.] Alejandro Mora: lol
+[04:07:57 p.m.] Ted Everett: Hahaha
+[04:46:38 p.m.] Maxmaps: The Grabbing Unit is clearly needed by the community. http://i.imgur.com/uVfWZeY.jpg
+[04:48:29 p.m.] jim-kb: clearly not, they just built one :D
+[04:49:34 p.m.] Maxmaps: Is the claw being able to take fuel intended? If so, it is brilliant.
+[04:49:56 p.m.] Maxmaps: And will be even moreso in multiplayer when space pirates clamp your ship and steal your fuel then hold you for ransom :P
+[04:50:11 p.m.] Ted Everett: Haha, one of the testers said exactly the same thing
+[04:50:14 p.m.] Maxmaps: Hah
+[04:50:23 p.m.] Maxmaps: Always good to hear of kindred minds
+[04:50:43 p.m.] Maxmaps: It'll be the Kerbal equivalent of hosing someone else's gas tank
+[04:50:52 p.m.] Ted Everett: Aye, I still can't wait to see the orbital stations people build around 'roids.
+[04:51:44 p.m.] Maxmaps: Seriously I giggle when I'm checking on offsite communities and people speculate about the features of 'the asteroid'
+[04:51:52 p.m.] Ted Everett: Haha
+[04:52:10 p.m.] Maxmaps: And people dissecting the pictures people took at SXSW to define its dimensions
+[04:53:20 p.m.] Maxmaps: Anyone got an offhand number on the thrust of ions pre and post enhancement?
+[04:53:38 p.m.] Ted Everett: I have post
+[04:54:03 p.m.] Ted Everett: Post is 2.
+[04:54:27 p.m.] Maxmaps: Pre each one generates 0.5 kN
+[04:55:08 p.m.] Ted Everett: Quite the improvement. What's the ISP pre?
+[04:55:08 p.m.] Maxmaps: So that's pretty good
+[04:55:12 p.m.] Ted Everett: Post is 2100.
+[04:55:17 p.m.] Maxmaps: 4200
+[04:55:34 p.m.] Ted Everett: Cool, half as efficient, x4 as 'powerful'.
+[04:55:39 p.m.] Maxmaps: Yeah, I'll take that

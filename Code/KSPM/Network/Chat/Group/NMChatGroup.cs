@@ -2,6 +2,21 @@
 {
     public class NMChatGroup : ChatGroup
     {
+        public NMChatGroup()
+            : base()
+        {
+        }
+
+        public NMChatGroup(short id) : base()
+        {
+            ChatGroup.ChatGroupCounter = id;
+            this.id = ChatGroup.ChatGroupCounter++;
+            this.Name = string.Format("Chatgroup-{0}", this.id);
+        }
+
+        /// <summary>
+        /// Releases all messages holded by the group, calling its Release method on each one.
+        /// </summary>
         public override void Release()
         {
             this.members.Clear();
@@ -13,6 +28,7 @@
             }
             this.messages.Clear();
             this.messages = null;
+            this.Name = null;
         }
     }
 }

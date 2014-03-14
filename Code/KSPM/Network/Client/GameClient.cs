@@ -8,6 +8,9 @@ using KSPM.Game;
 using KSPM.Globals;
 using KSPM.Network.NAT;
 using KSPM.Network.Client.RemoteServer;
+using KSPM.Network.Chat.Managers;
+using KSPM.Network.Chat.Messages;
+using KSPM.Network.Chat.Group;
 
 using System.Threading;
 
@@ -153,6 +156,15 @@ namespace KSPM.Network.Client
 
         #endregion
 
+        #region Chat
+
+        /// <summary>
+        /// Handles the KSPM Chat system.
+        /// </summary>
+        protected ChatManager chatSystem;
+
+        #endregion
+
         /// <summary>
         /// Creates a GameClient reference a initialize some properties.
         /// </summary>
@@ -167,6 +179,8 @@ namespace KSPM.Network.Client
             this.udpHolePunched = false;
 
             this.workingSettings = null;
+
+            this.chatSystem = null;
 
             this.currentStatus = ClientStatus.None;
 
@@ -439,6 +453,7 @@ namespace KSPM.Network.Client
         {
             Message command = null;
             ManagedMessage managedMessageReference = null;
+            ChatMessage incomingChatMessage = null;
             ServerInformation udpServerInformationFromNetwork = new ServerInformation();
             int receivedPairingCode = -1;
             if (!this.ableToRun)
@@ -486,6 +501,20 @@ namespace KSPM.Network.Client
                                     }
                                     //this.udpServerInformation.port = System.BitConverter.ToInt32(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 5);
                                     //this.udpServerInformation.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
+                                    break;
+                                case Message.CommandType.ChatSettingUp:
+                                    if (ChatManager.CreateChatManagerFromMessage(((ManagedMessage)command).OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out this.chatSystem) == Error.ErrorType.Ok)
+                                    {
+                                        this.chatSystem.Owner = this;
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Chat system is online, {1} groups registered.", this.id, this.chatSystem.RegisteredGroups));
+                                    }
+                                    break;
+                                case Message.CommandType.Chat:
+                                    if (ChatMessage.InflateChatMessage(((ManagedMessage)command).OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out incomingChatMessage) == Error.ErrorType.Ok)
+                                    {
+                                        this.chatSystem.AttachMessage(incomingChatMessage);
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}]-Says:{2}", this.id,incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                    }
                                     break;
                             }
 							///Cleaning up.
@@ -915,6 +944,13 @@ namespace KSPM.Network.Client
             this.incomingUDPMessages.Purge(true);
             this.outgoingUDPMessages.Purge(true);
 
+            ///*****************Cleaning the chat system.
+            if (this.chatSystem != null)
+            {
+                this.chatSystem.Release();
+            }
+            this.chatSystem = null;
+
             this.currentStatus = ClientStatus.None;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected.", this.id));
@@ -952,6 +988,22 @@ namespace KSPM.Network.Client
             get
             {
                 return this.clientOwner;
+            }
+        }
+
+        public ChatManager ChatSystem
+        {
+            get
+            {
+                return this.chatSystem;
+            }
+        }
+
+        public CommandQueue OutgoingTCPQueue
+        {
+            get
+            {
+                return this.outgoingTCPMessages;
             }
         }
     }

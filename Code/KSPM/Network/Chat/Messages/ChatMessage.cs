@@ -27,7 +27,7 @@ namespace KSPM.Network.Chat.Messages
         /// <summary>
         /// User's name who sends the message.
         /// </summary>
-        protected string fromUsername;
+        public string sendersUsername;
 
         /// <summary>
         /// Tells the user's hash who sends the message.
@@ -54,14 +54,14 @@ namespace KSPM.Network.Chat.Messages
             this.timeStamp = System.DateTime.Now;
             this.messageId = ChatMessage.MessageCounter++;
             this.body = null;
-            this.fromUsername = null;
+            this.sendersUsername = null;
         }
 
         public ChatMessage(byte[] senderHash)
         {
             this.timeStamp = System.DateTime.Now;
             this.messageId = ChatMessage.MessageCounter++;
-            this.fromUsername = null;
+            this.sendersUsername = null;
             this.senderHash = senderHash;
             this.body = null;
         }
@@ -116,6 +116,15 @@ namespace KSPM.Network.Chat.Messages
             System.Buffer.BlockCopy(senderClient.ClientOwner.Hash, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, shortBuffer);
             bytesToSend += shortBuffer;
 
+            ///Writing the user name length bytesToSend + 2 to make room to the name's length.
+            KSPMGlobals.Globals.StringEncoder.GetBytes(((GameClient)sender).ClientOwner.Username, out bytesBuffer);
+            shortBuffer = (short)bytesBuffer.Length;
+            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend + 2, bytesBuffer.Length);
+
+            bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += bytesBuffer.Length + shortBuffer;
+
             ///Writing the groupId.
             bytesBuffer = System.BitConverter.GetBytes(targetGroup.Id);
             System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
@@ -146,6 +155,7 @@ namespace KSPM.Network.Chat.Messages
         public static Error.ErrorType InflateChatMessage(byte[] rawBytes, out ChatMessage messageTarget)
         {
             int bytesBlockSize;
+            int readingIndex = (int)PacketHandler.RawMessageHeaderSize + 1;
             short shortBuffer;
             byte[] bytesBuffer = null;
             string stringBuffer = null;
@@ -157,22 +167,36 @@ namespace KSPM.Network.Chat.Messages
                 return Error.ErrorType.MessageBadFormat;
 
             ///Getting hash size
-            shortBuffer = System.BitConverter.ToInt16(rawBytes, (int)PacketHandler.RawMessageHeaderSize + 1);
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
             bytesBuffer = new byte[shortBuffer];
+            readingIndex += 2;
             ///Getting hash
-            System.Buffer.BlockCopy(rawBytes, (int)PacketHandler.RawMessageHeaderSize + 3, bytesBuffer, 0, shortBuffer);
+            System.Buffer.BlockCopy(rawBytes, readingIndex, bytesBuffer, 0, shortBuffer);
+            readingIndex+= shortBuffer;
 
+            ///Creating the chat message.
             messageTarget = new GeneralMessage(bytesBuffer);
 
+            ///Getting sender's usename lenght
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
+            readingIndex += 2;
+
+            ///Getting sender's username
+            KSPMGlobals.Globals.StringEncoder.GetString(rawBytes, readingIndex, shortBuffer, out messageTarget.sendersUsername);
+            readingIndex += shortBuffer;
+
             ///Getting GroupId
-            shortBuffer = System.BitConverter.ToInt16(rawBytes, (int)PacketHandler.RawMessageHeaderSize + 3 + shortBuffer);
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
+            readingIndex += 2;
             messageTarget.GroupId = shortBuffer;
 
             ///Getting the message size
-            shortBuffer = System.BitConverter.ToInt16( rawBytes, (int)PacketHandler.RawMessageHeaderSize + 3 + messageTarget.senderHash.Length + 2 );
+            shortBuffer = System.BitConverter.ToInt16( rawBytes, readingIndex );
+            readingIndex += 2;
 
             ///Getting the body message.
-            KSPMGlobals.Globals.StringEncoder.GetString(rawBytes, (int)PacketHandler.RawMessageHeaderSize + 3 + messageTarget.senderHash.Length + 4, shortBuffer, out stringBuffer);
+            KSPMGlobals.Globals.StringEncoder.GetString(rawBytes, readingIndex, shortBuffer, out stringBuffer);
+            readingIndex += shortBuffer;
             messageTarget.SetBody(stringBuffer);
 
             //messageTarget 
@@ -202,17 +226,6 @@ namespace KSPM.Network.Chat.Messages
             get
             {
                 return this.timeStamp;
-            }
-        }
-
-        /// <summary>
-        /// Gets the username from whom is coming the message.
-        /// </summary>
-        public string From
-        {
-            get
-            {
-                return this.fromUsername;
             }
         }
 

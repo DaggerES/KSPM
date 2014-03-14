@@ -13,7 +13,7 @@ using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
 using KSPM.Game;
 
-using KSPM.Network.Chat;
+using KSPM.Network.Chat.Managers;
 using KSPM.Network.Chat.Group;
 using KSPM.Network.Chat.Messages;
 
@@ -100,7 +100,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Handles the KSPM Chat system.
         /// </summary>
-        protected ChatManager chatManager;
+        public ChatManager chatManager;
 
         #endregion
 
@@ -301,12 +301,14 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
+                                    this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
                                     this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
                                     break;
 
                                 case Message.CommandType.Chat:
                                     if (ChatMessage.InflateChatMessage(managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out chatMessage) == Error.ErrorType.Ok)
                                     {
+                                        //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
                                     break;
@@ -348,7 +350,7 @@ namespace KSPM.Network.Server
                         managedReference = (ManagedMessage)outgoingMessage;
                         if (outgoingMessage != null)
                         {
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer[ 4 ], outgoingMessage.Command));
+                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer[ 4 ], outgoingMessage.Command));
                             managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                         }
                         outgoingMessage = null;

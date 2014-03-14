@@ -51,9 +51,18 @@ namespace KSPM.Network.Common.Messages
             this.messageRawLength = 0;
         }
 
+        public void SwapReceivedBufferToSend(ManagedMessage otherMessage)
+        {
+            System.Buffer.BlockCopy(otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
+            this.messageRawLength = otherMessage.messageRawLength;
+        }
+
+        /*
         public void CloneContent(ManagedMessage otherMessage)
         {
-            System.Buffer.BlockCopy( otherMessage.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0,this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
+            System.Buffer.BlockCopy( otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0,this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
+            this.messageRawLength = otherMessage.messageRawLength;
         }
+        */
     }
 }

@@ -18,6 +18,7 @@ namespace KSPM.Globals
         protected ConsoleLog consoleLogger;
         protected DevNullLog nullLogger;
         protected Log.LogginMode loggingMode;
+        protected BufferedLog bufferLogger;
 
         protected bool binaryEnabled;
 
@@ -70,6 +71,12 @@ namespace KSPM.Globals
                     this.consoleLogger = null;
                     this.fileLogger = new FileLog(FileLog.GetAUniqueFilename("KSPMLog"), this.binaryEnabled);
                     this.log = this.fileLogger;
+                    break;
+                case Log.LogginMode.Buffered:
+                    this.consoleLogger = null;
+                    this.fileLogger = null;
+                    this.bufferLogger = new BufferedLog();
+                    this.log = this.bufferLogger;
                     break;
                 ///In this mode no other loggers will be created, so if you need to change the logging mode we have to create a method to handle that action.
                 case Log.LogginMode.DevNull:

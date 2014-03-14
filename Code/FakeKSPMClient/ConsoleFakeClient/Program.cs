@@ -33,12 +33,22 @@ namespace ConsoleFakeClient
             ServerList.WriteServerList(ref hosts);
             GameClient client = new GameClient();
             ConsoleKeyInfo pressedKey;
+            ChatBot bot = new ChatBot(client);
+            bot.InitFromFile("chatRecords.txt");
+            bot.GenerateRandomUser();
+            bot.botClient.SetServerHostInformation(hosts.Hosts[0]);
             bool exit = false;
             //client.SetGameUser(myUser);
             //client.SetServerHostInformation(server);
             client.InitializeClient();
+            client.Connect();
+
+            System.Threading.Thread.Sleep(3000);
+
             while ( !exit )
             {
+                bot.Flood();
+                System.Threading.Thread.Sleep(250);
                 /*
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");
@@ -52,7 +62,11 @@ namespace ConsoleFakeClient
                     case ConsoleKey.R:
                         client.SetGameUser(myUser);
                         client.SetServerHostInformation(hosts.Hosts[ 0 ]);
-                        client.Connect();
+                        if (client.Connect() == KSPM.Network.Common.Error.ErrorType.Ok)
+                        {
+                            //System.Threading.Thread.Sleep(1000);
+                            client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
+                        }
                         break;
                     case ConsoleKey.D:
                         client.Disconnect();
@@ -61,13 +75,13 @@ namespace ConsoleFakeClient
                         break;
                 }
                 */
-                
+                /*
                 client.SetGameUser(myUser);
                 client.SetServerHostInformation(hosts.Hosts[0]);
                 client.Connect();
                 System.Threading.Thread.Sleep(10000);
                 client.Disconnect();
-                
+                */
             }
 
             client.Disconnect();

@@ -29,12 +29,21 @@ namespace KSPM.Network.Chat.Group
         /// </summary>
         protected List<NetworkEntity> performanceDataStructureMembers;
 
+        /// <summary>
+        /// Tells if the chat groups is private or not.
+        /// </summary>
+        protected bool privateGroup;
+
+        public string Name;
+
         public ChatGroup()
         {
             this.id = ChatGroup.ChatGroupCounter++;
             this.messages = new List<ChatMessage>();
             this.members = new Dictionary<System.Guid, NetworkEntity>();
             this.performanceDataStructureMembers = new List<NetworkEntity>();
+            this.privateGroup = false;
+            this.Name = string.Format("Chatgroup-{0}", this.id);
         }
 
         public void AddNewMember(NetworkEntity newMember)
@@ -60,6 +69,8 @@ namespace KSPM.Network.Chat.Group
             this.messages.Add(newMessage);
         }
 
+        #region Getters/Setters
+
         public short Id
         {
             get
@@ -75,6 +86,16 @@ namespace KSPM.Network.Chat.Group
                 return this.performanceDataStructureMembers;
             }
         }
+
+        public bool IsPrivate
+        {
+            get
+            {
+                return this.privateGroup;
+            }
+        }
+
+        #endregion
 
         public abstract void Release();
     }

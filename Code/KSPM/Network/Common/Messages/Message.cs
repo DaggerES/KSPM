@@ -99,6 +99,12 @@ namespace KSPM.Network.Common.Messages
             Chat,
 
             /// <summary>
+            /// Tells the remote client how many chat groups are registered inside the server.
+            /// [Header {byte:4}][ Command {byte:1} ][ ChatGroupsCount { byte:2 } ] ( [ChatGroupId {byte:2} ] [ ChatGroupNameLength{byte:}][ ChatGroupName{byte:1-}] ) ... [ EndOfMessage {byte:4} ]
+            /// </summary>
+            ChatSettingUp,
+
+            /// <summary>
             /// Disconnect command to a nicely way to say goodbye.
             /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
             /// </summary>
@@ -390,6 +396,56 @@ namespace KSPM.Network.Common.Messages
             targetMessage.messageRawLength = (uint)bytesToSend;
             return Error.ErrorType.Ok;
         }
+
+        public static Error.ErrorType SettingUpChatSystem(NetworkEntity sender, System.Collections.Generic.List<Chat.Group.ChatGroup> availableGroups, out Message targetMessage)
+        {
+            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            short shortBuffer;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] bytesBuffer = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing the command.
+            sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.ChatSettingUp;
+            bytesToSend += 1;
+
+            ///Writing how many chat groups are available.
+            shortBuffer = (short)availableGroups.Count;
+            bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += bytesBuffer.Length;
+
+            for (int i = 0; i < availableGroups.Count; i++)
+            {
+                ///Writing the group Id
+                bytesBuffer = System.BitConverter.GetBytes(availableGroups[i].Id);
+                System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+                bytesToSend += bytesBuffer.Length;
+
+                ///Writing the chat name length
+                KSPM.Globals.KSPMGlobals.Globals.StringEncoder.GetBytes(availableGroups[i].Name, out bytesBuffer);
+                sender.ownerNetworkCollection.rawBuffer[bytesToSend] = (byte)bytesBuffer.Length;
+                bytesToSend++;
+
+                ///Writing the chat's name.
+                System.Buffer.BlockCopy(bytesBuffer, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, bytesBuffer.Length);
+                bytesToSend += bytesBuffer.Length;
+            }
+
+            ///Writing the EndOfMessage command.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, sender.ownerNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, sender.ownerNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)sender.ownerNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            return Error.ErrorType.Ok;
+        }
+
         /*
         public static Error.ErrorType ChatMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
         {
