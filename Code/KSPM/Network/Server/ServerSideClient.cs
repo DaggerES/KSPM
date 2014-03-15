@@ -224,7 +224,7 @@ namespace KSPM.Network.Server
                         this.currentStatus = ClientStatus.Awaiting;
                         break;
                 }
-                if (this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
+                if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
                 {
                     Message killMessage = null;
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken to long: {1}.", this.id, this.timer.ElapsedMilliseconds));
