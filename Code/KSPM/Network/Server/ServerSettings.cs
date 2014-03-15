@@ -20,6 +20,8 @@ namespace KSPM.Network.Server
         protected static int ServerAuthenticationAllowingTries = 3;
 		[XmlIgnore]
 		public static readonly int DefaultTCPListeningPort = 4700;
+        [XmlIgnore]
+        public static readonly long ConnectionProcessTimeOut = 5000;
 
         [XmlElement("TCPPort")]
         public int tcpPort;

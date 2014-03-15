@@ -903,6 +903,8 @@ namespace KSPM.Network.Client
             this.commandsQueue.Purge(false);
             this.outgoingTCPMessages.Purge(false);
 
+            this.timer.Reset();
+
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client killed!!!", this.id));
         }
 

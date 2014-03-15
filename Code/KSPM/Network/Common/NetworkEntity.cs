@@ -92,6 +92,7 @@ namespace KSPM.Network.Common
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();
+            this.timer.Reset();
         }
 
         public override bool Equals(object obj)

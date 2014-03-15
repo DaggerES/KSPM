@@ -85,6 +85,11 @@ namespace KSPM.Network.Server
         protected int pairingCode;
 
         /// <summary>
+        /// Flag which tells if the ServerSideClient has finished the connection process with the remote client.
+        /// </summary>
+        protected bool connected;
+
+        /// <summary>
         /// UDPMessages queue to hold those incoming packets.
         /// </summary>
         protected CommandQueue incomingPackets;
@@ -133,6 +138,8 @@ namespace KSPM.Network.Server
 
             ///Set to null, because inside GameServer this property is set to a proper reference.
             this.gameUser = null;
+
+            this.connected = false;
 
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
@@ -213,8 +220,16 @@ namespace KSPM.Network.Server
                         //PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Setting up KSPM Chat system.", this.Id));
+                        this.connected = true;
                         this.currentStatus = ClientStatus.Awaiting;
                         break;
+                }
+                if (this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
+                {
+                    Message killMessage = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken to long: {1}.", this.id, this.timer.ElapsedMilliseconds));
+                    Message.DisconnectMessage(this, out killMessage);
+                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
                 }
                 Thread.Sleep(3);
             }
@@ -394,10 +409,17 @@ namespace KSPM.Network.Server
                 {
                     if (this.usingUdpConnection)
                     {
-                        this.UDPSignalHandler.Reset();
-                        remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
-						this.udpCollection.socketReference.BeginReceiveFrom( this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this );
-                        this.UDPSignalHandler.WaitOne();
+                        try
+                        {
+                            this.UDPSignalHandler.Reset();
+                            remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
+                            this.udpCollection.socketReference.BeginReceiveFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
+                            this.UDPSignalHandler.WaitOne();
+                        }
+                        catch (SocketException)
+                        {
+
+                        }
                     }
                     Thread.Sleep(3);
                 }
@@ -589,6 +611,8 @@ namespace KSPM.Network.Server
             ///Cleaning up the UDP queues;
             this.outgoingPackets.Purge(false);
             this.incomingPackets.Purge(false);
+
+            this.timer.Reset();
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed!!!", this.id));
         }
