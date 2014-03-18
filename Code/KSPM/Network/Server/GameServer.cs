@@ -354,12 +354,11 @@ namespace KSPM.Network.Server
                         if (outgoingMessage != null)
                         {
                             //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
-                            //managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                             try
                             {
                                 managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                             }
-                            catch (SocketException)
+                            catch (System.Exception)
                             {
                                 Message killMessage = null;
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id));
@@ -454,17 +453,23 @@ namespace KSPM.Network.Server
             int readBytes;
             Message incomingMessage = null;
             NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-            readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-            if (readBytes > 0)
+            try
             {
-                if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                if (readBytes > 0)
                 {
-                    if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                    if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                     {
-                        this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                        KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                        if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                        {
+                            this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                            KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                        }
                     }
                 }
+            }
+            catch (System.Exception)
+            {
             }
         }
 
@@ -479,7 +484,6 @@ namespace KSPM.Network.Server
             try
             {
                 net = (NetworkEntity)result.AsyncState;
-                //callingSocket = (Socket)result.AsyncState;
                 sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
 				if( sentBytes > 0 )
 				{

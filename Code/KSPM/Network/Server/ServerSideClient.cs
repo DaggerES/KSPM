@@ -175,7 +175,6 @@ namespace KSPM.Network.Server
         protected void HandleMainBodyMethod()
         {
             Message tempMessage = null;
-            ManagedMessage managedMessageReference = null;
             NetworkEntity myNetworkEntityReference = this;
 
             if (!this.ableToRun)
@@ -191,9 +190,7 @@ namespace KSPM.Network.Server
                         ///This is the starting status of each ServerSideClient.
                     case ClientStatus.Handshaking:
                         Message.HandshakeAccetpMessage(myNetworkEntityReference, out tempMessage);
-                        //managedMessageReference = (ManagedMessage)tempMessage;
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        //PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         this.currentStatus = ClientStatus.Awaiting;
                         //Awaiting for the Authentication message coming from the remote client.
@@ -201,12 +198,9 @@ namespace KSPM.Network.Server
                     case ClientStatus.Awaiting:
                         break;
                     case ClientStatus.Authenticated:
-                        //Thread.Sleep(1000);
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
-                        //managedMessageReference = (ManagedMessage)tempMessage;
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        //PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
@@ -215,9 +209,7 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
                         Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
-                        //managedMessageReference = (ManagedMessage)tempMessage;
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        //PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Setting up KSPM Chat system.", this.Id));
                         this.connected = true;
@@ -227,7 +219,7 @@ namespace KSPM.Network.Server
                 if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
                 {
                     Message killMessage = null;
-                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken to long: {1}.", this.id, this.timer.ElapsedMilliseconds));
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken too long: {1}.", this.id, this.timer.ElapsedMilliseconds));
                     Message.DisconnectMessage(this, out killMessage);
                     KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
                 }
