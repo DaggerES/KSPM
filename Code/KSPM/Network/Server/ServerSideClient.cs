@@ -288,6 +288,10 @@ namespace KSPM.Network.Server
             }
             catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -421,6 +425,13 @@ namespace KSPM.Network.Server
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
             }
+            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
         }
 
         public void AsyncReceiverCallback(System.IAsyncResult result)
@@ -491,6 +502,13 @@ namespace KSPM.Network.Server
             {
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
+            }
+            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
