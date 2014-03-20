@@ -13,6 +13,8 @@ using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
 using KSPM.Game;
 
+using KSPM.Diagnostics;
+
 using KSPM.Network.Chat.Managers;
 using KSPM.Network.Chat.Group;
 using KSPM.Network.Chat.Messages;
@@ -425,7 +427,7 @@ namespace KSPM.Network.Server
             this.chatManager.Release();
             this.chatManager = null;
 
-            KSPMGlobals.Globals.Log.WriteTo("Server KSPM killed!!!");
+            KSPMGlobals.Globals.Log.WriteTo( string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
 
         }
 

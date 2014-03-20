@@ -2,6 +2,7 @@
 
 using KSPM.Network.Chat.Group;
 using KSPM.Network.Chat.Messages;
+using KSPM.Network.Chat.Filter;
 using KSPM.Network.Common;
 
 using KSPM.Network.Common.Messages;
@@ -21,6 +22,19 @@ namespace KSPM.Network.Chat.Managers
         /// </summary>
         public enum UserRegisteringMode:byte { Public, Private, Both };
 
+        public enum FilteringMode : byte
+        {
+            /// <summary>
+            /// Tells that the message must fit all the filters to be filtered.
+            /// </summary>
+            And,
+
+            /// <summary>
+            /// Tells that the message must fit at least one filter to be filtered.
+            /// </summary>
+            Or,
+        };
+
         /// <summary>
         /// Holds those ChatGroups registered into the KSPM Chat system.
         /// </summary>
@@ -31,6 +45,8 @@ namespace KSPM.Network.Chat.Managers
         /// </summary>
         protected ChatGroup defaultChatGroup;
 
+        protected List<ChatFilter> availableFilters;
+
         protected NetworkEntity owner;
 
         public ChatManager()
@@ -38,6 +54,7 @@ namespace KSPM.Network.Chat.Managers
             this.chatGroups = new Dictionary<short, ChatGroup>();
             this.defaultChatGroup= new NMChatGroup();
             this.chatGroups.Add(this.defaultChatGroup.Id, this.defaultChatGroup);
+            this.availableFilters = new List<ChatFilter>();
         }
 
         /// <summary>
@@ -167,6 +184,40 @@ namespace KSPM.Network.Chat.Managers
             return this.defaultChatGroup;
         }
 
+        public bool ApplyFilters(ChatMessage targetMessage, FilteringMode mode)
+        {
+            bool filtered = true;
+            lock (this.availableFilters)
+            {
+                if (this.availableFilters.Count == 0)
+                    return false;
+                switch (mode)
+                {
+                    case FilteringMode.And:
+                        for (int i = 0; i < this.availableFilters.Count; i++)
+                        {
+                            if (!this.availableFilters[i].Query(targetMessage))
+                            {
+                                filtered = false;
+                                break;
+                            }
+                        }
+                        break;
+                    case FilteringMode.Or:
+                        for (int i = 0; i < this.availableFilters.Count; i++)
+                        {
+                            if (this.availableFilters[i].Query(targetMessage))
+                            {
+                                filtered = true;
+                                break;
+                            }
+                        }
+                        break;
+                }
+            }
+            return filtered;
+        }
+
         #endregion
 
         #region UserHandling
@@ -202,6 +253,26 @@ namespace KSPM.Network.Chat.Managers
             set
             {
                 this.owner = value;
+            }
+        }
+
+        #endregion
+
+        #region Filtering
+
+        public void RegisterFilter(ChatFilter newFilter)
+        {
+            lock (this.availableFilters)
+            {
+                this.availableFilters.Add(newFilter);
+            }
+        }
+
+        public void UnregisterFilter(ChatFilter filter)
+        {
+            lock (this.availableFilters)
+            {
+                this.availableFilters.Remove(filter);
             }
         }
 

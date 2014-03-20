@@ -622,9 +622,9 @@ namespace KSPM.Network.Server
             this.outgoingPackets.Purge(false);
             this.incomingPackets.Purge(false);
 
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
+            
             this.timer.Reset();
-
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed!!!", this.id));
         }
 
         /// <summary>

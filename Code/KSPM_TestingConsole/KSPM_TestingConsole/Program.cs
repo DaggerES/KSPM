@@ -26,12 +26,14 @@ namespace KSPM_TestingConsole
 			////Server test
 			
             ServerSettings gameSettings = null;
-            ServerSettings.ReadSettings(ref gameSettings);
-            GameServer server = new GameServer(ref gameSettings);
-			KSPMGlobals.Globals.SetServerReference (ref server);
-            server.StartServer();
-            Console.ReadLine();
-			server.ShutdownServer();
+            if (ServerSettings.ReadSettings(out gameSettings) == KSPM.Network.Common.Error.ErrorType.Ok)
+            {
+                GameServer server = new GameServer(ref gameSettings);
+                KSPMGlobals.Globals.SetServerReference(ref server);
+                server.StartServer();
+                Console.ReadLine();
+                server.ShutdownServer();
+            }
             Console.ReadLine();
 			
             /*

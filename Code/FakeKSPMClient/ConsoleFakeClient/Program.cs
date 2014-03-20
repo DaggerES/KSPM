@@ -9,6 +9,7 @@ using KSPM.IO.Logging;
 using KSPM.Diagnostics;
 using KSPM.Globals;
 using KSPM.Game;
+using KSPM.Network.Chat.Filter;
 
 namespace ConsoleFakeClient
 {
@@ -42,13 +43,15 @@ namespace ConsoleFakeClient
             //client.SetServerHostInformation(server);
             client.InitializeClient();
             client.Connect();
-
+            /*GroupFilter group = new GroupFilter();
+            group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
+            client.ChatSystem.RegisterFilter(group);*/
             System.Threading.Thread.Sleep(3000);
 
             while ( !exit )
             {
                 bot.Flood();
-                System.Threading.Thread.Sleep(250);
+                System.Threading.Thread.Sleep(125);
                 /*
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");

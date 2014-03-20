@@ -528,8 +528,12 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.Chat:
                                     if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
                                     {
-                                        this.chatSystem.AttachMessage(incomingChatMessage);
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id,incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                        ///Checking if the message should be filtered or not.
+                                        if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                        {
+                                            this.chatSystem.AttachMessage(incomingChatMessage);
+                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                        }
                                     }
                                     break;
                             }
@@ -676,7 +680,7 @@ namespace KSPM.Network.Client
                         if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                         {
                             this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
+                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
                         }
                     }
                 }
@@ -1010,7 +1014,7 @@ namespace KSPM.Network.Client
 
             this.currentStatus = ClientStatus.None;
 
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected.", this.id));
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected after {1} seconds alive.", this.id, this.AliveTime / 1000));
         }
 
         /// <summary>

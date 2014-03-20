@@ -53,6 +53,8 @@
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Logging\WebLog.cs" />
     <Compile Include="IO\Security\Hash.cs" />
+    <Compile Include="Network\Chat\Filter\ChatFilter.cs" />
+    <Compile Include="Network\Chat\Filter\GroupFilter.cs" />
     <Compile Include="Network\Chat\Managers\ChatManager.cs" />
     <Compile Include="Network\Chat\Group\ChatGroup.cs" />
     <Compile Include="Network\Chat\Group\NMChatGroup.cs" />

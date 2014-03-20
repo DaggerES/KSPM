@@ -40,8 +40,9 @@ namespace KSPM.Network.Common
             NATAdrressInUse,
             #endregion
 
-            #region Settings
+            #region IO
             IOFileCanNotBeWritten,
+            IODirectoryNotFound,
             #endregion
 
             #region UserErrors

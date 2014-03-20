@@ -26,8 +26,6 @@ namespace KSPM.Globals
 
         #region Server variables
 
-        public RealTimer realTimer;
-
         protected GameServer gameServer;
 
         protected NATTraversal natTraversingMethod;
@@ -37,6 +35,8 @@ namespace KSPM.Globals
         #region IO
 
         protected Encoder stringEncoder;
+
+        protected string ioFilePath;
 
         #endregion
 
@@ -49,6 +49,9 @@ namespace KSPM.Globals
             this.natTraversingMethod = new NATNone();
 
             this.stringEncoder = new UTF8Encoder();
+            this.ioFilePath = string.Format(".{0}config{1}", System.IO.Path.DirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+
+            RealTimer.Timer.Start();
         }
 
         /// <summary>
@@ -95,6 +98,16 @@ namespace KSPM.Globals
             this.gameServer = reference;
         }
 
+        /// <summary>
+        /// Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
+        /// </summary>
+        /// <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
+        public void ChangeIOFilePath(string newPath)
+        {
+            string normalizedPath = newPath.Replace('/', System.IO.Path.DirectorySeparatorChar);
+            this.ioFilePath = normalizedPath;
+        }
+
         public Log Log
         {
             get
@@ -127,6 +140,14 @@ namespace KSPM.Globals
             get
             {
                 return this.stringEncoder;
+            }
+        }
+
+        public string IOFilePath
+        {
+            get
+            {
+                return this.ioFilePath;
             }
         }
     }
