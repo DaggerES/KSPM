@@ -54,8 +54,22 @@ public class KSPMServer : MonoBehaviour
             return;
         ServerSettings.ReadSettings(out settings);
         this.kspmServer = new GameServer(ref settings);
+        this.kspmServer.UserConnected += new KSPM.Network.Common.Events.UserConnectedEventHandler(kspmServer_UserConnected);
+        this.kspmServer.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmServer_UserDisconnected);
         KSPMGlobals.Globals.SetServerReference(ref this.kspmServer);
         this.kspmServer.StartServer();
+    }
+
+    void kspmServer_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+    {
+        ServerSideClient reference = (ServerSideClient)sender;
+        Debug.Log(reference.gameUser.Username + " se fue." );
+    }
+
+    void kspmServer_UserConnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+    {
+        ServerSideClient reference = (ServerSideClient)sender;
+        Debug.Log(reference.gameUser.Username);
     }
 
     protected void StopServer()

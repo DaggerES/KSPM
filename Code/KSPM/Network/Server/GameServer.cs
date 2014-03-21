@@ -9,6 +9,7 @@ using KSPM.Globals;
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
+using KSPM.Network.Common.Events;
 using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
 using KSPM.Game;
@@ -94,6 +95,10 @@ namespace KSPM.Network.Server
         /// Poll of clients connected to the server, it should be used when the broadcasting is required.
         /// </summary>
         protected ClientsHandler clientsHandler;
+
+        public event UserConnectedEventHandler UserConnected;
+
+        public event UserDisconnectedEventHandler UserDisconnected;
 
         #endregion
 
@@ -253,6 +258,7 @@ namespace KSPM.Network.Server
                                         {
                                             if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
                                             {
+                                                newClientAttempt.RegisterUserConnectedEvent(this.UserConnected);
                                                 if (newClientAttempt.StartClient())
                                                 {
                                                     this.clientsHandler.AddNewClient(newClientAttempt);
@@ -306,8 +312,9 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
+                                    this.OnUserDisconnected(managedMessageReference.OwnerNetworkEntity, null);
                                     this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
-                                    this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
+                                    this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);                                    
                                     break;
 
                                 case Message.CommandType.Chat:
@@ -497,6 +504,16 @@ namespace KSPM.Network.Server
             }
         }
 
+        #region UserManagement
+
+        protected void OnUserDisconnected( NetworkEntity sender, KSPMEventArgs e)
+        {
+            if (this.UserDisconnected != null)
+            {
+                this.UserDisconnected(sender, e);
+            }
+        }
+
         /// <summary>
         /// Method which removes a client, and is used to set the callback inside the networkentity.
         /// </summary>
@@ -514,5 +531,7 @@ namespace KSPM.Network.Server
                 return this.clientsHandler.RemoteClients.ToArray();
             }
         }
+
+        #endregion
     }
 }

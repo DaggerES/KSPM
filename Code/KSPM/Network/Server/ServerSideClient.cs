@@ -5,6 +5,7 @@ using System.Threading;
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
+using KSPM.Network.Common.Events;
 using KSPM.Globals;
 using KSPM.Game;
 
@@ -46,11 +47,20 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        #region UserHandling
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event UserConnectedEventHandler UserConnected;
+
         /// <summary>
         /// A reference to the game user, this is kind a second level of the KSPM model.
         /// I have made it public to perform fastest implementations.
         /// </summary>
         public User gameUser;
+
+        #endregion
 
         #region UDP
 
@@ -214,6 +224,7 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Setting up KSPM Chat system.", this.Id));
                         this.connected = true;
                         this.currentStatus = ClientStatus.Awaiting;
+                        this.OnUserConnected( null );
                         break;
                 }
                 if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
@@ -670,6 +681,27 @@ namespace KSPM.Network.Server
             this.pairingCode = rand.Next();
             rand = null;
             return this.pairingCode;
+        }
+
+        #endregion
+
+        #region UserManagement
+
+        public void RegisterUserConnectedEvent(UserConnectedEventHandler eventReference)
+        {
+            if (eventReference == null)
+            {
+                return;
+            }
+            this.UserConnected = eventReference;
+        }
+
+        protected void OnUserConnected(KSPMEventArgs e)
+        {
+            if (this.UserConnected != null)
+            {
+                this.UserConnected(this, e);
+            }
         }
 
         #endregion
