@@ -40,8 +40,9 @@ namespace KSPM.Network.Common
             NATAdrressInUse,
             #endregion
 
-            #region Settings
+            #region IO
             IOFileCanNotBeWritten,
+            IODirectoryNotFound,
             #endregion
 
             #region UserErrors
@@ -53,6 +54,12 @@ namespace KSPM.Network.Common
 
             #region ByteErrors
             InvalidArray,
+            ByteBadFormat,
+            #endregion
+
+            #region Chat
+            ChatInvalidGroup,
+            ChatInvalidAvailableGroups,
             #endregion
         };
     }

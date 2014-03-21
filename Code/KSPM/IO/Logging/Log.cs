@@ -15,6 +15,6 @@ namespace KSPM.IO.Logging
 
         public abstract void Dispose();
 
-        public enum LogginMode : byte { DevNull, File, Console };
+        public enum LogginMode : byte { DevNull, File, Console, Buffered };
     }
 }

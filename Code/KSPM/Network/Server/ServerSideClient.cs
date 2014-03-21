@@ -5,6 +5,7 @@ using System.Threading;
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
+using KSPM.Network.Common.Events;
 using KSPM.Globals;
 using KSPM.Game;
 
@@ -46,11 +47,20 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        #region UserHandling
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event UserConnectedEventHandler UserConnected;
+
         /// <summary>
         /// A reference to the game user, this is kind a second level of the KSPM model.
         /// I have made it public to perform fastest implementations.
         /// </summary>
         public User gameUser;
+
+        #endregion
 
         #region UDP
 
@@ -83,6 +93,11 @@ namespace KSPM.Network.Server
         /// Pairing code used to test the udp connection with the remote client.
         /// </summary>
         protected int pairingCode;
+
+        /// <summary>
+        /// Flag which tells if the ServerSideClient has finished the connection process with the remote client.
+        /// </summary>
+        protected bool connected;
 
         /// <summary>
         /// UDPMessages queue to hold those incoming packets.
@@ -134,6 +149,8 @@ namespace KSPM.Network.Server
             ///Set to null, because inside GameServer this property is set to a proper reference.
             this.gameUser = null;
 
+            this.connected = false;
+
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
         }
@@ -168,7 +185,6 @@ namespace KSPM.Network.Server
         protected void HandleMainBodyMethod()
         {
             Message tempMessage = null;
-            ManagedMessage managedMessageReference = null;
             NetworkEntity myNetworkEntityReference = this;
 
             if (!this.ableToRun)
@@ -184,8 +200,7 @@ namespace KSPM.Network.Server
                         ///This is the starting status of each ServerSideClient.
                     case ClientStatus.Handshaking:
                         Message.HandshakeAccetpMessage(myNetworkEntityReference, out tempMessage);
-                        managedMessageReference = (ManagedMessage)tempMessage;
-                        PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                        PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         this.currentStatus = ClientStatus.Awaiting;
                         //Awaiting for the Authentication message coming from the remote client.
@@ -193,19 +208,31 @@ namespace KSPM.Network.Server
                     case ClientStatus.Awaiting:
                         break;
                     case ClientStatus.Authenticated:
-                        //Thread.Sleep(1000);
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
-                        managedMessageReference = (ManagedMessage)tempMessage;
-                        PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                        PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
                         break;
                     case ClientStatus.Connected:
+                        KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
+                        Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
+                        PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
+                        KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Setting up KSPM Chat system.", this.Id));
+                        this.connected = true;
                         this.currentStatus = ClientStatus.Awaiting;
+                        this.OnUserConnected( null );
                         break;
+                }
+                if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
+                {
+                    Message killMessage = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken too long: {1}.", this.id, this.timer.ElapsedMilliseconds));
+                    Message.DisconnectMessage(this, out killMessage);
+                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
                 }
                 Thread.Sleep(3);
             }
@@ -272,6 +299,10 @@ namespace KSPM.Network.Server
             }
             catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -385,10 +416,17 @@ namespace KSPM.Network.Server
                 {
                     if (this.usingUdpConnection)
                     {
-                        this.UDPSignalHandler.Reset();
-                        remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
-						this.udpCollection.socketReference.BeginReceiveFrom( this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this );
-                        this.UDPSignalHandler.WaitOne();
+                        try
+                        {
+                            this.UDPSignalHandler.Reset();
+                            remoteEndPoint = this.udpCollection.socketReference.LocalEndPoint;
+                            this.udpCollection.socketReference.BeginReceiveFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
+                            this.UDPSignalHandler.WaitOne();
+                        }
+                        catch (SocketException)
+                        {
+
+                        }
                     }
                     Thread.Sleep(3);
                 }
@@ -397,6 +435,13 @@ namespace KSPM.Network.Server
             {
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
+            }
+            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -468,6 +513,13 @@ namespace KSPM.Network.Server
             {
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
+            }
+            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -581,7 +633,9 @@ namespace KSPM.Network.Server
             this.outgoingPackets.Purge(false);
             this.incomingPackets.Purge(false);
 
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed!!!", this.id));
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
+            
+            this.timer.Reset();
         }
 
         /// <summary>
@@ -627,6 +681,27 @@ namespace KSPM.Network.Server
             this.pairingCode = rand.Next();
             rand = null;
             return this.pairingCode;
+        }
+
+        #endregion
+
+        #region UserManagement
+
+        public void RegisterUserConnectedEvent(UserConnectedEventHandler eventReference)
+        {
+            if (eventReference == null)
+            {
+                return;
+            }
+            this.UserConnected = eventReference;
+        }
+
+        protected void OnUserConnected(KSPMEventArgs e)
+        {
+            if (this.UserConnected != null)
+            {
+                this.UserConnected(this, e);
+            }
         }
 
         #endregion

@@ -61,7 +61,8 @@ namespace KSPM.Network.Common.Packet
                 }
             }
             messageTarget = new ManagedMessage((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], bytesOwner);
-            messageTarget.MessageBytesSize = (uint)bytesBlockSize;
+            messageTarget.SetBodyMessage(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, (uint)bytesBlockSize);
+            //messageTarget.MessageBytesSize = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
         }
 
