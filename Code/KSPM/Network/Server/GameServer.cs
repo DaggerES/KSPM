@@ -506,5 +506,13 @@ namespace KSPM.Network.Server
         {
             this.clientsHandler.RemoveClient(caller);
         }
+
+        public NetworkEntity[] ConnectedClients
+        {
+            get
+            {
+                return this.clientsHandler.RemoteClients.ToArray();
+            }
+        }
     }
 }

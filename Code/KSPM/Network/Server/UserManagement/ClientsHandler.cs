@@ -115,5 +115,16 @@ namespace KSPM.Network.Server.UserManagement
                 }
             }
         }
+
+        public List<NetworkEntity> RemoteClients
+        {
+            get
+            {
+                lock (this.clients)
+                {
+                    return this.clients;
+                }
+            }
+        }
     }
 }
