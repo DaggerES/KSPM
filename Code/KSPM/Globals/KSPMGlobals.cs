@@ -72,7 +72,7 @@ namespace KSPM.Globals
                     break;
                 case Log.LogginMode.File:
                     this.consoleLogger = null;
-                    this.fileLogger = new FileLog(FileLog.GetAUniqueFilename("KSPMLog"), this.binaryEnabled);
+                    this.fileLogger = new FileLog(this.ioFilePath + FileLog.GetAUniqueFilename("KSPMLog"), this.binaryEnabled);
                     this.log = this.fileLogger;
                     break;
                 case Log.LogginMode.Buffered:

@@ -1,0 +1,68 @@
+﻿using UnityEngine;
+using System.Collections;
+
+using KSPM.Network.Server;
+using KSPM.Globals;
+using KSPM.IO.Logging;
+
+public class KSPMServer : MonoBehaviour
+{
+    protected ServerSettings settings;
+    protected GameServer kspmServer;
+    protected string text;
+	// Use this for initialization
+	void Start ()
+    {
+        //Debug.Log(System.Environment.CurrentDirectory);
+        KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", System.Environment.CurrentDirectory, "swap"));
+        Debug.Log(KSPMGlobals.Globals.IOFilePath);
+        KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
+        KSPMGlobals.Globals.Log.WriteTo("HOLA");
+        text = ((BufferedLog)KSPMGlobals.Globals.Log).Buffer;
+	}
+	
+	// Update is called once per frame
+	void Update ()
+    {
+	}
+
+    void OnGUI()
+    {
+        GUI.TextArea(new Rect(200, 0, 640, 400), ((BufferedLog)KSPMGlobals.Globals.Log).Buffer);
+        
+        if (GUI.Button(new Rect(0, 0, 128, 32), "Start server"))
+        {
+            //text += " HOLA";
+            this.StartServer();
+        }
+        if (GUI.Button(new Rect(160, 0, 128, 32), "Stop server"))
+        {
+            this.StopServer();
+        }
+        
+    }
+
+    void OnApplicationQuit()
+    {
+        this.StopServer();
+        KSPMGlobals.Globals.Log.Dispose();
+    }
+
+    protected void StartServer()
+    {
+        if (this.kspmServer != null)
+            return;
+        ServerSettings.ReadSettings(out settings);
+        this.kspmServer = new GameServer(ref settings);
+        KSPMGlobals.Globals.SetServerReference(ref this.kspmServer);
+        this.kspmServer.StartServer();
+    }
+
+    protected void StopServer()
+    {
+        if (this.kspmServer != null && this.kspmServer.IsAlive)
+        {
+            this.kspmServer.ShutdownServer();
+        }
+    }
+}

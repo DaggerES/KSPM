@@ -18,7 +18,7 @@ namespace KSPM.Network.Chat.Managers
     public class ChatManager
     {
         /// <summary>
-        /// Tells in which groups an user is going to be registered.
+        /// Tells in what groups an user is going to be registered.
         /// </summary>
         public enum UserRegisteringMode:byte { Public, Private, Both };
 
@@ -45,6 +45,9 @@ namespace KSPM.Network.Chat.Managers
         /// </summary>
         protected ChatGroup defaultChatGroup;
 
+        /// <summary>
+        /// Holds those filters what would be applied to the incoming messages.
+        /// </summary>
         protected List<ChatFilter> availableFilters;
 
         protected NetworkEntity owner;
@@ -68,6 +71,13 @@ namespace KSPM.Network.Chat.Managers
             }
             this.chatGroups.Clear();
             this.chatGroups = null;
+
+            for (int i = 0; i < this.availableFilters.Count; i++)
+            {
+                this.availableFilters[i].Release();
+            }
+            this.availableFilters.Clear();
+            this.availableFilters = null;
         }
 
         #region GroupHandling
@@ -78,6 +88,8 @@ namespace KSPM.Network.Chat.Managers
         /// <param name="newGroup">New chatgroup.</param>
         public void RegisterChatGroup(ChatGroup newGroup)
         {
+            if (newGroup == null)
+                return;
             if (!this.chatGroups.ContainsKey(newGroup.Id))
             {
                 this.chatGroups.Add(newGroup.Id, newGroup);
@@ -187,6 +199,8 @@ namespace KSPM.Network.Chat.Managers
         public bool ApplyFilters(ChatMessage targetMessage, FilteringMode mode)
         {
             bool filtered = true;
+            if (targetMessage == null)
+                return false;
             lock (this.availableFilters)
             {
                 if (this.availableFilters.Count == 0)
@@ -225,6 +239,8 @@ namespace KSPM.Network.Chat.Managers
         public int RegisterUser(NetworkEntity newUser, UserRegisteringMode mode)
         {
             int matchingGroups = 0;
+            if (newUser == null)
+                return 0;
             foreach (KeyValuePair<short, ChatGroup> entry in this.chatGroups)
             {
                 if (!entry.Value.IsPrivate)
@@ -238,6 +254,8 @@ namespace KSPM.Network.Chat.Managers
 
         public void UnregisterUser(NetworkEntity userToRemove)
         {
+            if (userToRemove == null)
+                return;
             foreach (KeyValuePair<short, ChatGroup> entry in this.chatGroups)
             {
                 entry.Value.RemoveMember(userToRemove);
@@ -260,19 +278,47 @@ namespace KSPM.Network.Chat.Managers
 
         #region Filtering
 
+        /// <summary>
+        /// Adds a new filter to the available filters.
+        /// </summary>
+        /// <param name="newFilter"></param>
         public void RegisterFilter(ChatFilter newFilter)
         {
+            if (newFilter == null)
+                return;
             lock (this.availableFilters)
             {
                 this.availableFilters.Add(newFilter);
             }
         }
 
+        /// <summary>
+        /// Tries to remove the given filter from the available filters.
+        /// </summary>
+        /// <param name="filter"></param>
         public void UnregisterFilter(ChatFilter filter)
         {
+            if (filter == null)
+                return;
             lock (this.availableFilters)
             {
                 this.availableFilters.Remove(filter);
+            }
+        }
+
+        /// <summary>
+        /// Gets the available Filters as an Array.
+        /// </summary>
+        public ChatFilter[] AvailableFilters
+        {
+            get
+            {
+                ChatFilter[] returnedList = new ChatFilter[this.availableFilters.Count];
+                lock (this.availableFilters)
+                {
+                    this.availableFilters.CopyTo(returnedList);
+                }
+                return returnedList;
             }
         }
 

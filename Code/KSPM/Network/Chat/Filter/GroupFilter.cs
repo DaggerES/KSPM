@@ -11,7 +11,7 @@ namespace KSPM.Network.Chat.Filter
     {
         protected Dictionary<short, ChatGroup> filterStatement;
 
-        public GroupFilter()
+        public GroupFilter() : base()
         {
             this.filterStatement = new Dictionary<short, ChatGroup>();
         }
@@ -44,6 +44,12 @@ namespace KSPM.Network.Chat.Filter
         public override bool Query(Messages.ChatMessage message)
         {
             return message != null && this.filterStatement.ContainsKey(message.GroupId);
+        }
+
+        public override void Release()
+        {
+            this.filterStatement.Clear();
+            this.filterStatement = null;
         }
     }
 }

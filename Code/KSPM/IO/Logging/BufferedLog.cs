@@ -40,5 +40,13 @@ namespace KSPM.IO.Logging
         {
             this.buffer.Remove(0, this.buffer.Length);
         }
+
+        public string Buffer
+        {
+            get
+            {
+                return this.buffer.ToString();
+            }
+        }
     }
 }
