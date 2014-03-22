@@ -14,11 +14,8 @@ public class KSPMServer : MonoBehaviour
 	void Start ()
     {
         //Debug.Log(System.Environment.CurrentDirectory);
-        KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", System.Environment.CurrentDirectory, "swap"));
-        Debug.Log(KSPMGlobals.Globals.IOFilePath);
+        KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", UnityGlobals.IOSwapPath, UnityGlobals.SwapFolder));
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
-        KSPMGlobals.Globals.Log.WriteTo("HOLA");
-        text = ((BufferedLog)KSPMGlobals.Globals.Log).Buffer;
 	}
 	
 	// Update is called once per frame
@@ -28,7 +25,7 @@ public class KSPMServer : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.TextArea(new Rect(200, 0, 640, 400), ((BufferedLog)KSPMGlobals.Globals.Log).Buffer);
+        GUI.TextArea(new Rect(400, 0, 640, 400), ((BufferedLog)KSPMGlobals.Globals.Log).Buffer);
         
         if (GUI.Button(new Rect(0, 0, 128, 32), "Start server"))
         {

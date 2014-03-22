@@ -54,7 +54,7 @@ namespace KSPM.Network.Client
             settings = null;
             try
             {
-                settingsStreamReader = new StreamReader(ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+                settingsStreamReader = new StreamReader( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
                 settingsReader = new XmlTextReader(settingsStreamReader);
                 settingsSerializer = new XmlSerializer(typeof(ClientSettings));
                 settings = (ClientSettings)settingsSerializer.Deserialize(settingsReader);
@@ -88,7 +88,7 @@ namespace KSPM.Network.Client
             {
                 ClientSettings.DefaultSettings(out settings);
             }
-            settingsWriter = new XmlTextWriter(ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+            settingsWriter = new XmlTextWriter( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
             settingsWriter.Formatting = Formatting.Indented;
             settingsSerializer = new XmlSerializer(typeof(ClientSettings));
             try
