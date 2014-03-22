@@ -2,8 +2,8 @@
 <ServerList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <KSPMServers>
     <ServerInformation>
-      <ServerName>Testeando</ServerName>
-      <IP_Address>192.168.15.11</IP_Address>
+      <ServerName>Loopback</ServerName>
+      <IP_Address>127.0.0.1</IP_Address>
       <PortNumber>4700</PortNumber>
     </ServerInformation>
   </KSPMServers>

@@ -18,6 +18,7 @@ namespace ConsoleFakeClient
         static void Main(string[] args)
         {
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
+            KSPMGlobals.Globals.ChangeIOFilePath(Environment.CurrentDirectory + "/config/");
             string userName = "Scr_Ra(0_o)";
             byte[] utf8Bytes;
             UTF8Encoding utf8Encoder = new UTF8Encoding();
