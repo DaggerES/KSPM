@@ -675,12 +675,15 @@ namespace KSPM.Network.Client
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
                 if (readBytes > 0)
                 {
-                    if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                    lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
                     {
-                        if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                        if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
-                            this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
+                            if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                            {
+                                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
+                            }
                         }
                     }
                 }
@@ -748,11 +751,14 @@ namespace KSPM.Network.Client
                     readBytes = myClientRerence.udpNetworkCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
                     if (readBytes > 0)
                     {
-                        if (PacketHandler.DecodeRawPacket(ref myClientRerence.udpNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                        lock (myClientRerence.udpNetworkCollection.secondaryRawBuffer)
                         {
-                            if (PacketHandler.InflateRawMessage(myClientRerence.udpNetworkCollection.secondaryRawBuffer, out incomingMessage) == Error.ErrorType.Ok)
+                            if (PacketHandler.DecodeRawPacket(ref myClientRerence.udpNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                             {
-                                this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
+                                if (PacketHandler.InflateRawMessage(myClientRerence.udpNetworkCollection.secondaryRawBuffer, out incomingMessage) == Error.ErrorType.Ok)
+                                {
+                                    this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
+                                }
                             }
                         }
                     }
@@ -1080,11 +1086,13 @@ namespace KSPM.Network.Client
             }
         }
 
+        /*
         protected void HandleConnectionErrors()
         {
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something happened to the connection, breaking connections.", this.id));
             this.BreakConnections(this, null);
         }
+        */
 
         #endregion
 

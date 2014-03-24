@@ -367,10 +367,10 @@ namespace KSPM.Network.Server
                             {
                                 managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                             }
-                            catch (System.Exception)
+                            catch (System.Exception ex)
                             {
                                 Message killMessage = null;
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id));
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingMessages", ex.Message));
                                 Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
                                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
                             }

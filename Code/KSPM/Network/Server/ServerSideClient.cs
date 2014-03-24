@@ -264,10 +264,10 @@ namespace KSPM.Network.Server
             {
                 this.aliveFlag = false;
             }
-            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
                 Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingMessages", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
@@ -297,10 +297,10 @@ namespace KSPM.Network.Server
                     }
                 }
             }
-            catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
                 Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
@@ -436,10 +436,10 @@ namespace KSPM.Network.Server
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
             }
-            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
                 Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingUDPPackets", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
@@ -514,10 +514,10 @@ namespace KSPM.Network.Server
                 this.usingUdpConnection = false;
                 this.aliveFlag = false;
             }
-            catch (SocketException)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
                 Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something went wrong with the remote client, performing a removing process on it.", this.id));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleOutgoingUDPPackets", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
             }
@@ -582,7 +582,7 @@ namespace KSPM.Network.Server
             ///***********************Killing threads code
             this.aliveFlag = false;
             this.mainThread.Abort();
-            this.mainThread.Join();
+            this.mainThread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo(string.Format( "[{0}] Killed mainthread.", this.id));
             this.messageHandlerTread.Abort();
             this.messageHandlerTread.Join(1000);
@@ -591,10 +591,10 @@ namespace KSPM.Network.Server
             this.udpListeningThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpListeningThread.", this.id));
             this.udpOutgoingHandlerThread.Abort();
-            this.udpOutgoingHandlerThread.Join();
+            this.udpOutgoingHandlerThread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpOutgoingHandlerThread.", this.id));
             this.udpHandlingCommandsThread.Abort();
-            this.udpHandlingCommandsThread.Join();
+            this.udpHandlingCommandsThread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpCommandsHandlerThread.", this.id));
             this.mainThread = null;
             this.messageHandlerTread = null;
