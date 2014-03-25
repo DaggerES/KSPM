@@ -82,7 +82,10 @@ namespace ConsoleFakeClient
         public void Flood()
         {
             Random r = new Random();
-            this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[r.Next(this.contentList.Count)]);
+            if (this.botClient.ChatSystem != null)
+            {
+                this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[r.Next(this.contentList.Count)]);
+            }
         }
     }
 }

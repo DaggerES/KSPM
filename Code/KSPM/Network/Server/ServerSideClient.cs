@@ -269,7 +269,7 @@ namespace KSPM.Network.Server
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingMessages", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -305,7 +305,7 @@ namespace KSPM.Network.Server
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -444,7 +444,7 @@ namespace KSPM.Network.Server
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingUDPPackets", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -522,7 +522,7 @@ namespace KSPM.Network.Server
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleOutgoingUDPPackets", ex.SocketErrorCode, ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 

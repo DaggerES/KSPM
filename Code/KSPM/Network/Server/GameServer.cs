@@ -65,11 +65,11 @@ namespace KSPM.Network.Server
         /// </summary>
         public CommandQueue commandsQueue;
         public CommandQueue outgoingMessagesQueue;
+        public CommandQueue localCommandsQueue;
 
         protected Thread connectionsThread;
         protected Thread commandsThread;
         protected Thread outgoingMessagesThread;
-        protected Thread clientThread;
         protected Thread localCommandsThread;
 
         /// <summary>
@@ -127,12 +127,12 @@ namespace KSPM.Network.Server
             this.tcpBuffer = new byte[ServerSettings.ServerBufferSize];
             this.commandsQueue = new CommandQueue();
             this.outgoingMessagesQueue = new CommandQueue();
+            this.localCommandsQueue = new CommandQueue();
 
             this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
             this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
-            this.clientThread = null;
-            this.localCommandsThread = null;
+            this.localCommandsThread = new Thread(new ThreadStart(this.HandleLocalCommandsThreadMethod));
 
             this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
             this.clientsHandler = new ClientsHandler();
@@ -173,6 +173,7 @@ namespace KSPM.Network.Server
                 this.connectionsThread.Start();
                 this.commandsThread.Start();
                 this.outgoingMessagesThread.Start();
+                this.localCommandsThread.Start();
             }
             catch (Exception ex)
             {
@@ -376,7 +377,7 @@ namespace KSPM.Network.Server
                                 Message killMessage = null;
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingMessages", ex.Message));
                                 Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
-                                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
                             }
                         }
                         outgoingMessage = null;
@@ -395,6 +396,119 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleLocalCommandsThreadMethod()
         {
+            Message messageToProcess = null;
+            Message responseMessage = null;
+            ManagedMessage managedMessageReference = null;
+            NetworkEntity messageOwner = null;
+            ServerSideClient newClientAttempt = null;
+            ServerSideClient serverSideClientReference = null;
+            GameUser referredUser = null;
+            ChatMessage chatMessage = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle commands[ " + this.alive + " ]");
+                while (this.alive)
+                {
+                    if (!this.localCommandsQueue.IsEmpty())
+                    {
+                        this.localCommandsQueue.DequeueCommandMessage(out messageToProcess);
+                        managedMessageReference = (ManagedMessage)messageToProcess;
+                        if (messageToProcess != null)
+                        {
+                            switch (messageToProcess.Command)
+                            {
+                                case Message.CommandType.NewClient:
+                                    messageOwner = managedMessageReference.OwnerNetworkEntity;
+                                    if (this.clientsHandler.ConnectedClients < this.lowLevelOperationSettings.maxConnectedClients)
+                                    {
+                                        if (this.defaultUserManagementSystem.Query(ref messageOwner))
+                                        {
+                                            if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
+                                            {
+                                                newClientAttempt.RegisterUserConnectedEvent(this.UserConnected);
+                                                if (newClientAttempt.StartClient())
+                                                {
+                                                    this.clientsHandler.AddNewClient(newClientAttempt);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //Creates the reject message and set the callback to the RejectMessageToClient. Performed in that way because it is needed to send the reject message before to proceed to disconnect the client.
+                                        Message.ServerFullMessage(messageOwner, out responseMessage);
+                                        PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
+                                        ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                    }
+                                    break;
+                                case Message.CommandType.StopServer:
+                                    this.ShutdownServer();
+                                    break;
+                                case Message.CommandType.Authentication:
+                                    //User.InflateUserFromBytes(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
+                                    User.InflateUserFromBytes(ref messageToProcess.bodyMessage, out referredUser);
+                                    serverSideClientReference = (ServerSideClient)managedMessageReference.OwnerNetworkEntity;
+                                    serverSideClientReference.gameUser = referredUser;
+                                    messageOwner = serverSideClientReference;
+                                    if (this.usersAccountManager.Query(ref messageOwner))
+                                    {
+                                        /*
+                                        Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                         */
+                                        serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
+                                    }
+                                    else
+                                    {
+                                        ///Need to improve this code for a only one if.
+                                        ///And to check if is it needed to send a disconnect message before release the socket.
+                                        if ((serverSideClientReference.gameUser.AuthencticationAttempts++) < this.lowLevelOperationSettings.maxAuthenticationAttempts)
+                                        {
+                                            ///There is still a chance to authenticate again.
+                                            Message.AuthenticationFailMessage(messageOwner, out responseMessage);
+                                            PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
+                                        }
+                                        else
+                                        {
+                                            ///There is no chance to try it again.
+                                            ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
+                                        }
+                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                    }
+                                    break;
+                                case Message.CommandType.Disconnect:
+                                    ///Disconnects either a NetworkEntity or a ServerSideClient.
+                                    this.OnUserDisconnected(managedMessageReference.OwnerNetworkEntity, null);
+                                    this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
+                                    this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
+                                    break;
+
+                                case Message.CommandType.Chat:
+                                    if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+                                    {
+                                        //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
+                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
+                                    }
+                                    break;
+                                case Message.CommandType.Unknown:
+                                default:
+                                    KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                    break;
+                            }
+                        }
+                    }
+                    Thread.Sleep(9);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.alive = false;
+            }
         }
 
         public void ShutdownServer()
@@ -406,10 +520,13 @@ namespace KSPM.Network.Server
             this.commandsThread.Abort();
             this.connectionsThread.Abort();
             this.outgoingMessagesThread.Abort();
+            this.localCommandsThread.Abort();
 
             this.connectionsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
             this.commandsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
+            this.localCommandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread .");
             this.outgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
@@ -427,7 +544,11 @@ namespace KSPM.Network.Server
             ///*********************Killing server itself
             this.ableToRun = false;
             this.commandsQueue.Purge(false);
+            this.outgoingMessagesQueue.Purge(false);
+            this.localCommandsQueue.Purge(false);
             this.commandsQueue = null;
+            this.localCommandsQueue = null;
+            this.outgoingMessagesQueue = null;
 
             KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
 

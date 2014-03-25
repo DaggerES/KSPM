@@ -52,7 +52,7 @@ namespace ConsoleFakeClient
             while ( !exit )
             {
                 bot.Flood();
-                System.Threading.Thread.Sleep(125);
+                System.Threading.Thread.Sleep(250);
                 /*
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");
