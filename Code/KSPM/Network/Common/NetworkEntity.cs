@@ -112,5 +112,10 @@ namespace KSPM.Network.Common
         {
             return this.id.GetHashCode();
         }
+
+        public override bool IsAlive()
+        {
+            return true;
+        }
     }
 }

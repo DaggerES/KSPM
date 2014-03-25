@@ -288,11 +288,14 @@ namespace KSPM.Network.Server
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
                 if (readBytes > 0)
                 {
-                    if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                    lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
                     {
-                        if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                        if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
-                            KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                            if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                            {
+                                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                            }
                         }
                     }
                 }
@@ -681,6 +684,15 @@ namespace KSPM.Network.Server
             this.pairingCode = rand.Next();
             rand = null;
             return this.pairingCode;
+        }
+
+        /// <summary>
+        /// Returns the alive flag value.
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsAlive()
+        {
+            return this.aliveFlag;
         }
 
         #endregion

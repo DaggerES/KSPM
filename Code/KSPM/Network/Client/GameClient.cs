@@ -1133,6 +1133,11 @@ namespace KSPM.Network.Client
             }
         }
 
+        public override bool IsAlive()
+        {
+            return this.aliveFlag;
+        }
+
         #endregion
     }
 }
