@@ -249,6 +249,7 @@ namespace KSPM.Network.Server
                         managedMessageReference = (ManagedMessage)messageToProcess;
                         if (messageToProcess != null)
                         {
+                            
                             switch (messageToProcess.Command)
                             {
                                 case Message.CommandType.NewClient:

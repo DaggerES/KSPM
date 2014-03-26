@@ -232,7 +232,7 @@ namespace KSPM.Network.Server
                     Message killMessage = null;
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken too long: {1}.", this.id, this.timer.ElapsedMilliseconds));
                     Message.DisconnectMessage(this, out killMessage);
-                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref killMessage);
+                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
                 }
                 Thread.Sleep(3);
             }
