@@ -1,0 +1,13 @@
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\Assembly-CSharp.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\Assembly-CSharp.pdb
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\KSPM.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\UnityEditor.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\UnityEngine.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\Mono.Cecil.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\nunit.framework.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\Unity.DataContract.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\KSPM.pdb
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\ResolveAssemblyReference.cache
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\Assembly-CSharp.dll
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\Assembly-CSharp.pdb

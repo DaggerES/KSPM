@@ -28,7 +28,7 @@ namespace KSPM.Network.Client.RemoteServer
             list = null;
             try
             {
-                serverListStreamReader = new StreamReader(ServerList.ServerListFilename, System.Text.UTF8Encoding.UTF8);
+                serverListStreamReader = new StreamReader( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ServerList.ServerListFilename, System.Text.UTF8Encoding.UTF8);
                 serverListReader = new XmlTextReader(serverListStreamReader);
                 serverListSerializer = new XmlSerializer(typeof(ServerList));
                 list = (ServerList)serverListSerializer.Deserialize(serverListReader);
@@ -73,7 +73,7 @@ namespace KSPM.Network.Client.RemoteServer
             }
             try
             {
-                serverListWriter = new XmlTextWriter(ServerList.ServerListFilename, System.Text.UTF8Encoding.UTF8);
+                serverListWriter = new XmlTextWriter( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ServerList.ServerListFilename, System.Text.UTF8Encoding.UTF8);
                 serverListWriter.Formatting = Formatting.Indented;
                 serverListSerializer = new XmlSerializer(typeof(ServerList));
                 serverListSerializer.Serialize(serverListWriter, list);
@@ -118,6 +118,31 @@ namespace KSPM.Network.Client.RemoteServer
                 this.hosts[i].Dispose();
             }
             this.hosts.Clear();
+        }
+
+        /// <summary>
+        /// Tries to add the given ServerInformation reference into the hosts list.<b>If it already exists in the hosts list, nothing is added.</b>
+        /// </summary>
+        /// <param name="newServer"></param>
+        public void AddHost(ServerInformation newServer)
+        {
+            if (newServer == null)
+                return;
+            if (!this.hosts.Contains(newServer))
+            {
+                this.hosts.Add(newServer);
+            }
+        }
+
+        /// <summary>
+        /// Tries to remove the given ServerInformation from the hosts list.
+        /// </summary>
+        /// <param name="referredServer"></param>
+        public void RemoveHost(ServerInformation referredServer)
+        {
+            if (referredServer == null)
+                return;
+            this.hosts.Remove(referredServer);
         }
     }
 }

@@ -92,6 +92,7 @@ namespace KSPM.Network.Common
                 this.ownerNetworkCollection.socketReference.Close();
             }
             this.ownerNetworkCollection.Dispose();
+            this.timer.Reset();
         }
 
         public override bool Equals(object obj)
@@ -110,6 +111,11 @@ namespace KSPM.Network.Common
         public override int GetHashCode()
         {
             return this.id.GetHashCode();
+        }
+
+        public override bool IsAlive()
+        {
+            return true;
         }
     }
 }

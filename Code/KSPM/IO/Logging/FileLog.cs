@@ -5,6 +5,7 @@ using KSPM.Diagnostics;
 
 namespace KSPM.IO.Logging
 {
+
     /// <summary>
     /// Writes messages into a file either in binary or text mode using the UTF8 enconding.
     /// </summary>

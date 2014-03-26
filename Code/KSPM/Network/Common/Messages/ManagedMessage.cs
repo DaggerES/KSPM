@@ -49,11 +49,13 @@ namespace KSPM.Network.Common.Messages
         {
             this.messageOwner = null;
             this.messageRawLength = 0;
+            this.bodyMessage = null;
         }
 
-        public void CloneContent(Message otherMessage)
+        public void SwapReceivedBufferToSend(ManagedMessage otherMessage)
         {
-            //this.command
+            System.Buffer.BlockCopy(otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
+            this.messageRawLength = otherMessage.messageRawLength;
         }
     }
 }
