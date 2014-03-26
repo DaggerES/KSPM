@@ -19,14 +19,21 @@ namespace ConsoleFakeClient
         {
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
             KSPMGlobals.Globals.ChangeIOFilePath(Environment.CurrentDirectory + "/config/");
-            string userName = "Scr_Ra(0_o)";
-            byte[] utf8Bytes;
-            UTF8Encoding utf8Encoder = new UTF8Encoding();
-            utf8Bytes = utf8Encoder.GetBytes(userName);
-            GameUser myUser = new GameUser(ref userName, ref utf8Bytes);
             ServerInformation server = new ServerInformation();
             ServerList hosts = null;
             ServerList.ReadServerList(out hosts);
+            long delay = 250;
+            if (args.Length > 0)
+            {
+                try
+                {
+                    delay = long.Parse(args[0]);
+                }
+                catch (System.Exception)
+                {
+                    delay = 250;
+                }
+            }
             //server.ip = "189.210.119.226";
             /*server.ip = "192.168.15.16";
             server.port = 4700;
@@ -47,12 +54,13 @@ namespace ConsoleFakeClient
             /*GroupFilter group = new GroupFilter();
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
             client.ChatSystem.RegisterFilter(group);*/
+            Console.WriteLine(string.Format("delay: {0}", delay));
             System.Threading.Thread.Sleep(3000);
 
             while ( !exit )
             {
                 bot.Flood();
-                System.Threading.Thread.Sleep(250);
+                System.Threading.Thread.Sleep((int)delay);
                 /*
                 Console.WriteLine("Press q to quit");
                 Console.WriteLine("Press r to connect");

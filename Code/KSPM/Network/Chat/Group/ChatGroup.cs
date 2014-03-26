@@ -67,6 +67,11 @@ namespace KSPM.Network.Chat.Group
         public void AddMessage(ChatMessage newMessage)
         {
             this.messages.Add(newMessage);
+            if (this.messages.Count > 1000)
+            {
+                this.Purge();
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Purge");
+            }
         }
 
         #region Getters/Setters
@@ -96,6 +101,19 @@ namespace KSPM.Network.Chat.Group
         }
 
         #endregion
+
+        public void Purge()
+        {
+            lock (this.messages)
+            {
+                for (int i = 0; i < this.messages.Count; i++)
+                {
+                    this.messages[i].Release();
+                    this.messages[i] = null;
+                }
+                this.messages.Clear();
+            }
+        }
 
         public abstract void Release();
     }

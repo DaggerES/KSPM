@@ -281,15 +281,25 @@ namespace KSPM.Network.Server
         {
             this.TCPSignalHandler.Set();
             int readBytes;
+            byte[] rawBlockSize = new byte[4];
+            int bytesBlockSize;
             Message incomingMessage = null;
             try
             {
                 NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                if (readBytes > 0)
+                if (readBytes > 0 && readBytes < ServerSettings.ServerBufferSize)
                 {
-                    lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
-                    {
+                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes.ToString()));
+                    //lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
+                    //{
+                        System.Buffer.BlockCopy(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, rawBlockSize, 0, 4);
+                        bytesBlockSize = System.BitConverter.ToInt32(rawBlockSize, 0);
+                        if (bytesBlockSize > 1024)
+                        {
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", callingEntity.Id, bytesBlockSize.ToString()));
+                            bytesBlockSize = 0;
+                        }
                         if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
                             if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
@@ -297,7 +307,7 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
                             }
                         }
-                    }
+                    //}
                 }
             }
             catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.

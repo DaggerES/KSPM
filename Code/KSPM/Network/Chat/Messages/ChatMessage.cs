@@ -151,6 +151,8 @@ namespace KSPM.Network.Chat.Messages
             targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
             targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             //targetMessage.MessageBytesSize = (uint)bytesToSend;
+            if (bytesToSend >= 1000)
+                KSPMGlobals.Globals.Log.WriteTo(bytesToSend.ToString());
             return Error.ErrorType.Ok;
         }
 

@@ -46,19 +46,31 @@ namespace KSPM.Network.Common.Packet
         {
             int bytesBlockSize;
             int byteCounter;
+            byte[] rawBlockSize = new byte[4];
             messageTarget = null;
             if (bytesOwner.ownerNetworkCollection.secondaryRawBuffer.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, 0);
+            System.Buffer.BlockCopy(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, 0, rawBlockSize, 0, 4);
+            bytesBlockSize = System.BitConverter.ToInt32(rawBlockSize, 0);
+            //bytesBlockSize = System.BitConverter.ToInt32(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, 0);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
+            if (bytesBlockSize > Server.ServerSettings.ServerBufferSize)
+                return Error.ErrorType.MessageCRCError;
             ///Verifying the packet end of message command.
-            for (byteCounter = 1 ; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
+            try
             {
-                if ((bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter])
+                for (byteCounter = 1; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
                 {
-                    return Error.ErrorType.MessageBadFormat;
+                    if ((bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != bytesOwner.ownerNetworkCollection.secondaryRawBuffer[bytesBlockSize - byteCounter])
+                    {
+                        return Error.ErrorType.MessageBadFormat;
+                    }
                 }
+            }
+            catch (System.IndexOutOfRangeException ex)
+            {
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", bytesOwner.Id, ex.Message));
             }
             messageTarget = new ManagedMessage((Message.CommandType)bytesOwner.ownerNetworkCollection.secondaryRawBuffer[4], bytesOwner);
             messageTarget.SetBodyMessage(bytesOwner.ownerNetworkCollection.secondaryRawBuffer, (uint)bytesBlockSize);

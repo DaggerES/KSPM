@@ -21,6 +21,7 @@
         {
             this.members.Clear();
             this.performanceDataStructureMembers.Clear();
+            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(this.messages.Count.ToString());
             for (int i = 0; i < this.messages.Count; i++)
             {
                 this.messages[i].Release();
