@@ -47,6 +47,10 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        protected System.IO.MemoryStream receivingBuffer;
+        protected bool buffering;
+        protected int bufferedBytes;
+
         #region UserHandling
 
         /// <summary>
@@ -153,6 +157,10 @@ namespace KSPM.Network.Server
 
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
+
+            this.receivingBuffer = new System.IO.MemoryStream(1024 * 8);
+            buffering = false;
+            this.bufferedBytes = 0;
         }
 
         /// <summary>
@@ -214,6 +222,9 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
+
+                        this.currentStatus = ClientStatus.Connected;
+
                         break;
                     case ClientStatus.Connected:
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
@@ -245,6 +256,7 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleIncomingMessagesMethod()
         {
+            ReceivingBuffer bufferReference;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -255,9 +267,13 @@ namespace KSPM.Network.Server
                 while (this.aliveFlag)
                 {
                     this.TCPSignalHandler.Reset();
-                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                    bufferReference = new ReceivingBuffer();
+                    bufferReference.buffer = new byte[ServerSettings.ServerBufferSize];
+                    bufferReference.owner = this;
+                    this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
+                    //this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
-                    Thread.Sleep(3);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)
@@ -281,25 +297,50 @@ namespace KSPM.Network.Server
         {
             this.TCPSignalHandler.Set();
             int readBytes;
-            byte[] rawBlockSize = new byte[4];
             int bytesBlockSize;
             Message incomingMessage = null;
+            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
             try
             {
-                NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+                ReceivingBuffer wrapper = (ReceivingBuffer)result.AsyncState;
+                NetworkEntity callingEntity = wrapper.owner;
+                //NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+                //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(Thread.CurrentThread.ManagedThreadId.ToString());
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                if (readBytes > 0 && readBytes < ServerSettings.ServerBufferSize)
+                if (readBytes > 0 )
                 {
                     //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes.ToString()));
-                    //lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
-                    //{
-                        System.Buffer.BlockCopy(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, rawBlockSize, 0, 4);
-                        bytesBlockSize = System.BitConverter.ToInt32(rawBlockSize, 0);
-                        if (bytesBlockSize > 1024)
+                    if (readBytes >= ServerSettings.ServerBufferSize)///Means that the packets are coming together.
+                    {
+                        this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
+                        this.bufferedBytes += readBytes;
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("Buffering: {0}-{1}", callingEntity.Id, "buffering"));
+                        buffering = true;
+                    }
+                    else
+                    {
+                        this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
+                        this.bufferedBytes += readBytes;
+                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes));
+                        if (buffering)
                         {
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", callingEntity.Id, bytesBlockSize.ToString()));
-                            bytesBlockSize = 0;
+                            PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets);
+                            buffering = false;
                         }
+                        else
+                        {
+                            PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets);
+                        }
+                        this.bufferedBytes = 0;
+                        while (packets.Count > 0)
+                        {
+                            if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                            {
+                                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                            }
+                        }
+                    }
+                    /*
                         if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
                             if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
@@ -307,16 +348,44 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
                             }
                         }
+                    */
                     //}
                 }
+                wrapper.buffer = null;
+                wrapper.owner = null;
+                wrapper = null;
             }
-            catch (System.Exception ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
+        }
+
+        
+        public void AsyncTCPReceiverMultiFrame(System.IAsyncResult result)
+        {
+            //this.TCPSignalHandler.Set();
+            int readBytes;
+            byte[] rawBlockSize = new byte[4];
+            int bytesBlockSize;
+            Message incomingMessage = null;
+            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
+        }
+        
+
+        public static int CheckBytes(byte[] rawBytes)
+        {
+            for( int i = 0 ; i < rawBytes.Length - 4; i++ )
+            {
+                if (Message.EndOfMessageCommand[0] == rawBytes[i] && Message.EndOfMessageCommand[1] == rawBytes[i + 1] && Message.EndOfMessageCommand[2] == rawBytes[i + 2] && Message.EndOfMessageCommand[3] == rawBytes[i + 3])
+                {
+                    return i + 4;
+                }
+            }
+            return rawBytes.Length;
         }
 
         #endregion

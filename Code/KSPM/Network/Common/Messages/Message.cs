@@ -118,6 +118,11 @@ namespace KSPM.Network.Common.Messages
         public static readonly byte[] EndOfMessageCommand = new byte[] { 127, 255, 127, 0 };
 
         /// <summary>
+        /// 4 bytes to mark the beggining of the message
+        /// </summary>
+        public static readonly byte[] HeaderOfMessageCommand = new byte[] { 127, 0, 255, 127 };
+
+        /// <summary>
         /// Command type
         /// </summary>
         protected CommandType command;
@@ -196,7 +201,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType HandshakeAccetpMessage( NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte [] messageHeaderContent = null;
@@ -205,8 +210,12 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Handshake;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.Handshake;
             bytesToSend += 1;
 
             ///Writing the EndOfMessageCommand.
@@ -215,11 +224,11 @@ namespace KSPM.Network.Common.Messages
 
             ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes( bytesToSend );
-            System.Buffer.BlockCopy( messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length );
+            System.Buffer.BlockCopy( messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length );
 
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
-            //targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -231,7 +240,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType NewUserMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -240,8 +249,12 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.NewClient;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.NewClient;
             bytesToSend += 1;
 
             ///Writing the EndOfMessageCommand.
@@ -250,9 +263,11 @@ namespace KSPM.Network.Common.Messages
 
             ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -265,7 +280,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType ServerFullMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -273,14 +288,26 @@ namespace KSPM.Network.Common.Messages
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.ServerFull;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.ServerFull;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -292,7 +319,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             short hashSize;
             targetMessage = null;
@@ -307,8 +334,12 @@ namespace KSPM.Network.Common.Messages
             stringBuffer = userInfo.Username;
             User.EncodeUsernameToBytes(ref stringBuffer, out userBuffer);
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Authentication;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.Authentication;
             bytesToSend += 1;
 
             ///Writing the username's byte length.
@@ -334,8 +365,8 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
@@ -348,7 +379,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType AuthenticationFailMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -356,14 +387,26 @@ namespace KSPM.Network.Common.Messages
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.AuthenticationFail;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.AuthenticationFail;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -375,7 +418,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType AuthenticationSuccessMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -383,14 +426,26 @@ namespace KSPM.Network.Common.Messages
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.AuthenticationSuccess;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.AuthenticationSuccess;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -405,7 +460,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType DisconnectMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -413,20 +468,32 @@ namespace KSPM.Network.Common.Messages
             {
                 return Error.ErrorType.InvalidNetworkEntity;
             }
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Disconnect;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.Disconnect;
             bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
         public static Error.ErrorType SettingUpChatSystem(NetworkEntity sender, System.Collections.Generic.List<Chat.Group.ChatGroup> availableGroups, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             short shortBuffer;
             targetMessage = null;
@@ -437,8 +504,12 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.ChatSettingUp;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.ChatSettingUp;
             bytesToSend += 1;
 
             ///Writing how many chat groups are available.
@@ -468,71 +539,19 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
-        /*
-        public static Error.ErrorType ChatMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
-        {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
-            short hashSize;
-            targetMessage = null;
-            byte[] messageHeaderContent = null;
-            byte[] userBuffer = null;
-            string stringBuffer;
-            if (sender == null)
-            {
-                return Error.ErrorType.InvalidNetworkEntity;
-            }
-
-            stringBuffer = userInfo.Username;
-            User.EncodeUsernameToBytes(ref stringBuffer, out userBuffer);
-
-            ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Chat;
-            bytesToSend += 1;
-
-            ///Writing the hash's length
-            hashSize = (short)userInfo.Hash.Length;
-            userBuffer = null;
-            userBuffer = System.BitConverter.GetBytes(hashSize);
-            System.Buffer.BlockCopy(userBuffer, 0, rawBuffer, bytesToSend, userBuffer.Length);
-            bytesToSend += userBuffer.Length;
-
-            ///Writing the user's hash code.
-            System.Buffer.BlockCopy(userInfo.Hash, 0, rawBuffer, bytesToSend, hashSize);
-            bytesToSend += hashSize;
-
-
-
-            ///Writing the username's byte length.
-            rawBuffer[bytesToSend] = (byte)userBuffer.Length;
-            bytesToSend += 1;
-
-            ///Writing the username's bytes
-            System.Buffer.BlockCopy(userBuffer, 0, rawBuffer, bytesToSend, userBuffer.Length);
-            bytesToSend += userBuffer.Length;            
-
-            ///Writing the EndOfMessage command.
-            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
-            bytesToSend += EndOfMessageCommand.Length;
-            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
-            targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
-            return Error.ErrorType.Ok;
-        }
-        */
         #endregion
 
         #region UDPCommands
 
         public static Error.ErrorType UDPSettingUpMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
             int intBuffer;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
@@ -544,8 +563,12 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the Command byte.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPSettingUp;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPSettingUp;
             bytesToSend += 1;
 
             ///Writing the port number.
@@ -563,8 +586,8 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage( rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
@@ -577,7 +600,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType UDPPairingMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             GameClient gameClientReference = (GameClient)sender;
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -587,8 +610,12 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the Command byte.
-            gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairing;
+            gameClientReference.udpNetworkCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairing;
             bytesToSend += 1;
 
             ///Writing the pairing number.
@@ -596,12 +623,12 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(byteBuffer, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
 
-            ///Writint the EndOfMessageCommand.
+            ///Writing the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, gameClientReference.udpNetworkCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new RawMessage((CommandType)gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], gameClientReference.udpNetworkCollection.rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, gameClientReference.udpNetworkCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)gameClientReference.udpNetworkCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], gameClientReference.udpNetworkCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -613,7 +640,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType UDPPairingOkMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -622,16 +649,20 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the Command byte.
-            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairingOk;
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairingOk;
             bytesToSend += 1;
 
             ///Writint the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -643,7 +674,7 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public static Error.ErrorType UDPPairingFailMessage(NetworkEntity sender, out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
             targetMessage = null;
             byte[] messageHeaderContent = null;
@@ -652,16 +683,20 @@ namespace KSPM.Network.Common.Messages
                 return Error.ErrorType.InvalidNetworkEntity;
             }
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the Command byte.
-            ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.UDPPairingFail;
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairingFail;
             bytesToSend += 1;
 
             ///Writint the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += EndOfMessageCommand.Length;
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.RawMessageHeaderSize], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 

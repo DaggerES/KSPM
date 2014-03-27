@@ -12,6 +12,7 @@ namespace ConsoleFakeClient
 {
     public class ChatBot
     {
+        protected static Random r = new Random();
         public static string[] Names = {
                                            "Ver'an",
                                            "Hon'ran",
@@ -81,8 +82,12 @@ namespace ConsoleFakeClient
 
         public void Flood()
         {
-            Random r = new Random();
-            this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[r.Next(this.contentList.Count)]);
+            int nexId = r.Next(this.contentList.Count);
+            //if (this.contentList[nexId].Length > 128)
+            //{
+                Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
+            //}
+            this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
         }
     }
 }

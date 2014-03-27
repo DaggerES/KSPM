@@ -323,6 +323,7 @@ namespace KSPM.Network.Server
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
                                         //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
                                     break;
@@ -588,6 +589,7 @@ namespace KSPM.Network.Server
             int readBytes;
             Message incomingMessage = null;
             NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+            Queue<byte[]> packets = new Queue<byte[]>();
             try
             {
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
@@ -595,11 +597,17 @@ namespace KSPM.Network.Server
                 {
                     if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                     {
-                        if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                        if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, packets) == Error.ErrorType.Ok)
                         {
-                            this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            KSPMGlobals.Globals.Log.WriteTo("First command!!!");
-                        }
+                            while (packets.Count > 0)
+                            {
+                                if (PacketHandler.InflateManagedMessageAlt( packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                {
+                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                                }
+                            }
+                        }                        
                     }
                 }
             }

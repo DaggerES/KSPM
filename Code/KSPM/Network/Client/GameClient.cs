@@ -406,6 +406,8 @@ namespace KSPM.Network.Client
                             this.currentStatus = ClientStatus.Awaiting;
                             break;
                         case ClientStatus.UDPSettingUp:
+                            this.currentStatus = ClientStatus.Connected;
+                            break;
                             try
                             {
                                 this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -532,7 +534,7 @@ namespace KSPM.Network.Client
                                         if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
                                         {
                                             this.chatSystem.AttachMessage(incomingChatMessage);
-                                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
                                         }
                                     }
                                     break;
@@ -669,6 +671,7 @@ namespace KSPM.Network.Client
             this.TCPSignalHandler.Set();
             int readBytes;
             Message incomingMessage = null;
+            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
             try
             {
                 NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
@@ -679,10 +682,16 @@ namespace KSPM.Network.Client
                     {
                         if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                         {
-                            if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                            if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, packets) == Error.ErrorType.Ok)
                             {
-                                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
+                                while (packets.Count > 0)
+                                {
+                                    if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                    {
+                                        this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
+                                    }
+                                }
                             }
                         }
                     }

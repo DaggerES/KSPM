@@ -83,7 +83,7 @@ namespace KSPM.Network.Chat.Messages
         /// <returns></returns>
         public static Error.ErrorType CreateChatMessage(NetworkEntity sender, ChatGroup targetGroup, string bodyMessage,out Message targetMessage)
         {
-            int bytesToSend = (int)PacketHandler.RawMessageHeaderSize;
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] rawBuffer = new byte[Server.ServerSettings.ServerBufferSize];
             GameClient senderClient;
             short shortBuffer;
@@ -102,8 +102,12 @@ namespace KSPM.Network.Chat.Messages
 
             senderClient = (GameClient)sender;
 
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
             ///Writing the command.
-            rawBuffer[PacketHandler.RawMessageHeaderSize] = (byte)Message.CommandType.Chat;
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.Chat;
             bytesToSend += 1;
 
             ///Writing the hash's length
@@ -142,24 +146,24 @@ namespace KSPM.Network.Chat.Messages
             System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
             bytesToSend += shortBuffer + bytesBuffer.Length;
 
-
             ///Writing the EndOfMessage command.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
             bytesToSend += Message.EndOfMessageCommand.Length;
+
+            //Writing the message length.
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, 0, messageHeaderContent.Length);
-            targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[PacketHandler.RawMessageHeaderSize], sender);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
-            //targetMessage.MessageBytesSize = (uint)bytesToSend;
-            if (bytesToSend >= 1000)
-                KSPMGlobals.Globals.Log.WriteTo(bytesToSend.ToString());
+
             return Error.ErrorType.Ok;
         }
 
         public static Error.ErrorType InflateChatMessage(byte[] rawBytes, out ChatMessage messageTarget)
         {
             int bytesBlockSize;
-            int readingIndex = (int)PacketHandler.RawMessageHeaderSize + 1;
+            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 4 + 1;
             short shortBuffer;
             byte[] bytesBuffer = null;
             string stringBuffer = null;

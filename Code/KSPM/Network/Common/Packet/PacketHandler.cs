@@ -78,6 +78,117 @@ namespace KSPM.Network.Common.Packet
             return Error.ErrorType.Ok;
         }
 
+        public static Error.ErrorType Packetize(byte[] rawBuffer, System.Collections.Generic.Queue<byte[]> packets)
+        {
+            byte[] swap = new byte[rawBuffer.Length];
+            try
+            {
+            System.Buffer.BlockCopy(rawBuffer, 0, swap, 0, rawBuffer.Length);
+            byte[] packet;
+            int messageBlockSize = -1;
+            if (swap.Length < 4)
+                return Error.ErrorType.MessageBadFormat;
+                for (int i = 0; i < swap.Length - Message.HeaderOfMessageCommand.Length; )
+                {
+                    ///locking for the MessageHeaderItself
+                    if (swap[i] == Message.HeaderOfMessageCommand[0] && swap[i + 1] == Message.HeaderOfMessageCommand[1] && swap[i + 2] == Message.HeaderOfMessageCommand[2] && swap[i + 3] == Message.HeaderOfMessageCommand[3])
+                    {
+                        messageBlockSize = System.BitConverter.ToInt32(swap, i + Message.HeaderOfMessageCommand.Length);
+                        packet = new byte[messageBlockSize];
+                        System.Buffer.BlockCopy(swap, i, packet, 0, messageBlockSize);
+                        packets.Enqueue(packet);
+                        i += messageBlockSize;
+                    }
+                    else
+                        i++;
+                }
+            }
+            catch (System.Exception ex)
+            {
+            }
+            return Error.ErrorType.Ok;
+        }
+
+        public static Error.ErrorType Packetize(System.IO.MemoryStream bytesStream, int size, System.Collections.Generic.Queue<byte[]> packets)
+        {
+            byte[] swap = new byte[size];
+            try
+            {
+                bytesStream.Seek(0, System.IO.SeekOrigin.Begin);
+                int a = bytesStream.Read(swap, 0, size);
+                bytesStream.Seek(0, System.IO.SeekOrigin.Begin);
+                //System.Buffer.BlockCopy(rawBuffer, 0, swap, 0, rawBuffer.Length);
+                byte[] packet;
+                int messageBlockSize = -1;
+                if (swap.Length < 4)
+                    return Error.ErrorType.MessageBadFormat;
+                for (int i = 0; i < swap.Length - Message.HeaderOfMessageCommand.Length; )
+                {
+                    ///locking for the MessageHeaderItself
+                    if (swap[i] == Message.HeaderOfMessageCommand[0] && swap[i + 1] == Message.HeaderOfMessageCommand[1] && swap[i + 2] == Message.HeaderOfMessageCommand[2] && swap[i + 3] == Message.HeaderOfMessageCommand[3])
+                    {
+                        messageBlockSize = System.BitConverter.ToInt32(swap, i + Message.HeaderOfMessageCommand.Length);
+                        packet = new byte[messageBlockSize];
+                        System.Buffer.BlockCopy(swap, i, packet, 0, messageBlockSize);
+                        packets.Enqueue(packet);
+                        i += messageBlockSize;
+                    }
+                    else
+                        i++;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
+            return Error.ErrorType.Ok;
+        }
+
+        public static Error.ErrorType InflateManagedMessageAlt(byte[] rawBuffer, NetworkEntity bytesOwner, out Message messageTarget)
+        {
+            int bytesBlockSize = 0;
+            int byteCounter;
+            byte[] rawBlockSize = new byte[4];
+            messageTarget = null;
+            if (rawBuffer.Length < 4)
+                return Error.ErrorType.MessageBadFormat;
+            try
+            {
+                System.Buffer.BlockCopy(rawBuffer, Message.HeaderOfMessageCommand.Length, rawBlockSize, 0, 4);
+                bytesBlockSize = System.BitConverter.ToInt32(rawBlockSize, 0);
+                //bytesBlockSize = System.BitConverter.ToInt32(rawBuffer, 0);
+                if (bytesBlockSize < 4)
+                    return Error.ErrorType.MessageBadFormat;
+                if (bytesBlockSize > Server.ServerSettings.ServerBufferSize)
+                    return Error.ErrorType.MessageCRCError;
+            }
+            catch (System.Exception ex)
+            {
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", bytesOwner.Id, ex.Message));
+            }
+            ///Verifying the packet end of message command.
+            /*
+            try
+            {
+                for (byteCounter = 1; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
+                {
+                    if ((rawBuffer[bytesBlockSize - byteCounter] & Message.EndOfMessageCommand[Message.EndOfMessageCommand.Length - byteCounter]) != rawBuffer[bytesBlockSize - byteCounter])
+                    {
+                        return Error.ErrorType.MessageBadFormat;
+                    }
+                }
+            }
+            catch (System.IndexOutOfRangeException ex)
+            {
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", bytesOwner.Id, ex.Message));
+            }
+            */
+            messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[8], bytesOwner);
+            messageTarget.SetBodyMessage(rawBuffer, (uint)bytesBlockSize);
+            //messageTarget.MessageBytesSize = (uint)bytesBlockSize;
+            return Error.ErrorType.Ok;
+        }
+
         /// <summary>
         /// Lowest level method of the KSPM Network model, decompress the bytes if the compression flag is set to true, otherwise it is a passthrough method.
         /// </summary>
