@@ -47,6 +47,11 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        /// <summary>
+        /// Tells if the basic configuration has been set ( Connection, Chat, ..) and whichever required to run.
+        /// </summary>
+        protected bool basisSetUp;
+
         #region Buffering
 
         /// <summary>
@@ -176,6 +181,8 @@ namespace KSPM.Network.Server
             this.receivingBuffer = new System.IO.MemoryStream(ServerSettings.ServerBufferSize * 8);
             this.buffering = false;
             this.bufferedBytes = 0;
+
+            this.basisSetUp = false;
         }
 
         /// <summary>
@@ -343,7 +350,14 @@ namespace KSPM.Network.Server
                             {
                                 if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                                 {
-                                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    if (this.connected)///If everything is already set up, commands go to the common queue.
+                                    {
+                                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    }
+                                    else
+                                    {
+                                        KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    }
                                 }
                             }
                         }
