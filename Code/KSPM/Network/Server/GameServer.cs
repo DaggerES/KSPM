@@ -323,7 +323,7 @@ namespace KSPM.Network.Server
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
                                         //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
+                                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
                                     break;
@@ -597,7 +597,7 @@ namespace KSPM.Network.Server
                 {
                     if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
                     {
-                        if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, packets) == Error.ErrorType.Ok)
+                        if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, readBytes, packets) == Error.ErrorType.Ok)
                         {
                             while (packets.Count > 0)
                             {

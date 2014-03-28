@@ -47,9 +47,24 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        #region Buffering
+
+        /// <summary>
+        /// Holds the incoming streams from the socket.
+        /// </summary>
         protected System.IO.MemoryStream receivingBuffer;
+
+        /// <summary>
+        /// Tells if already the thread is buffering information.<b>Packets are getting together.</b>
+        /// </summary>
         protected bool buffering;
+
+        /// <summary>
+        /// How many bytes are being buffered.
+        /// </summary>
         protected int bufferedBytes;
+
+        #endregion
 
         #region UserHandling
 
@@ -158,8 +173,8 @@ namespace KSPM.Network.Server
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
 
-            this.receivingBuffer = new System.IO.MemoryStream(1024 * 8);
-            buffering = false;
+            this.receivingBuffer = new System.IO.MemoryStream(ServerSettings.ServerBufferSize * 8);
+            this.buffering = false;
             this.bufferedBytes = 0;
         }
 
@@ -297,7 +312,6 @@ namespace KSPM.Network.Server
         {
             this.TCPSignalHandler.Set();
             int readBytes;
-            int bytesBlockSize;
             Message incomingMessage = null;
             System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
             try
@@ -310,46 +324,31 @@ namespace KSPM.Network.Server
                 if (readBytes > 0 )
                 {
                     //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes.ToString()));
+                    this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
+                    this.bufferedBytes += readBytes;
                     if (readBytes >= ServerSettings.ServerBufferSize)///Means that the packets are coming together.
                     {
-                        this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
-                        this.bufferedBytes += readBytes;
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("Buffering: {0}-{1}", callingEntity.Id, "buffering"));
                         buffering = true;
                     }
                     else
                     {
-                        this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
-                        this.bufferedBytes += readBytes;
-                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes));
-                        if (buffering)
+                        if (buffering)///Was it buffering bytes??
                         {
-                            PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets);
                             buffering = false;
                         }
-                        else
+                        if (PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets) == Error.ErrorType.Ok)
                         {
-                            PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets);
+                            while (packets.Count > 0)
+                            {
+                                if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                {
+                                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                }
+                            }
                         }
                         this.bufferedBytes = 0;
-                        while (packets.Count > 0)
-                        {
-                            if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                            {
-                                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            }
-                        }
                     }
-                    /*
-                        if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
-                        {
-                            if (PacketHandler.InflateManagedMessage(callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                            {
-                                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                            }
-                        }
-                    */
-                    //}
                 }
                 wrapper.buffer = null;
                 wrapper.owner = null;
@@ -362,19 +361,7 @@ namespace KSPM.Network.Server
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
-        }
-
-        
-        public void AsyncTCPReceiverMultiFrame(System.IAsyncResult result)
-        {
-            //this.TCPSignalHandler.Set();
-            int readBytes;
-            byte[] rawBlockSize = new byte[4];
-            int bytesBlockSize;
-            Message incomingMessage = null;
-            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
-        }
-        
+        }        
 
         public static int CheckBytes(byte[] rawBytes)
         {
@@ -714,6 +701,9 @@ namespace KSPM.Network.Server
             ///Cleaning up the UDP queues;
             this.outgoingPackets.Purge(false);
             this.incomingPackets.Purge(false);
+
+            this.receivingBuffer.Dispose();
+            this.receivingBuffer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             

@@ -100,6 +100,12 @@ namespace KSPM.Network.Client
         /// </summary>
         protected Thread handleIncomingTCPMessagesThread;
 
+        protected System.IO.MemoryStream tcpReceivingBuffer;
+
+        protected bool buffering;
+
+        protected int bufferedBytes;
+
         #endregion
 
         #region UDPPRoperties
@@ -225,6 +231,11 @@ namespace KSPM.Network.Client
             ///Error handling
             this.runtimeErrors = new System.Collections.Generic.Queue<System.Exception>();
             this.errorHandlingThread = new Thread(new ThreadStart(this.HandleErrorsThreadMethod));
+
+            ///TCP Buffering
+            this.tcpReceivingBuffer = new System.IO.MemoryStream(ClientSettings.ClientBufferSize * 8);
+            this.buffering = false;
+            this.bufferedBytes = 0;
         }
 
         /// <summary>
@@ -678,22 +689,30 @@ namespace KSPM.Network.Client
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
                 if (readBytes > 0)
                 {
-                    lock (callingEntity.ownerNetworkCollection.secondaryRawBuffer)
+                    this.tcpReceivingBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, readBytes);
+                    this.bufferedBytes += readBytes;
+                    if (readBytes >= ClientSettings.ClientBufferSize)
                     {
-                        if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                        this.buffering = true;
+                    }
+                    else
+                    {
+                        if (buffering)///Was it buffering??
                         {
-                            if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, packets) == Error.ErrorType.Ok)
+                            buffering = false;
+                        }
+                        if (PacketHandler.Packetize(this.tcpReceivingBuffer, this.bufferedBytes, packets) == Error.ErrorType.Ok)
+                        {
+                            while (packets.Count > 0)
                             {
-                                while (packets.Count > 0)
+                                if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                                 {
-                                    if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                                    {
-                                        this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
-                                    }
+                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
                                 }
                             }
                         }
+                        this.bufferedBytes = 0;
                     }
                 }
             }
