@@ -343,6 +343,7 @@ namespace KSPM.Network.Server
                         if (buffering)///Was it buffering bytes??
                         {
                             buffering = false;
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("Buffering: {0}-{1}", callingEntity.Id, "Releasing"));
                         }
                         if (PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets) == Error.ErrorType.Ok)
                         {
