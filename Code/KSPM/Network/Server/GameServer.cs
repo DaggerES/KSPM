@@ -154,6 +154,8 @@ namespace KSPM.Network.Server
             }
         }
 
+        #region Management
+
         public bool StartServer()
         {
             KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server.");
@@ -184,6 +186,60 @@ namespace KSPM.Network.Server
             }
             return true;  
         }
+
+        public void ShutdownServer()
+        {
+            KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server .");
+
+            ///*************************Killing threads code
+            this.alive = false;
+            this.commandsThread.Abort();
+            this.connectionsThread.Abort();
+            this.outgoingMessagesThread.Abort();
+            this.localCommandsThread.Abort();
+
+            this.connectionsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
+            this.commandsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
+            this.localCommandsThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread .");
+            this.outgoingMessagesThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
+
+
+            ///*************************Killing TCP socket code
+            if (this.tcpSocket.Connected)
+            {
+                this.tcpSocket.Shutdown(SocketShutdown.Both);
+                this.tcpSocket.Close();
+            }
+            this.tcpBuffer = null;
+            this.tcpIpEndPoint = null;
+
+            ///*********************Killing server itself
+            this.ableToRun = false;
+            this.commandsQueue.Purge(false);
+            this.outgoingMessagesQueue.Purge(false);
+            this.localCommandsQueue.Purge(false);
+            this.commandsQueue = null;
+            this.localCommandsQueue = null;
+            this.outgoingMessagesQueue = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
+
+            this.clientsHandler.Clear();
+            this.clientsHandler = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
+            this.chatManager.Release();
+            this.chatManager = null;
+
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
+
+        }
+
+        #endregion
 
         /// <summary>
         /// Handles the incoming connections through a TCP socket.
@@ -218,6 +274,57 @@ namespace KSPM.Network.Server
             catch (Exception ex)
             {
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Method called in asynchronously or synchronously  each time that a new connection is attempted.
+        /// </summary>
+        /// <param name="result"></param>
+        protected void OnAsyncAcceptIncomingConnection(IAsyncResult result)
+        {
+            GameServer.SignalHandler.Set();
+            Socket callingSocket, incomingConnectionSocket;
+            NetworkRawEntity newNetworkEntity;
+            callingSocket = (Socket)result.AsyncState;
+            incomingConnectionSocket = callingSocket.EndAccept(result);
+            newNetworkEntity = new NetworkEntity(ref incomingConnectionSocket);
+            incomingConnectionSocket.BeginReceive(newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
+        }
+
+        /// <summary>
+        /// Method called each time the socket wants to read data.
+        /// </summary>
+        /// <param name="result"></param>
+        protected void ReceiveCallback(IAsyncResult result)
+        {
+            int readBytes;
+            Message incomingMessage = null;
+            NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+            Queue<byte[]> packets = new Queue<byte[]>();
+            try
+            {
+                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                if (readBytes > 0)
+                {
+                    if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
+                    {
+                        if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, readBytes, packets) == Error.ErrorType.Ok)
+                        {
+                            while (packets.Count > 0)
+                            {
+                                if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
+                                {
+                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
             }
         }
 
@@ -510,109 +617,6 @@ namespace KSPM.Network.Server
             catch (ThreadAbortException)
             {
                 this.alive = false;
-            }
-        }
-
-        public void ShutdownServer()
-        {
-            KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server .");
-
-            ///*************************Killing threads code
-            this.alive = false;
-            this.commandsThread.Abort();
-            this.connectionsThread.Abort();
-            this.outgoingMessagesThread.Abort();
-            this.localCommandsThread.Abort();
-
-            this.connectionsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
-            this.commandsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
-            this.localCommandsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread .");
-            this.outgoingMessagesThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
-
-
-            ///*************************Killing TCP socket code
-            if (this.tcpSocket.Connected)
-            {
-                this.tcpSocket.Shutdown(SocketShutdown.Both);
-                this.tcpSocket.Close();
-            }
-            this.tcpBuffer = null;
-            this.tcpIpEndPoint = null;
-
-            ///*********************Killing server itself
-            this.ableToRun = false;
-            this.commandsQueue.Purge(false);
-            this.outgoingMessagesQueue.Purge(false);
-            this.localCommandsQueue.Purge(false);
-            this.commandsQueue = null;
-            this.localCommandsQueue = null;
-            this.outgoingMessagesQueue = null;
-
-            KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
-
-            this.clientsHandler.Clear();
-            this.clientsHandler = null;
-
-            KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
-            this.chatManager.Release();
-            this.chatManager = null;
-
-            KSPMGlobals.Globals.Log.WriteTo( string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
-
-        }
-
-        /// <summary>
-        /// Method called in asynchronously or synchronously  each time that a new connection is attempted.
-        /// </summary>
-        /// <param name="result"></param>
-        protected void OnAsyncAcceptIncomingConnection(IAsyncResult result)
-        {
-            GameServer.SignalHandler.Set();
-            Socket callingSocket, incomingConnectionSocket;
-            NetworkRawEntity newNetworkEntity;
-            callingSocket = (Socket)result.AsyncState;
-            incomingConnectionSocket = callingSocket.EndAccept(result);
-            newNetworkEntity = new NetworkEntity( ref incomingConnectionSocket );
-            incomingConnectionSocket.BeginReceive(newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, newNetworkEntity.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.ReceiveCallback, newNetworkEntity);
-        }
-
-        /// <summary>
-        /// Method called each time the socket wants to read data.
-        /// </summary>
-        /// <param name="result"></param>
-        protected void ReceiveCallback(IAsyncResult result)
-        {
-            int readBytes;
-            Message incomingMessage = null;
-            NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-            Queue<byte[]> packets = new Queue<byte[]>();
-            try
-            {
-                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                if (readBytes > 0)
-                {
-                    if (PacketHandler.DecodeRawPacket(ref callingEntity.ownerNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
-                    {
-                        if (PacketHandler.Packetize(callingEntity.ownerNetworkCollection.secondaryRawBuffer, readBytes, packets) == Error.ErrorType.Ok)
-                        {
-                            while (packets.Count > 0)
-                            {
-                                if (PacketHandler.InflateManagedMessageAlt( packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                                {
-                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                    KSPMGlobals.Globals.Log.WriteTo("First command!!!");
-                                }
-                            }
-                        }                        
-                    }
-                }
-            }
-            catch (System.Exception)
-            {
             }
         }
 

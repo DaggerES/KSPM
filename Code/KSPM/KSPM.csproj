@@ -52,6 +52,7 @@
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Logging\WebLog.cs" />
+    <Compile Include="IO\Memory\MemoryBuffer.cs" />
     <Compile Include="IO\Security\Hash.cs" />
     <Compile Include="Network\Chat\Filter\ChatFilter.cs" />
     <Compile Include="Network\Chat\Filter\GroupFilter.cs" />

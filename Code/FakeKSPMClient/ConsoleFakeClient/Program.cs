@@ -17,7 +17,7 @@ namespace ConsoleFakeClient
     {
         static void Main(string[] args)
         {
-            KSPMGlobals.Globals.InitiLogging(Log.LogginMode.File, false);
+            KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
             KSPMGlobals.Globals.ChangeIOFilePath(Environment.CurrentDirectory + "/config/");
             ServerInformation server = new ServerInformation();
             ServerList hosts = null;

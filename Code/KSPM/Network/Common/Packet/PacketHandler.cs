@@ -157,24 +157,22 @@ namespace KSPM.Network.Common.Packet
         public static Error.ErrorType InflateManagedMessageAlt(byte[] rawBuffer, NetworkEntity bytesOwner, out Message messageTarget)
         {
             int bytesBlockSize = 0;
-            int byteCounter;
-            byte[] rawBlockSize = new byte[4];
             messageTarget = null;
             if (rawBuffer.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
             try
             {
-                System.Buffer.BlockCopy(rawBuffer, Message.HeaderOfMessageCommand.Length, rawBlockSize, 0, 4);
-                bytesBlockSize = System.BitConverter.ToInt32(rawBlockSize, 0);
-                //bytesBlockSize = System.BitConverter.ToInt32(rawBuffer, 0);
-                if (bytesBlockSize < 4)
+                bytesBlockSize = System.BitConverter.ToInt32(rawBuffer, Message.HeaderOfMessageCommand.Length);
+                if (bytesBlockSize < Message.HeaderOfMessageCommand.Length)
                     return Error.ErrorType.MessageBadFormat;
                 if (bytesBlockSize > Server.ServerSettings.ServerBufferSize)
                     return Error.ErrorType.MessageCRCError;
+                messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[8], bytesOwner);
+                messageTarget.SetBodyMessageNoClone(rawBuffer, (uint)bytesBlockSize);
             }
             catch (System.Exception ex)
             {
-                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", bytesOwner.Id, ex.Message));
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}:{2}", bytesOwner.Id, "Inflating error",ex.Message));
             }
             ///Verifying the packet end of message command.
             /*
@@ -193,9 +191,6 @@ namespace KSPM.Network.Common.Packet
                 KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("{0}-{1}", bytesOwner.Id, ex.Message));
             }
             */
-            messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[8], bytesOwner);
-            messageTarget.SetBodyMessage(rawBuffer, (uint)bytesBlockSize);
-            //messageTarget.MessageBytesSize = (uint)bytesBlockSize;
             return Error.ErrorType.Ok;
         }
 

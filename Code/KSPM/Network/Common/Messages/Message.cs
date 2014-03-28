@@ -146,6 +146,7 @@ namespace KSPM.Network.Common.Messages
         {
             this.command = kindOfMessage;
             this.messageRawLength = 0;
+            this.bodyMessage = null;
         }
 
         /// <summary>
@@ -189,6 +190,18 @@ namespace KSPM.Network.Common.Messages
             return this.messageRawLength;
         }
 
+        /// <summary>
+        /// Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that.</b>
+        /// </summary>
+        /// <param name="rawBytes"></param>
+        /// <returns></returns>
+        public uint SetBodyMessageNoClone(byte[] rawBytes, uint blockSize)
+        {
+            this.bodyMessage = rawBytes;
+            this.messageRawLength = blockSize;
+            return this.messageRawLength;
+        }
+
         public abstract void Release();
 
         #region AuthenticationCode
@@ -228,7 +241,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -267,7 +280,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -307,7 +320,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -406,7 +419,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -445,7 +458,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 
@@ -487,7 +500,7 @@ namespace KSPM.Network.Common.Messages
 
             ///Creating the Message
             targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
-            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 

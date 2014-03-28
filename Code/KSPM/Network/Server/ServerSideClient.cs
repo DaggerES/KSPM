@@ -178,7 +178,7 @@ namespace KSPM.Network.Server
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
 
-            this.receivingBuffer = new System.IO.MemoryStream(ServerSettings.ServerBufferSize * 8);
+            this.receivingBuffer = new System.IO.MemoryStream(ServerSettings.ServerBufferSize * 10);
             this.buffering = false;
             this.bufferedBytes = 0;
 
@@ -289,11 +289,11 @@ namespace KSPM.Network.Server
                 while (this.aliveFlag)
                 {
                     this.TCPSignalHandler.Reset();
-                    bufferReference = new ReceivingBuffer();
+                    /*bufferReference = new ReceivingBuffer();
                     bufferReference.buffer = new byte[ServerSettings.ServerBufferSize];
-                    bufferReference.owner = this;
-                    this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
-                    //this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                    bufferReference.owner = this;*/
+                    //this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     Thread.Sleep(1);
                 }
@@ -323,15 +323,15 @@ namespace KSPM.Network.Server
             System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
             try
             {
-                ReceivingBuffer wrapper = (ReceivingBuffer)result.AsyncState;
-                NetworkEntity callingEntity = wrapper.owner;
-                //NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+                //ReceivingBuffer wrapper = (ReceivingBuffer)result.AsyncState;
+                //NetworkEntity callingEntity = wrapper.owner;
+                NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
                 //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(Thread.CurrentThread.ManagedThreadId.ToString());
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
                 if (readBytes > 0 )
                 {
                     //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes.ToString()));
-                    this.receivingBuffer.Write(wrapper.buffer, 0, readBytes);
+                    this.receivingBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, readBytes);
                     this.bufferedBytes += readBytes;
                     if (readBytes >= ServerSettings.ServerBufferSize)///Means that the packets are coming together.
                     {
@@ -365,9 +365,11 @@ namespace KSPM.Network.Server
                         this.bufferedBytes = 0;
                     }
                 }
+                /*
                 wrapper.buffer = null;
                 wrapper.owner = null;
                 wrapper = null;
+                */
             }
             catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
@@ -376,18 +378,6 @@ namespace KSPM.Network.Server
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
-        }        
-
-        public static int CheckBytes(byte[] rawBytes)
-        {
-            for( int i = 0 ; i < rawBytes.Length - 4; i++ )
-            {
-                if (Message.EndOfMessageCommand[0] == rawBytes[i] && Message.EndOfMessageCommand[1] == rawBytes[i + 1] && Message.EndOfMessageCommand[2] == rawBytes[i + 2] && Message.EndOfMessageCommand[3] == rawBytes[i + 3])
-                {
-                    return i + 4;
-                }
-            }
-            return rawBytes.Length;
         }
 
         #endregion
