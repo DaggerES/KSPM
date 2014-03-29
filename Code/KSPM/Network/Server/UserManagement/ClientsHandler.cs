@@ -61,7 +61,7 @@ namespace KSPM.Network.Server.UserManagement
         /// <summary>
         /// Clears the structures and calls the ReleaseMethod of each NetworkEntity reference.
         /// </summary>
-        public void Clear()
+        public void Release()
         {
             lock (this.clients)
             {
@@ -72,6 +72,8 @@ namespace KSPM.Network.Server.UserManagement
                 this.clients.Clear();
                 this.clientsEngine.Clear();
             }
+            this.clients = null;
+            this.clientsEngine = null;
         }
 
         /// <summary>

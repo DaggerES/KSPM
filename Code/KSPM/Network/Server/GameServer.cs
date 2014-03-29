@@ -66,11 +66,13 @@ namespace KSPM.Network.Server
         public CommandQueue commandsQueue;
         public CommandQueue outgoingMessagesQueue;
         public CommandQueue localCommandsQueue;
+        public CommandQueue priorityOutgoingMessagesQueue;
 
         protected Thread connectionsThread;
         protected Thread commandsThread;
         protected Thread outgoingMessagesThread;
         protected Thread localCommandsThread;
+        protected Thread priorityOutgoingMessagesThread;
 
         /// <summary>
         /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
@@ -128,11 +130,13 @@ namespace KSPM.Network.Server
             this.commandsQueue = new CommandQueue();
             this.outgoingMessagesQueue = new CommandQueue();
             this.localCommandsQueue = new CommandQueue();
+            this.priorityOutgoingMessagesQueue = new CommandQueue();
 
             this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
             this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
             this.localCommandsThread = new Thread(new ThreadStart(this.HandleLocalCommandsThreadMethod));
+            this.priorityOutgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingPriorityMessagesThreadMethod));
 
             this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
             this.clientsHandler = new ClientsHandler();
@@ -176,6 +180,7 @@ namespace KSPM.Network.Server
                 this.commandsThread.Start();
                 this.outgoingMessagesThread.Start();
                 this.localCommandsThread.Start();
+                this.priorityOutgoingMessagesThread.Start();
             }
             catch (Exception ex)
             {
@@ -197,6 +202,7 @@ namespace KSPM.Network.Server
             this.connectionsThread.Abort();
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
+            this.priorityOutgoingMessagesThread.Abort();
 
             this.connectionsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
@@ -206,6 +212,8 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Killed localCommandsTread .");
             this.outgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
+            this.priorityOutgoingMessagesThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo("Killed priorityOutgoingMessagesTread .");
 
 
             ///*************************Killing TCP socket code
@@ -217,29 +225,31 @@ namespace KSPM.Network.Server
             this.tcpBuffer = null;
             this.tcpIpEndPoint = null;
 
-            ///*********************Killing server itself
-            this.ableToRun = false;
-            this.commandsQueue.Purge(false);
-            this.outgoingMessagesQueue.Purge(false);
-            this.localCommandsQueue.Purge(false);
-            this.commandsQueue = null;
-            this.localCommandsQueue = null;
-            this.outgoingMessagesQueue = null;
-
             KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
-
-            this.clientsHandler.Clear();
+            this.clientsHandler.Release();
             this.clientsHandler = null;
 
             KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
             this.chatManager.Release();
             this.chatManager = null;
 
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
+            ///*********************Killing server itself
+            this.ableToRun = false;
+            this.commandsQueue.Purge(false);
+            this.outgoingMessagesQueue.Purge(false);
+            this.localCommandsQueue.Purge(false);
+            this.priorityOutgoingMessagesQueue.Purge(false);
+            this.commandsQueue = null;
+            this.localCommandsQueue = null;
+            this.outgoingMessagesQueue = null;
+            this.priorityOutgoingMessagesQueue = null;
 
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
         }
 
         #endregion
+
+        #region IncomingConnections
 
         /// <summary>
         /// Handles the incoming connections through a TCP socket.
@@ -315,7 +325,8 @@ namespace KSPM.Network.Server
                             {
                                 if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
                                 {
-                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                    ///Adding to the local queue.
+                                    this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
                                     KSPMGlobals.Globals.Log.WriteTo("First command!!!");
                                 }
                             }
@@ -327,6 +338,8 @@ namespace KSPM.Network.Server
             {
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Handles the those commands send by the client through a TCP socket.
@@ -552,7 +565,7 @@ namespace KSPM.Network.Server
                                         Message.ServerFullMessage(messageOwner, out responseMessage);
                                         PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
                                         ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
-                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
@@ -587,7 +600,7 @@ namespace KSPM.Network.Server
                                             ///There is no chance to try it again.
                                             ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
                                         }
-                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.Disconnect:
@@ -596,7 +609,7 @@ namespace KSPM.Network.Server
                                     this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
                                     this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
                                     break;
-
+                                    /*
                                 case Message.CommandType.Chat:
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
@@ -604,6 +617,7 @@ namespace KSPM.Network.Server
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
                                     break;
+                                    */
                                 case Message.CommandType.Unknown:
                                 default:
                                     KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
@@ -612,6 +626,56 @@ namespace KSPM.Network.Server
                         }
                     }
                     Thread.Sleep(9);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.alive = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles the TCP socket and the main Queue of messages, uses the a TCP socket to send messages.
+        /// </summary>
+        protected void HandleOutgoingPriorityMessagesThreadMethod()
+        {
+            Message outgoingMessage = null;
+            ManagedMessage managedReference = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
+                while (this.alive)
+                {
+                    if (!this.priorityOutgoingMessagesQueue.IsEmpty())
+                    {
+                        this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
+                        managedReference = (ManagedMessage)outgoingMessage;
+                        if (outgoingMessage != null)
+                        {
+                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
+                            try
+                            {
+                                ///Checking if the NetworkEntity is still running.
+                                if (managedReference.OwnerNetworkEntity.IsAlive())
+                                {
+                                    managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
+                                }
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Message killMessage = null;
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingPriorityMessages", ex.Message));
+                                Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
+                                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+                            }
+                        }
+                        outgoingMessage = null;
+                    }
+                    Thread.Sleep(5);
                 }
             }
             catch (ThreadAbortException)

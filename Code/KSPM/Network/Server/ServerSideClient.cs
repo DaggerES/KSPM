@@ -47,11 +47,6 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
-        /// <summary>
-        /// Tells if the basic configuration has been set ( Connection, Chat, ..) and whichever required to run.
-        /// </summary>
-        protected bool basisSetUp;
-
         #region Buffering
 
         /// <summary>
@@ -124,6 +119,11 @@ namespace KSPM.Network.Server
         protected bool connected;
 
         /// <summary>
+        /// Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
+        /// </summary>
+        protected bool markedToDie;
+
+        /// <summary>
         /// UDPMessages queue to hold those incoming packets.
         /// </summary>
         protected CommandQueue incomingPackets;
@@ -182,7 +182,7 @@ namespace KSPM.Network.Server
             this.buffering = false;
             this.bufferedBytes = 0;
 
-            this.basisSetUp = false;
+            this.markedToDie = false;
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace KSPM.Network.Server
                     case ClientStatus.Handshaking:
                         Message.HandshakeAccetpMessage(myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+                        KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         this.currentStatus = ClientStatus.Awaiting;
                         //Awaiting for the Authentication message coming from the remote client.
                         break;
@@ -241,7 +241,7 @@ namespace KSPM.Network.Server
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+                        KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
 
@@ -253,15 +253,16 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
                         Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
-                        KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+                        KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Setting up KSPM Chat system.", this.Id));
                         this.connected = true;
                         this.currentStatus = ClientStatus.Awaiting;
                         this.OnUserConnected( null );
                         break;
                 }
-                if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut)
+                if ( !this.connected && this.timer.ElapsedMilliseconds > ServerSettings.ConnectionProcessTimeOut && !this.markedToDie)
                 {
+                    this.markedToDie = true;
                     Message killMessage = null;
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken too long: {1}.", this.id, this.timer.ElapsedMilliseconds));
                     Message.DisconnectMessage(this, out killMessage);
