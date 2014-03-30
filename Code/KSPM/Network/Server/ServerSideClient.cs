@@ -54,6 +54,8 @@ namespace KSPM.Network.Server
         /// </summary>
         protected System.IO.MemoryStream receivingBuffer;
 
+        protected KSPM.IO.Memory.CyclicalMemoryBuffer tcpBuffer;
+
         /// <summary>
         /// Tells if already the thread is buffering information.<b>Packets are getting together.</b>
         /// </summary>
@@ -182,6 +184,8 @@ namespace KSPM.Network.Server
             this.buffering = false;
             this.bufferedBytes = 0;
 
+            this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
+
             this.markedToDie = false;
         }
 
@@ -307,6 +311,29 @@ namespace KSPM.Network.Server
             {
                 Message killMessage = null;
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingMessages", ex.SocketErrorCode, ex.Message));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+        }
+
+        public void PerformanceAsyncTCPReceiver(System.IAsyncResult result)
+        {
+            this.TCPSignalHandler.Set();
+            int readBytes;
+            NetworkEntity callingEntity = null;
+            try
+            {
+                callingEntity = (NetworkEntity)result.AsyncState;
+                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                if (readBytes > 0)
+                {
+                    this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
+                }
+            }
+            catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
@@ -710,6 +737,9 @@ namespace KSPM.Network.Server
 
             this.receivingBuffer.Dispose();
             this.receivingBuffer = null;
+
+            this.tcpBuffer.Relase();
+            this.tcpBuffer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             

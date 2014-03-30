@@ -52,6 +52,7 @@
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Logging\WebLog.cs" />
+    <Compile Include="IO\Memory\CyclicalMemoryBuffer.cs" />
     <Compile Include="IO\Memory\MemoryBuffer.cs" />
     <Compile Include="IO\Security\Hash.cs" />
     <Compile Include="Network\Chat\Filter\ChatFilter.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Network\Common\Messages\Message.cs" />
     <Compile Include="Network\Common\Packet\ByteDecoder.cs" />
     <Compile Include="Network\Common\NetworkBaseCollection.cs" />
+    <Compile Include="Network\Common\Packet\IPacketArrived.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
     <Compile Include="Network\Common\AbstractSettings.cs" />

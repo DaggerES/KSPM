@@ -18,9 +18,21 @@ namespace KSPM.Network.Common.Packet
         protected static bool CompressingPacketsEnabled = false;
 
         /// <summary>
+        /// Tells how many bytes are required to start to consider a bunch of bytes as packet.
+        /// </summary>
+        public static readonly uint PrefixSize = 8;
+
+        /// <summary>
         /// Reference to the compression methods.
         /// </summary>
         protected static Compressor CompressingObject;
+
+        protected KSPM.IO.Memory.CyclicalMemoryBuffer memoryReference;
+        protected byte[] workingBuffer;
+        protected byte[] unpackedBytes;
+        protected int unpackedBytesCounter;
+
+        #region StaticMethods
 
         /// <summary>
         /// Initialize the compression settings to be used by the PacketHandler. If the compression flag is set to True and the compression reference is null then the compression flag shall be set to false.
@@ -265,6 +277,66 @@ namespace KSPM.Network.Common.Packet
             }
             messageTarget = new RawMessage((Message.CommandType)rawBytes[ PacketHandler.RawMessageHeaderSize ], rawBytes, (uint)bytesBlockSize);
             return Error.ErrorType.Ok;
+        }
+
+        #endregion
+
+        public PacketHandler( KSPM.IO.Memory.CyclicalMemoryBuffer memoryReference )
+        {
+            this.memoryReference = memoryReference;
+            this.workingBuffer = new byte[this.memoryReference.FixedLength];
+            this.unpackedBytes = new byte[this.memoryReference.FixedLength];
+            this.unpackedBytesCounter = 0;
+        }
+
+        public void Packetize(IPacketArrived consumer)
+        {
+            uint availableBytes = this.memoryReference.Read(ref this.workingBuffer);
+            int messageBlockSize = 0;
+            byte[] packet;
+            int i = 0;
+            if (availableBytes != 0)
+            {
+                if (this.unpackedBytesCounter + availableBytes >= PacketHandler.PrefixSize)
+                {
+                    System.Buffer.BlockCopy(this.workingBuffer, 0, this.unpackedBytes, (int)this.unpackedBytesCounter, (int)(PacketHandler.PrefixSize - this.unpackedBytesCounter));
+                    if (this.unpackedBytes[i] == Message.HeaderOfMessageCommand[0] && this.unpackedBytes[i + 1] == Message.HeaderOfMessageCommand[1] && this.unpackedBytes[i + 2] == Message.HeaderOfMessageCommand[2] && this.unpackedBytes[i + 3] == Message.HeaderOfMessageCommand[3])
+                    {
+                        messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, Message.HeaderOfMessageCommand.Length);
+                        packet = new byte[messageBlockSize];
+                        System.Buffer.BlockCopy(this.unpackedBytes, 0, packet, 0, (int)PacketHandler.PrefixSize);
+                        if (PacketHandler.PrefixSize < messageBlockSize)
+                        {
+                            System.Buffer.BlockCopy(this.workingBuffer, (int)PacketHandler.PrefixSize - this.unpackedBytesCounter, packet, (int)PacketHandler.PrefixSize, (int)(messageBlockSize - PacketHandler.PrefixSize));
+                        }
+                        consumer.ProcessPacket(packet, (uint)packet.Length);
+                        i = messageBlockSize - this.unpackedBytesCounter;
+                    }
+                }
+                for (; i < availableBytes - PacketHandler.PrefixSize; )
+                {
+                    ///locking for the MessageHeaderItself
+                    if (this.workingBuffer[i] == Message.HeaderOfMessageCommand[0] && this.workingBuffer[i + 1] == Message.HeaderOfMessageCommand[1] && this.workingBuffer[i + 2] == Message.HeaderOfMessageCommand[2] && this.workingBuffer[i + 3] == Message.HeaderOfMessageCommand[3])
+                    {
+                        messageBlockSize = System.BitConverter.ToInt32(this.workingBuffer, i + Message.HeaderOfMessageCommand.Length);
+                        if (messageBlockSize > availableBytes - i)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            packet = new byte[messageBlockSize];
+                            System.Buffer.BlockCopy(this.workingBuffer, i, packet, 0, messageBlockSize);
+                            consumer.ProcessPacket(packet, (uint)packet.Length);
+                            i += messageBlockSize;
+                        }
+                    }
+                    else
+                        i++;
+                }
+                this.unpackedBytesCounter = (int)availableBytes - i;
+                System.Buffer.BlockCopy(this.workingBuffer, i, this.unpackedBytes, 0, this.unpackedBytesCounter);
+            }
         }
     }
 }
