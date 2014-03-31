@@ -297,9 +297,55 @@ namespace KSPM.Network.Common.Packet
             int i = 0;
             if (availableBytes != 0)
             {
+                if (this.unpackedBytesCounter > 0)
+                {
+                    if (this.unpackedBytesCounter < PacketHandler.PrefixSize)
+                    {
+                        if (this.unpackedBytesCounter + availableBytes >= PacketHandler.PrefixSize)
+                        {
+                            ///Copying those bytes needed to complete a prefix header.
+                            i = (int)(PacketHandler.PrefixSize - this.unpackedBytesCounter);
+                            System.Buffer.BlockCopy(this.workingBuffer, 0, this.unpackedBytes, (int)this.unpackedBytesCounter, i);
+                        }
+                        else
+                        {
+                            ///This case is so difficult to happen.
+                            i = (int)availableBytes;
+                            System.Buffer.BlockCopy(this.workingBuffer, 0, this.unpackedBytes, (int)this.unpackedBytesCounter, i);
+                        }
+                    }
+                    else///We already have a complete prefix or partial message inside the unpackedBytes buffer.
+                    {
+
+                    }
+                    ///Verifying if there are the MessageHeader.
+                    if (this.unpackedBytes[0] == Message.HeaderOfMessageCommand[0] && this.unpackedBytes[1] == Message.HeaderOfMessageCommand[1] && this.unpackedBytes[2] == Message.HeaderOfMessageCommand[2] && this.unpackedBytes[3] == Message.HeaderOfMessageCommand[3])
+                    {
+                        messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, Message.HeaderOfMessageCommand.Length);
+                        packet = new byte[messageBlockSize];
+                        //System.Buffer.BlockCopy(this.unpackedBytes, 0, packet, 0, (int)PacketHandler.PrefixSize);
+                        if (messageBlockSize >= this.unpackedBytesCounter)///Only a partial message is stored in the unpacked buffer.
+                        {
+                            System.Buffer.BlockCopy(this.unpackedBytes, 0, packet, 0, this.unpackedBytesCounter);
+                            System.Buffer.BlockCopy(this.workingBuffer, 0, packet, this.unpackedBytesCounter, messageBlockSize - this.unpackedBytesCounter);
+                        }
+                        else
+                        {
+                            System.Buffer.BlockCopy(this.unpackedBytes, 0, packet, 0, messageBlockSize);
+                        }
+                        consumer.ProcessPacket(packet, (uint)packet.Length);
+                        i = messageBlockSize - this.unpackedBytesCounter;
+                    }
+                }
+                /*
+                ///Checking if there are enough bytes to be considered as a valid packet.
                 if (this.unpackedBytesCounter + availableBytes >= PacketHandler.PrefixSize)
                 {
-                    System.Buffer.BlockCopy(this.workingBuffer, 0, this.unpackedBytes, (int)this.unpackedBytesCounter, (int)(PacketHandler.PrefixSize - this.unpackedBytesCounter));
+                    if (this.unpackedBytesCounter < PacketHandler.PrefixSize)
+                    {
+                        System.Buffer.BlockCopy(this.workingBuffer, 0, this.unpackedBytes, (int)this.unpackedBytesCounter, (int)(PacketHandler.PrefixSize - this.unpackedBytesCounter));
+                    }
+                    ///Verifying if there are the MessageHeader.
                     if (this.unpackedBytes[i] == Message.HeaderOfMessageCommand[0] && this.unpackedBytes[i + 1] == Message.HeaderOfMessageCommand[1] && this.unpackedBytes[i + 2] == Message.HeaderOfMessageCommand[2] && this.unpackedBytes[i + 3] == Message.HeaderOfMessageCommand[3])
                     {
                         messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, Message.HeaderOfMessageCommand.Length);
@@ -313,6 +359,7 @@ namespace KSPM.Network.Common.Packet
                         i = messageBlockSize - this.unpackedBytesCounter;
                     }
                 }
+                */
                 for (; i < availableBytes - PacketHandler.PrefixSize; )
                 {
                     ///locking for the MessageHeaderItself
@@ -335,7 +382,11 @@ namespace KSPM.Network.Common.Packet
                         i++;
                 }
                 this.unpackedBytesCounter = (int)availableBytes - i;
-                System.Buffer.BlockCopy(this.workingBuffer, i, this.unpackedBytes, 0, this.unpackedBytesCounter);
+                ///If there are some bytes to be stored.
+                if (this.unpackedBytesCounter > 0)
+                {
+                    System.Buffer.BlockCopy(this.workingBuffer, i, this.unpackedBytes, 0, this.unpackedBytesCounter);
+                }
             }
         }
     }

@@ -49,6 +49,7 @@
     <Compile Include="IO\Logging\BufferedLog.cs" />
     <Compile Include="IO\Logging\ConsoleLog.cs" />
     <Compile Include="IO\Logging\DevNullLog.cs" />
+    <Compile Include="IO\Logging\DiagnosticsLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
     <Compile Include="IO\Logging\WebLog.cs" />

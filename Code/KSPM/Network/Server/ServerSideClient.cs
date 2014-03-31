@@ -15,7 +15,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// Represents a client handled by the server.
     /// </summary>
-    public class ServerSideClient : NetworkEntity, IAsyncReceiver, IAsyncSender, IAsyncTCPReceiver
+    public class ServerSideClient : NetworkEntity, IAsyncReceiver, IAsyncSender, IAsyncTCPReceiver, IPacketArrived
     {
         /// <summary>
         /// ServerSide status.
@@ -55,6 +55,8 @@ namespace KSPM.Network.Server
         protected System.IO.MemoryStream receivingBuffer;
 
         protected KSPM.IO.Memory.CyclicalMemoryBuffer tcpBuffer;
+
+        protected PacketHandler packetizer;
 
         /// <summary>
         /// Tells if already the thread is buffering information.<b>Packets are getting together.</b>
@@ -150,6 +152,13 @@ namespace KSPM.Network.Server
 
         #endregion
 
+        #region Profiling
+
+        System.Diagnostics.Stopwatch timer;
+        KSPM.IO.Logging.DiagnosticsLog reporter;
+
+        #endregion
+
         #region InitializingCode
 
         /// <summary>
@@ -185,8 +194,14 @@ namespace KSPM.Network.Server
             this.bufferedBytes = 0;
 
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
+            this.packetizer = new PacketHandler(this.tcpBuffer);
 
             this.markedToDie = false;
+
+
+            this.timer = new System.Diagnostics.Stopwatch();
+            this.timer.Start();
+            this.reporter = new IO.Logging.DiagnosticsLog("ServerSideClient.txt", false);
         }
 
         /// <summary>
@@ -284,6 +299,8 @@ namespace KSPM.Network.Server
         protected void HandleIncomingMessagesMethod()
         {
             ReceivingBuffer bufferReference;
+            long beginTicks = 0;
+            long packtizeTicks = 0;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -293,13 +310,17 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
+                    beginTicks  = this.timer.ElapsedTicks;
                     this.TCPSignalHandler.Reset();
                     /*bufferReference = new ReceivingBuffer();
                     bufferReference.buffer = new byte[ServerSettings.ServerBufferSize];
                     bufferReference.owner = this;*/
                     //this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
-                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.PerformanceAsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
+                    packtizeTicks = this.timer.ElapsedTicks;
+                    this.packetizer.Packetize(this);
+                    this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
                     Thread.Sleep(1);
                 }
             }
@@ -336,6 +357,23 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
                 Message.DisconnectMessage(this, out killMessage);
                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+        }
+
+        public void ProcessPacket(byte[] rawData, uint fixedLegth)
+        {
+            Message incomingMessage = null;
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+            {
+                if (this.connected)///If everything is already set up, commands go to the common queue.
+                {
+                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                }
+                else
+                {
+                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                }
             }
         }
 
@@ -740,6 +778,8 @@ namespace KSPM.Network.Server
 
             this.tcpBuffer.Relase();
             this.tcpBuffer = null;
+
+            this.reporter.Dispose();
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             
