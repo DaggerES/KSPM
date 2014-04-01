@@ -319,7 +319,8 @@ namespace KSPM.Network.Server
                     this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.PerformanceAsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     packtizeTicks = this.timer.ElapsedTicks;
-                    this.packetizer.Packetize(this);
+                    //this.packetizer.Packetize(this);
+                    this.packetizer.PacketizeCRC(this);
                     //this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
                     Thread.Sleep(1);
                 }
