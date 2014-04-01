@@ -50,12 +50,29 @@ namespace KSPM.Network.Chat.Managers
         /// </summary>
         protected List<ChatFilter> availableFilters;
 
+        /// <summary>
+        /// Network Entity to whom belongs this chat manager.
+        /// </summary>
         protected NetworkEntity owner;
 
-        public ChatManager()
+        /// <summary>
+        /// Defines how the default chat group would be created.
+        /// </summary>
+        public enum DefaultStorageMode : byte { Persistent, NonPersistent };
+
+        public ChatManager( DefaultStorageMode mode)
         {
             this.chatGroups = new Dictionary<short, ChatGroup>();
-            this.defaultChatGroup= new NMChatGroup();
+
+            if (mode == DefaultStorageMode.Persistent)
+            {
+                this.defaultChatGroup = new NMChatGroup();
+            }
+            else
+            {
+                this.defaultChatGroup = new NonPersistentNMChatgroup();
+            }
+            
             this.chatGroups.Add(this.defaultChatGroup.Id, this.defaultChatGroup);
             this.availableFilters = new List<ChatFilter>();
         }
@@ -123,7 +140,7 @@ namespace KSPM.Network.Chat.Managers
             }
         }
 
-        public static Error.ErrorType CreateChatManagerFromMessage(byte[] rawBytes, out ChatManager manager)
+        public static Error.ErrorType CreateChatManagerFromMessage(byte[] rawBytes,ChatManager.DefaultStorageMode mode , out ChatManager manager)
         {
             short shortBuffer;
             short availableGroups;
@@ -135,7 +152,7 @@ namespace KSPM.Network.Chat.Managers
             {
                 return Error.ErrorType.ChatInvalidAvailableGroups;
             }
-            manager = new ChatManager();
+            manager = new ChatManager(mode);
             readingOffset += 2;
             for (int i = 0; i < availableGroups; i++)
             {

@@ -21,7 +21,6 @@ namespace KSPM_TestingConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(string.Format("{0} : {1}", "ASD", sizeof(int)));
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
 
 			////Server test

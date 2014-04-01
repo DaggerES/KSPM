@@ -58,10 +58,12 @@
     <Compile Include="IO\Security\Hash.cs" />
     <Compile Include="Network\Chat\Filter\ChatFilter.cs" />
     <Compile Include="Network\Chat\Filter\GroupFilter.cs" />
+    <Compile Include="Network\Chat\Group\NonPersistenChatGroup.cs" />
+    <Compile Include="Network\Chat\Group\NonPersistentNMChatgroup.cs" />
+    <Compile Include="Network\Chat\Group\PersistentChatGroup.cs" />
     <Compile Include="Network\Chat\Managers\ChatManager.cs" />
     <Compile Include="Network\Chat\Group\ChatGroup.cs" />
     <Compile Include="Network\Chat\Group\NMChatGroup.cs" />
-    <Compile Include="Network\Chat\Managers\PromiscuousChatManager.cs" />
     <Compile Include="Network\Chat\Messages\ChatMessage.cs" />
     <Compile Include="Network\Chat\Messages\GeneralMessage.cs" />
     <Compile Include="Network\Client\ClientSettings.cs" />

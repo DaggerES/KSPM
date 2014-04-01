@@ -1,13 +1,13 @@
 ﻿namespace KSPM.Network.Chat.Group
 {
-    public class NMChatGroup : PersistentChatGroup
+    public class NonPersistentNMChatgroup : NonPersistenChatGroup
     {
-        public NMChatGroup()
+        public NonPersistentNMChatgroup()
             : base()
         {
         }
 
-        public NMChatGroup(short id) : base()
+        public NonPersistentNMChatgroup( short id) : base()
         {
             ChatGroup.ChatGroupCounter = id;
             this.id = ChatGroup.ChatGroupCounter++;

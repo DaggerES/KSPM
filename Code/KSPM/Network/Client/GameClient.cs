@@ -532,7 +532,7 @@ namespace KSPM.Network.Client
                                     }
                                     break;
                                 case Message.CommandType.ChatSettingUp:
-                                    if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, out this.chatSystem) == Error.ErrorType.Ok)
+                                    if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
                                     {
                                         this.chatSystem.Owner = this;
                                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Chat system is online, {1} groups registered.", this.id, this.chatSystem.RegisteredGroups));

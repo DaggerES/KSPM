@@ -201,7 +201,7 @@ namespace KSPM.Network.Server
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
-            this.reporter = new IO.Logging.DiagnosticsLog("ServerSideClient.txt", false);
+            //this.reporter = new IO.Logging.DiagnosticsLog("ServerSideClient.txt", false);
         }
 
         /// <summary>
@@ -320,7 +320,7 @@ namespace KSPM.Network.Server
                     this.TCPSignalHandler.WaitOne();
                     packtizeTicks = this.timer.ElapsedTicks;
                     this.packetizer.Packetize(this);
-                    this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
+                    //this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
                     Thread.Sleep(1);
                 }
             }
@@ -779,7 +779,7 @@ namespace KSPM.Network.Server
             this.tcpBuffer.Relase();
             this.tcpBuffer = null;
 
-            this.reporter.Dispose();
+            //this.reporter.Dispose();
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             

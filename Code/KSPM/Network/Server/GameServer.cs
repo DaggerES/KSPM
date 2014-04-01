@@ -144,7 +144,7 @@ namespace KSPM.Network.Server
             ///It still missing the filter
             this.usersAccountManager = new AccountManager();
 
-            this.chatManager = new ChatManager();
+            this.chatManager = new ChatManager(ChatManager.DefaultStorageMode.NonPersistent);
 
             this.ableToRun = true;
             this.alive = false;
@@ -442,7 +442,6 @@ namespace KSPM.Network.Server
                                 case Message.CommandType.Chat:
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
-                                        //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
                                         //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
