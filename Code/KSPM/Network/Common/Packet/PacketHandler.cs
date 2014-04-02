@@ -310,7 +310,7 @@ namespace KSPM.Network.Common.Packet
             {
                 for (index = 0; index < this.unpackedBytesCounter; index++)///Scan the unpacked bytes first.
                 {
-                    if (!startHeaderFound)
+                    if (!startHeaderFound && !endHeaderFound)
                     {
                         if (this.unpackedBytes[index] == Message.HeaderOfMessageCommand[searchedHeaderIndex])
                         {
@@ -337,6 +337,7 @@ namespace KSPM.Network.Common.Packet
                                 endHeaderFound = true;
                                 endsAtIndex = index + 1;
                                 packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
                             }
                         }
                     }
@@ -362,7 +363,7 @@ namespace KSPM.Network.Common.Packet
                     {
 
                     }
-                    if (!startHeaderFound)
+                    if (!startHeaderFound && !endHeaderFound)
                     {
                         if (this.workingBuffer[index] == Message.HeaderOfMessageCommand[searchedHeaderIndex])
                         {
@@ -385,6 +386,7 @@ namespace KSPM.Network.Common.Packet
                             {
                                 endHeaderFound = true;
                                 endsAtIndex = index + 1;
+                                searchedHeaderIndex = 0;
                             }
                         }
                     }
@@ -443,6 +445,7 @@ namespace KSPM.Network.Common.Packet
                                 }
                                 consumer.ProcessPacket(packet, (uint)messageBlockSize);
                             }
+                            //startsAtIndex = endsAtIndex = 0;
                         }
 
                         /*
@@ -469,6 +472,7 @@ namespace KSPM.Network.Common.Packet
                         endHeaderFound = startHeaderFound = false;
                         //startsAtIndex = endsAtIndex = 0;
                     }
+                    packetStatus = PacketStatus.NoProcessed;
                 }
                 this.unpackedBytesCounter = (int)availableBytes - endsAtIndex;
                 if (this.unpackedBytesCounter > 0)
