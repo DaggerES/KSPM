@@ -350,6 +350,7 @@ namespace KSPM.Network.Common.Packet
                             packet = new byte[messageBlockSize];
                             System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex, packet, 0, messageBlockSize);
                             consumer.ProcessPacket(packet, (uint)messageBlockSize);
+                            packetStatus = PacketStatus.NoProcessed;
                         }
                         endHeaderFound = startHeaderFound = false;
                         startsAtIndex = endsAtIndex = 0;
@@ -407,6 +408,7 @@ namespace KSPM.Network.Common.Packet
                                     ///Copying the rest of the message stored inside the working array.
                                     System.Buffer.BlockCopy(this.workingBuffer, 0, packet, this.unpackedBytesCounter, endsAtIndex);
                                     consumer.ProcessPacket(packet, (uint)messageBlockSize);
+                                    packetStatus = PacketStatus.NoProcessed;
                                 }
                             }
                             else
@@ -424,6 +426,7 @@ namespace KSPM.Network.Common.Packet
                                     System.Buffer.BlockCopy(this.prefixBytes, 0, packet, 0, (int)PacketHandler.PrefixSize);
                                     System.Buffer.BlockCopy(this.workingBuffer, stolenBytesFromWorkingBuffer, packet, (int)PacketHandler.PrefixSize, endsAtIndex - stolenBytesFromWorkingBuffer);
                                     consumer.ProcessPacket(packet, (uint)messageBlockSize);
+                                    packetStatus = PacketStatus.NoProcessed;
                                 }
                             }
                         }
@@ -444,6 +447,7 @@ namespace KSPM.Network.Common.Packet
                                     System.Buffer.BlockCopy(this.workingBuffer, startsAtIndex, packet, 0, messageBlockSize);
                                 }
                                 consumer.ProcessPacket(packet, (uint)messageBlockSize);
+                                packetStatus = PacketStatus.NoProcessed;
                             }
                             //startsAtIndex = endsAtIndex = 0;
                         }
@@ -472,7 +476,6 @@ namespace KSPM.Network.Common.Packet
                         endHeaderFound = startHeaderFound = false;
                         //startsAtIndex = endsAtIndex = 0;
                     }
-                    packetStatus = PacketStatus.NoProcessed;
                 }
                 this.unpackedBytesCounter = (int)availableBytes - endsAtIndex;
                 if (this.unpackedBytesCounter > 0)

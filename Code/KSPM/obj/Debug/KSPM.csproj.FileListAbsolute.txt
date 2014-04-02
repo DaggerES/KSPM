@@ -7,4 +7,3 @@ D:\Projects\CSharp\KSPM\Code\KSPM\bin\Debug\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.pdb
-D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\ResolveAssemblyReference.cache
