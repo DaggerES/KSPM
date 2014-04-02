@@ -50,23 +50,14 @@ namespace KSPM.Network.Server
         #region Buffering
 
         /// <summary>
-        /// Holds the incoming streams from the socket.
+        /// Buffer used to store all the incoming messages.
         /// </summary>
-        protected System.IO.MemoryStream receivingBuffer;
-
         protected KSPM.IO.Memory.CyclicalMemoryBuffer tcpBuffer;
 
+        /// <summary>
+        /// Converts all incoming bytes into proper information packets.
+        /// </summary>
         protected PacketHandler packetizer;
-
-        /// <summary>
-        /// Tells if already the thread is buffering information.<b>Packets are getting together.</b>
-        /// </summary>
-        protected bool buffering;
-
-        /// <summary>
-        /// How many bytes are being buffered.
-        /// </summary>
-        protected int bufferedBytes;
 
         #endregion
 
@@ -189,10 +180,6 @@ namespace KSPM.Network.Server
             this.incomingPackets = new CommandQueue();
             this.outgoingPackets = new CommandQueue();
 
-            this.receivingBuffer = new System.IO.MemoryStream(ServerSettings.ServerBufferSize * 10);
-            this.buffering = false;
-            this.bufferedBytes = 0;
-
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
             this.packetizer = new PacketHandler(this.tcpBuffer);
 
@@ -201,7 +188,7 @@ namespace KSPM.Network.Server
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
-            //this.reporter = new IO.Logging.DiagnosticsLog("ServerSideClient.txt", false);
+            this.reporter = new IO.Logging.DiagnosticsLog(string.Format("Report_{0}", this.id.ToString()), false);
         }
 
         /// <summary>
@@ -298,7 +285,6 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleIncomingMessagesMethod()
         {
-            ReceivingBuffer bufferReference;
             long beginTicks = 0;
             long packtizeTicks = 0;
             if (!this.ableToRun)
@@ -316,12 +302,12 @@ namespace KSPM.Network.Server
                     bufferReference.buffer = new byte[ServerSettings.ServerBufferSize];
                     bufferReference.owner = this;*/
                     //this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
-                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.PerformanceAsyncTCPReceiver, this);
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     packtizeTicks = this.timer.ElapsedTicks;
                     //this.packetizer.Packetize(this);
                     this.packetizer.PacketizeCRC(this);
-                    //this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
+                    this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
                     Thread.Sleep(1);
                 }
             }
@@ -338,7 +324,7 @@ namespace KSPM.Network.Server
             }
         }
 
-        public void PerformanceAsyncTCPReceiver(System.IAsyncResult result)
+        public void AsyncTCPReceiver(System.IAsyncResult result)
         {
             this.TCPSignalHandler.Set();
             int readBytes;
@@ -375,75 +361,6 @@ namespace KSPM.Network.Server
                 {
                     KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Method used to receive Messages through the TCP socket.
-        /// </summary>
-        /// <param name="result">Holds a reference to this object.</param>
-        public void AsyncTCPReceiver(System.IAsyncResult result)
-        {
-            this.TCPSignalHandler.Set();
-            int readBytes;
-            Message incomingMessage = null;
-            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
-            try
-            {
-                //ReceivingBuffer wrapper = (ReceivingBuffer)result.AsyncState;
-                //NetworkEntity callingEntity = wrapper.owner;
-                NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-                //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(Thread.CurrentThread.ManagedThreadId.ToString());
-                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                if (readBytes > 0 )
-                {
-                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("RecBytes: {0}-{1}", callingEntity.Id, readBytes.ToString()));
-                    this.receivingBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, readBytes);
-                    this.bufferedBytes += readBytes;
-                    if (readBytes >= ServerSettings.ServerBufferSize)///Means that the packets are coming together.
-                    {
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("Buffering: {0}-{1}", callingEntity.Id, "buffering"));
-                        buffering = true;
-                    }
-                    else
-                    {
-                        if (buffering)///Was it buffering bytes??
-                        {
-                            buffering = false;
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("Buffering: {0}-{1}", callingEntity.Id, "Releasing"));
-                        }
-                        if (PacketHandler.Packetize(this.receivingBuffer, this.bufferedBytes, packets) == Error.ErrorType.Ok)
-                        {
-                            while (packets.Count > 0)
-                            {
-                                if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                                {
-                                    if (this.connected)///If everything is already set up, commands go to the common queue.
-                                    {
-                                        KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                    }
-                                    else
-                                    {
-                                        KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                    }
-                                }
-                            }
-                        }
-                        this.bufferedBytes = 0;
-                    }
-                }
-                /*
-                wrapper.buffer = null;
-                wrapper.owner = null;
-                wrapper = null;
-                */
-            }
-            catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
-            {
-                Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
-                Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
             }
         }
 
@@ -774,13 +691,10 @@ namespace KSPM.Network.Server
             this.outgoingPackets.Purge(false);
             this.incomingPackets.Purge(false);
 
-            this.receivingBuffer.Dispose();
-            this.receivingBuffer = null;
-
-            this.tcpBuffer.Relase();
+            this.tcpBuffer.Release();
             this.tcpBuffer = null;
 
-            //this.reporter.Dispose();
+            this.reporter.Dispose();
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             

@@ -47,7 +47,7 @@
             return worthyBytes;
         }
 
-        public void Relase()
+        public void Release()
         {
             for (int i = 0; i < this.size; i++)
             {

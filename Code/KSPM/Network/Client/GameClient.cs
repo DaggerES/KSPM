@@ -19,7 +19,7 @@ namespace KSPM.Network.Client
     /// <summary>
     /// Class to represent the remote client.
     /// </summary>
-    public class GameClient : NetworkEntity, IAsyncTCPReceiver, IAsyncTCPSender, IAsyncReceiver, IAsyncSender
+    public class GameClient : NetworkEntity, IAsyncTCPReceiver, IAsyncTCPSender, IAsyncReceiver, IAsyncSender, IPacketArrived
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected };
 
@@ -73,6 +73,20 @@ namespace KSPM.Network.Client
         /// </summary>
         protected bool holePunched;
 
+        #region Buffering
+
+        /// <summary>
+        /// Buffer used to store all the incoming messages.
+        /// </summary>
+        protected KSPM.IO.Memory.CyclicalMemoryBuffer tcpBuffer;
+
+        /// <summary>
+        /// Converts all incoming bytes into proper information packets.
+        /// </summary>
+        protected PacketHandler packetizer;
+
+        #endregion
+
         #region TCPProperties
 
         /// <summary>
@@ -99,12 +113,6 @@ namespace KSPM.Network.Client
         /// Thread to handle the incoming TCP messages.
         /// </summary>
         protected Thread handleIncomingTCPMessagesThread;
-
-        protected System.IO.MemoryStream tcpReceivingBuffer;
-
-        protected bool buffering;
-
-        protected int bufferedBytes;
 
         #endregion
 
@@ -233,9 +241,8 @@ namespace KSPM.Network.Client
             this.errorHandlingThread = new Thread(new ThreadStart(this.HandleErrorsThreadMethod));
 
             ///TCP Buffering
-            this.tcpReceivingBuffer = new System.IO.MemoryStream(ClientSettings.ClientBufferSize * 8);
-            this.buffering = false;
-            this.bufferedBytes = 0;
+            this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
+            this.packetizer = new PacketHandler(this.tcpBuffer);
         }
 
         /// <summary>
@@ -539,13 +546,16 @@ namespace KSPM.Network.Client
                                     }
                                     break;
                                 case Message.CommandType.Chat:
-                                    if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                                    if (this.chatSystem != null)///Checking if the chat system is already set up.
                                     {
-                                        ///Checking if the message should be filtered or not.
-                                        if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                        if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
                                         {
-                                            this.chatSystem.AttachMessage(incomingChatMessage);
-                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                            ///Checking if the message should be filtered or not.
+                                            if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                            {
+                                                this.chatSystem.AttachMessage(incomingChatMessage);
+                                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                            }
                                         }
                                     }
                                     break;
@@ -663,6 +673,7 @@ namespace KSPM.Network.Client
                             this.runtimeErrors.Enqueue(ex);
                         }
                         this.TCPSignalHandler.WaitOne();
+                        this.packetizer.PacketizeCRC(this);
                     }
                     Thread.Sleep(11);
                 }
@@ -679,6 +690,23 @@ namespace KSPM.Network.Client
         /// <param name="result"></param>
         public void AsyncTCPReceiver(System.IAsyncResult result)
         {
+            this.TCPSignalHandler.Set();
+            int readBytes;
+            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
+            try
+            {
+                NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
+                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                if (readBytes > 0)
+                {
+                    this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
+                }
+            }
+            catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            {
+                ///This exception is not added to the runtime errors queue, because the error will propagate to the above level.
+            }
+            /*
             this.TCPSignalHandler.Set();
             int readBytes;
             Message incomingMessage = null;
@@ -719,6 +747,17 @@ namespace KSPM.Network.Client
             catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
                 ///This exception is not added to the runtime errors queue, because the error will propagate to the above level.
+            }
+            */
+        }
+
+        public void ProcessPacket(byte[] rawData, uint fixedLegth)
+        {
+            Message incomingMessage = null;
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+            {
+                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
             }
         }
 
@@ -993,6 +1032,9 @@ namespace KSPM.Network.Client
             this.outgoingTCPMessages.Purge(false);
 
             this.timer.Reset();
+
+            this.tcpBuffer.Release();
+            this.tcpBuffer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client killed!!!", this.id));
         }
