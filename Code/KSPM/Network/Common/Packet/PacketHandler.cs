@@ -360,10 +360,6 @@ namespace KSPM.Network.Common.Packet
 
                 for (index = 0; index < availableBytes; index++)///Now we are searching inside the working buffer.
                 {
-                    if (packetStatus == PacketStatus.BeginHeaderIncomplete)
-                    {
-
-                    }
                     if (!startHeaderFound && !endHeaderFound)
                     {
                         if (this.workingBuffer[index] == Message.HeaderOfMessageCommand[searchedHeaderIndex])
@@ -451,28 +447,6 @@ namespace KSPM.Network.Common.Packet
                             }
                             //startsAtIndex = endsAtIndex = 0;
                         }
-
-                        /*
-                        physicalMessageBlockSize = endsAtIndex - startsAtIndex;
-                        if (physicalMessageBlockSize <= 0)///means that the message is splited between both buffers.
-                        {
-                            ///Recalculating the physical size.
-                            physicalMessageBlockSize = endsAtIndex + this.unpackedBytesCounter - startsAtIndex;
-                            if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
-                            {
-                                packet = new byte[messageBlockSize];
-                                System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex, packet, 0, this.unpackedBytesCounter - startsAtIndex);
-                                consumer.ProcessPacket(packet, (uint)messageBlockSize);
-                            }
-                        }
-                        messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, startsAtIndex);
-                        if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
-                        {
-                            packet = new byte[messageBlockSize];
-                            System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex, packet, 0, messageBlockSize);
-                            consumer.ProcessPacket(packet, (uint)messageBlockSize);
-                        }
-                        */
                         endHeaderFound = startHeaderFound = false;
                         //startsAtIndex = endsAtIndex = 0;
                     }
