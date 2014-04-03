@@ -305,9 +305,9 @@ namespace KSPM.Network.Server
                     this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     packtizeTicks = this.timer.ElapsedTicks;
-                    //this.packetizer.Packetize(this);
                     this.packetizer.PacketizeCRC(this);
                     this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
+                    //this.packetizer.Packetize(this);
                     Thread.Sleep(1);
                 }
             }
@@ -326,13 +326,14 @@ namespace KSPM.Network.Server
 
         public void AsyncTCPReceiver(System.IAsyncResult result)
         {
-            this.TCPSignalHandler.Set();
+            
             int readBytes;
             NetworkEntity callingEntity = null;
             try
             {
                 callingEntity = (NetworkEntity)result.AsyncState;
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                this.TCPSignalHandler.Set();
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
