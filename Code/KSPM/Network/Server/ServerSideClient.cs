@@ -296,18 +296,17 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
+                    /*
                     beginTicks  = this.timer.ElapsedTicks;
                     this.TCPSignalHandler.Reset();
-                    /*bufferReference = new ReceivingBuffer();
-                    bufferReference.buffer = new byte[ServerSettings.ServerBufferSize];
-                    bufferReference.owner = this;*/
-                    //this.ownerNetworkCollection.socketReference.BeginReceive(bufferReference.buffer, 0, bufferReference.buffer.Length, SocketFlags.None, this.AsyncTCPReceiver, bufferReference);
                     this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
                     this.TCPSignalHandler.WaitOne();
                     packtizeTicks = this.timer.ElapsedTicks;
-                    this.packetizer.PacketizeCRC(this);
+                    //this.packetizer.PacketizeCRC(this);
+                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("ASD");
                     this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
-                    //this.packetizer.Packetize(this);
+                    */
+                    this.packetizer.PacketizeCRC(this);
                     Thread.Sleep(1);
                 }
             }
@@ -324,6 +323,12 @@ namespace KSPM.Network.Server
             }
         }
 
+        protected void StartReceive()
+        {
+            KSPMGlobals.Globals.Log.WriteTo("Receiving...");
+            this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+        }
+
         public void AsyncTCPReceiver(System.IAsyncResult result)
         {
             
@@ -333,11 +338,13 @@ namespace KSPM.Network.Server
             {
                 callingEntity = (NetworkEntity)result.AsyncState;
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                this.TCPSignalHandler.Set();
+                //this.TCPSignalHandler.Set();
+                KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
                 }
+                this.StartReceive();
             }
             catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
@@ -622,6 +629,8 @@ namespace KSPM.Network.Server
                 this.udpListeningThread.Start();
                 this.udpOutgoingHandlerThread.Start();
                 this.udpHandlingCommandsThread.Start();
+
+                this.StartReceive();
 
                 result = true;
             }

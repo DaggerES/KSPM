@@ -443,7 +443,7 @@ namespace KSPM.Network.Server
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
                                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
-                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
+                                        //this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
                                     break;
                                 case Message.CommandType.Unknown:
@@ -540,6 +540,7 @@ namespace KSPM.Network.Server
                         managedMessageReference = (ManagedMessage)messageToProcess;
                         if (messageToProcess != null)
                         {
+                            KSPMGlobals.Globals.Log.WriteTo(messageToProcess.Command.ToString());
                             switch (messageToProcess.Command)
                             {
                                 case Message.CommandType.NewClient:

@@ -42,6 +42,7 @@
             if (worthyBytes != 0)
             {
                 System.Buffer.BlockCopy(this.buffers[this.readingIndex], 0, destArray, 0, (int)this.usableBytes[this.readingIndex]);
+                this.usableBytes[this.readingIndex] = 0;
             }
             this.readingIndex = (this.readingIndex + 1) % this.size;
             return worthyBytes;

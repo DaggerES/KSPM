@@ -637,6 +637,7 @@ namespace KSPM.Network.Client
                 sentBytes = networkReference.ownerNetworkCollection.socketReference.EndSend(result);
                 if (sentBytes > 0)
                 {
+                    KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
                     networkReference.MessageSent(networkReference, null);
                 }
             }
