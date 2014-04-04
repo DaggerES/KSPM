@@ -11,6 +11,7 @@ namespace KSPM.Network.Common
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
+            this.InitializeSlots();
         }
 
         protected void InitializeSlots()

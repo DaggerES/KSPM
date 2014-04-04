@@ -59,7 +59,7 @@ namespace ConsoleFakeClient
 
             while ( !exit )
             {
-                bot.Flood();
+                //bot.Flood();
                 System.Threading.Thread.Sleep((int)delay);
                 /*
                 Console.WriteLine("Press q to quit");

@@ -524,6 +524,10 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.AuthenticationFail:///Running the autentication procces again.
                                     this.currentStatus = ClientStatus.Authenticating;
                                     break;
+                                case Message.CommandType.ServerFull:
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Serverfull.", this.id));
+                                    this.BreakConnections(this, null);
+                                    break;
                                 case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                                                       ///Reads the information sent by the server and starts the UDP setting up process.
                                     managedMessageReference = (ManagedMessage)command;

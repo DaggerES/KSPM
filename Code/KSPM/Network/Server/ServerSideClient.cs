@@ -293,7 +293,7 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
-                    this.packetizer.PacketizeCRC(this);
+                    //this.packetizer.PacketizeCRC(this);
                     Thread.Sleep(1);
                 }
             }
@@ -335,6 +335,7 @@ namespace KSPM.Network.Server
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
                 }
+                this.packetizer.PacketizeCRC(this);
                 ///
                 this.ReceiveTCPStream();
             }

@@ -87,6 +87,7 @@
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
     <Compile Include="Network\Common\AbstractSettings.cs" />
     <Compile Include="Network\Common\ReceivingBuffer.cs" />
+    <Compile Include="Network\Common\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Network\NAT\NATTraversal.cs" />
     <Compile Include="Network\NAT\NATNone.cs" />
     <Compile Include="Network\Server\GameServer.cs" />

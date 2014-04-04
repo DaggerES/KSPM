@@ -22,6 +22,9 @@ using KSPM.Network.Chat.Messages;
 
 namespace KSPM.Network.Server
 {
+    /// <summary>
+    /// TODO: Create a filter to allow a number of maximun TCP connections.
+    /// </summary>
     public class GameServer : IAsyncSender
     {
         /// <summary>
@@ -51,6 +54,8 @@ namespace KSPM.Network.Server
         /// </summary>
         protected byte[] tcpBuffer;
 
+        protected SocketAsyncEventArgsPool incomingConnectionsPool;
+
         #endregion
 
         /// <summary>
@@ -68,7 +73,6 @@ namespace KSPM.Network.Server
         public CommandQueue localCommandsQueue;
         public CommandQueue priorityOutgoingMessagesQueue;
 
-        protected Thread connectionsThread;
         protected Thread commandsThread;
         protected Thread outgoingMessagesThread;
         protected Thread localCommandsThread;
@@ -132,7 +136,6 @@ namespace KSPM.Network.Server
             this.localCommandsQueue = new CommandQueue();
             this.priorityOutgoingMessagesQueue = new CommandQueue();
 
-            this.connectionsThread = new Thread(new ThreadStart(this.HandleConnectionsThreadMethod));
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
             this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
             this.localCommandsThread = new Thread(new ThreadStart(this.HandleLocalCommandsThreadMethod));
@@ -145,6 +148,8 @@ namespace KSPM.Network.Server
             this.usersAccountManager = new AccountManager();
 
             this.chatManager = new ChatManager(ChatManager.DefaultStorageMode.NonPersistent);
+
+            this.incomingConnectionsPool = new SocketAsyncEventArgsPool((uint)this.lowLevelOperationSettings.connectionsBackog);
 
             this.ableToRun = true;
             this.alive = false;
@@ -176,11 +181,14 @@ namespace KSPM.Network.Server
             {
                 this.tcpSocket.Bind(this.tcpIpEndPoint);
                 this.alive = true;
-                this.connectionsThread.Start();
                 this.commandsThread.Start();
                 this.outgoingMessagesThread.Start();
                 this.localCommandsThread.Start();
                 this.priorityOutgoingMessagesThread.Start();
+
+                this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle conenctions[ " + this.alive + " ]");
+                this.StartReceiveConnections();
             }
             catch (Exception ex)
             {
@@ -199,13 +207,10 @@ namespace KSPM.Network.Server
             ///*************************Killing threads code
             this.alive = false;
             this.commandsThread.Abort();
-            this.connectionsThread.Abort();
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
             this.priorityOutgoingMessagesThread.Abort();
 
-            this.connectionsThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo("Killed connectionsThread .");
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
             this.localCommandsThread.Join();
@@ -285,6 +290,71 @@ namespace KSPM.Network.Server
             {
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
             }
+        }
+
+        protected void StartReceiveConnections()
+        {
+            SocketAsyncEventArgs incomingConnection = this.incomingConnectionsPool.NextSlot;
+            incomingConnection.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnAsyncIncomingConnectionComplete);
+            if (!this.tcpSocket.AcceptAsync(incomingConnection))///Returns false if the process was completed synchrounosly.
+            {
+                this.OnAsyncIncomingConnectionComplete(this, incomingConnection);
+            }
+        }
+
+        protected void OnAsyncIncomingConnectionComplete(object sender, SocketAsyncEventArgs e)
+        {
+            SocketAsyncEventArgs acceptedConnection;
+            if (e.SocketError == SocketError.Success)
+            {
+                acceptedConnection = this.incomingConnectionsPool.NextSlot;
+                acceptedConnection.AcceptSocket = e.AcceptSocket;
+                acceptedConnection.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnAsyncFirstDataIncomingComplete);
+                acceptedConnection.SetBuffer(this.tcpBuffer, 0, this.tcpBuffer.Length);
+                if (!acceptedConnection.AcceptSocket.ReceiveAsync(acceptedConnection))///If the method was processed synchronously.
+                {
+                    this.OnAsyncFirstDataIncomingComplete(this, acceptedConnection);
+                }
+            }
+            else
+            {
+                ///If something fails, we started to receive another conn.
+                this.StartReceiveConnections();
+            }
+            ///Restoring the AsyncEventArgs used to perform the connection process.
+            this.incomingConnectionsPool.Recycle(e);
+        }
+
+        protected void OnAsyncFirstDataIncomingComplete(object sender, SocketAsyncEventArgs e)
+        {
+            NetworkEntity newNetworkEntity;
+            Socket acceptedSocket = null;
+            Message incomingMessage = null;
+            Queue<byte[]> packets = new Queue<byte[]>();
+            if (e.SocketError == SocketError.Success)
+            {
+                if (e.BytesTransferred > 0)
+                {
+                    acceptedSocket = e.AcceptSocket;
+                    newNetworkEntity = new NetworkEntity(ref acceptedSocket);
+                    if (PacketHandler.Packetize(e.Buffer, e.BytesTransferred, packets) == Error.ErrorType.Ok)
+                    {
+                        while (packets.Count > 0)
+                        {
+                            if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), newNetworkEntity, out incomingMessage) == Error.ErrorType.Ok)
+                            {
+                                ///Adding to the local queue.
+                                this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                                KSPMGlobals.Globals.Log.WriteTo("First command!!!");
+                            }
+                        }
+                    }
+                }
+            }
+            ///If there were a success process or not we need to receive another
+            this.StartReceiveConnections();
+            ///Restoring the SocketAsyncEventArgs used to perform the receive process.
+            this.incomingConnectionsPool.Recycle(e);
         }
 
         /// <summary>
@@ -394,7 +464,7 @@ namespace KSPM.Network.Server
                                         Message.ServerFullMessage(messageOwner, out responseMessage);
                                         PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
                                         ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
-                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.StopServer:
@@ -429,7 +499,7 @@ namespace KSPM.Network.Server
                                             ///There is no chance to try it again.
                                             ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
                                         }
-                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
+                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                     }
                                     break;
                                 case Message.CommandType.Disconnect:
