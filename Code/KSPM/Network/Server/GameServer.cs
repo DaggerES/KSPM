@@ -322,6 +322,7 @@ namespace KSPM.Network.Server
                 this.StartReceiveConnections();
             }
             ///Restoring the AsyncEventArgs used to perform the connection process.
+            e.Completed -= this.OnAsyncIncomingConnectionComplete;
             this.incomingConnectionsPool.Recycle(e);
         }
 
@@ -354,6 +355,7 @@ namespace KSPM.Network.Server
             ///If there were a success process or not we need to receive another
             this.StartReceiveConnections();
             ///Restoring the SocketAsyncEventArgs used to perform the receive process.
+            e.Completed -= OnAsyncFirstDataIncomingComplete;
             this.incomingConnectionsPool.Recycle(e);
         }
 

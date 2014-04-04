@@ -59,6 +59,8 @@ namespace KSPM.Network.Server
         /// </summary>
         protected PacketHandler packetizer;
 
+        SocketAsyncEventArgsPool tcpIOEventsPool;
+
         #endregion
 
         #region UserHandling
@@ -181,6 +183,7 @@ namespace KSPM.Network.Server
 
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
             this.packetizer = new PacketHandler(this.tcpBuffer);
+            this.tcpIOEventsPool = new SocketAsyncEventArgsPool(16);
 
             this.markedToDie = false;
 
@@ -305,7 +308,32 @@ namespace KSPM.Network.Server
 
         public void ReceiveTCPStream()
         {
-            //KSPMGlobals.Globals.Log.WriteTo("Receiving...");
+            SocketAsyncEventArgs incomingData = this.tcpIOEventsPool.NextSlot;
+            incomingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
+            incomingData.SetBuffer(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length);
+            incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnTCPIncomingDataComplete);
+            try
+            {
+                if (!this.ownerNetworkCollection.socketReference.ReceiveAsync(incomingData))
+                {
+                    this.OnTCPIncomingDataComplete(this, incomingData);
+                }
+            }
+            catch (System.ObjectDisposedException ex)
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.Message));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+            catch (SocketException ex)
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.SocketErrorCode, ex.Message));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+            /*
             if (this.ownerNetworkCollection.socketReference != null)
             {
                 try
@@ -320,6 +348,41 @@ namespace KSPM.Network.Server
                     KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
                 }
             }
+            */
+        }
+
+        protected void OnTCPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
+        {
+            int readBytes = 0;
+            if (e.SocketError == SocketError.Success)
+            {
+                readBytes = e.BytesTransferred;
+                if (readBytes > 0)
+                {
+                    this.tcpBuffer.Write(e.Buffer, (uint)readBytes);
+                    this.packetizer.PacketizeCRC(this);
+                    this.ReceiveTCPStream();
+                }
+                else
+                {
+                    ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
+                    ///disconnected.
+                    Message killMessage = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
+                    Message.DisconnectMessage(this, out killMessage);
+                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+                }
+            }
+            else
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+            ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+            e.Completed -= this.OnTCPIncomingDataComplete;
+            this.tcpIOEventsPool.Recycle(e);
         }
 
         public void AsyncTCPReceiver(System.IAsyncResult result)
@@ -351,7 +414,7 @@ namespace KSPM.Network.Server
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
             Message incomingMessage = null;
-            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 if (this.connected)///If everything is already set up, commands go to the common queue.

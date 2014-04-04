@@ -47,6 +47,8 @@ namespace KSPM.Network.Common
         public void Recycle(SocketAsyncEventArgs oldSocketAsyncEventArgs)
         {
             oldSocketAsyncEventArgs.AcceptSocket = null;
+            oldSocketAsyncEventArgs.SetBuffer(null, 0, 0);
+            //oldSocketAsyncEventArgs.SocketError = SocketError.ConnectionReset;
             lock (this.availableSAEA)
             {
                 this.availableSAEA.Enqueue(oldSocketAsyncEventArgs);
