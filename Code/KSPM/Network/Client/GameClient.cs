@@ -407,6 +407,7 @@ namespace KSPM.Network.Client
                     this.BreakConnections(this, null);
                     return;
                 }
+                this.ReceiveTCPStream();
                 this.reassignAddress = false;
                 while (!connected)
                 {
@@ -662,26 +663,32 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle incoming TCP messages.", this.id));
                 while (this.aliveFlag)
                 {
-                    if (this.holePunched)
-                    {
-                        this.TCPSignalHandler.Reset();
-                        try
-                        {
-                            this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
-                        }
-                        catch (System.Exception ex)///Catching any exception that could happen, most of them caused by the server.
-                        {
-                            this.runtimeErrors.Enqueue(ex);
-                        }
-                        this.TCPSignalHandler.WaitOne();
-                        this.packetizer.PacketizeCRC(this);
-                    }
-                    Thread.Sleep(11);
+                    this.packetizer.PacketizeCRC(this);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)
             {
                 this.aliveFlag = false;
+            }
+        }
+
+        public void ReceiveTCPStream()
+        {
+            //KSPMGlobals.Globals.Log.WriteTo("Receiving...");
+            if (this.ownerNetworkCollection.socketReference != null)
+            {
+                try
+                {
+                    if (this.holePunched)
+                    {
+                        this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                    }
+                }
+                catch (System.Exception ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+                {
+                    this.runtimeErrors.Enqueue(ex);
+                }
             }
         }
 
@@ -691,6 +698,28 @@ namespace KSPM.Network.Client
         /// <param name="result"></param>
         public void AsyncTCPReceiver(System.IAsyncResult result)
         {
+            int readBytes;
+            NetworkEntity callingEntity = null;
+            try
+            {
+                callingEntity = (NetworkEntity)result.AsyncState;
+                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
+                KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
+                if (readBytes > 0)
+                {
+                    this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
+                }
+                ///
+                this.ReceiveTCPStream();
+            }
+            catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
+            {
+                Message killMessage = null;
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "AsyncTCPReceiver", ex.Message));
+                Message.DisconnectMessage(this, out killMessage);
+                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+            }
+            /*
             this.TCPSignalHandler.Set();
             int readBytes;
             System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
@@ -701,48 +730,6 @@ namespace KSPM.Network.Client
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
-                }
-            }
-            catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
-            {
-                ///This exception is not added to the runtime errors queue, because the error will propagate to the above level.
-            }
-            /*
-            this.TCPSignalHandler.Set();
-            int readBytes;
-            Message incomingMessage = null;
-            System.Collections.Generic.Queue<byte[]> packets = new System.Collections.Generic.Queue<byte[]>();
-            try
-            {
-                NetworkEntity callingEntity = (NetworkEntity)result.AsyncState;
-                readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                if (readBytes > 0)
-                {
-                    this.tcpReceivingBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, 0, readBytes);
-                    this.bufferedBytes += readBytes;
-                    if (readBytes >= ClientSettings.ClientBufferSize)
-                    {
-                        this.buffering = true;
-                    }
-                    else
-                    {
-                        if (buffering)///Was it buffering??
-                        {
-                            buffering = false;
-                        }
-                        if (PacketHandler.Packetize(this.tcpReceivingBuffer, this.bufferedBytes, packets) == Error.ErrorType.Ok)
-                        {
-                            while (packets.Count > 0)
-                            {
-                                if (PacketHandler.InflateManagedMessageAlt(packets.Dequeue(), callingEntity, out incomingMessage) == Error.ErrorType.Ok)
-                                {
-                                    this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", incomingMessage.bodyMessage[ 4 ], incomingMessage.Command));
-                                }
-                            }
-                        }
-                        this.bufferedBytes = 0;
-                    }
                 }
             }
             catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.

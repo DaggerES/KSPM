@@ -145,7 +145,6 @@ namespace KSPM.Network.Server
 
         #region Profiling
 
-        System.Diagnostics.Stopwatch timer;
         KSPM.IO.Logging.DiagnosticsLog reporter;
 
         #endregion
@@ -188,7 +187,7 @@ namespace KSPM.Network.Server
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
-            this.reporter = new IO.Logging.DiagnosticsLog(string.Format("Report_{0}", this.id.ToString()), false);
+            this.reporter = new IO.Logging.DiagnosticsLog(string.Format("Report_{0}.txt", this.id.ToString()), false);
         }
 
         /// <summary>
@@ -285,8 +284,6 @@ namespace KSPM.Network.Server
         /// </summary>
         protected void HandleIncomingMessagesMethod()
         {
-            long beginTicks = 0;
-            long packtizeTicks = 0;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
@@ -296,16 +293,6 @@ namespace KSPM.Network.Server
             {
                 while (this.aliveFlag)
                 {
-                    /*
-                    beginTicks  = this.timer.ElapsedTicks;
-                    this.TCPSignalHandler.Reset();
-                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
-                    this.TCPSignalHandler.WaitOne();
-                    packtizeTicks = this.timer.ElapsedTicks;
-                    //this.packetizer.PacketizeCRC(this);
-                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("ASD");
-                    this.reporter.WriteTo(string.Format("{0},{1}", (this.timer.ElapsedTicks - packtizeTicks).ToString(), (packtizeTicks - beginTicks).ToString()));
-                    */
                     this.packetizer.PacketizeCRC(this);
                     Thread.Sleep(1);
                 }
@@ -314,37 +301,42 @@ namespace KSPM.Network.Server
             {
                 this.aliveFlag = false;
             }
-            catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
-            {
-                Message killMessage = null;
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleIncomingMessages", ex.SocketErrorCode, ex.Message));
-                Message.DisconnectMessage(this, out killMessage);
-                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
-            }
         }
 
-        protected void StartReceive()
+        public void ReceiveTCPStream()
         {
-            KSPMGlobals.Globals.Log.WriteTo("Receiving...");
-            this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+            //KSPMGlobals.Globals.Log.WriteTo("Receiving...");
+            if (this.ownerNetworkCollection.socketReference != null)
+            {
+                try
+                {
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                }
+                catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+                {
+                    Message killMessage = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.SocketErrorCode, ex.Message));
+                    Message.DisconnectMessage(this, out killMessage);
+                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+                }
+            }
         }
 
         public void AsyncTCPReceiver(System.IAsyncResult result)
         {
-            
             int readBytes;
             NetworkEntity callingEntity = null;
             try
             {
                 callingEntity = (NetworkEntity)result.AsyncState;
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                //this.TCPSignalHandler.Set();
                 KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);
                 }
-                this.StartReceive();
+                ///
+                this.ReceiveTCPStream();
             }
             catch (SocketException ex)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
             {
@@ -630,7 +622,7 @@ namespace KSPM.Network.Server
                 this.udpOutgoingHandlerThread.Start();
                 this.udpHandlingCommandsThread.Start();
 
-                this.StartReceive();
+                this.ReceiveTCPStream();
 
                 result = true;
             }
