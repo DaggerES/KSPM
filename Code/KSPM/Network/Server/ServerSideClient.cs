@@ -28,11 +28,6 @@ namespace KSPM.Network.Server
         protected Thread mainThread;
 
         /// <summary>
-        /// Thread to handle the incoming messages.
-        /// </summary>
-        protected Thread messageHandlerTread;
-
-        /// <summary>
         /// Constrols the mainThread lifecycle.
         /// </summary>
         protected bool aliveFlag;
@@ -59,6 +54,9 @@ namespace KSPM.Network.Server
         /// </summary>
         protected PacketHandler packetizer;
 
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to receive tcp streams.
+        /// </summary>
         SocketAsyncEventArgsPool tcpIOEventsPool;
 
         #endregion
@@ -160,7 +158,6 @@ namespace KSPM.Network.Server
         {
             this.currentStatus = ClientStatus.Handshaking;
             this.mainThread = new Thread(new ThreadStart(this.HandleMainBodyMethod));
-            this.messageHandlerTread = new Thread(new ThreadStart(this.HandleIncomingMessagesMethod));
 
             this.udpListeningThread = new Thread(new ThreadStart(this.HandleIncomingUDPPacketsThreadMethod));
             this.udpOutgoingHandlerThread = new Thread(new ThreadStart(this.HandleOutgoingUDPPacketsThreadMethod));
@@ -282,30 +279,6 @@ namespace KSPM.Network.Server
 
         #region TCPCode
 
-        /// <summary>
-        /// Receives the incoming messages on the TCP protocol and passes them to the server to be processed.
-        /// </summary>
-        protected void HandleIncomingMessagesMethod()
-        {
-            if (!this.ableToRun)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
-                return;
-            }
-            try
-            {
-                while (this.aliveFlag)
-                {
-                    //this.packetizer.PacketizeCRC(this);
-                    Thread.Sleep(1);
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                this.aliveFlag = false;
-            }
-        }
-
         public void ReceiveTCPStream()
         {
             SocketAsyncEventArgs incomingData = this.tcpIOEventsPool.NextSlot;
@@ -414,7 +387,7 @@ namespace KSPM.Network.Server
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
             Message incomingMessage = null;
-            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 if (this.connected)///If everything is already set up, commands go to the common queue.
@@ -680,7 +653,6 @@ namespace KSPM.Network.Server
 				this.aliveFlag = true;
 
                 this.mainThread.Start();
-                this.messageHandlerTread.Start();
 
                 this.udpListeningThread.Start();
                 this.udpOutgoingHandlerThread.Start();
@@ -708,9 +680,6 @@ namespace KSPM.Network.Server
             this.mainThread.Abort();
             this.mainThread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo(string.Format( "[{0}] Killed mainthread.", this.id));
-            this.messageHandlerTread.Abort();
-            this.messageHandlerTread.Join(1000);
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed messagesThread.", this.id));
             this.udpListeningThread.Abort(1000);
             this.udpListeningThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpListeningThread.", this.id));
@@ -721,7 +690,6 @@ namespace KSPM.Network.Server
             this.udpHandlingCommandsThread.Join(1000);
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed udpCommandsHandlerThread.", this.id));
             this.mainThread = null;
-            this.messageHandlerTread = null;
             this.udpListeningThread = null;
             this.udpOutgoingHandlerThread = null;
             this.udpHandlingCommandsThread = null;
