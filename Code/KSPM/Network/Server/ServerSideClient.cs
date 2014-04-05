@@ -789,6 +789,14 @@ namespace KSPM.Network.Server
             return this.aliveFlag;
         }
 
+        public SocketAsyncEventArgsPool IOSocketAsyncEventArgsPool
+        {
+            get
+            {
+                return this.tcpIOEventsPool;
+            }
+        }
+
         #endregion
 
         #region UserManagement

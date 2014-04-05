@@ -48,7 +48,7 @@ namespace KSPM.Network.Common
         {
             oldSocketAsyncEventArgs.AcceptSocket = null;
             oldSocketAsyncEventArgs.SetBuffer(null, 0, 0);
-            //oldSocketAsyncEventArgs.SocketError = SocketError.ConnectionReset;
+            oldSocketAsyncEventArgs.UserToken = null;
             lock (this.availableSAEA)
             {
                 this.availableSAEA.Enqueue(oldSocketAsyncEventArgs);
