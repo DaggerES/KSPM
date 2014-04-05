@@ -708,7 +708,7 @@ namespace KSPM.Network.Client
             {
                 callingEntity = (NetworkEntity)result.AsyncState;
                 readBytes = callingEntity.ownerNetworkCollection.socketReference.EndReceive(result);
-                KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
+                //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(callingEntity.ownerNetworkCollection.secondaryRawBuffer, (uint)readBytes);

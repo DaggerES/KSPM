@@ -728,6 +728,9 @@ namespace KSPM.Network.Server
             this.tcpBuffer.Release();
             this.tcpBuffer = null;
 
+            this.tcpIOEventsPool.Release(false);
+            this.tcpIOEventsPool = null;
+
             this.reporter.Dispose();
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));

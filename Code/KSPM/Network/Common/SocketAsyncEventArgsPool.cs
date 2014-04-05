@@ -54,5 +54,28 @@ namespace KSPM.Network.Common
                 this.availableSAEA.Enqueue(oldSocketAsyncEventArgs);
             }
         }
+
+        public void Release(bool threadSafe)
+        {
+            if (threadSafe)
+            {
+                lock (this.availableSAEA)
+                {
+                    while (this.availableSAEA.Count > 0)
+                    {
+                        this.availableSAEA.Dequeue().Dispose();
+                    }
+                    this.availableSAEA.Clear();
+                }
+            }
+            else
+            {
+                while (this.availableSAEA.Count > 0)
+                {
+                    this.availableSAEA.Dequeue().Dispose();
+                }
+                this.availableSAEA.Clear();
+            }
+        }
     }
 }
