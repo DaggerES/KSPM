@@ -19,9 +19,13 @@ namespace KSPM_TestingConsole
 {
     class Program
     {
+        static long totalMessages = 0;
+        static long callCounter = 0;
         static void Main(string[] args)
         {
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
+            System.Timers.Timer eventRiser = new System.Timers.Timer(5000);
+            eventRiser.Elapsed += new System.Timers.ElapsedEventHandler(eventRiser_Elapsed);
 
 			////Server test
 			
@@ -31,11 +35,21 @@ namespace KSPM_TestingConsole
                 GameServer server = new GameServer(ref gameSettings);
                 KSPMGlobals.Globals.SetServerReference(ref server);
                 server.StartServer();
+                eventRiser.Enabled = true;
                 Console.ReadLine();
+                eventRiser.Enabled = false;
+                Console.WriteLine(string.Format("Event raised:{0} times, total of the messages: {1}", Program.callCounter, Program.totalMessages));
                 server.ShutdownServer();
             }
             Console.ReadLine();
 
+        }
+
+        static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Program.callCounter++;
+            Program.totalMessages += KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount;
+            KSPMGlobals.Globals.Log.WriteTo(KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount.ToString());
         }
 
     }

@@ -19,6 +19,7 @@
         /// <param name="newMessage"></param>
         public override void AddMessage(Messages.ChatMessage newMessage)
         {
+            newMessage.Release();
             this.messageCounter++;
         }
 

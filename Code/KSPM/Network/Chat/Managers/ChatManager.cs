@@ -130,6 +130,25 @@ namespace KSPM.Network.Chat.Managers
         }
 
         /// <summary>
+        /// Tries to get a chatgroup identified with the given id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The ChatGroup identified by the given id or the default ChatGroup if there is no chatGroup identified by the given id.</returns>
+        public ChatGroup GetChatGroupById(short id)
+        {
+            ChatGroup requestedGroup = null;
+            if (this.chatGroups.ContainsKey(id))
+            {
+                this.chatGroups.TryGetValue(id, out requestedGroup);
+            }
+            else
+            {
+                return this.defaultChatGroup;
+            }
+            return requestedGroup;
+        }
+
+        /// <summary>
         /// Gets how many chat groups are registered inside the manager.
         /// </summary>
         public int RegisteredGroups

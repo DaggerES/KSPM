@@ -49,7 +49,12 @@ namespace KSPM.Network.Common.Messages
         {
             this.messageOwner = null;
             this.messageRawLength = 0;
-            this.bodyMessage = null;
+            if (!this.broadcasted)
+            {
+                ///Releasing the body message is passed to the BroadcastMessage, so you don't have to worry abou it.
+                this.bodyMessage = null;
+            }
+            this.broadcasted = false;
         }
 
         public void SwapReceivedBufferToSend(ManagedMessage otherMessage)

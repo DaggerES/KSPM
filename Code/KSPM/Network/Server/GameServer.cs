@@ -512,20 +512,25 @@ namespace KSPM.Network.Server
                                     break;
 
                                 case Message.CommandType.Chat:
+                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
+                                    /*
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
                                         //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
                                         this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
                                     }
+                                    */
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
                                     KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
                                     break;
                             }
+                            messageToProcess.Release();
+                            messageToProcess = null;
                         }
                     }
-                    Thread.Sleep(9);
+                    Thread.Sleep(3);
                 }
             }
             catch (ThreadAbortException)
@@ -586,7 +591,9 @@ namespace KSPM.Network.Server
             */
             Message outgoingMessage = null;
             ManagedMessage managedReference = null;
+            BroadcastMessage broadcastReference = null;
             SocketAsyncEventArgs sendingData = null;
+            int entityCounter = 0;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -599,36 +606,64 @@ namespace KSPM.Network.Server
                     if (!this.outgoingMessagesQueue.IsEmpty())
                     {
                         this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
-                        managedReference = (ManagedMessage)outgoingMessage;
                         if (outgoingMessage != null)
                         {
                             //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
                             try
                             {
-                                ///Checking if the NetworkEntity is still running.
-                                if (managedReference.OwnerNetworkEntity.IsAlive())
+                                ///If it is broadcaste message a different sending procces is performed.
+                                if (outgoingMessage.IsBroadcast)
                                 {
-                                    sendingData = ((ServerSideClient)managedReference.OwnerNetworkEntity).IOSocketAsyncEventArgsPool.NextSlot;
-                                    sendingData.AcceptSocket = managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference;
-                                    sendingData.UserToken = managedReference.OwnerNetworkEntity;
-                                    sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                    sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
-                                    if (!managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.SendAsync(sendingData))
+                                    broadcastReference = (BroadcastMessage)outgoingMessage;
+                                    for (entityCounter = 0; entityCounter < broadcastReference.Targets.Length; entityCounter++)
                                     {
-                                        this.OnSendingOutgoingDataComplete(this, sendingData);
+                                        if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[ entityCounter].IsAlive() )
+                                        {
+                                            sendingData = ((ServerSideClient)broadcastReference.Targets[entityCounter]).IOSocketAsyncEventArgsPool.NextSlot;
+                                            sendingData.AcceptSocket = broadcastReference.Targets[entityCounter].ownerNetworkCollection.socketReference;
+                                            sendingData.UserToken = broadcastReference.Targets[entityCounter];
+                                            sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                                            sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                            if (! broadcastReference.Targets[ entityCounter].ownerNetworkCollection.socketReference.SendAsync(sendingData))
+                                            {
+                                                this.OnSendingOutgoingDataComplete(this, sendingData);
+                                            }
+                                        }
                                     }
-                                    //managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
+                                }
+                                else
+                                {
+                                    managedReference = (ManagedMessage)outgoingMessage;
+                                    ///Checking if the NetworkEntity is still running and it has not been released.
+                                    if (managedReference.OwnerNetworkEntity != null && managedReference.OwnerNetworkEntity.IsAlive())
+                                    {
+                                        sendingData = ((ServerSideClient)managedReference.OwnerNetworkEntity).IOSocketAsyncEventArgsPool.NextSlot;
+                                        sendingData.AcceptSocket = managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference;
+                                        sendingData.UserToken = managedReference.OwnerNetworkEntity;
+                                        sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                                        sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                        if (!managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.SendAsync(sendingData))
+                                        {
+                                            this.OnSendingOutgoingDataComplete(this, sendingData);
+                                        }
+                                        //managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
+                                    }
                                 }
                             }
                             catch (System.Exception ex)
                             {
                                 Message killMessage = null;
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingMessages", ex.Message));
-                                Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", ( outgoingMessage.IsBroadcast ?  ((BroadcastMessage)outgoingMessage).Targets[ entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id ), "HandleOutgoingMessages", ex.Message));
+                                Message.DisconnectMessage((outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter] : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity), out killMessage);
                                 KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
                             }
+                            finally
+                            {
+                                ///Cleaning up.
+                                outgoingMessage.Release();
+                                outgoingMessage = null;
+                            }
                         }
-                        outgoingMessage = null;
                     }
                     Thread.Sleep(3);
                 }

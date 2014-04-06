@@ -60,6 +60,17 @@ namespace KSPM.Network.Common
         }
 
         /// <summary>
+        /// As its name says it is not granted to return the actual count, it could change from one moment to another.
+        /// </summary>
+        public int DirtyCount
+        {
+            get
+            {
+                return this.commandMessagesQueue.Count;
+            }
+        }
+
+        /// <summary>
         /// Removes all messages and calls the Release method on each one.
         /// </summary>
         /// <param name="threadSafe">Tells if the call should be ThreadSafe and lock the queue.</param>

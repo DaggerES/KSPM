@@ -133,6 +133,11 @@ namespace KSPM.Network.Common.Messages
         protected uint messageRawLength;
 
         /// <summary>
+        /// Tells if this messages is going to be broadcasted, so a different release will be performed.
+        /// </summary>
+        protected bool broadcasted;
+
+        /// <summary>
         /// Will hold the body of the message, to avoid overwriting messages.
         /// </summary>
         public byte[] bodyMessage;
@@ -147,6 +152,7 @@ namespace KSPM.Network.Common.Messages
             this.command = kindOfMessage;
             this.messageRawLength = 0;
             this.bodyMessage = null;
+            this.broadcasted = false;
         }
 
         /// <summary>
@@ -173,6 +179,21 @@ namespace KSPM.Network.Common.Messages
             set
             {
                 this.messageRawLength = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets/Gets if the message is going to be broadcasted or not.<b>Be carefull setting this flag.</b>
+        /// </summary>
+        public bool IsBroadcast
+        {
+            get
+            {
+                return this.broadcasted;
+            }
+            set
+            {
+                this.broadcasted = value;
             }
         }
 

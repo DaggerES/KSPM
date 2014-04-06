@@ -106,16 +106,23 @@ namespace KSPM.Network.Server.UserManagement
         public void TCPBroadcastTo(List<NetworkEntity> targets, Message messageToSend)
         {
             Message outgoingMessage = null;
+            BroadcastMessage outgoingBroadcast = new BroadcastMessage(messageToSend.Command, targets);
+            outgoingBroadcast.SetBodyMessageNoClone(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
+            outgoingMessage = outgoingBroadcast;
+            messageToSend.IsBroadcast = true;
+            KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
+            /*
             lock (this.clients)
             {
                 for (int i = 0; i < targets.Count; i++)
                 {
-                    outgoingMessage = new ManagedMessage(Message.CommandType.Chat, targets[i]);
-                    outgoingMessage.SetBodyMessage(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
+                    //outgoingMessage = new ManagedMessage(Message.CommandType.Chat, targets[i]);
+                    //outgoingMessage.SetBodyMessage(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
                     //((ManagedMessage)outgoingMessage).SwapReceivedBufferToSend((ManagedMessage)messageToSend);
                     KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
                 }
             }
+             */
         }
 
         public List<NetworkEntity> RemoteClients

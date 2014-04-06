@@ -211,6 +211,38 @@ namespace KSPM.Network.Chat.Messages
             return Error.ErrorType.Ok;
         }
 
+        public static short InflateTargetGroupId(byte[] rawBytes)
+        {
+            int bytesBlockSize;
+            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 4 + 1;
+            short shortBuffer;
+            if (rawBytes.Length < 4)
+                return -1;
+            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, Message.HeaderOfMessageCommand.Length);
+            if (bytesBlockSize < 4)
+                return -2;
+
+            ///Getting hash size
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
+            readingIndex += 2;
+
+            ///Getting hash
+            readingIndex += shortBuffer;
+
+            ///Getting sender's usename lenght
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
+            readingIndex += 2;
+
+            ///Getting sender's username
+            readingIndex += shortBuffer;
+
+            ///Getting GroupId
+            shortBuffer = System.BitConverter.ToInt16(rawBytes, readingIndex);
+            readingIndex += 2;
+
+            return shortBuffer;
+        }
+
         public abstract void Release();
 
         #region Getters
