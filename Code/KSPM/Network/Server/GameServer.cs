@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define PROFILING
+
+using System;
 using System.Collections.Generic;
 
 using System.Threading;
@@ -27,6 +29,12 @@ namespace KSPM.Network.Server
     /// </summary>
     public class GameServer : IAsyncSender
     {
+        #if PROFILING
+
+        Profiler profilerOutgoingMessages;
+
+        #endif
+
         /// <summary>
         /// Controls the life-cycle of the server, also the thread's life-cyle.
         /// </summary>
@@ -123,6 +131,11 @@ namespace KSPM.Network.Server
         /// <param name="operationSettings"></param>
         public GameServer(ref ServerSettings operationSettings)///Need to be set the buffer of receiving data
         {
+
+#if PROFILING
+            this.profilerOutgoingMessages = new Profiler("OutgoingMessages");
+#endif
+
             this.lowLevelOperationSettings = operationSettings;
             if (this.lowLevelOperationSettings == null)
             {
@@ -250,6 +263,11 @@ namespace KSPM.Network.Server
             this.priorityOutgoingMessagesQueue = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
+
+#if PROFILING
+            this.profilerOutgoingMessages.Dispose();
+#endif
+
         }
 
         #endregion
@@ -605,6 +623,9 @@ namespace KSPM.Network.Server
                 {
                     if (!this.outgoingMessagesQueue.IsEmpty())
                     {
+#if PROFILING
+                        this.profilerOutgoingMessages.Set();
+#endif
                         this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
@@ -664,6 +685,9 @@ namespace KSPM.Network.Server
                                 outgoingMessage = null;
                             }
                         }
+#if PROFILING
+                        this.profilerOutgoingMessages.Mark();
+#endif
                     }
                     Thread.Sleep(3);
                 }

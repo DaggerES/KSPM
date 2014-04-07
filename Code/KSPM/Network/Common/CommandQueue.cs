@@ -11,9 +11,14 @@ namespace KSPM.Network.Common
     {
         protected Queue<Message> commandMessagesQueue;
 
+        protected long maxNumberOfCommands;
+
+        protected static readonly long MaxQueueSize = 1000;
+
         public CommandQueue()
         {
             this.commandMessagesQueue = new Queue<Message>();
+            this.maxNumberOfCommands = CommandQueue.MaxQueueSize;
         }
 
         /// <summary>
@@ -26,7 +31,15 @@ namespace KSPM.Network.Common
             {
                 if (newMessage != null)
                 {
-                    this.commandMessagesQueue.Enqueue(newMessage);
+                    if (this.commandMessagesQueue.Count < this.maxNumberOfCommands)
+                    {
+                        this.commandMessagesQueue.Enqueue(newMessage);
+                    }
+                    else
+                    {
+                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("!!!WARNING Droping packets!!!, MaxNumberOfMessagesAllowed reached: " + this.maxNumberOfCommands);
+                        newMessage.Release();
+                    }
                 }
             }
         }

@@ -23,8 +23,8 @@ namespace KSPM_TestingConsole
         static long callCounter = 0;
         static void Main(string[] args)
         {
-            KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
-            System.Timers.Timer eventRiser = new System.Timers.Timer(5000);
+            KSPMGlobals.Globals.InitiLogging(Log.LogginMode.File, false);
+            System.Timers.Timer eventRiser = new System.Timers.Timer(10000);
             eventRiser.Elapsed += new System.Timers.ElapsedEventHandler(eventRiser_Elapsed);
 
 			////Server test
