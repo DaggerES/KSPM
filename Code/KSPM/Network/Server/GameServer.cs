@@ -854,8 +854,6 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    //if (!this.priorityOutgoingMessagesQueue.IsEmpty())
-                    //{
                         this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
@@ -880,7 +878,6 @@ namespace KSPM.Network.Server
                             outgoingMessage.Release();
                             outgoingMessage = null;
                         }
-                    //}
                     Thread.Sleep(5);
                 }
             }
