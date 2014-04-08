@@ -19,6 +19,11 @@ namespace KSPM.Network.Common.Messages
             this.broadcasted = true;
         }
 
+        public override Message Empty()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override void Release()
         {
             this.bodyMessage = null;

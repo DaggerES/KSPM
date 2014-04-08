@@ -8,5 +8,6 @@ namespace KSPM.Network.Common.Packet
     public interface IPacketArrived
     {
         void ProcessPacket(byte[] rawData, uint fixedLegth);
+        void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength);
     }
 }

@@ -57,25 +57,32 @@ namespace KSPM.Network.Common
 
         public void Release(bool threadSafe)
         {
+            SocketAsyncEventArgs[] items;
             if (threadSafe)
             {
                 lock (this.availableSAEA)
                 {
-                    while (this.availableSAEA.Count > 0)
+                    items = this.availableSAEA.ToArray();
+                    for (int i = 0; i < items.Length; i++)
                     {
-                        this.availableSAEA.Dequeue().Dispose();
+                        items[i].Dispose();
+                        items[i] = null;
                     }
                     this.availableSAEA.Clear();
                 }
             }
             else
             {
-                while (this.availableSAEA.Count > 0)
+                items = this.availableSAEA.ToArray();
+                for (int i = 0; i < items.Length; i++)
                 {
-                    this.availableSAEA.Dequeue().Dispose();
+                    items[i].Dispose();
+                    items[i] = null;
                 }
                 this.availableSAEA.Clear();
             }
+            this.availableSAEA = null;
+            this.availableSlots = 0;
         }
     }
 }

@@ -85,6 +85,11 @@ namespace KSPM.Network.Client
         /// </summary>
         protected PacketHandler packetizer;
 
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to receive tcp streams.
+        /// </summary>
+        SocketAsyncEventArgsPool tcpIOEventsPool;
+
         #endregion
 
         #region TCPProperties
@@ -243,6 +248,7 @@ namespace KSPM.Network.Client
             ///TCP Buffering
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(16, 1024);
             this.packetizer = new PacketHandler(this.tcpBuffer);
+            this.tcpIOEventsPool = new SocketAsyncEventArgsPool(16);
         }
 
         /// <summary>
@@ -479,7 +485,6 @@ namespace KSPM.Network.Client
         {
             Message authenticationMessage = null;
             ManagedMessage managedMessageReference = null;
-
             Message.AuthenticationMessage(caller, this.clientOwner, out authenticationMessage);
             managedMessageReference = (ManagedMessage)authenticationMessage;
             PacketHandler.EncodeRawPacket(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
@@ -606,6 +611,7 @@ namespace KSPM.Network.Client
                             {
                                 try
                                 {
+                                    //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
                                     this.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
                                 }
                                 catch (System.Exception ex)///Catching exceptions and adding them to the queue to their proper handling.
@@ -667,7 +673,7 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle incoming TCP messages.", this.id));
                 while (this.aliveFlag)
                 {
-                    this.packetizer.PacketizeCRC(this);
+                    //this.packetizer.PacketizeCRC(this);
                     Thread.Sleep(1);
                 }
             }
@@ -677,6 +683,80 @@ namespace KSPM.Network.Client
             }
         }
 
+        public void ReceiveTCPStream()
+        {
+            SocketAsyncEventArgs incomingData = this.tcpIOEventsPool.NextSlot;
+            incomingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
+            incomingData.SetBuffer(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length);
+            incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnTCPIncomingDataComplete);
+            try
+            {
+                if (!this.ownerNetworkCollection.socketReference.ReceiveAsync(incomingData))
+                {
+                    this.OnTCPIncomingDataComplete(this, incomingData);
+                }
+            }
+            catch (System.Exception ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                this.runtimeErrors.Enqueue(ex);
+            }
+            /*
+            if (this.ownerNetworkCollection.socketReference != null)
+            {
+                try
+                {
+                    this.ownerNetworkCollection.socketReference.BeginReceive(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, this.AsyncTCPReceiver, this);
+                }
+                catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+                {
+                    Message killMessage = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.SocketErrorCode, ex.Message));
+                    Message.DisconnectMessage(this, out killMessage);
+                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+                }
+            }
+            */
+        }
+
+        protected void OnTCPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
+        {
+            int readBytes = 0;
+            if (e.SocketError == SocketError.Success)
+            {
+                readBytes = e.BytesTransferred;
+                if (readBytes > 0)
+                {
+                    this.tcpBuffer.Write(e.Buffer, (uint)readBytes);
+                    this.packetizer.PacketizeCRCCreateMemory(this);
+                    this.ReceiveTCPStream();
+                }
+                else
+                {
+                    ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
+                    ///disconnected.
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
+                    //KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                }
+            }
+            else
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
+                //KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+            }
+            ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+            e.Completed -= this.OnTCPIncomingDataComplete;
+            if (this.tcpIOEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+            {
+                e.Dispose();
+                e = null;
+            }
+            else
+            {
+                this.tcpIOEventsPool.Recycle(e);
+            }
+        }
+
+        /*
         public void ReceiveTCPStream()
         {
             //KSPMGlobals.Globals.Log.WriteTo("Receiving...");
@@ -695,6 +775,7 @@ namespace KSPM.Network.Client
                 }
             }
         }
+        */
 
         /// <summary>
         /// Receives all the TCP packets and then create a message to enqueue into the commands queue.
@@ -744,6 +825,16 @@ namespace KSPM.Network.Client
         }
 
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
+        {
+            Message incomingMessage = null;
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+            {
+                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+            }
+        }
+
+        public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
             Message incomingMessage = null;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());

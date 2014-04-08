@@ -28,6 +28,11 @@ namespace KSPM.Network.Common.Messages
             this.messageRawLength = 0;
         }
 
+        public override Message Empty()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override void Release()
         {
             this.command = CommandType.Null;

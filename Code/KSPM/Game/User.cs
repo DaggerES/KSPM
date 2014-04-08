@@ -102,7 +102,7 @@ namespace KSPM.Game
         /// <param name="rawBytes">Byte array in raw format.</param>
         /// <param name="targetUser">Out reference to the GameUser.</param>
         /// <returns></returns>
-        public static Error.ErrorType InflateUserFromBytes(ref byte[] rawBytes, out GameUser targetUser)
+        public static Error.ErrorType InflateUserFromBytes(byte[] rawBytes, uint rawBytesOffset, uint bytesToRead, out GameUser targetUser)
         {
             targetUser = null;
             byte[] hashCode =null;
@@ -113,12 +113,12 @@ namespace KSPM.Game
                 return Error.ErrorType.UserIncompleteBytes;
             }
             ///6 because in that position is where the username's bytes start, so there is the add of username's length plus the 6th position.
-            hashSize = System.BitConverter.ToInt16(rawBytes, 6 + (int)rawBytes[5]);
+            hashSize = System.BitConverter.ToInt16(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6 + (int)rawBytes[9]);
             hashCode = new byte[hashSize];
             ///8 because is the 6th position + 2 bytes of the hashsize's bytes.
-            System.Buffer.BlockCopy(rawBytes, 8 + (int)rawBytes[5], hashCode, 0, hashSize);
+            System.Buffer.BlockCopy(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 8 + (int)rawBytes[9], hashCode, 0, hashSize);
 
-            if (User.DecodeUsernameFromBytes(ref rawBytes, 6, (uint)rawBytes[5], out buffer) == Error.ErrorType.Ok)
+            if (User.DecodeUsernameFromBytes(ref rawBytes, rawBytesOffset + (uint)KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6, (uint)rawBytes[9], out buffer) == Error.ErrorType.Ok)
             {
                 targetUser = new GameUser(ref buffer, ref hashCode);
             }

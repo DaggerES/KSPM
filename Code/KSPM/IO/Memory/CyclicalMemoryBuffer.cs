@@ -10,7 +10,7 @@
         protected uint readingIndex;
 
         /// <summary>
-        /// Createas a cyclical array of buffers.
+        /// Creates a cyclical array of buffers.
         /// </summary>
         /// <param name="size">How many buffers are going to be.</param>
         /// <param name="fixedBuffersLength">Size of each buffer.</param>

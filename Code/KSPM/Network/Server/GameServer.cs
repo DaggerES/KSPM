@@ -27,7 +27,7 @@ namespace KSPM.Network.Server
     /// <summary>
     /// TODO: Create a filter to allow a number of maximun TCP connections.
     /// </summary>
-    public class GameServer : IAsyncSender
+    public class GameServer : IAsyncSender ,IPacketArrived, IOwnedPacketArrived
     {
         #if PROFILING
 
@@ -71,15 +71,23 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
-        #region Threading code
+        #region Commands code
 
         /// <summary>
         /// Holds the local commands to be processed by de server.
         /// </summary>
-        public CommandQueue commandsQueue;
+        public BufferedCommandQueue commandsQueue;
+        public BufferedCommandQueue localCommandsQueue;
         public CommandQueue outgoingMessagesQueue;
-        public CommandQueue localCommandsQueue;
         public CommandQueue priorityOutgoingMessagesQueue;
+
+        public MessagesPool incomingMessagesPool;
+        public MessagesPool priorityMessagesPool;
+
+
+        #endregion
+
+        #region Threading code
 
         protected Thread commandsThread;
         protected Thread outgoingMessagesThread;
@@ -144,10 +152,16 @@ namespace KSPM.Network.Server
             }
 
             this.tcpBuffer = new byte[ServerSettings.ServerBufferSize];
-            this.commandsQueue = new CommandQueue();
-            this.outgoingMessagesQueue = new CommandQueue();
-            this.localCommandsQueue = new CommandQueue();
+
+            ///Creating a new buffered CommandQueue capable to suport upto 1000 messages, each one of 1024 bytes length.
+            this.commandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 1000);
+            ///Creating the local commands queue, capable to hold up to 100 messages, each one of 1024 bytes length.
+            this.localCommandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 100);
             this.priorityOutgoingMessagesQueue = new CommandQueue();
+            this.outgoingMessagesQueue = new CommandQueue();
+
+            this.incomingMessagesPool = new MessagesPool(1000, new BufferedMessage(Message.CommandType.Null, 0, 0));
+            this.priorityMessagesPool = new MessagesPool(100, new BufferedMessage(Message.CommandType.Null, 0, 0));
 
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
             this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
@@ -262,6 +276,9 @@ namespace KSPM.Network.Server
             this.outgoingMessagesQueue = null;
             this.priorityOutgoingMessagesQueue = null;
 
+            this.priorityMessagesPool.Release();
+            this.incomingMessagesPool.Release();
+
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
 
 #if PROFILING
@@ -273,7 +290,7 @@ namespace KSPM.Network.Server
         #endregion
 
         #region IncomingConnections
-
+        /*
         /// <summary>
         /// Handles the incoming connections through a TCP socket.
         /// </summary>
@@ -309,6 +326,7 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
             }
         }
+        */
 
         protected void StartReceiveConnections()
         {
@@ -356,6 +374,8 @@ namespace KSPM.Network.Server
                 {
                     acceptedSocket = e.AcceptSocket;
                     newNetworkEntity = new NetworkEntity(ref acceptedSocket);
+                    PacketHandler.PacketizeToOwner(e.Buffer, e.BytesTransferred, newNetworkEntity, this);
+                    /*
                     if (PacketHandler.Packetize(e.Buffer, e.BytesTransferred, packets) == Error.ErrorType.Ok)
                     {
                         while (packets.Count > 0)
@@ -368,6 +388,7 @@ namespace KSPM.Network.Server
                             }
                         }
                     }
+                    */
                 }
             }
             ///If there were a success process or not we need to receive another
@@ -375,6 +396,25 @@ namespace KSPM.Network.Server
             ///Restoring the SocketAsyncEventArgs used to perform the receive process.
             e.Completed -= OnAsyncFirstDataIncomingComplete;
             this.incomingConnectionsPool.Recycle(e);
+        }
+
+        public void ProcessPacket(byte[] rawData, uint fixedLegth)
+        { }
+        public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
+        {
+            Message incomingMessage = null;
+            incomingMessage = this.priorityMessagesPool.BorrowMessage;
+            ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
+            this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+        }
+
+        public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength, NetworkEntity packetOwner)
+        {
+            Message incomingMessage = null;
+            incomingMessage = this.priorityMessagesPool.BorrowMessage;
+            ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
+            ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(packetOwner);
+            this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
         }
 
         /// <summary>
@@ -462,73 +502,6 @@ namespace KSPM.Network.Server
                             
                             switch (messageToProcess.Command)
                             {
-                                case Message.CommandType.NewClient:
-                                    messageOwner = managedMessageReference.OwnerNetworkEntity;
-                                    if (this.clientsHandler.ConnectedClients < this.lowLevelOperationSettings.maxConnectedClients)
-                                    {
-                                        if (this.defaultUserManagementSystem.Query(ref messageOwner))
-                                        {
-                                            if (ServerSideClient.CreateFromNetworkEntity(ref messageOwner, out newClientAttempt) == Error.ErrorType.Ok)
-                                            {
-                                                newClientAttempt.RegisterUserConnectedEvent(this.UserConnected);
-                                                if (newClientAttempt.StartClient())
-                                                {
-                                                    this.clientsHandler.AddNewClient(newClientAttempt);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //Creates the reject message and set the callback to the RejectMessageToClient. Performed in that way because it is needed to send the reject message before to proceed to disconnect the client.
-                                        Message.ServerFullMessage(messageOwner, out responseMessage);
-                                        PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
-                                        ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
-                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                    }
-                                    break;
-                                case Message.CommandType.StopServer:
-                                    this.ShutdownServer();
-                                    break;
-                                case Message.CommandType.Authentication:
-                                    //User.InflateUserFromBytes(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
-                                    User.InflateUserFromBytes(ref messageToProcess.bodyMessage, out referredUser);
-                                    serverSideClientReference = (ServerSideClient)managedMessageReference.OwnerNetworkEntity;
-                                    serverSideClientReference.gameUser = referredUser;
-                                    messageOwner = serverSideClientReference;
-                                    if (this.usersAccountManager.Query(ref messageOwner))
-                                    {
-                                        /*
-                                        Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
-                                        this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                         */
-                                        serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
-                                    }
-                                    else
-                                    {
-                                        ///Need to improve this code for a only one if.
-                                        ///And to check if is it needed to send a disconnect message before release the socket.
-                                        if ((serverSideClientReference.gameUser.AuthencticationAttempts++) < this.lowLevelOperationSettings.maxAuthenticationAttempts)
-                                        {
-                                            ///There is still a chance to authenticate again.
-                                            Message.AuthenticationFailMessage(messageOwner, out responseMessage);
-                                            PacketHandler.EncodeRawPacket(ref responseMessage.bodyMessage);
-                                        }
-                                        else
-                                        {
-                                            ///There is no chance to try it again.
-                                            ((ManagedMessage)responseMessage).OwnerNetworkEntity.SetMessageSentCallback(this.RejectMessageToClient);
-                                        }
-                                        this.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
-                                    }
-                                    break;
-                                case Message.CommandType.Disconnect:
-                                    ///Disconnects either a NetworkEntity or a ServerSideClient.
-                                    this.OnUserDisconnected(managedMessageReference.OwnerNetworkEntity, null);
-                                    this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
-                                    this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);                                    
-                                    break;
-
                                 case Message.CommandType.Chat:
                                     this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
                                     /*
@@ -544,8 +517,8 @@ namespace KSPM.Network.Server
                                     KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
                                     break;
                             }
-                            messageToProcess.Release();
-                            messageToProcess = null;
+                            ///Releasing and recycling the message.
+                            this.incomingMessagesPool.Recycle(messageToProcess);
                         }
                     }
                     Thread.Sleep(3);
@@ -709,7 +682,15 @@ namespace KSPM.Network.Server
                 }
             }
             e.Completed -= this.OnSendingOutgoingDataComplete;
-            networkEntitySender.IOSocketAsyncEventArgsPool.Recycle(e);
+            if (networkEntitySender.IOSocketAsyncEventArgsPool == null)
+            {
+                e.Dispose();
+                e = null;
+            }
+            else
+            {
+                networkEntitySender.IOSocketAsyncEventArgsPool.Recycle(e);
+            }
             //this.HandleOutgoingMessagesThreadMethod();
         }
 
@@ -732,7 +713,7 @@ namespace KSPM.Network.Server
             }
             try
             {
-                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle commands[ " + this.alive + " ]");
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle local commands[ " + this.alive + " ]");
                 while (this.alive)
                 {
                     if (!this.localCommandsQueue.IsEmpty())
@@ -741,7 +722,7 @@ namespace KSPM.Network.Server
                         managedMessageReference = (ManagedMessage)messageToProcess;
                         if (messageToProcess != null)
                         {
-                            KSPMGlobals.Globals.Log.WriteTo(messageToProcess.Command.ToString());
+                            //KSPMGlobals.Globals.Log.WriteTo(messageToProcess.Command.ToString());
                             switch (messageToProcess.Command)
                             {
                                 case Message.CommandType.NewClient:
@@ -774,7 +755,7 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Authentication:
                                     //User.InflateUserFromBytes(ref managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, out referredUser);
-                                    User.InflateUserFromBytes(ref messageToProcess.bodyMessage, out referredUser);
+                                    User.InflateUserFromBytes(messageToProcess.bodyMessage, ((BufferedMessage)messageToProcess).StartsAt, messageToProcess.MessageBytesSize, out referredUser);
                                     serverSideClientReference = (ServerSideClient)managedMessageReference.OwnerNetworkEntity;
                                     serverSideClientReference.gameUser = referredUser;
                                     messageOwner = serverSideClientReference;
@@ -806,24 +787,15 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
-                                    this.OnUserDisconnected(managedMessageReference.OwnerNetworkEntity, null);
-                                    this.chatManager.UnregisterUser(managedMessageReference.OwnerNetworkEntity);
-                                    this.clientsHandler.RemoveClient(managedMessageReference.OwnerNetworkEntity);
+                                    this.DisconnectClient(managedMessageReference.OwnerNetworkEntity);
                                     break;
-                                    /*
-                                case Message.CommandType.Chat:
-                                    if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
-                                    {
-                                        //chatMessage.From = ((ServerSideClient)managedMessageReference.OwnerNetworkEntity).gameUser.Username;
-                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
-                                    }
-                                    break;
-                                    */
                                 case Message.CommandType.Unknown:
                                 default:
                                     KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
                                     break;
                             }
+                            ///Recyles and releases the message.
+                            this.priorityMessagesPool.Recycle(messageToProcess);
                         }
                     }
                     Thread.Sleep(9);
@@ -863,15 +835,17 @@ namespace KSPM.Network.Server
                                 ///Checking if the NetworkEntity is still running.
                                 if (managedReference.OwnerNetworkEntity.IsAlive())
                                 {
+                                    KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
                                     managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                                 }
                             }
                             catch (System.Exception ex)
                             {
-                                Message killMessage = null;
+                                //Message killMessage = null;
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingPriorityMessages", ex.Message));
-                                Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
-                                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
+                                this.DisconnectClient(managedReference.OwnerNetworkEntity);
+                                //Message.DisconnectMessage(managedReference.OwnerNetworkEntity, out killMessage);
+                                //KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref killMessage);
                             }
                         }
                         outgoingMessage = null;
@@ -897,6 +871,7 @@ namespace KSPM.Network.Server
             {
                 net = (NetworkEntity)result.AsyncState;
                 sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
+                KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
 				if( sentBytes > 0 )
 				{
                 	net.MessageSent(net, null);
@@ -915,6 +890,13 @@ namespace KSPM.Network.Server
             {
                 this.UserDisconnected(sender, e);
             }
+        }
+
+        internal void DisconnectClient(NetworkEntity target)
+        {
+            this.OnUserDisconnected(target, null);
+            this.chatManager.UnregisterUser(target);
+            this.clientsHandler.RemoveClient(target);
         }
 
         /// <summary>

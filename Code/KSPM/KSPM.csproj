@@ -71,6 +71,7 @@
     <Compile Include="Network\Client\GameClient.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerInformation.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerList.cs" />
+    <Compile Include="Network\Common\BufferedCommandQueue.cs" />
     <Compile Include="Network\Common\CommandQueue.cs" />
     <Compile Include="Network\Common\ConnectionlessNetworkCollection.cs" />
     <Compile Include="Network\Common\Error.cs" />
@@ -83,9 +84,11 @@
     <Compile Include="Network\Common\Messages\BufferedMessage.cs" />
     <Compile Include="Network\Common\Messages\ManagedMessage.cs" />
     <Compile Include="Network\Common\Messages\Message.cs" />
+    <Compile Include="Network\Common\Messages\MessagesPool.cs" />
     <Compile Include="Network\Common\Packet\ByteDecoder.cs" />
     <Compile Include="Network\Common\NetworkBaseCollection.cs" />
     <Compile Include="Network\Common\Packet\IPacketArrived.cs" />
+    <Compile Include="Network\Common\Packet\IOwnedPacketArrived.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
     <Compile Include="Network\Common\AbstractSettings.cs" />

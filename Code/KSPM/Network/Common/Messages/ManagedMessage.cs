@@ -26,7 +26,7 @@ namespace KSPM.Network.Common.Messages
         /// Sets a new NetworkEntity owner for this message.
         /// </summary>
         /// <param name="messageOwner"></param>
-        public void SetOwnerMessageNetworkEntity(ref NetworkEntity messageOwner)
+        public void SetOwnerMessageNetworkEntity(NetworkEntity messageOwner)
         {
             this.messageOwner = messageOwner;
         }
@@ -55,6 +55,16 @@ namespace KSPM.Network.Common.Messages
                 this.bodyMessage = null;
             }
             this.broadcasted = false;
+        }
+
+        /// <summary>
+        /// Returns a new instance of the same class.
+        /// </summary>
+        /// <returns></returns>
+        public override Message Empty()
+        {
+            ManagedMessage item = new ManagedMessage(CommandType.Null, null);
+            return item;
         }
 
         public void SwapReceivedBufferToSend(ManagedMessage otherMessage)

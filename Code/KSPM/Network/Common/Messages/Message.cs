@@ -211,6 +211,14 @@ namespace KSPM.Network.Common.Messages
             return this.messageRawLength;
         }
 
+        public uint SetBodyMessage(byte[] rawBytes, uint rawBytesOffset, uint blockSize)
+        {
+            this.bodyMessage = new byte[blockSize];
+            System.Buffer.BlockCopy(rawBytes, (int)rawBytesOffset, this.bodyMessage, 0, (int)blockSize);
+            this.messageRawLength = blockSize;
+            return this.messageRawLength;
+        }
+
         /// <summary>
         /// Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that.</b>
         /// </summary>
@@ -224,6 +232,8 @@ namespace KSPM.Network.Common.Messages
         }
 
         public abstract void Release();
+
+        public abstract Message Empty();
 
         #region AuthenticationCode
 

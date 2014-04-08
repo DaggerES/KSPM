@@ -107,10 +107,18 @@ namespace KSPM.Network.Server.UserManagement
         {
             Message outgoingMessage = null;
             BroadcastMessage outgoingBroadcast = new BroadcastMessage(messageToSend.Command, targets);
+            outgoingBroadcast.SetBodyMessage(messageToSend.bodyMessage,((BufferedMessage)messageToSend).StartsAt , messageToSend.MessageBytesSize);
+            outgoingMessage = outgoingBroadcast;
+            messageToSend.IsBroadcast = true;
+            KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
+            /*
+            Message outgoingMessage = null;
+            BroadcastMessage outgoingBroadcast = new BroadcastMessage(messageToSend.Command, targets);
             outgoingBroadcast.SetBodyMessageNoClone(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
             outgoingMessage = outgoingBroadcast;
             messageToSend.IsBroadcast = true;
             KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
+            */
             /*
             lock (this.clients)
             {
