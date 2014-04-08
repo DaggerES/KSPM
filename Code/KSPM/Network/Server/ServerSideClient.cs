@@ -195,7 +195,7 @@ namespace KSPM.Network.Server
         /// <param name="baseNetworkEntity">Reference (ref) to the NetwrokEntity used as a base to create the new ServerSideClient object.</param>
         /// <param name="ssClient">New server side clint out reference.</param>
         /// <returns></returns>
-        public static Error.ErrorType CreateFromNetworkEntity(ref NetworkEntity baseNetworkEntity, out ServerSideClient ssClient )
+        public static Error.ErrorType CreateFromNetworkEntity(NetworkEntity baseNetworkEntity, out ServerSideClient ssClient )
         {
             ssClient = null;
             if (baseNetworkEntity == null)
