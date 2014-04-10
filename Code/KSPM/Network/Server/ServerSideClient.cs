@@ -279,8 +279,6 @@ namespace KSPM.Network.Server
                         this.usingUdpConnection = true;
                         this.ReceiveUDPDatagram();
 
-                        //this.currentStatus = ClientStatus.Connected;
-
                         break;
                     case ClientStatus.Connected:
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);

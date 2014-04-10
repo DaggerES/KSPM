@@ -7,6 +7,11 @@ namespace KSPM.Network.Common.Messages
     public class RawMessage : Message
     {
         /// <summary>
+        /// Flags to tell if this message belongs to a pool.
+        /// </summary>
+        protected bool pooling;
+
+        /// <summary>
         /// Creates a RawMessage instance, copying the amount of bytes specified by the messageSize parameter into the bodyMessage array.
         /// </summary>
         /// <param name="kindOfMessage">Command type of the message.</param>
@@ -16,6 +21,7 @@ namespace KSPM.Network.Common.Messages
         {
             this.bodyMessage = rawBytes;
             this.messageRawLength = messageSize;
+            this.pooling = false;
             /*
             this.bodyMessage = new byte[rawBytes.Length];
             this.messageRawLength = messageSize;
@@ -24,12 +30,28 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
-        /// Creates a RawMessage as a buffer.
+        /// Creates a RawMessage as a buffer setting the pooling flag to True.<b>Be careful about the pooling flag.</b>
         /// </summary>
         public RawMessage() : base(CommandType.Null)
         {
             this.bodyMessage = new byte[ServerSettings.ServerBufferSize];
             this.messageRawLength = 0;
+            this.pooling = true;
+        }
+
+        /// <summary>
+        /// Gets/Sets the pooling flag.
+        /// </summary>
+        public bool Pooling
+        {
+            get
+            {
+                return this.pooling;
+            }
+            set
+            {
+                this.pooling = value;
+            }
         }
 
         /// <summary>
@@ -45,7 +67,10 @@ namespace KSPM.Network.Common.Messages
         {
             this.command = CommandType.Null;
             this.messageRawLength = 0;
-            this.bodyMessage = null;
+            if (!this.pooling)
+            {
+                this.bodyMessage = null;
+            }
         }
     }
 }
