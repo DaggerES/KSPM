@@ -94,9 +94,15 @@ namespace KSPM.Network.Common.Messages
 
             /// <summary>
             /// Chat command.
-            /// [Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             /// </summary>
             Chat,
+
+            /// <summary>
+            /// UDP Chat command. A chat message sent through the UDP connection.
+            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// </summary>
+            UDPChat,
 
             /// <summary>
             /// Tells the remote client how many chat groups are registered inside the server.
@@ -710,6 +716,44 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
+        /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then loads the given message reference. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadUDPPairingOkMessage(NetworkEntity sender, ref Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;///4 bytes reserver to the message length.
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairingOk;
+            bytesToSend += 1;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writint the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            System.Buffer.BlockCopy(ssClientReference.udpCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.PrefixSize];
+            //targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
         /// <summary>
         /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
@@ -741,6 +785,46 @@ namespace KSPM.Network.Common.Messages
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
             targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadUDPPairingFailMessage(NetworkEntity sender, ref Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;///4 bytes reserved to write the message length.
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairingFail;
+            bytesToSend += 1;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Loading the content to the targetMessage
+            System.Buffer.BlockCopy(ssClientReference.udpCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            
             return Error.ErrorType.Ok;
         }
 

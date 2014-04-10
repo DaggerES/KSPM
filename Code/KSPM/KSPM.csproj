@@ -89,6 +89,7 @@
     <Compile Include="Network\Common\NetworkBaseCollection.cs" />
     <Compile Include="Network\Common\Packet\IPacketArrived.cs" />
     <Compile Include="Network\Common\Packet\IOwnedPacketArrived.cs" />
+    <Compile Include="Network\Common\Packet\IUDPPacketArrived.cs" />
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
     <Compile Include="Network\Common\AbstractSettings.cs" />

@@ -195,6 +195,11 @@ namespace KSPM.Network.Chat.Managers
 
         #region MessageHandling
 
+        /// <summary>
+        /// Takes a string and sends it to the server using the TCP connection.
+        /// </summary>
+        /// <param name="targetGroup"></param>
+        /// <param name="bodyMessage"></param>
         public void SendChatMessage(ChatGroup targetGroup, string bodyMessage)
         {
             Message chatMessage = null;
@@ -202,6 +207,19 @@ namespace KSPM.Network.Chat.Managers
             if(ChatMessage.CreateChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok )
             {
                 managedReference = (ManagedMessage) chatMessage;
+                PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                ((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage);
+                //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
+            }
+        }
+
+        public void SendUDPChatMessage(ChatGroup targetGroup, string bodyMessage)
+        {
+            Message chatMessage = null;
+            ManagedMessage managedReference;
+            if (ChatMessage.CreateChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+            {
+                managedReference = (ManagedMessage)chatMessage;
                 PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                 ((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage);
                 //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
