@@ -160,6 +160,86 @@ namespace KSPM.Network.Chat.Messages
             return Error.ErrorType.Ok;
         }
 
+        public static Error.ErrorType CreateUDPChatMessage(NetworkEntity sender, ChatGroup targetGroup, string bodyMessage, out Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            byte[] rawBuffer = new byte[Server.ServerSettings.ServerBufferSize];
+            GameClient senderClient;
+            short shortBuffer;
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] bytesBuffer = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            if (targetGroup == null)
+            {
+                return Error.ErrorType.ChatInvalidGroup;
+            }
+
+            senderClient = (GameClient)sender;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPChat;
+            bytesToSend += 1;
+
+            ///Writing the hash's length
+            shortBuffer = (short)senderClient.ClientOwner.Hash.Length;
+            bytesBuffer = null;
+            bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += bytesBuffer.Length;
+
+            ///Writing the user's hash code.
+            System.Buffer.BlockCopy(senderClient.ClientOwner.Hash, 0, rawBuffer, bytesToSend, shortBuffer);
+            bytesToSend += shortBuffer;
+
+            ///Writing the user name length bytesToSend + 2 to make room to the name's length.
+            KSPMGlobals.Globals.StringEncoder.GetBytes(((GameClient)sender).ClientOwner.Username, out bytesBuffer);
+            shortBuffer = (short)bytesBuffer.Length;
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend + 2, bytesBuffer.Length);
+
+            bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += bytesBuffer.Length + shortBuffer;
+
+            ///Writing the groupId.
+            bytesBuffer = System.BitConverter.GetBytes(targetGroup.Id);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += bytesBuffer.Length;
+
+            ///Writing the body message.
+            KSPMGlobals.Globals.StringEncoder.GetBytes(bodyMessage, out bytesBuffer);
+            shortBuffer = (short)bytesBuffer.Length;
+            ///bytesToSend + 2 because we have to left room for the size of the messagebody.
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend + 2, shortBuffer);
+
+            ///Writing the body message's size
+            bytesBuffer = System.BitConverter.GetBytes(shortBuffer);
+            System.Buffer.BlockCopy(bytesBuffer, 0, rawBuffer, bytesToSend, bytesBuffer.Length);
+            bytesToSend += shortBuffer + bytesBuffer.Length;
+
+            ///Writing the EndOfMessage command.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += Message.EndOfMessageCommand.Length;
+
+            //Writing the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            targetMessage = new RawMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], rawBuffer, (uint)bytesToSend);
+            //targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+
+            return Error.ErrorType.Ok;
+        }
+
         public static Error.ErrorType InflateChatMessage(byte[] rawBytes, out ChatMessage messageTarget)
         {
             int bytesBlockSize;

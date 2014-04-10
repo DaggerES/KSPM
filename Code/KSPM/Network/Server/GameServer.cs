@@ -519,17 +519,14 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle commands[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    if (!this.commandsQueue.IsEmpty())
+                    this.commandsQueue.DequeueCommandMessage(out messageToProcess);
+                    if (messageToProcess != null)
                     {
-                        this.commandsQueue.DequeueCommandMessage(out messageToProcess);
                         managedMessageReference = (ManagedMessage)messageToProcess;
-                        if (messageToProcess != null)
+                        switch (messageToProcess.Command)
                         {
-                            
-                            switch (messageToProcess.Command)
-                            {
-                                case Message.CommandType.Chat:
-                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
+                            case Message.CommandType.Chat:
+                                this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
                                     /*
                                     if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
                                     {
@@ -538,14 +535,13 @@ namespace KSPM.Network.Server
                                     }
                                     */
                                     break;
-                                case Message.CommandType.Unknown:
-                                default:
-                                    KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
-                                    break;
-                            }
-                            ///Releasing and recycling the message.
-                            this.incomingMessagesPool.Recycle(messageToProcess);
+                            case Message.CommandType.Unknown:
+                            default:
+                            KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                            break;
                         }
+                        ///Releasing and recycling the message.
+                        this.incomingMessagesPool.Recycle(messageToProcess);
                     }
                     Thread.Sleep(3);
                 }
@@ -620,10 +616,6 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    /*
-                    if (!this.outgoingMessagesQueue.IsEmpty())
-                    {
-                        */
 #if PROFILING
                         this.profilerOutgoingMessages.Set();
 #endif
@@ -690,7 +682,6 @@ namespace KSPM.Network.Server
 #endif
                     }
                     Thread.Sleep(3);
-                //}
             }
             catch (ThreadAbortException)
             {
@@ -749,8 +740,6 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle local commands[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    //if (!this.localCommandsQueue.IsEmpty())
-                    //{
                         this.localCommandsQueue.DequeueCommandMessage(out messageToProcess);                        
                         if (messageToProcess != null)
                         {
@@ -828,7 +817,7 @@ namespace KSPM.Network.Server
                             ///Recyles and releases the message.
                             this.priorityMessagesPool.Recycle(messageToProcess);
                         }
-                    //}
+
                     Thread.Sleep(9);
                 }
             }
@@ -854,8 +843,6 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    //if (!this.priorityOutgoingMessagesQueue.IsEmpty())
-                    //{
                         this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
@@ -866,7 +853,7 @@ namespace KSPM.Network.Server
                                 ///Checking if the NetworkEntity is still running.
                                 if (managedReference.OwnerNetworkEntity.IsAlive())
                                 {
-                                    //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
+                                    KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
                                     managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                                 }
                             }
@@ -880,7 +867,6 @@ namespace KSPM.Network.Server
                             outgoingMessage.Release();
                             outgoingMessage = null;
                         }
-                    //}
                     Thread.Sleep(5);
                 }
             }

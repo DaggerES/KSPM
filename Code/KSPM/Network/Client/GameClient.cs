@@ -431,8 +431,10 @@ namespace KSPM.Network.Client
                             this.currentStatus = ClientStatus.Awaiting;
                             break;
                         case ClientStatus.UDPSettingUp:
+                            /*
                             this.currentStatus = ClientStatus.Connected;
                             break;
+                            */
                             try
                             {
                                 this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -536,16 +538,16 @@ namespace KSPM.Network.Client
                                 case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                                                       ///Reads the information sent by the server and starts the UDP setting up process.
                                     managedMessageReference = (ManagedMessage)command;
-                                    udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 5);
+                                    udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 9);
                                     udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
-                                    receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 9);
+                                    receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 13);
 
                                     if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork) && this.pairingCode != receivedPairingCode)
                                     {
                                         udpServerInformationFromNetwork.Clone(ref this.udpServerInformation);
                                         this.pairingCode = ~receivedPairingCode;
                                         this.currentStatus = ClientStatus.UDPSettingUp;
-                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, this.pairingCode));
+                                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode,2)));
                                     }
                                     break;
                                 case Message.CommandType.ChatSettingUp:
@@ -648,7 +650,7 @@ namespace KSPM.Network.Client
                 sentBytes = networkReference.ownerNetworkCollection.socketReference.EndSend(result);
                 if (sentBytes > 0)
                 {
-                    KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
+                    //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
                     networkReference.MessageSent(networkReference, null);
                 }
             }
@@ -724,6 +726,7 @@ namespace KSPM.Network.Client
             if (e.SocketError == SocketError.Success)
             {
                 readBytes = e.BytesTransferred;
+                //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(e.Buffer, (uint)readBytes);
@@ -837,7 +840,7 @@ namespace KSPM.Network.Client
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
             Message incomingMessage = null;
-            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLength.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
@@ -865,7 +868,9 @@ namespace KSPM.Network.Client
                     if (this.udpHolePunched)///Checking if the UDP hole is already punched.
                     {
                         this.UDPSignalHandler.Reset();
-                        remoteEndPoint = this.udpNetworkCollection.socketReference.LocalEndPoint;
+                        //remoteEndPoint = this.udpNetworkCollection.socketReference.LocalEndPoint;
+                        //remoteEndPoint = this.udpNetworkCollection.socketReference.RemoteEndPoint;
+                        remoteEndPoint = this.udpServerInformation.NetworkEndPoint;
                         try
                         {
                             this.udpNetworkCollection.socketReference.BeginReceiveFrom(this.udpNetworkCollection.secondaryRawBuffer, 0, this.udpNetworkCollection.secondaryRawBuffer.Length, SocketFlags.None, ref remoteEndPoint, this.AsyncReceiverCallback, this);
@@ -1008,6 +1013,7 @@ namespace KSPM.Network.Client
                             {
                                 ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
                                 case Message.CommandType.UDPPairingOk:
+                                    KSPMGlobals.Globals.Log.WriteTo("HOLA");
                                     this.currentStatus = ClientStatus.Connected;
                                     break;
                                 ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.

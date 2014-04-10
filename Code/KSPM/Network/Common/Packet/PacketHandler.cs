@@ -186,7 +186,13 @@ namespace KSPM.Network.Common.Packet
             return Error.ErrorType.Ok;
         }
 
-        
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        /// <param name="bytesStream"></param>
+        /// <param name="bytesToRead"></param>
+        /// <param name="packets"></param>
+        /// <returns></returns>
         public static Error.ErrorType Packetize(System.IO.MemoryStream bytesStream, int bytesToRead, System.Collections.Generic.Queue<byte[]> packets)
         {
             if (bytesToRead <= 0)
@@ -365,7 +371,7 @@ namespace KSPM.Network.Common.Packet
             messageTarget = null;
             if (rawBytes.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, 0);
+            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, Message.HeaderOfMessageCommand.Length);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
             ///Verifying the packet end of message command.
@@ -376,7 +382,7 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 }
             }
-            messageTarget = new RawMessage((Message.CommandType)rawBytes[ PacketHandler.RawMessageHeaderSize ], rawBytes, (uint)bytesBlockSize);
+            messageTarget = new RawMessage((Message.CommandType)rawBytes[ PacketHandler.PrefixSize ], rawBytes, (uint)bytesBlockSize);
             return Error.ErrorType.Ok;
         }
 
@@ -408,6 +414,10 @@ namespace KSPM.Network.Common.Packet
             }
         }
 
+        /// <summary>
+        /// Packetize the incoming bytes, searching the Begin and End headers, then calls to the ProcessPacket method.
+        /// </summary>
+        /// <param name="consumer"></param>
         public void PacketizeCRC(IPacketArrived consumer)
         {
             uint availableBytes = this.memoryReference.Read(ref this.workingBuffer);
@@ -563,6 +573,176 @@ namespace KSPM.Network.Common.Packet
                                 }
                                 //consumer.ProcessPacket(this.packet, (uint)messageBlockSize);
                                 consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
+                                packetStatus = PacketStatus.NoProcessed;
+                            }
+                            //startsAtIndex = endsAtIndex = 0;
+                        }
+                        endHeaderFound = startHeaderFound = false;
+                        //startsAtIndex = endsAtIndex = 0;
+                    }
+                }
+                this.unpackedBytesCounter = (int)availableBytes - endsAtIndex;
+                if (this.unpackedBytesCounter > 0)
+                {
+                    System.Buffer.BlockCopy(this.workingBuffer, endsAtIndex, this.unpackedBytes, 0, (int)availableBytes - endsAtIndex);
+                }
+            }
+        }
+
+        public void UDPPacketizeCRCMemoryAlloc(IUDPPacketArrived consumer)
+        {
+            uint availableBytes = this.memoryReference.Read(ref this.workingBuffer);
+            int messageBlockSize = 0;
+            int physicalMessageBlockSize = 0;
+            int index = 0;
+            int searchedHeaderIndex = 0;
+            int startsAtIndex = 0;
+            int endsAtIndex = 0;
+            int stolenBytesFromWorkingBuffer = 0;
+            bool startHeaderFound = false;
+            bool endHeaderFound = false;
+            PacketStatus packetStatus = PacketStatus.NoProcessed;
+            if (availableBytes != 0)
+            {
+                for (index = 0; index < this.unpackedBytesCounter; index++)///Scan the unpacked bytes first.
+                {
+                    if (!startHeaderFound && !endHeaderFound)
+                    {
+                        if (this.unpackedBytes[index] == Message.HeaderOfMessageCommand[searchedHeaderIndex])
+                        {
+                            this.prefixBytes[searchedHeaderIndex] = this.unpackedBytes[index];
+                            searchedHeaderIndex++;
+                            packetStatus = PacketStatus.BeginHeaderIncomplete;
+                            if (searchedHeaderIndex >= Message.HeaderOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                startHeaderFound = true;
+                                searchedHeaderIndex = 0;
+                                startsAtIndex = index - Message.HeaderOfMessageCommand.Length + 1;
+                                packetStatus = PacketStatus.Splitted;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (this.unpackedBytes[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
+                        {
+                            searchedHeaderIndex++;
+                            packetStatus = PacketStatus.EndHeaderIncomplete;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
+                            }
+                        }
+                    }
+                    if (startHeaderFound && endHeaderFound)///Found both headers on the same buffer.
+                    {
+                        physicalMessageBlockSize = endsAtIndex - startsAtIndex;
+                        messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, startsAtIndex);
+                        if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
+                        {
+                            packet = new byte[messageBlockSize];
+                            System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex, packet, 0, messageBlockSize);
+                            consumer.ProcessUDPPacket(packet, (uint)messageBlockSize);
+                            //consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
+                            packetStatus = PacketStatus.NoProcessed;
+                        }
+                        endHeaderFound = startHeaderFound = false;
+                        startsAtIndex = endsAtIndex = 0;
+                    }
+                }
+
+
+                for (index = 0; index < availableBytes; index++)///Now we are searching inside the working buffer.
+                {
+                    if (!startHeaderFound && !endHeaderFound)
+                    {
+                        if (this.workingBuffer[index] == Message.HeaderOfMessageCommand[searchedHeaderIndex])
+                        {
+                            this.prefixBytes[searchedHeaderIndex] = this.workingBuffer[index];
+                            searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.HeaderOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                startHeaderFound = true;
+                                searchedHeaderIndex = 0;
+                                startsAtIndex = index - Message.HeaderOfMessageCommand.Length + 1;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (this.workingBuffer[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
+                        {
+                            searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                searchedHeaderIndex = 0;
+                            }
+                        }
+                    }
+                    if (startHeaderFound && endHeaderFound)///Found both headers.
+                    {
+                        if (packetStatus == PacketStatus.Splitted || packetStatus == PacketStatus.EndHeaderIncomplete)
+                        {
+                            if (this.unpackedBytesCounter - startsAtIndex >= PacketHandler.PrefixSize)///The whole prefix is unpacked.
+                            {
+                                messageBlockSize = System.BitConverter.ToInt32(this.unpackedBytes, startsAtIndex + Message.HeaderOfMessageCommand.Length);
+                                physicalMessageBlockSize = endsAtIndex + this.unpackedBytesCounter - startsAtIndex;
+                                if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
+                                {
+                                    packet = new byte[messageBlockSize];
+                                    ///Copying those bytes stored inside the unpacked bytes array.
+                                    System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex, packet, 0, this.unpackedBytesCounter - startsAtIndex);
+
+                                    ///Copying the rest of the message stored inside the working array.
+                                    System.Buffer.BlockCopy(this.workingBuffer, 0, packet, this.unpackedBytesCounter, endsAtIndex);
+                                    consumer.ProcessUDPPacket(this.packet, (uint)messageBlockSize);
+                                    //consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
+                                    packetStatus = PacketStatus.NoProcessed;
+                                }
+                            }
+                            else
+                            {
+                                stolenBytesFromWorkingBuffer = 4 - (this.unpackedBytesCounter - (startsAtIndex + Message.HeaderOfMessageCommand.Length));
+                                ///Copying those bytes at the end of the unpacked buffer.
+                                System.Buffer.BlockCopy(this.unpackedBytes, startsAtIndex + Message.HeaderOfMessageCommand.Length, this.prefixBytes, Message.HeaderOfMessageCommand.Length, this.unpackedBytesCounter - (startsAtIndex + Message.HeaderOfMessageCommand.Length));
+                                ///Copying the rest of the needed bytes to convert them into a int32
+                                System.Buffer.BlockCopy(this.workingBuffer, 0, this.prefixBytes, Message.HeaderOfMessageCommand.Length + (this.unpackedBytesCounter - (startsAtIndex + Message.HeaderOfMessageCommand.Length)), stolenBytesFromWorkingBuffer);
+                                messageBlockSize = System.BitConverter.ToInt32(this.prefixBytes, Message.HeaderOfMessageCommand.Length);
+                                physicalMessageBlockSize = endsAtIndex + this.unpackedBytesCounter - startsAtIndex;
+                                if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
+                                {
+                                    packet = new byte[messageBlockSize];
+                                    System.Buffer.BlockCopy(this.prefixBytes, 0, packet, 0, (int)PacketHandler.PrefixSize);
+                                    System.Buffer.BlockCopy(this.workingBuffer, stolenBytesFromWorkingBuffer, packet, (int)PacketHandler.PrefixSize, endsAtIndex - stolenBytesFromWorkingBuffer);
+                                    consumer.ProcessUDPPacket(packet, (uint)messageBlockSize);
+                                    //consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
+                                    packetStatus = PacketStatus.NoProcessed;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            messageBlockSize = System.BitConverter.ToInt32(this.workingBuffer, startsAtIndex + Message.HeaderOfMessageCommand.Length);
+                            physicalMessageBlockSize = endsAtIndex - startsAtIndex;
+                            if (messageBlockSize < int.MaxValue && messageBlockSize == physicalMessageBlockSize)///To avoid bad messages.
+                            {
+                                packet = new byte[messageBlockSize];
+                                if (packetStatus == PacketStatus.BeginHeaderIncomplete)
+                                {
+                                    System.Buffer.BlockCopy(this.prefixBytes, 0, packet, 0, Message.HeaderOfMessageCommand.Length);
+                                    System.Buffer.BlockCopy(this.workingBuffer, startsAtIndex + Message.HeaderOfMessageCommand.Length, packet, Message.HeaderOfMessageCommand.Length, messageBlockSize - Message.HeaderOfMessageCommand.Length);
+                                }
+                                else
+                                {
+                                    System.Buffer.BlockCopy(this.workingBuffer, startsAtIndex, packet, 0, messageBlockSize);
+                                }
+                                consumer.ProcessUDPPacket(packet, (uint)messageBlockSize);
+                                //consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
                                 packetStatus = PacketStatus.NoProcessed;
                             }
                             //startsAtIndex = endsAtIndex = 0;
