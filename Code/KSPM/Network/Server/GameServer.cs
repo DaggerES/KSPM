@@ -279,13 +279,13 @@ namespace KSPM.Network.Server
             this.tcpBuffer = null;
             this.tcpIpEndPoint = null;
 
-            KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
-            this.clientsHandler.Release();
-            this.clientsHandler = null;
-
             KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
             this.chatManager.Release();
             this.chatManager = null;
+
+            KSPMGlobals.Globals.Log.WriteTo("Killing conected clients!!!");
+            this.clientsHandler.Release();
+            this.clientsHandler = null;
 
             ///*********************Killing server itself
             this.ableToRun = false;
@@ -920,9 +920,12 @@ namespace KSPM.Network.Server
         /// <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
         internal void DisconnectClient(NetworkEntity target)
         {
-            this.OnUserDisconnected(target, null);
-            this.chatManager.UnregisterUser(target);
-            this.clientsHandler.RemoveClient(target);
+            if (target != null && target.IsAlive())
+            {
+                this.OnUserDisconnected(target, null);
+                this.chatManager.UnregisterUser(target);
+                this.clientsHandler.RemoveClient(target);
+            }
         }
 
         /// <summary>

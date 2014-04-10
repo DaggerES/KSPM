@@ -73,7 +73,7 @@ namespace KSPM.Network.Client
         /// </summary>
         protected bool holePunched;
 
-        #region Buffering
+        #region TCP_Buffering
 
         /// <summary>
         /// Buffer used to store all the incoming messages.
@@ -121,7 +121,7 @@ namespace KSPM.Network.Client
 
         #endregion
 
-        #region UDPPRoperties
+        #region UDPProperties
 
         /// <summary>
         /// Thread to handle the outgoing UDP messages.
