@@ -63,14 +63,24 @@ namespace KSPM.Network.Common.Messages
             return new RawMessage();
         }
 
+        /// <summary>
+        /// Releases all the properties and frees the memory buffers.
+        /// </summary>
         public override void Release()
         {
             this.command = CommandType.Null;
             this.messageRawLength = 0;
-            if (!this.pooling)
-            {
-                this.bodyMessage = null;
-            }
+            this.bodyMessage = null;
+        }
+
+        /// <summary>
+        /// Sets the current reference to an invalid object, but no harm is performed to the buffer. If you want to free all the resource yous must call
+        /// Release.
+        /// </summary>
+        public override void Dispose()
+        {
+            this.command = CommandType.Null;
+            this.messageRawLength = 0;
         }
     }
 }

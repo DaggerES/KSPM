@@ -21,6 +21,13 @@
             return this.messageRawLength;
         }
 
+        /// <summary>
+        /// Loads a new content into the message, seting up the message indexes.
+        /// </summary>
+        /// <param name="rawBytes">Byte array containing the original message.</param>
+        /// <param name="rawBytesOffset">Bytes offset from where the message starts.</param>
+        /// <param name="blockSize">How many bytes are being used by the message.</param>
+        /// <returns></returns>
         public uint Load(byte[] rawBytes, uint rawBytesOffset, uint blockSize)
         {
             this.bodyMessage = rawBytes;
@@ -59,6 +66,10 @@
             {
                 return this.startsAt;
             }
+            set
+            {
+                this.startsAt = value;
+            }
         }
 
         public uint EndsAt
@@ -67,6 +78,20 @@
             {
                 return this.endsAt;
             }
+        }
+
+        public override void Dispose()
+        {
+            this.startsAt = this.endsAt = 0;
+            this.messageRawLength = 0;
+            this.command = CommandType.Null;
+            this.bodyMessage = null;
+            this.messageOwner = null;
+            if (!this.broadcasted)
+            {
+                this.bodyMessage = null;
+            }
+            this.broadcasted = false;
         }
 
         #endregion

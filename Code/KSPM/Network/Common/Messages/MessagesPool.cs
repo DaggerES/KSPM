@@ -56,7 +56,7 @@ namespace KSPM.Network.Common.Messages
         {
             if (oldItem == null)
                 return;
-            oldItem.Release();
+            oldItem.Dispose();
             lock (this.messagesPool)
             {
                 this.messagesPool.Enqueue(oldItem);

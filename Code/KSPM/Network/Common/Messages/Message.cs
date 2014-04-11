@@ -239,6 +239,8 @@ namespace KSPM.Network.Common.Messages
 
         public abstract void Release();
 
+        public abstract void Dispose();
+
         public abstract Message Empty();
 
         #region AuthenticationCode
