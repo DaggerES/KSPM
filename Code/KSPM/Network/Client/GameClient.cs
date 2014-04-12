@@ -291,7 +291,7 @@ namespace KSPM.Network.Client
 
                 this.errorHandlingThread.Start();
 
-                this.mainBodyThread.Start();
+                //this.mainBodyThread.Start();
                 this.handleOutgoingTCPMessagesThread.Start();
 
                 this.handleIncomingUDPMessagesThread.Start();
@@ -489,6 +489,83 @@ namespace KSPM.Network.Client
 
         #endregion
 
+        protected void ProcessTCPCommand()
+        {
+            Message command = null;
+            ManagedMessage managedMessageReference = null;
+            ChatMessage incomingChatMessage = null;
+            ServerInformation udpServerInformationFromNetwork = new ServerInformation();
+            int receivedPairingCode = -1;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
+                return;
+            }
+            this.commandsQueue.DequeueCommandMessage(out command);
+            if (command != null)
+            {
+                switch (command.Command)
+                {
+                    ///NewClient command accepted, proceed to authenticate.
+                    case Message.CommandType.Handshake:
+                        this.currentStatus = ClientStatus.Authenticating;
+                        break;
+                    case Message.CommandType.AuthenticationSuccess:
+                        ///Does nothing.
+                        break;
+                    case Message.CommandType.AuthenticationFail:///Running the autentication procces again.
+                        this.currentStatus = ClientStatus.Authenticating;
+                        break;
+                    case Message.CommandType.ServerFull:
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Serverfull.", this.id));
+                        this.BreakConnections(this, null);
+                        break;
+                    case Message.CommandType.UDPSettingUp:
+                        ///Create the UDP conn.
+                        ///Reads the information sent by the server and starts the UDP setting up process.
+                        managedMessageReference = (ManagedMessage)command;
+                        udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 9);
+                        udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
+                        receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 13);
+
+                        if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork) && this.pairingCode != receivedPairingCode)
+                        {
+                            udpServerInformationFromNetwork.Clone(ref this.udpServerInformation);
+                            this.pairingCode = ~receivedPairingCode;
+                            this.currentStatus = ClientStatus.UDPSettingUp;
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode, 2)));
+                        }
+                        break;
+                    case Message.CommandType.ChatSettingUp:
+                        if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
+                        {
+                            this.chatSystem.Owner = this;
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Chat system is online, {1} groups registered.", this.id, this.chatSystem.RegisteredGroups));
+                        }
+                        break;
+                    case Message.CommandType.Chat:
+                        if (this.chatSystem != null)///Checking if the chat system is already set up.
+                        {
+                            if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                            {
+                                ///Checking if the message should be filtered or not.
+                                if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                {
+                                    this.chatSystem.AttachMessage(incomingChatMessage);
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                }
+                            }
+                        }
+                        break;
+                }
+                ///Cleaning up.
+                command.Release();
+                command = null;
+            }
+        }
+
+        #region DEPRECATED_CODE
+
         /// <summary>
         /// Threaded method to handle the commands on the main queue.
         /// </summary>
@@ -577,6 +654,8 @@ namespace KSPM.Network.Client
             }
         }
 
+        #endregion
+
         #region TCPCode
 
         /// <summary>
@@ -585,6 +664,7 @@ namespace KSPM.Network.Client
         protected void HandleOutgoingTCPMessagesThreadMethod()
         {
             Message outgoingMessage = null;
+            SocketAsyncEventArgs sendingData = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
@@ -597,25 +677,40 @@ namespace KSPM.Network.Client
                 {
                     if (this.holePunched)
                     {
-                        if (!this.outgoingTCPMessages.IsEmpty())
+                        this.outgoingTCPMessages.DequeueCommandMessage(out outgoingMessage);
+                        if (outgoingMessage != null)
                         {
-                            this.outgoingTCPMessages.DequeueCommandMessage(out outgoingMessage);
-                            if (outgoingMessage != null)
+                            try
                             {
-                                try
+                                if (this.ownerNetworkCollection != null && this.ownerNetworkCollection.socketReference != null)
                                 {
-                                    //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
-                                    this.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
+                                    sendingData = this.tcpIOEventsPool.NextSlot;
+                                    sendingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
+                                    sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                                    sendingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                    this.ownerNetworkCollection.socketReference.SendAsync(sendingData);
                                 }
-                                catch (System.Exception ex)///Catching exceptions and adding them to the queue to their proper handling.
-                                {
-                                    this.runtimeErrors.Enqueue(ex);
-                                }
-
-                                ///Cleaning up
-                                outgoingMessage.Release();
-                                outgoingMessage = null;
+                                //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
+                                //this.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, this.AsyncTCPSender, this);
                             }
+                            catch (System.Exception ex)///Catching exceptions and adding them to the queue to their proper handling.
+                            {
+                                ///If something happens we ensure that the SockeAsyncEventArg is recycled.
+                                if (this.tcpIOEventsPool != null)
+                                {
+                                    this.tcpIOEventsPool.Recycle(sendingData);
+                                }
+                                else
+                                {
+                                    sendingData.Dispose();
+                                    sendingData = null;
+                                }
+                                this.runtimeErrors.Enqueue(ex);
+                            }
+
+                            ///Cleaning up
+                            outgoingMessage.Release();
+                            outgoingMessage = null;
                         }
                     }
                     Thread.Sleep(7);
@@ -624,6 +719,36 @@ namespace KSPM.Network.Client
             catch (ThreadAbortException)
             {
                 this.aliveFlag = false;
+            }
+        }
+
+        /// <summary>
+        /// Method called when a asynchronous sending  is complete.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
+        protected void OnSendingOutgoingDataComplete(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.SocketError == SocketError.Success)
+            {
+                if (e.BytesTransferred > 0)
+                {
+                    ///Do  whatever you want here.
+                }
+            }
+            e.Completed -= this.OnSendingOutgoingDataComplete;
+
+            ///Checking if the SocketAsyncEventArgs pool has not been released and set to null.
+            ///If the situtation mentioned above we have to dispose the SocketAsyncEventArgs by hand.
+            if (this.tcpIOEventsPool== null)
+            {
+                e.Dispose();
+                e = null;
+            }
+            else
+            {
+                ///Recycling the SocketAsyncEventArgs used by this process.
+                this.tcpIOEventsPool.Recycle(e);
             }
         }
 
@@ -650,6 +775,8 @@ namespace KSPM.Network.Client
                 ///This exception is not added to the runtime errors queue, because the error will propagate to the above level.
             }
         }
+
+        #region TCP_Processing
 
         public void ReceiveTCPStream()
         {
@@ -716,6 +843,7 @@ namespace KSPM.Network.Client
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                this.ProcessTCPCommand();
             }
         }
 
@@ -728,6 +856,8 @@ namespace KSPM.Network.Client
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
             }
         }
+
+        #endregion
 
         #endregion
 
@@ -945,9 +1075,11 @@ namespace KSPM.Network.Client
             this.currentStatus = ClientStatus.None;
 
             ///*****************Killing threads.
+            /*
             this.mainBodyThread.Abort();
             this.mainBodyThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed mainthread.", this.id));
+            */
 
             this.handleOutgoingTCPMessagesThread.Abort();
             this.handleOutgoingTCPMessagesThread.Join();

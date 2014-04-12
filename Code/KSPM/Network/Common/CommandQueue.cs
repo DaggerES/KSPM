@@ -13,7 +13,7 @@ namespace KSPM.Network.Common
 
         protected long maxNumberOfCommands;
 
-        protected static readonly long MaxQueueSize = 1000;
+        protected static readonly long MaxQueueSize = 5000;
 
         public CommandQueue()
         {
