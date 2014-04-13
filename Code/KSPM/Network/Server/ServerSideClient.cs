@@ -283,7 +283,7 @@ namespace KSPM.Network.Server
 
         #region TCPCode
 
-        public void ReceiveTCPStream()
+        protected void ReceiveTCPStream()
         {
             SocketAsyncEventArgs incomingData = this.tcpIOEventsPool.NextSlot;
             incomingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
@@ -410,12 +410,20 @@ namespace KSPM.Network.Server
             return Error.ErrorType.Ok;
         }
 
-        public void ReceiveUDPDatagram()
+        protected void ReceiveUDPDatagram()
         {
             SocketAsyncEventArgs incomingData = this.udpIOEventsPool.NextSlot;
+            if (this.udpCollection.socketReference == null)
+            {
+                int a;
+            }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
             incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
+            if (incomingData.Buffer == null)
+            {
+                int b = 0;
+            }
             incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPIncomingDataComplete);
             try
             {
@@ -444,6 +452,10 @@ namespace KSPM.Network.Server
                 readBytes = e.BytesTransferred;
                 if (readBytes > 0)
                 {
+                    if (e.Buffer == null)
+                    {
+                        int a = 0;
+                    }
                     this.udpBuffer.Write(e.Buffer, (uint)readBytes);
                     ///Setting the sender of the datagram.
                     this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
@@ -480,6 +492,7 @@ namespace KSPM.Network.Server
         {
             Message incomingMessage;
             KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            /*
             if (this.currentStatus == ClientStatus.UDPSettingUp)
             {
                 if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
@@ -488,6 +501,12 @@ namespace KSPM.Network.Server
                     this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
                     this.ProcessUDPCommand();
                 }
+            }*/
+            if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
+            {
+                ///Puting the incoming RawMessage into the queue to be processed.
+                this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
+                this.ProcessUDPCommand();
             }
         }
 
@@ -527,12 +546,53 @@ namespace KSPM.Network.Server
                                 this.currentStatus = ClientStatus.Connected;
                             }
                         }
+                        this.SendUDPDatagram();
+                        incomingMessage.Release();
+                        incomingMessage = null;
+                        break;
+                    case Message.CommandType.UDPChat:
+                        KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
                         break;
                     default:
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
                         break;
                 }
-                this.SendUDPDatagram();
+                //this.SendUDPDatagram();
+            }
+        }
+
+        public void SendAsDatagram(Message message)
+        {
+            Message outgoingMessage = null;
+            SocketAsyncEventArgs outgoingData = null;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                if (this.usingUdpConnection)
+                {
+                    //this.outgoingPackets.DequeueCommandMessage(out outgoingMessage);
+                    outgoingMessage = message;
+                    if (outgoingMessage != null)
+                    {
+                        outgoingData = this.udpIOEventsPool.NextSlot;
+                        outgoingData.AcceptSocket = this.udpCollection.socketReference;
+                        outgoingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
+                        outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                        outgoingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPSendingDataComplete);
+                        outgoingData.UserToken = outgoingMessage;
+                        this.udpCollection.socketReference.SendToAsync(outgoingData);
+                    }
+                }
+                Thread.Sleep(3);
+            }
+            catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleOutgoingUDPPackets", ex.SocketErrorCode, ex.Message));
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
         }
 
@@ -589,7 +649,7 @@ namespace KSPM.Network.Server
             ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
             this.udpIOMessagesPool.Recycle((Message)e.UserToken);
             ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            e.Completed -= this.OnUDPIncomingDataComplete;
+            e.Completed -= this.OnUDPSendingDataComplete;
             if (this.udpIOEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
             {
                 e.Dispose();

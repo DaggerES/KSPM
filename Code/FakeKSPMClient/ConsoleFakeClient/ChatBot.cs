@@ -12,6 +12,7 @@ namespace ConsoleFakeClient
 {
     public class ChatBot
     {
+        public enum FloodMode : byte { None, TCP, UDP, Both };
         protected static Random r = new Random();
         public static string[] Names = {
                                            "Ver'an",
@@ -80,14 +81,26 @@ namespace ConsoleFakeClient
             reader.Close();
         }
 
-        public void Flood()
+        public void Flood( FloodMode mode )
         {
             int nexId = r.Next(this.contentList.Count);
+            Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
+            switch (mode)
+            {
+                case FloodMode.TCP:
+                    this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
+                    break;
+                case FloodMode.UDP:
+                    this.botClient.ChatSystem.SendUDPChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
+                    break;
+                case FloodMode.Both:
+                    break;
+                case FloodMode.None:
+                    break;
+            }
             //if (this.contentList[nexId].Length > 128)
             //{
-                Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
             //}
-            this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
         }
     }
 }

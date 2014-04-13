@@ -216,12 +216,11 @@ namespace KSPM.Network.Chat.Managers
         public void SendUDPChatMessage(ChatGroup targetGroup, string bodyMessage)
         {
             Message chatMessage = null;
-            ManagedMessage managedReference;
-            if (ChatMessage.CreateChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+            if (ChatMessage.CreateUDPChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok)
             {
-                managedReference = (ManagedMessage)chatMessage;
-                PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
-                ((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage);
+                //managedReference = (ManagedMessage)chatMessage;
+                //PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                ((GameClient)this.owner).OutgoingUDPQueue.EnqueueCommandMessage(ref chatMessage);
                 //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
             }
         }

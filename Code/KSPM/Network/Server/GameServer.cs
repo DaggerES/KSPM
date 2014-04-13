@@ -141,6 +141,8 @@ namespace KSPM.Network.Server
 
         public event UserDisconnectedEventHandler UserDisconnected;
 
+        public event UDPMessageArrived UDPMessageArrived;
+
         #endregion
 
         #region Chat
@@ -780,6 +782,14 @@ namespace KSPM.Network.Server
             }
         }
 
+        protected internal void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
+        {
+            if (this.UDPMessageArrived != null)
+            {
+                this.UDPMessageArrived(sender, message);
+            }
+        }
+
         /// <summary>
         /// Internal method used to disconnect clients, also raises the OnUserDisconnected event.
         /// </summary>
@@ -812,6 +822,14 @@ namespace KSPM.Network.Server
             get
             {
                 return this.clientsHandler.RemoteClients.ToArray();
+            }
+        }
+
+        public ClientsHandler ClientsManager
+        {
+            get
+            {
+                return this.clientsHandler;
             }
         }
 

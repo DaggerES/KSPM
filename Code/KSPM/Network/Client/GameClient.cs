@@ -996,6 +996,7 @@ namespace KSPM.Network.Client
             {
                 owner = (GameClient)result.AsyncState;
                 sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
+                KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
             }
 			catch (System.Exception)
             {
@@ -1006,6 +1007,7 @@ namespace KSPM.Network.Client
         protected void HandleUDPCommandsThreadMethod()
         {
             Message command = null;
+            ChatMessage incomingChatMessage = null;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
@@ -1032,6 +1034,20 @@ namespace KSPM.Network.Client
                                 case  Message.CommandType.UDPPairingFail:
                                     this.currentStatus = ClientStatus.Connected;
                                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
+                                    break;
+                                case Message.CommandType.UDPChat:
+                                    if (this.chatSystem != null)///Checking if the chat system is already set up.
+                                    {
+                                        if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                                        {
+                                            ///Checking if the message should be filtered or not.
+                                            if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                            {
+                                                this.chatSystem.AttachMessage(incomingChatMessage);
+                                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-UDP-[{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                            }
+                                        }
+                                    }
                                     break;
                             }
                             ///Cleaning up.
@@ -1298,6 +1314,14 @@ namespace KSPM.Network.Client
             get
             {
                 return this.outgoingTCPMessages;
+            }
+        }
+
+        public CommandQueue OutgoingUDPQueue
+        {
+            get
+            {
+                return this.outgoingUDPMessages;
             }
         }
 

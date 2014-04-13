@@ -34,6 +34,7 @@ namespace KSPM_TestingConsole
             {
                 GameServer server = new GameServer(ref gameSettings);
                 KSPMGlobals.Globals.SetServerReference(ref server);
+                server.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(server_UDPMessageArrived);
                 server.StartServer();
                 eventRiser.Enabled = true;
                 Console.ReadLine();
@@ -43,6 +44,12 @@ namespace KSPM_TestingConsole
             }
             Console.ReadLine();
 
+        }
+
+        static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
+        {
+            Console.WriteLine(message.Command.ToString());
+            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
         }
 
         static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
