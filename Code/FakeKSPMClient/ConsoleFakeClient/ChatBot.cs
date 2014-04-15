@@ -84,7 +84,7 @@ namespace ConsoleFakeClient
         public void Flood( FloodMode mode )
         {
             int nexId = r.Next(this.contentList.Count);
-            Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
+            //Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
             switch (mode)
             {
                 case FloodMode.TCP:

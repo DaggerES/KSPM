@@ -40,6 +40,23 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
+        /// Copies the src array into the preallocated buffer.
+        /// </summary>
+        /// <param name="src">Byte array to be copied.</param>
+        /// <param name="offset">From which index position is allocate the data inside the src array.</param>
+        /// <param name="bytesToCopy">Amount of bytes to be copied.</param>
+        public void LoadWith(byte[] src, uint srcOffset, uint bytesToCopy)
+        {
+            if (src == null)
+                return;
+            if (bytesToCopy > this.bodyMessage.Length)
+                bytesToCopy = (uint)this.bodyMessage.Length;
+            System.Buffer.BlockCopy(src, (int)srcOffset, this.bodyMessage, 0, (int)bytesToCopy);
+            this.messageRawLength = bytesToCopy;
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+        }
+
+        /// <summary>
         /// Gets/Sets the pooling flag.
         /// </summary>
         public bool Pooling
@@ -71,6 +88,7 @@ namespace KSPM.Network.Common.Messages
             this.command = CommandType.Null;
             this.messageRawLength = 0;
             this.bodyMessage = null;
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Releasing");
         }
 
         /// <summary>

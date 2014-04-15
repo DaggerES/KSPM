@@ -3,7 +3,7 @@
   <KSPMServers>
     <ServerInformation>
       <ServerName>Loopback</ServerName>
-      <IP_Address>192.168.15.148</IP_Address>
+      <IP_Address>192.168.15.11</IP_Address>
       <PortNumber>4700</PortNumber>
     </ServerInformation>
   </KSPMServers>

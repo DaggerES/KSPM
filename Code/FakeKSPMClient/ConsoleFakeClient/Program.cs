@@ -65,7 +65,7 @@ namespace ConsoleFakeClient
 
                 while (!exit)
                 {
-                    bot.Flood(ChatBot.FloodMode.TCP);
+                    bot.Flood(ChatBot.FloodMode.UDP);
                     System.Threading.Thread.Sleep((int)delay);
                     /*
                     Console.WriteLine("Press q to quit");

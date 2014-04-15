@@ -49,7 +49,7 @@ namespace KSPM_TestingConsole
         static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
         {
             Console.WriteLine(message.Command.ToString());
-            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+            //KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
         }
 
         static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

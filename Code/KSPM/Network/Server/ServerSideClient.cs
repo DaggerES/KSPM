@@ -399,6 +399,7 @@ namespace KSPM.Network.Server
             udpLocalEndPoint = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             try
             {
+                this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
                 this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, 0));//0 because It should be any available port.
                 this.usingUdpConnection = false;
             }
@@ -413,13 +414,15 @@ namespace KSPM.Network.Server
         protected void ReceiveUDPDatagram()
         {
             SocketAsyncEventArgs incomingData = this.udpIOEventsPool.NextSlot;
+            byte[] buffersito = new byte[1024];
             if (this.udpCollection.socketReference == null)
             {
                 int a;
             }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-            incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
+            incomingData.SetBuffer(buffersito, 0, buffersito.Length);
+            //incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
             if (incomingData.Buffer == null)
             {
                 int b = 0;
@@ -447,7 +450,7 @@ namespace KSPM.Network.Server
         protected void OnUDPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
             int readBytes = 0;
-            if (e.SocketError == SocketError.Success)
+            if (e.SocketError == SocketError.Success )//  || e.SocketError == SocketError.Fault || e.SocketError == SocketError.InvalidArgument)
             {
                 readBytes = e.BytesTransferred;
                 if (readBytes > 0)
@@ -461,7 +464,7 @@ namespace KSPM.Network.Server
                     this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
                     this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
                     this.ReceiveUDPDatagram();
-                }
+                }/*
                 else
                 {
                     ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
@@ -469,11 +472,15 @@ namespace KSPM.Network.Server
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete"));
                     KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
                 }
+                */
             }
             else
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                //if (e.SocketError != SocketError.Fault)
+                //{
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
+                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                //}
             }
             ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
             e.Completed -= this.OnUDPIncomingDataComplete;
@@ -575,7 +582,11 @@ namespace KSPM.Network.Server
                 if (this.usingUdpConnection)
                 {
                     //this.outgoingPackets.DequeueCommandMessage(out outgoingMessage);
-                    outgoingMessage = message;
+                    ///Taking a message from the pool.
+                    outgoingMessage = this.udpIOMessagesPool.BorrowMessage;
+                    ///Loading the message with the proper content.
+                    ((RawMessage)outgoingMessage).LoadWith(message.bodyMessage, 0, message.MessageBytesSize);
+
                     if (outgoingMessage != null)
                     {
                         outgoingData = this.udpIOEventsPool.NextSlot;
@@ -591,7 +602,7 @@ namespace KSPM.Network.Server
             }
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleOutgoingUDPPackets", ex.SocketErrorCode, ex.Message));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "SendAsDatagram", ex.SocketErrorCode, ex.Message));
                 KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
         }
@@ -625,7 +636,7 @@ namespace KSPM.Network.Server
             }
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "HandleOutgoingUDPPackets", ex.SocketErrorCode, ex.Message));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "SendUDPDatagram", ex.SocketErrorCode, ex.Message));
                 KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
         }
@@ -638,12 +649,12 @@ namespace KSPM.Network.Server
                 sentBytes = e.BytesTransferred;
                 if (sentBytes > 0)
                 {
-                    ////Your code if you want to know when an UDP message is sent.
+                    //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
                 }
             }
             else
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPSendingDataComplete", e.SocketError));
                 KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
             ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
