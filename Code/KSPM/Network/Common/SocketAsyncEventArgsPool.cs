@@ -32,7 +32,7 @@ namespace KSPM.Network.Common
                 {
                     if (this.availableSAEA.Count > 0)
                     {
-                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Taking: " + this.availableSAEA.Count.ToString());
+                        //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Taking: " + this.availableSAEA.Count.ToString());
                         return this.availableSAEA.Dequeue();
                     }
                     else
@@ -54,7 +54,7 @@ namespace KSPM.Network.Common
             lock (this.availableSAEA)
             {
                 this.availableSAEA.Enqueue(oldSocketAsyncEventArgs);
-                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Recycling: " + this.availableSAEA.Count.ToString());
+                //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Recycling: " + this.availableSAEA.Count.ToString());
             }
         }
 

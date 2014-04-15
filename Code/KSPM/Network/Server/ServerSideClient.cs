@@ -245,7 +245,8 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
-                        this.ReceiveUDPDatagram();
+                        this.ReceiveUDPDatagramNoSAEA();
+                        //this.ReceiveUDPDatagram();
 
                         break;
                     case ClientStatus.Connected:
@@ -411,18 +412,59 @@ namespace KSPM.Network.Server
             return Error.ErrorType.Ok;
         }
 
+
+        protected void ReceiveUDPDatagramNoSAEA()
+        {
+            EndPoint src = this.udpCollection.remoteEndPoint;
+            try
+            {
+                this.udpCollection.socketReference.BeginReceiveFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref src, this.AsyncUDPReceiveCallback, this);
+            }
+            catch (System.ObjectDisposedException ex)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.Message));
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+            }
+            catch (SocketException ex)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.SocketErrorCode, ex.Message));
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+            }
+        }
+
+        protected void AsyncUDPReceiveCallback(System.IAsyncResult result)
+        {
+            int readBytes;
+            ServerSideClient ssReference = null;
+            try
+            {
+                ssReference = (ServerSideClient)result.AsyncState;
+                readBytes = ssReference.udpCollection.socketReference.EndReceiveFrom(result, ref this.udpCollection.remoteEndPoint);
+                if (readBytes > 0)
+                {
+                    this.udpBuffer.Write(this.udpCollection.secondaryRawBuffer, (uint)readBytes);
+                    this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
+                    this.ReceiveUDPDatagramNoSAEA();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
+        }
+
         protected void ReceiveUDPDatagram()
         {
             SocketAsyncEventArgs incomingData = this.udpIOEventsPool.NextSlot;
-            byte[] buffersito = new byte[1024];
+            //byte[] buffersito = new byte[1024];
             if (this.udpCollection.socketReference == null)
             {
                 int a;
             }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-            incomingData.SetBuffer(buffersito, 0, buffersito.Length);
-            //incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
+            //incomingData.SetBuffer(buffersito, 0, buffersito.Length);
+            incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
             if (incomingData.Buffer == null)
             {
                 int b = 0;
@@ -649,7 +691,7 @@ namespace KSPM.Network.Server
                 sentBytes = e.BytesTransferred;
                 if (sentBytes > 0)
                 {
-                    //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
+                    KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
                 }
             }
             else
