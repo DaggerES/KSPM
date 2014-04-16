@@ -463,7 +463,7 @@ namespace KSPM.Network.Server
             }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-            incomingData.SetBuffer(buffersito, 0, buffersito.Length);
+            incomingData.SetBuffer(0, 1024);
             //incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
             if (incomingData.Buffer == null)
             {
