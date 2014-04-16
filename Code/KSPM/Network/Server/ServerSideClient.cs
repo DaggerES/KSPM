@@ -76,7 +76,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Pool of SocketAsyncEventArgs used to receive tcp streams.
         /// </summary>
-        SocketAsyncEventArgsPool udpIOEventsPool;
+        SharedBufferSAEAPool udpIOEventsPool;
 
         MessagesPool udpIOMessagesPool;
 
@@ -174,7 +174,7 @@ namespace KSPM.Network.Server
             ///UDP Buffering
             this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
             this.udpPacketizer = new PacketHandler(this.udpBuffer);
-            this.udpIOEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize);
+            this.udpIOEventsPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize, 1024);
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
@@ -245,8 +245,8 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
-                        this.ReceiveUDPDatagramNoSAEA();
-                        //this.ReceiveUDPDatagram();
+                        //this.ReceiveUDPDatagramNoSAEA();
+                        this.ReceiveUDPDatagram();
 
                         break;
                     case ClientStatus.Connected:
@@ -456,15 +456,15 @@ namespace KSPM.Network.Server
         protected void ReceiveUDPDatagram()
         {
             SocketAsyncEventArgs incomingData = this.udpIOEventsPool.NextSlot;
-            //byte[] buffersito = new byte[1024];
+            byte[] buffersito = new byte[1024];
             if (this.udpCollection.socketReference == null)
             {
                 int a;
             }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-            //incomingData.SetBuffer(buffersito, 0, buffersito.Length);
-            incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
+            incomingData.SetBuffer(buffersito, 0, buffersito.Length);
+            //incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
             if (incomingData.Buffer == null)
             {
                 int b = 0;
