@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿#define PROFILING
+
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,6 +11,8 @@ using KSPM.Network.Common.Events;
 using KSPM.Globals;
 using KSPM.Game;
 
+using KSPM.Diagnostics;
+
 
 namespace KSPM.Network.Server
 {
@@ -17,6 +21,14 @@ namespace KSPM.Network.Server
     /// </summary>
     public class ServerSideClient : NetworkEntity, IPacketArrived, IUDPPacketArrived
     {
+
+#if PROFILING
+
+        Profiler profilerOutgoingMessages;
+        Profiler profilerPacketizer;
+
+#endif
+
         /// <summary>
         /// ServerSide status.
         /// </summary>
@@ -136,12 +148,6 @@ namespace KSPM.Network.Server
 
         #endregion
 
-        #region Profiling
-
-        KSPM.IO.Logging.DiagnosticsLog reporter;
-
-        #endregion
-
         #region InitializingCode
 
         /// <summary>
@@ -172,9 +178,10 @@ namespace KSPM.Network.Server
             this.tcpIOEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize);
 
             ///UDP Buffering
+            this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
             this.udpPacketizer = new PacketHandler(this.udpBuffer);
-            this.udpIOEventsPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize, 1024);
+            this.udpIOEventsPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize, this.udpCollection.secondaryRawBuffer);
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
@@ -182,6 +189,11 @@ namespace KSPM.Network.Server
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
+
+#if PROFILING
+            this.profilerOutgoingMessages = new Profiler("UDP_ReceivingMessages");
+            this.profilerPacketizer = new Profiler("UDP_Packetizer");
+#endif
         }
 
         /// <summary>
@@ -395,7 +407,6 @@ namespace KSPM.Network.Server
         protected Error.ErrorType InitializeUDPConnection()
         {
             IPEndPoint udpLocalEndPoint;
-            this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.udpCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             udpLocalEndPoint = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             try
@@ -455,20 +466,17 @@ namespace KSPM.Network.Server
 
         protected void ReceiveUDPDatagram()
         {
+#if PROFILING
+
+            this.profilerOutgoingMessages.Set();
+#endif
+
             SocketAsyncEventArgs incomingData = this.udpIOEventsPool.NextSlot;
-            byte[] buffersito = new byte[1024];
-            if (this.udpCollection.socketReference == null)
-            {
-                int a;
-            }
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-            incomingData.SetBuffer(0, 1024);
-            //incomingData.SetBuffer(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length);
-            if (incomingData.Buffer == null)
-            {
-                int b = 0;
-            }
+
+            ///Setting the buffer offset and count, keep in mind that we are no assigning a new buffer, we are only setting working paremeters.
+            incomingData.SetBuffer(0, (int)this.udpIOEventsPool.BufferSize);
             incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPIncomingDataComplete);
             try
             {
@@ -491,22 +499,28 @@ namespace KSPM.Network.Server
 
         protected void OnUDPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
+#if PROFILING
+            this.profilerOutgoingMessages.Mark();
+#endif
             int readBytes = 0;
             if (e.SocketError == SocketError.Success )//  || e.SocketError == SocketError.Fault || e.SocketError == SocketError.InvalidArgument)
             {
                 readBytes = e.BytesTransferred;
-                if (readBytes > 0)
+                if (readBytes > 0 && this.aliveFlag) 
                 {
-                    if (e.Buffer == null)
-                    {
-                        int a = 0;
-                    }
                     this.udpBuffer.Write(e.Buffer, (uint)readBytes);
                     ///Setting the sender of the datagram.
                     this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
+#if PROFILING
+                    this.profilerPacketizer.Set();
+#endif
                     this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
+#if PROFILING
+                    this.profilerPacketizer.Mark();
+#endif
+
                     this.ReceiveUDPDatagram();
-                }/*
+                }
                 else
                 {
                     ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
@@ -514,7 +528,6 @@ namespace KSPM.Network.Server
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete"));
                     KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
                 }
-                */
             }
             else
             {
@@ -800,6 +813,11 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             
             this.timer.Reset();
+
+#if PROFILING
+            this.profilerPacketizer.Dispose();
+            this.profilerOutgoingMessages.Dispose();
+#endif
         }
 
         /// <summary>

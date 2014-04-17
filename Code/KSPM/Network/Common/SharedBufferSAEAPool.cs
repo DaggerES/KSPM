@@ -1,4 +1,4 @@
-﻿#define DEBUGPRINT
+﻿//#define DEBUGPRINT
 using System.Net.Sockets;
 
 
@@ -11,24 +11,23 @@ namespace KSPM.Network.Common
         protected byte [] buffer;
         protected uint bufferSize;
 
-        public SharedBufferSAEAPool(uint initialCapacity, uint bufferSize)
+        public SharedBufferSAEAPool(uint initialCapacity, byte [] sharedBuffer)
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
-            this.bufferSize = bufferSize;
-            this.buffer = new byte[this.bufferSize];
+            this.bufferSize = (uint)sharedBuffer.Length;
+            this.buffer = sharedBuffer;
             this.InitializeSlots();
         }
 
         protected void InitializeSlots()
         {
             SocketAsyncEventArgs item = null;
-            byte[] arrayTemp = null;
+            //byte[] arrayTemp = null;
             for( int i = 0 ; i < this.availableSlots ; i++ )
             {
                 item = new SocketAsyncEventArgs();
-                arrayTemp = new byte[bufferSize];
-                item.SetBuffer(arrayTemp, 0, (int)this.bufferSize);
+                item.SetBuffer(this.buffer, 0, (int)this.bufferSize);
                 this.availableSAEA.Enqueue(item);
             }
         }
@@ -62,6 +61,8 @@ namespace KSPM.Network.Common
         {
             oldSocketAsyncEventArgs.AcceptSocket = null;
             oldSocketAsyncEventArgs.UserToken = null;
+
+            ///Reseting the buffer, if you do not reset it, you can get Fault errors at high speeds.
             oldSocketAsyncEventArgs.SetBuffer(0, 0);
             lock (this.availableSAEA)
             {
@@ -100,6 +101,16 @@ namespace KSPM.Network.Common
             }
             this.availableSAEA = null;
             this.availableSlots = 0;
+            this.bufferSize = 0;
+            this.buffer = null;
+        }
+
+        public uint BufferSize
+        {
+            get
+            {
+                return this.bufferSize;
+            }
         }
     }
 }

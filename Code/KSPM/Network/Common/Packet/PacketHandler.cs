@@ -289,6 +289,7 @@ namespace KSPM.Network.Common.Packet
             bytesBlockSize = System.BitConverter.ToInt32(rawBytes, Message.HeaderOfMessageCommand.Length);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
+            /*
             ///Verifying the packet end of message command.
             for (byteCounter = 1; byteCounter <= PacketHandler.RawMessageHeaderSize; byteCounter++)
             {
@@ -297,6 +298,7 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 }
             }
+            */
             messageTarget = new RawMessage((Message.CommandType)rawBytes[ PacketHandler.PrefixSize ], rawBytes, (uint)bytesBlockSize);
             return Error.ErrorType.Ok;
         }
