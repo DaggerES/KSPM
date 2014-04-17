@@ -56,6 +56,11 @@ namespace KSPM.Network.Common.Messages
             this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
         }
 
+        public void ReallocateCommand()
+        {
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+        }
+
         /// <summary>
         /// Gets/Sets the pooling flag.
         /// </summary>

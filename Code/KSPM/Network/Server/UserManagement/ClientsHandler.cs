@@ -101,7 +101,8 @@ namespace KSPM.Network.Server.UserManagement
                     //((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
                     ((ServerSideClient)this.clients[i]).SendAsDatagram(messageToSend);
                 }
-                messageToSend.Release();
+
+                //messageToSend.Release();
             }
         }
 
