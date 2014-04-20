@@ -30,6 +30,12 @@ namespace KSPM.Network.Client
         [XmlIgnore]
         protected static long ClientConnectionTimeOut = 5000;
 
+        /// <summary>
+        /// Sets the interval of time to send a KeepAlive command.
+        /// </summary>
+        [XmlIgnore]
+        public static readonly long TCPKeepAliveInterval = 3600000;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
 

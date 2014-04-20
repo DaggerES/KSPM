@@ -11,22 +11,30 @@ namespace KSPM.Network.Common
         protected byte [] buffer;
         protected uint bufferSize;
 
-        public SharedBufferSAEAPool(uint initialCapacity, byte [] sharedBuffer)
+        public delegate void OnCompleteOperation(object sender, SocketAsyncEventArgs e);
+
+        /// <summary>
+        /// Creates a SocketAsyncEventArgs pool, with the same buffer and sets the Complete event to the callback.
+        /// </summary>
+        /// <param name="initialCapacity">How many SAEA objects will be pooled.</param>
+        /// <param name="sharedBuffer">Byte array to be set as the buffer to all the SAEA objects.</param>
+        /// <param name="callback">Method to be set as the SocketAsyncEventArgs.Complete event.</param>
+        public SharedBufferSAEAPool(uint initialCapacity, byte [] sharedBuffer, OnCompleteOperation callback)
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
             this.bufferSize = (uint)sharedBuffer.Length;
             this.buffer = sharedBuffer;
-            this.InitializeSlots();
+            this.InitializeSlots( callback );
         }
 
-        protected void InitializeSlots()
+        protected void InitializeSlots( OnCompleteOperation method )
         {
             SocketAsyncEventArgs item = null;
-            //byte[] arrayTemp = null;
             for( int i = 0 ; i < this.availableSlots ; i++ )
             {
                 item = new SocketAsyncEventArgs();
+                item.Completed += new System.EventHandler<SocketAsyncEventArgs>(method);
                 item.SetBuffer(this.buffer, 0, (int)this.bufferSize);
                 this.availableSAEA.Enqueue(item);
             }

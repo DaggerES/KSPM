@@ -48,8 +48,8 @@ namespace KSPM_TestingConsole
 
         static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
         {
-            //Console.WriteLine(message.Command.ToString());
-            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+            Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
+            //KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
             ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
         }
 

@@ -148,6 +148,8 @@ namespace KSPM.Network.Server
         /// </summary>
         public CommandQueue outgoingPackets;
 
+        protected delegate void ProcessUDPMessageAsync();
+
         #endregion
 
         #region InitializingCode
@@ -183,8 +185,8 @@ namespace KSPM.Network.Server
             this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
             this.udpPacketizer = new PacketHandler(this.udpBuffer);
-            this.udpInputSAEAPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize / 2, this.udpCollection.secondaryRawBuffer);
-            this.udpOutSAEAPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2);
+            this.udpInputSAEAPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize / 2, this.udpCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
+            this.udpOutSAEAPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, this.OnUDPSendingDataComplete);
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
@@ -480,7 +482,6 @@ namespace KSPM.Network.Server
 
             ///Setting the buffer offset and count, keep in mind that we are no assigning a new buffer, we are only setting working paremeters.
             incomingData.SetBuffer(0, (int)this.udpInputSAEAPool.BufferSize);
-            incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPIncomingDataComplete);
             try
             {
                 if (!this.udpCollection.socketReference.ReceiveFromAsync(incomingData))
@@ -517,7 +518,12 @@ namespace KSPM.Network.Server
 #if PROFILING
                     this.profilerPacketizer.Set();
 #endif
-                    this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
+                    KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
+                    //this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
+                    if (!this.connected)
+                    {
+                        this.udpPacketizer.UDPPacketizeCRCLoadIntoMessage(this, this.udpIOMessagesPool);
+                    }
 #if PROFILING
                     this.profilerPacketizer.Mark();
 #endif
@@ -541,7 +547,6 @@ namespace KSPM.Network.Server
                 //}
             }
             ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            e.Completed -= this.OnUDPIncomingDataComplete;
             if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
             {
                 e.Dispose();
@@ -568,7 +573,70 @@ namespace KSPM.Network.Server
         public void ProcessUDPMessage(Message incomingMessage)
         {
             this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
-            this.ProcessUDPCommand();
+            //this.ProcessUDPCommand();
+        }
+
+        protected void ProcessUDPCommandAsyncMethod()
+        {
+            Message incomingMessage = null;
+            Message responseMessage = null;
+            RawMessage rawMessageReference = null;
+            int intBuffer;
+            while (this.aliveFlag)
+            {
+                this.incomingPackets.DequeueCommandMessage(out incomingMessage);
+                if (incomingMessage != null)
+                {
+                    rawMessageReference = (RawMessage)incomingMessage;
+                    switch (incomingMessage.Command)
+                    {
+                        case Message.CommandType.UDPPairing:
+                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
+                            responseMessage = this.udpIOMessagesPool.BorrowMessage;
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
+                            if ((this.pairingCode & intBuffer) == 0)//UDP tested.
+                            {
+                                Message.LoadUDPPairingOkMessage(this, ref responseMessage);
+                                if (responseMessage != null)
+                                {
+                                    rawMessageReference = (RawMessage)responseMessage;
+                                    this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
+                                    this.currentStatus = ClientStatus.Connected;
+                                }
+                            }
+                            else
+                            {
+                                Message.LoadUDPPairingFailMessage(this, ref responseMessage);
+                                if (responseMessage != null)
+                                {
+                                    rawMessageReference = (RawMessage)responseMessage;
+                                    this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
+                                    this.currentStatus = ClientStatus.Connected;
+                                }
+                            }
+                            this.SendUDPDatagram();
+                            incomingMessage.Release();
+                            incomingMessage = null;
+                            break;
+                        case Message.CommandType.UDPChat:
+                            KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                            break;
+                        default:
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
+                            break;
+                    }
+                    //this.SendUDPDatagram();
+                }
+                else
+                {
+                    Thread.Sleep(5);
+                }
+            }
+        }
+
+        protected void OnProcessUDPCommandComplete(System.IAsyncResult result)
+        {
+
         }
 
         protected void ProcessUDPCommand()
@@ -641,13 +709,12 @@ namespace KSPM.Network.Server
                     ///Loading the message with the proper content.
                     ((RawMessage)outgoingMessage).LoadWith(message.bodyMessage, 0, message.MessageBytesSize);
 
-                    if (outgoingMessage != null)
+                    if (outgoingMessage != null && this.aliveFlag)
                     {
                         outgoingData = this.udpOutSAEAPool.NextSlot;
                         outgoingData.AcceptSocket = this.udpCollection.socketReference;
                         outgoingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
                         outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                        outgoingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPSendingDataComplete);
                         outgoingData.UserToken = outgoingMessage;
                         this.udpCollection.socketReference.SendToAsync(outgoingData);
                     }
@@ -661,7 +728,7 @@ namespace KSPM.Network.Server
             }
         }
 
-        protected void SendUDPDatagram()
+        public void SendUDPDatagram()
         {
             Message outgoingMessage = null;
             SocketAsyncEventArgs outgoingData = null;
@@ -681,7 +748,6 @@ namespace KSPM.Network.Server
                         outgoingData.AcceptSocket = this.udpCollection.socketReference;
                         outgoingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
                         outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                        outgoingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnUDPSendingDataComplete);
                         outgoingData.UserToken = outgoingMessage;
                         this.udpCollection.socketReference.SendToAsync(outgoingData);
                     }
@@ -703,7 +769,7 @@ namespace KSPM.Network.Server
                 sentBytes = e.BytesTransferred;
                 if (sentBytes > 0)
                 {
-                    KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
+                    //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
                 }
             }
             else
@@ -714,7 +780,6 @@ namespace KSPM.Network.Server
             ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
             this.udpIOMessagesPool.Recycle((Message)e.UserToken);
             ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            e.Completed -= this.OnUDPSendingDataComplete;
             if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
             {
                 e.Dispose();
@@ -748,6 +813,8 @@ namespace KSPM.Network.Server
 
                 ConnectAsync connectionProcess = new ConnectAsync(this.HandleConnectionProcess);
                 connectionProcess.BeginInvoke(this.AsyncConnectionProccesComplete, connectionProcess);
+                ProcessUDPMessageAsync processUDPMessages = new ProcessUDPMessageAsync(this.ProcessUDPCommandAsyncMethod);
+                processUDPMessages.BeginInvoke(this.OnProcessUDPCommandComplete, processUDPMessages);
 
                 this.ReceiveTCPStream();
 

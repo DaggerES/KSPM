@@ -22,6 +22,7 @@ namespace ConsoleFakeClient
             ServerInformation server = new ServerInformation();
             ServerList hosts = null;
             ServerList.ReadServerList(out hosts);
+            ChatBot.FloodMode mode = ChatBot.FloodMode.TCP;
             long delay = 250;
             bool flooding = true;
             if (args.Length > 0)
@@ -30,6 +31,18 @@ namespace ConsoleFakeClient
                 {
                     delay = long.Parse(args[0]);
                     flooding = bool.Parse(args[1]);
+                    switch (args[2].ToLower())
+                    {
+                        case "udp":
+                            mode = ChatBot.FloodMode.UDP;
+                            break;
+                        case "tcp":
+                            mode = ChatBot.FloodMode.TCP;
+                            break;
+                        default:
+                            mode = ChatBot.FloodMode.TCP;
+                            break;
+                    }
                 }
                 catch (System.Exception)
                 {
@@ -58,6 +71,7 @@ namespace ConsoleFakeClient
             client.ChatSystem.RegisterFilter(group);*/
             Console.WriteLine(string.Format("delay: {0}", delay));
             Console.WriteLine(string.Format("Flooding: {0}", flooding));
+            Console.WriteLine(string.Format("Mode: {0}", mode.ToString()));
             System.Threading.Thread.Sleep(3000);
 
             if (flooding)
@@ -65,7 +79,7 @@ namespace ConsoleFakeClient
 
                 while (!exit)
                 {
-                    bot.Flood(ChatBot.FloodMode.UDP);
+                    bot.Flood(mode);
                     System.Threading.Thread.Sleep((int)delay);
                     /*
                     Console.WriteLine("Press q to quit");

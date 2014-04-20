@@ -432,6 +432,9 @@ namespace KSPM.Network.Server
                                     }
                                     */
                                     break;
+                            case Message.CommandType.KeepAlive:
+                                    KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
+                                    break;
                             case Message.CommandType.Unknown:
                             default:
                             KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());

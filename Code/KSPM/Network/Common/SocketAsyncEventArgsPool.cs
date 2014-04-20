@@ -7,20 +7,41 @@ namespace KSPM.Network.Common
         protected System.Collections.Generic.Queue<SocketAsyncEventArgs> availableSAEA;
         protected uint availableSlots;
 
+        public delegate void OnCompleteOperation(object sender, SocketAsyncEventArgs e);
+
         public SocketAsyncEventArgsPool( uint initialCapacity )
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
-            this.InitializeSlots();
+            this.InitializeSlots(null);
         }
 
-        protected void InitializeSlots()
+        public SocketAsyncEventArgsPool(uint initialCapacity, OnCompleteOperation callbackMethod)
+        {
+            this.availableSlots = initialCapacity;
+            this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
+            this.InitializeSlots(callbackMethod);
+        }
+
+        protected void InitializeSlots(OnCompleteOperation callbackMethod)
         {
             SocketAsyncEventArgs item = null;
-            for( int i = 0 ; i < this.availableSlots ; i++ )
+            if (callbackMethod == null)
             {
-                item = new SocketAsyncEventArgs();
-                this.availableSAEA.Enqueue(item);
+                for (int i = 0; i < this.availableSlots; i++)
+                {
+                    item = new SocketAsyncEventArgs();
+                    this.availableSAEA.Enqueue(item);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < this.availableSlots; i++)
+                {
+                    item = new SocketAsyncEventArgs();
+                    item.Completed += new System.EventHandler<SocketAsyncEventArgs>(callbackMethod);
+                    this.availableSAEA.Enqueue(item);
+                }
             }
         }
 

@@ -19,7 +19,7 @@ namespace KSPM.Network.Client
     /// <summary>
     /// Class to represent the remote client.
     /// </summary>
-    public class GameClient : NetworkEntity, IAsyncTCPSender, IAsyncReceiver, IAsyncSender, IPacketArrived
+    public class GameClient : NetworkEntity, IAsyncReceiver, IAsyncSender, IPacketArrived
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected };
 
@@ -27,11 +27,6 @@ namespace KSPM.Network.Client
         /// Client settings to be used to work.
         /// </summary>
         public ClientSettings workingSettings;
-
-        /// <summary>
-        /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
-        /// </summary>
-        protected readonly ManualResetEvent TCPSignalHandler = new ManualResetEvent(false);
 
         /// <summary>
         /// ManualResetEvento reference to manage the signaling among the udp threads.
@@ -86,9 +81,14 @@ namespace KSPM.Network.Client
         protected PacketHandler packetizer;
 
         /// <summary>
-        /// Pool of SocketAsyncEventArgs used to receive tcp streams.
+        /// Pool of SocketAsyncEventArgs used to send TCP streams.
         /// </summary>
-        SocketAsyncEventArgsPool tcpIOEventsPool;
+        SocketAsyncEventArgsPool tcpOutEventsPool;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to receive TCP streams.
+        /// </summary>
+        SocketAsyncEventArgsPool tcpInEventsPool;
 
         #endregion
 
@@ -113,6 +113,26 @@ namespace KSPM.Network.Client
         /// Thread to handle the outgoing TCP messages.
         /// </summary>
         protected Thread handleOutgoingTCPMessagesThread;
+
+        /// <summary>
+        /// Long value to hold the amount of miliseconds since the last TCP stream sent.
+        /// </summary>
+        protected long tcpInactiveTime;
+
+        /// <summary>
+        /// Timer to schedule the sending keep alive streams through the TCP connection.
+        /// </summary>
+        protected System.Threading.Timer tcpKeepAliveTimer;
+
+        /// <summary>
+        /// Callback to be called each time the timer rises its event.
+        /// </summary>
+        protected System.Threading.TimerCallback tcpKeepAliveCallback;
+
+        /// <summary>
+        /// Amount of time to sends and keep alive stream.
+        /// </summary>
+        protected long tcpKeepAliveInterval;
 
 
         #endregion
@@ -214,7 +234,7 @@ namespace KSPM.Network.Client
             this.currentStatus = ClientStatus.None;
 
             ///Threading code
-            this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));
+            this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));///////////CHECK THIS OUT
             this.handleOutgoingTCPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingTCPMessagesThreadMethod));
 
             this.handleIncomingUDPMessagesThread = new Thread(new ThreadStart(this.HandleIncomingUDPMessagesThreadMethod));
@@ -243,7 +263,16 @@ namespace KSPM.Network.Client
             ///TCP Buffering
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(KSPM.Network.Server.ServerSettings.PoolingCacheSize, 1024);
             this.packetizer = new PacketHandler(this.tcpBuffer);
-            this.tcpIOEventsPool = new SocketAsyncEventArgsPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize);
+            this.tcpOutEventsPool = new SocketAsyncEventArgsPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize / 2, this.OnSendingOutgoingDataComplete);
+            this.tcpInEventsPool = new SocketAsyncEventArgsPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize / 2, this.OnTCPIncomingDataComplete);
+
+            ///TCP timers
+            ///3600000 ms = 1 hour
+            this.tcpKeepAliveInterval = ClientSettings.TCPKeepAliveInterval;
+            //this.tcpKeepAliveInterval = 5000;
+            this.tcpInactiveTime = 0;
+            this.tcpKeepAliveCallback = new TimerCallback( this.SendTCPKeepAliveCommand );
+            this.tcpKeepAliveTimer = new System.Threading.Timer(this.tcpKeepAliveCallback, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         }
 
         /// <summary>
@@ -458,6 +487,8 @@ namespace KSPM.Network.Client
                         case ClientStatus.Connected:
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, this.udpServerInformation.NetworkEndPoint.ToString()));
                             connected = true;
+                            ///Activating the keepalive timer.
+                            this.tcpKeepAliveTimer.Change(this.tcpKeepAliveInterval, this.tcpKeepAliveInterval);
                             break;
                         case ClientStatus.Awaiting:
                             Thread.Sleep(11);
@@ -684,10 +715,10 @@ namespace KSPM.Network.Client
                             {
                                 if (this.ownerNetworkCollection != null && this.ownerNetworkCollection.socketReference != null)
                                 {
-                                    sendingData = this.tcpIOEventsPool.NextSlot;
+                                    sendingData = this.tcpOutEventsPool.NextSlot;
                                     sendingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
                                     sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                    sendingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                    //sendingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
                                     this.ownerNetworkCollection.socketReference.SendAsync(sendingData);
                                 }
                                 //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
@@ -696,9 +727,9 @@ namespace KSPM.Network.Client
                             catch (System.Exception ex)///Catching exceptions and adding them to the queue to their proper handling.
                             {
                                 ///If something happens we ensure that the SockeAsyncEventArg is recycled.
-                                if (this.tcpIOEventsPool != null)
+                                if (this.tcpOutEventsPool != null)
                                 {
-                                    this.tcpIOEventsPool.Recycle(sendingData);
+                                    this.tcpOutEventsPool.Recycle(sendingData);
                                 }
                                 else
                                 {
@@ -736,11 +767,11 @@ namespace KSPM.Network.Client
                     ///Do  whatever you want here.
                 }
             }
-            e.Completed -= this.OnSendingOutgoingDataComplete;
+            //e.Completed -= this.OnSendingOutgoingDataComplete;
 
             ///Checking if the SocketAsyncEventArgs pool has not been released and set to null.
             ///If the situtation mentioned above we have to dispose the SocketAsyncEventArgs by hand.
-            if (this.tcpIOEventsPool== null)
+            if (this.tcpOutEventsPool == null)
             {
                 e.Dispose();
                 e = null;
@@ -748,31 +779,16 @@ namespace KSPM.Network.Client
             else
             {
                 ///Recycling the SocketAsyncEventArgs used by this process.
-                this.tcpIOEventsPool.Recycle(e);
+                this.tcpOutEventsPool.Recycle(e);
             }
         }
 
-        /// <summary>
-        /// Sends asynchronously TCP packets.
-        /// </summary>
-        /// <param name="result"></param>
-        public void AsyncTCPSender(System.IAsyncResult result)
+        protected void SendTCPKeepAliveCommand(object stateInfo)
         {
-            int sentBytes;
-            NetworkEntity networkReference = null;
-            try
+            Message keepAliveCommand = null;
+            if (Message.KeepAlive(this, out keepAliveCommand) == Error.ErrorType.Ok)
             {
-                networkReference = (NetworkEntity)result.AsyncState;
-                sentBytes = networkReference.ownerNetworkCollection.socketReference.EndSend(result);
-                if (sentBytes > 0)
-                {
-                    //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
-                    networkReference.MessageSent(networkReference, null);
-                }
-            }
-            catch (System.Exception)///Catch any exception thrown by the Socket.EndReceive method, mostly the ObjectDisposedException which is thrown when the thread is aborted and the socket is closed.
-            {
-                ///This exception is not added to the runtime errors queue, because the error will propagate to the above level.
+                this.outgoingTCPMessages.EnqueueCommandMessage(ref keepAliveCommand);
             }
         }
 
@@ -780,10 +796,10 @@ namespace KSPM.Network.Client
 
         public void ReceiveTCPStream()
         {
-            SocketAsyncEventArgs incomingData = this.tcpIOEventsPool.NextSlot;
+            SocketAsyncEventArgs incomingData = this.tcpInEventsPool.NextSlot;
             incomingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
             incomingData.SetBuffer(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length);
-            incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnTCPIncomingDataComplete);
+            //incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnTCPIncomingDataComplete);
             try
             {
                 if (!this.ownerNetworkCollection.socketReference.ReceiveAsync(incomingData))
@@ -825,14 +841,14 @@ namespace KSPM.Network.Client
             }
             ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
             e.Completed -= this.OnTCPIncomingDataComplete;
-            if (this.tcpIOEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+            if (this.tcpInEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
             {
                 e.Dispose();
                 e = null;
             }
             else
             {
-                this.tcpIOEventsPool.Recycle(e);
+                this.tcpInEventsPool.Recycle(e);
             }
         }
 
@@ -1088,6 +1104,8 @@ namespace KSPM.Network.Client
             this.aliveFlag = false;
             this.holePunched = false;
 
+            this.tcpKeepAliveTimer.Dispose();
+
             this.currentStatus = ClientStatus.None;
 
             ///*****************Killing threads.
@@ -1164,6 +1182,9 @@ namespace KSPM.Network.Client
             this.udpHolePunched = false;
             this.holePunched = false;
             this.usingUDP = false;
+
+            this.tcpKeepAliveTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
             if (this.ownerNetworkCollection.socketReference != null )
             {
                 if (this.ownerNetworkCollection.socketReference.Connected)
