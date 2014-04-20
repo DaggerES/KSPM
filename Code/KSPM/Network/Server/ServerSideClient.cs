@@ -86,10 +86,13 @@ namespace KSPM.Network.Server
         protected PacketHandler udpPacketizer;
 
         /// <summary>
-        /// Pool of SocketAsyncEventArgs used to receive udp streams.
+        /// Pool of SocketAsyncEventArgs used to receive udp datagrams.
         /// </summary>
         protected SharedBufferSAEAPool udpInputSAEAPool;
 
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to send udp datagrams.
+        /// </summary>
         protected SocketAsyncEventArgsPool udpOutSAEAPool;
 
         protected MessagesPool udpIOMessagesPool;
@@ -190,7 +193,6 @@ namespace KSPM.Network.Server
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
-
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
@@ -428,54 +430,15 @@ namespace KSPM.Network.Server
             return Error.ErrorType.Ok;
         }
 
-
-        protected void ReceiveUDPDatagramNoSAEA()
-        {
-            EndPoint src = this.udpCollection.remoteEndPoint;
-            try
-            {
-                this.udpCollection.socketReference.BeginReceiveFrom(this.udpCollection.secondaryRawBuffer, 0, this.udpCollection.secondaryRawBuffer.Length, SocketFlags.None, ref src, this.AsyncUDPReceiveCallback, this);
-            }
-            catch (System.ObjectDisposedException ex)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
-            }
-            catch (SocketException ex)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.SocketErrorCode, ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
-            }
-        }
-
-        protected void AsyncUDPReceiveCallback(System.IAsyncResult result)
-        {
-            int readBytes;
-            ServerSideClient ssReference = null;
-            try
-            {
-                ssReference = (ServerSideClient)result.AsyncState;
-                readBytes = ssReference.udpCollection.socketReference.EndReceiveFrom(result, ref this.udpCollection.remoteEndPoint);
-                if (readBytes > 0)
-                {
-                    this.udpBuffer.Write(this.udpCollection.secondaryRawBuffer, (uint)readBytes);
-                    this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
-                    this.ReceiveUDPDatagramNoSAEA();
-                }
-            }
-            catch (System.Exception ex)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(ex.Message);
-            }
-        }
-
         protected void ReceiveUDPDatagram()
         {
 #if PROFILING
 
             this.profilerOutgoingMessages.Set();
 #endif
-
+            ///Checking if the reference is still running and the sockets are working.
+            if (!this.aliveFlag)
+                return;
             SocketAsyncEventArgs incomingData = this.udpInputSAEAPool.NextSlot;
             incomingData.AcceptSocket = this.udpCollection.socketReference;
             incomingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
@@ -518,16 +481,12 @@ namespace KSPM.Network.Server
 #if PROFILING
                     this.profilerPacketizer.Set();
 #endif
-                    KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
+                    //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                     //this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
-                    if (!this.connected)
-                    {
-                        this.udpPacketizer.UDPPacketizeCRCLoadIntoMessage(this, this.udpIOMessagesPool);
-                    }
+                    this.udpPacketizer.UDPPacketizeCRCLoadIntoMessage(this, this.udpIOMessagesPool);
 #if PROFILING
                     this.profilerPacketizer.Mark();
 #endif
-
                     this.ReceiveUDPDatagram();
                 }
                 else
@@ -636,8 +595,10 @@ namespace KSPM.Network.Server
 
         protected void OnProcessUDPCommandComplete(System.IAsyncResult result)
         {
-
+            ///Does nothing
         }
+
+        #region DEPRECATED_CODE
 
         protected void ProcessUDPCommand()
         {
@@ -690,6 +651,8 @@ namespace KSPM.Network.Server
             }
         }
 
+        #endregion
+
         public void SendAsDatagram(Message message)
         {
             Message outgoingMessage = null;
@@ -703,7 +666,6 @@ namespace KSPM.Network.Server
             {
                 if (this.usingUdpConnection)
                 {
-                    //this.outgoingPackets.DequeueCommandMessage(out outgoingMessage);
                     ///Taking a message from the pool.
                     outgoingMessage = this.udpIOMessagesPool.BorrowMessage;
                     ///Loading the message with the proper content.
@@ -719,7 +681,6 @@ namespace KSPM.Network.Server
                         this.udpCollection.socketReference.SendToAsync(outgoingData);
                     }
                 }
-                Thread.Sleep(3);
             }
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
@@ -752,7 +713,6 @@ namespace KSPM.Network.Server
                         this.udpCollection.socketReference.SendToAsync(outgoingData);
                     }
                 }
-                Thread.Sleep(3);
             }
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
