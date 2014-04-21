@@ -492,11 +492,11 @@ namespace KSPM.Network.Server
                                             blockSize = System.BitConverter.ToInt32(outgoingMessage.bodyMessage, 4);
                                             if (blockSize == outgoingMessage.MessageBytesSize)
                                             {
-                                                sendingData = ((ServerSideClient)broadcastReference.Targets[entityCounter]).IOSocketAsyncEventArgsPool.NextSlot;
+                                                sendingData = ((ServerSideClient)broadcastReference.Targets[entityCounter]).TCPOutSocketAsyncEventArgsPool.NextSlot;
                                                 sendingData.AcceptSocket = broadcastReference.Targets[entityCounter].ownerNetworkCollection.socketReference;
                                                 sendingData.UserToken = broadcastReference.Targets[entityCounter];
                                                 sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                                sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                                //sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
                                                 if (!broadcastReference.Targets[entityCounter].ownerNetworkCollection.socketReference.SendAsync(sendingData))
                                                 {
                                                     this.OnSendingOutgoingDataComplete(this, sendingData);
@@ -518,11 +518,11 @@ namespace KSPM.Network.Server
                                         ///Checking if the NetworkEntity is still running and it has not been released.
                                         if (managedReference.OwnerNetworkEntity != null && managedReference.OwnerNetworkEntity.IsAlive())
                                         {
-                                            sendingData = ((ServerSideClient)managedReference.OwnerNetworkEntity).IOSocketAsyncEventArgsPool.NextSlot;
+                                            sendingData = ((ServerSideClient)managedReference.OwnerNetworkEntity).TCPOutSocketAsyncEventArgsPool.NextSlot;
                                             sendingData.AcceptSocket = managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference;
                                             sendingData.UserToken = managedReference.OwnerNetworkEntity;
                                             sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                            sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
+                                            //sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
                                             if (!managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.SendAsync(sendingData))
                                             {
                                                 this.OnSendingOutgoingDataComplete(this, sendingData);
@@ -565,7 +565,7 @@ namespace KSPM.Network.Server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
-        protected void OnSendingOutgoingDataComplete(object sender, SocketAsyncEventArgs e)
+        protected internal void OnSendingOutgoingDataComplete(object sender, SocketAsyncEventArgs e)
         {
             ServerSideClient networkEntitySender = (ServerSideClient)e.UserToken;
             if (e.SocketError == SocketError.Success)
@@ -579,7 +579,7 @@ namespace KSPM.Network.Server
 
             ///Checking if the SocketAsyncEventArgs pool has not been released and set to null.
             ///If the situtation mentioned above we have to dispose the SocketAsyncEventArgs by hand.
-            if (networkEntitySender.IOSocketAsyncEventArgsPool == null)
+            if (networkEntitySender.TCPOutSocketAsyncEventArgsPool == null)
             {
                 e.Dispose();
                 e = null;
@@ -587,7 +587,7 @@ namespace KSPM.Network.Server
             else
             {
                 ///Recycling the SocketAsyncEventArgs used by this process.
-                networkEntitySender.IOSocketAsyncEventArgsPool.Recycle(e);
+                networkEntitySender.TCPOutSocketAsyncEventArgsPool.Recycle(e);
             }
         }
 

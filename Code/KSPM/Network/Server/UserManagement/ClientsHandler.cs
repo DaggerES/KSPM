@@ -98,7 +98,7 @@ namespace KSPM.Network.Server.UserManagement
                 for (int i = 0; i < this.clients.Count; i++)
                 {
                     //outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
-                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
+                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref messageToSend);
                     ((ServerSideClient)this.clients[i]).SendUDPDatagram();
                     //((ServerSideClient)this.clients[i]).SendAsDatagram(messageToSend);
                 }

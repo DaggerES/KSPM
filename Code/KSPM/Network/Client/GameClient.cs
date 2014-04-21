@@ -115,11 +115,6 @@ namespace KSPM.Network.Client
         protected Thread handleOutgoingTCPMessagesThread;
 
         /// <summary>
-        /// Long value to hold the amount of miliseconds since the last TCP stream sent.
-        /// </summary>
-        protected long tcpInactiveTime;
-
-        /// <summary>
         /// Timer to schedule the sending keep alive streams through the TCP connection.
         /// </summary>
         protected System.Threading.Timer tcpKeepAliveTimer;
@@ -270,7 +265,6 @@ namespace KSPM.Network.Client
             ///3600000 ms = 1 hour
             this.tcpKeepAliveInterval = ClientSettings.TCPKeepAliveInterval;
             //this.tcpKeepAliveInterval = 5000;
-            this.tcpInactiveTime = 0;
             this.tcpKeepAliveCallback = new TimerCallback( this.SendTCPKeepAliveCommand );
             this.tcpKeepAliveTimer = new System.Threading.Timer(this.tcpKeepAliveCallback, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         }
@@ -823,6 +817,7 @@ namespace KSPM.Network.Client
                 if (readBytes > 0)
                 {
                     this.tcpBuffer.Write(e.Buffer, (uint)readBytes);
+                    ///We can change it to another method that no allocates memory.
                     this.packetizer.PacketizeCRCCreateMemory(this);
                     this.ReceiveTCPStream();
                 }
@@ -840,7 +835,7 @@ namespace KSPM.Network.Client
                 //KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
             ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            e.Completed -= this.OnTCPIncomingDataComplete;
+            //e.Completed -= this.OnTCPIncomingDataComplete;
             if (this.tcpInEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
             {
                 e.Dispose();
@@ -934,6 +929,7 @@ namespace KSPM.Network.Client
                     readBytes = myClientRerence.udpNetworkCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
                     if (readBytes > 0)
                     {
+                        KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                         lock (myClientRerence.udpNetworkCollection.secondaryRawBuffer)
                         {
                             if (PacketHandler.DecodeRawPacket(ref myClientRerence.udpNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
@@ -1012,7 +1008,7 @@ namespace KSPM.Network.Client
             {
                 owner = (GameClient)result.AsyncState;
                 sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
-                KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
+                //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
             }
 			catch (System.Exception)
             {
