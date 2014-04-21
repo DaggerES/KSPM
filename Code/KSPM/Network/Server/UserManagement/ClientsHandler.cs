@@ -92,7 +92,7 @@ namespace KSPM.Network.Server.UserManagement
 
         public void UDPBroadcastClients(Message messageToSend)
         {
-            Message outgoingMessage = null;
+            //Message outgoingMessage = null;
             lock (this.clients)
             {
                 for (int i = 0; i < this.clients.Count; i++)

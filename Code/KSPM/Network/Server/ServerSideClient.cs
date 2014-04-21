@@ -193,8 +193,8 @@ namespace KSPM.Network.Server
             this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
             this.udpPacketizer = new PacketHandler(this.udpBuffer);
-            this.udpInputSAEAPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize / 2, this.udpCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
-            this.udpOutSAEAPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, this.OnUDPSendingDataComplete);
+            this.udpInputSAEAPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize, this.udpCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
+            this.udpOutSAEAPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize, this.OnUDPSendingDataComplete);
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
@@ -595,8 +595,11 @@ namespace KSPM.Network.Server
                                 }
                             }
                             this.SendUDPDatagram();
+                            ///Recycling the message used in the connection process.
+                            this.udpIOMessagesPool.Recycle(incomingMessage);
+                            /*
                             incomingMessage.Release();
-                            incomingMessage = null;
+                            incomingMessage = null;*/
                             break;
                         case Message.CommandType.UDPChat:
                             ///At this moment we only raises the event, but it can be raised with whichever incoming message.

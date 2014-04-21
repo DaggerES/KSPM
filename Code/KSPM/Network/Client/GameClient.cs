@@ -929,7 +929,7 @@ namespace KSPM.Network.Client
                     readBytes = myClientRerence.udpNetworkCollection.socketReference.EndReceiveFrom(result, ref receivedReference);
                     if (readBytes > 0)
                     {
-                        KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
+                        //KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                         lock (myClientRerence.udpNetworkCollection.secondaryRawBuffer)
                         {
                             if (PacketHandler.DecodeRawPacket(ref myClientRerence.udpNetworkCollection.secondaryRawBuffer) == Error.ErrorType.Ok)
