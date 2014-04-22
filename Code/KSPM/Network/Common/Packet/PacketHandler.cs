@@ -324,7 +324,7 @@ namespace KSPM.Network.Common.Packet
             this.unpackedBytes = null;
             this.prefixBytes = null;
             this.packet = null;
-            if (this.memoryReference != null)
+            if (this.memoryReference != null && this.memoryReference.FixedLength > 0)
             {
                 this.memoryReference.Release();
                 this.memoryReference = null;

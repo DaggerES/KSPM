@@ -93,6 +93,8 @@ namespace KSPM.Network.Common.Messages
             this.command = CommandType.Null;
             this.messageRawLength = 0;
             this.bodyMessage = null;
+            this.broadcasted = false;
+            this.pooling = false;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Releasing");
         }
 
@@ -104,6 +106,7 @@ namespace KSPM.Network.Common.Messages
         {
             this.command = CommandType.Null;
             this.messageRawLength = 0;
+            this.broadcasted = false;
         }
     }
 }

@@ -41,7 +41,8 @@ namespace KSPM.Network.Common.Messages
                     }
                     else
                     {
-                        Messages.BufferedMessage extraItem = new Messages.BufferedMessage(Messages.Message.CommandType.Null, 0, 0);
+                        Message extraItem = this.sample.Empty();
+                        //Messages.BufferedMessage extraItem = new Messages.BufferedMessage(Messages.Message.CommandType.Null, 0, 0);
                         KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("Warning borrowing from an empty pool: {0} - Creating a new Item.", this.messagesPool.Count));
                         return extraItem;
                     }

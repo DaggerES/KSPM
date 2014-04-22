@@ -56,6 +56,10 @@
             }
             this.buffers = null;
             this.usableBytes = null;
+            this.buffersLength = 0;
+            this.readingIndex = 0;
+            this.writingIndex = 0;
+            this.size = 0;
         }
 
         public uint FixedLength
