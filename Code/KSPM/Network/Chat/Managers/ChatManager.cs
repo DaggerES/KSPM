@@ -50,12 +50,29 @@ namespace KSPM.Network.Chat.Managers
         /// </summary>
         protected List<ChatFilter> availableFilters;
 
+        /// <summary>
+        /// Network Entity to whom belongs this chat manager.
+        /// </summary>
         protected NetworkEntity owner;
 
-        public ChatManager()
+        /// <summary>
+        /// Defines how the default chat group would be created.
+        /// </summary>
+        public enum DefaultStorageMode : byte { Persistent, NonPersistent };
+
+        public ChatManager( DefaultStorageMode mode)
         {
             this.chatGroups = new Dictionary<short, ChatGroup>();
-            this.defaultChatGroup= new NMChatGroup();
+
+            if (mode == DefaultStorageMode.Persistent)
+            {
+                this.defaultChatGroup = new NMChatGroup();
+            }
+            else
+            {
+                this.defaultChatGroup = new NonPersistentNMChatgroup();
+            }
+            
             this.chatGroups.Add(this.defaultChatGroup.Id, this.defaultChatGroup);
             this.availableFilters = new List<ChatFilter>();
         }
@@ -113,6 +130,25 @@ namespace KSPM.Network.Chat.Managers
         }
 
         /// <summary>
+        /// Tries to get a chatgroup identified with the given id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The ChatGroup identified by the given id or the default ChatGroup if there is no chatGroup identified by the given id.</returns>
+        public ChatGroup GetChatGroupById(short id)
+        {
+            ChatGroup requestedGroup = null;
+            if (this.chatGroups.ContainsKey(id))
+            {
+                this.chatGroups.TryGetValue(id, out requestedGroup);
+            }
+            else
+            {
+                return this.defaultChatGroup;
+            }
+            return requestedGroup;
+        }
+
+        /// <summary>
         /// Gets how many chat groups are registered inside the manager.
         /// </summary>
         public int RegisteredGroups
@@ -123,7 +159,7 @@ namespace KSPM.Network.Chat.Managers
             }
         }
 
-        public static Error.ErrorType CreateChatManagerFromMessage(byte[] rawBytes, out ChatManager manager)
+        public static Error.ErrorType CreateChatManagerFromMessage(byte[] rawBytes,ChatManager.DefaultStorageMode mode , out ChatManager manager)
         {
             short shortBuffer;
             short availableGroups;
@@ -135,7 +171,7 @@ namespace KSPM.Network.Chat.Managers
             {
                 return Error.ErrorType.ChatInvalidAvailableGroups;
             }
-            manager = new ChatManager();
+            manager = new ChatManager(mode);
             readingOffset += 2;
             for (int i = 0; i < availableGroups; i++)
             {
@@ -159,6 +195,11 @@ namespace KSPM.Network.Chat.Managers
 
         #region MessageHandling
 
+        /// <summary>
+        /// Takes a string and sends it to the server using the TCP connection.
+        /// </summary>
+        /// <param name="targetGroup"></param>
+        /// <param name="bodyMessage"></param>
         public void SendChatMessage(ChatGroup targetGroup, string bodyMessage)
         {
             Message chatMessage = null;
@@ -168,6 +209,18 @@ namespace KSPM.Network.Chat.Managers
                 managedReference = (ManagedMessage) chatMessage;
                 PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
                 ((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage);
+                //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
+            }
+        }
+
+        public void SendUDPChatMessage(ChatGroup targetGroup, string bodyMessage)
+        {
+            Message chatMessage = null;
+            if (ChatMessage.CreateUDPChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+            {
+                //managedReference = (ManagedMessage)chatMessage;
+                //PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
+                ((GameClient)this.owner).OutgoingUDPQueue.EnqueueCommandMessage(ref chatMessage);
                 //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
             }
         }

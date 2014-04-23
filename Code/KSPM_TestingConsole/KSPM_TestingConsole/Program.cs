@@ -19,10 +19,13 @@ namespace KSPM_TestingConsole
 {
     class Program
     {
+        static long totalMessages = 0;
+        static long callCounter = 0;
         static void Main(string[] args)
         {
-            Console.WriteLine(string.Format("{0} : {1}", "ASD", sizeof(int)));
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
+            System.Timers.Timer eventRiser = new System.Timers.Timer(10000);
+            eventRiser.Elapsed += new System.Timers.ElapsedEventHandler(eventRiser_Elapsed);
 
 			////Server test
 			
@@ -31,13 +34,29 @@ namespace KSPM_TestingConsole
             {
                 GameServer server = new GameServer(ref gameSettings);
                 KSPMGlobals.Globals.SetServerReference(ref server);
+                server.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(server_UDPMessageArrived);
                 server.StartServer();
+                eventRiser.Enabled = true;
                 Console.ReadLine();
+                eventRiser.Enabled = false;
+                Console.WriteLine(string.Format("Event raised:{0} times, total of the messages: {1}", Program.callCounter, Program.totalMessages));
                 server.ShutdownServer();
             }
             Console.ReadLine();
 
         }
 
+        static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
+        {
+            //Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
+            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+        }
+
+        static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Program.callCounter++;
+            Program.totalMessages += KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount;
+            //KSPMGlobals.Globals.Log.WriteTo(KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount.ToString());
+        }
     }
 }

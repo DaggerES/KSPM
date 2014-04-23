@@ -1,2 +1,7 @@
 *.log
-/Code/Unity/Testing/UnityServer/Library/metadata/
+*.cache
+*.tlog
+*.vsp
+*.ctl
+/Code/Unity/KSPMUnity/Library/metadata/
+/Code/PerformanceReports/

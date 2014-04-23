@@ -61,7 +61,7 @@ namespace KSPM.Network.Server.UserManagement
         /// <summary>
         /// Clears the structures and calls the ReleaseMethod of each NetworkEntity reference.
         /// </summary>
-        public void Clear()
+        public void Release()
         {
             lock (this.clients)
             {
@@ -72,6 +72,8 @@ namespace KSPM.Network.Server.UserManagement
                 this.clients.Clear();
                 this.clientsEngine.Clear();
             }
+            this.clients = null;
+            this.clientsEngine = null;
         }
 
         /// <summary>
@@ -90,30 +92,35 @@ namespace KSPM.Network.Server.UserManagement
 
         public void UDPBroadcastClients(Message messageToSend)
         {
-            Message outgoingMessage = null;
+            //Message outgoingMessage = null;
             lock (this.clients)
             {
                 for (int i = 0; i < this.clients.Count; i++)
                 {
-                    outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
-                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
+                    //outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
+                    messageToSend.IsBroadcast = true;
+                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref messageToSend);
+                    ((ServerSideClient)this.clients[i]).SendUDPDatagram();
+                    //((ServerSideClient)this.clients[i]).SendAsDatagram(messageToSend);
                 }
+
+                //messageToSend.Release();
             }
         }
 
+        /// <summary>
+        /// Creates a broadcast message taking the messageToSend as base.
+        /// </summary>
+        /// <param name="targets"></param>
+        /// <param name="messageToSend"></param>
         public void TCPBroadcastTo(List<NetworkEntity> targets, Message messageToSend)
         {
             Message outgoingMessage = null;
-            lock (this.clients)
-            {
-                for (int i = 0; i < targets.Count; i++)
-                {
-                    outgoingMessage = new ManagedMessage(Message.CommandType.Chat, targets[i]);
-                    outgoingMessage.SetBodyMessage(messageToSend.bodyMessage, messageToSend.MessageBytesSize);
-                    //((ManagedMessage)outgoingMessage).SwapReceivedBufferToSend((ManagedMessage)messageToSend);
-                    KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
-                }
-            }
+            BroadcastMessage outgoingBroadcast = new BroadcastMessage(messageToSend.Command, targets);
+            outgoingBroadcast.SetBodyMessage(messageToSend.bodyMessage,((BufferedMessage)messageToSend).StartsAt , messageToSend.MessageBytesSize);
+            outgoingMessage = outgoingBroadcast;
+            messageToSend.IsBroadcast = true;
+            KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
         }
 
         public List<NetworkEntity> RemoteClients

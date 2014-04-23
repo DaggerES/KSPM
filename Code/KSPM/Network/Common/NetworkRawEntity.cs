@@ -68,5 +68,7 @@ namespace KSPM.Network.Common
         /// Abstract method that should be used to release all the resources ocupied by the object itself, such as the socket and the arrays.
         /// </summary>
         public abstract void Release();
+
+        public abstract bool IsAlive();
     }
 }

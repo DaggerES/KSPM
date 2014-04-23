@@ -15,11 +15,6 @@ namespace KSPM.Network.Chat.Group
         protected short id;
 
         /// <summary>
-        /// List of the messages that belongs to this group.
-        /// </summary>
-        protected List<ChatMessage> messages;
-
-        /// <summary>
         /// Dictionary with the member of this group.
         /// </summary>
         protected Dictionary<System.Guid, NetworkEntity> members;
@@ -39,7 +34,6 @@ namespace KSPM.Network.Chat.Group
         public ChatGroup()
         {
             this.id = ChatGroup.ChatGroupCounter++;
-            this.messages = new List<ChatMessage>();
             this.members = new Dictionary<System.Guid, NetworkEntity>();
             this.performanceDataStructureMembers = new List<NetworkEntity>();
             this.privateGroup = false;
@@ -62,11 +56,6 @@ namespace KSPM.Network.Chat.Group
                 this.performanceDataStructureMembers.Remove(memberToRemove);
                 this.members.Remove(memberToRemove.Id);
             }
-        }
-
-        public void AddMessage(ChatMessage newMessage)
-        {
-            this.messages.Add(newMessage);
         }
 
         #region Getters/Setters
@@ -96,6 +85,10 @@ namespace KSPM.Network.Chat.Group
         }
 
         #endregion
+
+        public abstract void AddMessage(ChatMessage newMessage);
+
+        public abstract void Purge();
 
         public abstract void Release();
     }

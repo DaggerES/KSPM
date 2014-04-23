@@ -5,7 +5,7 @@
     /// </summary>
     public class AccountManager : UserManagementSystem
     {
-        public override bool Query(ref Common.NetworkEntity entityToValidate)
+        public override bool Query(Common.NetworkEntity entityToValidate)
         {
             ServerSideClient clientReference = (ServerSideClient)entityToValidate;
             return true;
