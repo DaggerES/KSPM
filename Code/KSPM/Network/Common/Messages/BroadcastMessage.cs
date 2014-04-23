@@ -44,5 +44,12 @@ namespace KSPM.Network.Common.Messages
                 return this.targets;
             }
         }
+
+        /// <summary>
+        /// Does nothing at this moment.
+        /// </summary>
+        public override void Dispose()
+        {
+        }
     }
 }

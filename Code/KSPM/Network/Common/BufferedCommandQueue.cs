@@ -16,7 +16,12 @@ namespace KSPM.Network.Common
         public override void EnqueueCommandMessage(ref Message newMessage)
         {
             BufferedMessage reference = (BufferedMessage)newMessage;
-            this.ioBuffer.Write(reference.bodyMessage, reference.StartsAt, reference.MessageBytesSize);
+            uint startsAt = reference.StartsAt;
+            this.ioBuffer.Write(reference.bodyMessage, ref startsAt, reference.MessageBytesSize);
+
+            reference.StartsAt = startsAt;
+            ///Seting the buffer used by the command queue.
+            newMessage.bodyMessage = this.ioBuffer.IOBuffer;
             base.EnqueueCommandMessage(ref newMessage);
         }
 

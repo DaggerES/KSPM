@@ -67,6 +67,13 @@ namespace KSPM.Network.Common.Messages
             return item;
         }
 
+        /// <summary>
+        /// Does nothing.
+        /// </summary>
+        public override void Dispose()
+        {
+        }
+
         public void SwapReceivedBufferToSend(ManagedMessage otherMessage)
         {
             System.Buffer.BlockCopy(otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);

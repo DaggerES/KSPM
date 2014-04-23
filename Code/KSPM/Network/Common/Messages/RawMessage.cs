@@ -40,6 +40,28 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
+        /// Copies the src array into the preallocated buffer.
+        /// </summary>
+        /// <param name="src">Byte array to be copied.</param>
+        /// <param name="offset">From which index position is allocate the data inside the src array.</param>
+        /// <param name="bytesToCopy">Amount of bytes to be copied.</param>
+        public void LoadWith(byte[] src, uint srcOffset, uint bytesToCopy)
+        {
+            if (src == null)
+                return;
+            if (bytesToCopy > this.bodyMessage.Length)
+                bytesToCopy = (uint)this.bodyMessage.Length;
+            System.Buffer.BlockCopy(src, (int)srcOffset, this.bodyMessage, 0, (int)bytesToCopy);
+            this.messageRawLength = bytesToCopy;
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+        }
+
+        public void ReallocateCommand()
+        {
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+        }
+
+        /// <summary>
         /// Gets/Sets the pooling flag.
         /// </summary>
         public bool Pooling
@@ -63,14 +85,28 @@ namespace KSPM.Network.Common.Messages
             return new RawMessage();
         }
 
+        /// <summary>
+        /// Releases all the properties and frees the memory buffers.
+        /// </summary>
         public override void Release()
         {
             this.command = CommandType.Null;
             this.messageRawLength = 0;
-            if (!this.pooling)
-            {
-                this.bodyMessage = null;
-            }
+            this.bodyMessage = null;
+            this.broadcasted = false;
+            this.pooling = false;
+            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Releasing");
+        }
+
+        /// <summary>
+        /// Sets the current reference to an invalid object, but no harm is performed to the buffer. If you want to free all the resource yous must call
+        /// Release.
+        /// </summary>
+        public override void Dispose()
+        {
+            this.command = CommandType.Null;
+            this.messageRawLength = 0;
+            this.broadcasted = false;
         }
     }
 }

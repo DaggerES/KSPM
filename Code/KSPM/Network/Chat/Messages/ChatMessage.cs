@@ -233,7 +233,7 @@ namespace KSPM.Network.Chat.Messages
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
-            targetMessage = new RawMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], rawBuffer, (uint)bytesToSend);
+            targetMessage = new RawMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], null, (uint)bytesToSend);
             //targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
             targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
 

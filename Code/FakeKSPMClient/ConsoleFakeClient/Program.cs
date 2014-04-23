@@ -22,12 +22,27 @@ namespace ConsoleFakeClient
             ServerInformation server = new ServerInformation();
             ServerList hosts = null;
             ServerList.ReadServerList(out hosts);
+            ChatBot.FloodMode mode = ChatBot.FloodMode.TCP;
             long delay = 250;
+            bool flooding = true;
             if (args.Length > 0)
             {
                 try
                 {
                     delay = long.Parse(args[0]);
+                    flooding = bool.Parse(args[1]);
+                    switch (args[2].ToLower())
+                    {
+                        case "udp":
+                            mode = ChatBot.FloodMode.UDP;
+                            break;
+                        case "tcp":
+                            mode = ChatBot.FloodMode.TCP;
+                            break;
+                        default:
+                            mode = ChatBot.FloodMode.TCP;
+                            break;
+                    }
                 }
                 catch (System.Exception)
                 {
@@ -55,49 +70,55 @@ namespace ConsoleFakeClient
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
             client.ChatSystem.RegisterFilter(group);*/
             Console.WriteLine(string.Format("delay: {0}", delay));
+            Console.WriteLine(string.Format("Flooding: {0}", flooding));
+            Console.WriteLine(string.Format("Mode: {0}", mode.ToString()));
             System.Threading.Thread.Sleep(3000);
 
-            while ( !exit )
+            if (flooding)
             {
-                bot.Flood();
-                System.Threading.Thread.Sleep((int)delay);
-                /*
-                Console.WriteLine("Press q to quit");
-                Console.WriteLine("Press r to connect");
-                Console.WriteLine("Press d to disconnect");
-                pressedKey = Console.ReadKey();
-                switch( pressedKey.Key )
+
+                while (!exit)
                 {
-                    case ConsoleKey.Q:
-                        exit = true;
-                        break;
-                    case ConsoleKey.R:
-                        client.SetGameUser(myUser);
-                        client.SetServerHostInformation(hosts.Hosts[ 0 ]);
-                        if (client.Connect() == KSPM.Network.Common.Error.ErrorType.Ok)
-                        {
-                            //System.Threading.Thread.Sleep(1000);
-                            client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
-                        }
-                        break;
-                    case ConsoleKey.D:
-                        client.Disconnect();
-                        break;
-                    default:
-                        break;
+                    bot.Flood(mode);
+                    System.Threading.Thread.Sleep((int)delay);
+                    /*
+                    Console.WriteLine("Press q to quit");
+                    Console.WriteLine("Press r to connect");
+                    Console.WriteLine("Press d to disconnect");
+                    pressedKey = Console.ReadKey();
+                    switch( pressedKey.Key )
+                    {
+                        case ConsoleKey.Q:
+                            exit = true;
+                            break;
+                        case ConsoleKey.R:
+                            client.SetGameUser(myUser);
+                            client.SetServerHostInformation(hosts.Hosts[ 0 ]);
+                            if (client.Connect() == KSPM.Network.Common.Error.ErrorType.Ok)
+                            {
+                                //System.Threading.Thread.Sleep(1000);
+                                client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
+                            }
+                            break;
+                        case ConsoleKey.D:
+                            client.Disconnect();
+                            break;
+                        default:
+                            break;
+                    }
+                    */
+                    /*
+                    client.SetGameUser(myUser);
+                    client.SetServerHostInformation(hosts.Hosts[0]);
+                    client.Connect();
+                    System.Threading.Thread.Sleep(10000);
+                    client.Disconnect();
+                    */
                 }
-                */
-                /*
-                client.SetGameUser(myUser);
-                client.SetServerHostInformation(hosts.Hosts[0]);
-                client.Connect();
-                System.Threading.Thread.Sleep(10000);
-                client.Disconnect();
-                */
             }
 
-            client.Disconnect();
             Console.ReadLine();
+            client.Disconnect();
             client.Release();
         }
     }

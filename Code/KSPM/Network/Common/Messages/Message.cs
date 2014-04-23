@@ -111,6 +111,12 @@ namespace KSPM.Network.Common.Messages
             ChatSettingUp,
 
             /// <summary>
+            /// Resets the TCP timer and avoids the TimedOut socket error.
+            /// [MessageHeader{ byte:4}][Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            /// </summary>
+            KeepAlive,
+
+            /// <summary>
             /// Disconnect command to a nicely way to say goodbye.
             /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
             /// </summary>
@@ -238,6 +244,8 @@ namespace KSPM.Network.Common.Messages
         }
 
         public abstract void Release();
+
+        public abstract void Dispose();
 
         public abstract Message Empty();
 
@@ -502,6 +510,46 @@ namespace KSPM.Network.Common.Messages
         #endregion
 
         #region UserInteractionCode
+
+        /// <summary>
+        /// Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType KeepAlive(NetworkEntity sender, out Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the command.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.KeepAlive;
+            bytesToSend += 1;
+
+            ///Writing the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Creating the Message
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
         /// <summary>
         /// Writes a disconnect message into de buffer.
         /// </summary>

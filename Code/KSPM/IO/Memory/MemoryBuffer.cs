@@ -14,7 +14,14 @@
             this.readingPosition = this.writingPosition = 0;
         }
 
-        public uint Write(byte[] source, uint srcOffset,  uint size)
+        /// <summary>
+        /// Writes a byte array into the buffer.
+        /// </summary>
+        /// <param name="source">Byte array from where the bytes are going to copied.</param>
+        /// <param name="srcOffset">Reference to the offset where the bytes are being copied from, and is set to the starting position inside the underlying buffer</param>
+        /// <param name="size">How many buffers should be written.</param>
+        /// <returns>Amount of written bytes.</returns>
+        public uint Write(byte[] source, ref uint srcOffset,  uint size)
         {
             uint availableBytes;
             if (size <= 0)
@@ -32,6 +39,7 @@
                     this.writingPosition = 0;
                 }
                 System.Buffer.BlockCopy(source, (int)srcOffset, this.ioBuffer, (int)this.writingPosition, (int)size);
+                srcOffset = this.writingPosition;
                 this.writingPosition += size;
             }
             return size;

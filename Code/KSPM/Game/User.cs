@@ -113,12 +113,12 @@ namespace KSPM.Game
                 return Error.ErrorType.UserIncompleteBytes;
             }
             ///6 because in that position is where the username's bytes start, so there is the add of username's length plus the 6th position.
-            hashSize = System.BitConverter.ToInt16(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6 + (int)rawBytes[9]);
+            hashSize = System.BitConverter.ToInt16(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6 + (int)rawBytes[ rawBytesOffset + 9]);
             hashCode = new byte[hashSize];
             ///8 because is the 6th position + 2 bytes of the hashsize's bytes.
-            System.Buffer.BlockCopy(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 8 + (int)rawBytes[9], hashCode, 0, hashSize);
+            System.Buffer.BlockCopy(rawBytes, (int)rawBytesOffset + KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 8 + (int)rawBytes[ rawBytesOffset + 9], hashCode, 0, hashSize);
 
-            if (User.DecodeUsernameFromBytes(ref rawBytes, rawBytesOffset + (uint)KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6, (uint)rawBytes[9], out buffer) == Error.ErrorType.Ok)
+            if (User.DecodeUsernameFromBytes(ref rawBytes, rawBytesOffset + (uint)KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand.Length + 6, (uint)rawBytes[ rawBytesOffset + 9], out buffer) == Error.ErrorType.Ok)
             {
                 targetUser = new GameUser(ref buffer, ref hashCode);
             }
