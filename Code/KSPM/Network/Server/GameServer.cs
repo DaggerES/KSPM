@@ -113,11 +113,6 @@ namespace KSPM.Network.Server
         protected Thread localCommandsThread;
         protected Thread priorityOutgoingMessagesThread;
 
-        /// <summary>
-        /// ManualResetEvent reference to manage the signaling among the threads and the async methods.
-        /// </summary>
-        protected static readonly ManualResetEvent SignalHandler = new ManualResetEvent(false);
-
         #endregion
 
         #region USM
