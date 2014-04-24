@@ -250,7 +250,7 @@ namespace KSPM.Network.Chat.Messages
             messageTarget = null;
             if (rawBytes.Length < 4)
                 return Error.ErrorType.MessageBadFormat;
-            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, 0);
+            bytesBlockSize = System.BitConverter.ToInt32(rawBytes, Message.HeaderOfMessageCommand.Length);
             if (bytesBlockSize < 4)
                 return Error.ErrorType.MessageBadFormat;
 
