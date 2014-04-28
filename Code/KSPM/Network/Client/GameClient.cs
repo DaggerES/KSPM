@@ -1175,8 +1175,10 @@ namespace KSPM.Network.Client
             else
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong sending the the datagram to the remote client, performing a disconnection process.", this.id, "OnUDPSendingDataComplete", e.SocketError));
-                ///Recycling the SAEA object used to perform the send process.
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
                 this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                ///Recycling the SAEA object used to perform the send process.
+                this.udpOutSAEAPool.Recycle(e);
                 this.BreakConnections(this, null);
             }
         }
