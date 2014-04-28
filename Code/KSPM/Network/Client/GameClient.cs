@@ -19,7 +19,7 @@ namespace KSPM.Network.Client
     /// <summary>
     /// Class to represent the remote client.
     /// </summary>
-    public class GameClient : NetworkEntity, IAsyncReceiver, IAsyncSender, IPacketArrived, IUDPPacketArrived
+    public class GameClient : NetworkEntity, IAsyncReceiver, IPacketArrived, IUDPPacketArrived //IAsyncSender
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected };
 
@@ -1159,23 +1159,25 @@ namespace KSPM.Network.Client
                 {
                     //KSPMGlobals.Globals.Log.WriteTo("UDP_ " + sentBytes.ToString());
                 }
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                {
+                    e.Dispose();
+                    e = null;
+                }
+                else
+                {
+                    this.udpOutSAEAPool.Recycle(e);
+                }
             }
             else
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong sending the the datagram to the remote client, performing a disconnection process.", this.id, "OnUDPSendingDataComplete", e.SocketError));
+                ///Recycling the SAEA object used to perform the send process.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
                 this.BreakConnections(this, null);
-            }
-            ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
-            this.udpIOMessagesPool.Recycle((Message)e.UserToken);
-            ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
-            {
-                e.Dispose();
-                e = null;
-            }
-            else
-            {
-                this.udpOutSAEAPool.Recycle(e);
             }
         }
 
