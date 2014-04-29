@@ -210,6 +210,16 @@ namespace KSPM.Network.Client
 
         #endregion
 
+        #region ThreadPooling
+
+        /// <summary>
+        /// This thread will handle both UDP and TCP messages.
+        /// Avoiding many changing contexts among the other threads.
+        /// </summary>
+        Thread handleIncomingMessagesThread;
+
+        #endregion
+
         #region Chat
 
         /// <summary>
@@ -253,12 +263,15 @@ namespace KSPM.Network.Client
             this.currentStatus = ClientStatus.None;
 
             ///TCP Threading code.
-            this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));
+            //this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));
             this.handleOutgoingTCPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingTCPMessagesThreadMethod));
 
             ///UDP Threading code.
             this.handleOutgoingUDPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingUDPMessagesThreadMethod));
-            this.handleUDPCommandsThread = new Thread(new ThreadStart(this.HandleUDPCommandsThreadMethod));
+            //this.handleUDPCommandsThread = new Thread(new ThreadStart(this.HandleUDPCommandsThreadMethod));
+
+            ///Pooling ThreadingCode
+            this.handleIncomingMessagesThread = new Thread(new ThreadStart(this.HandleIncomingMessagesThreadMethod));
 
             ///TCP queues.
             this.commandsQueue = new CommandQueue();
@@ -351,7 +364,9 @@ namespace KSPM.Network.Client
                 this.handleOutgoingTCPMessagesThread.Start();
 
                 this.handleOutgoingUDPMessagesThread.Start();
-                this.handleUDPCommandsThread.Start();
+                //this.handleUDPCommandsThread.Start();
+
+                this.handleIncomingMessagesThread.Start();
             }
             catch (System.Exception ex)
             {
@@ -707,6 +722,128 @@ namespace KSPM.Network.Client
                 this.aliveFlag = false;
             }
         }
+
+        #region PoolingCode
+
+        protected void HandleIncomingMessagesThreadMethod()
+        {
+            Message command = null;
+            ManagedMessage managedMessageReference = null;
+            ChatMessage incomingChatMessage = null;
+            ServerInformation udpServerInformationFromNetwork = new ServerInformation();
+            int receivedPairingCode = -1;
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ClientUnableToRun.ToString());
+                return;
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle incoming messages body.", this.id));
+                while (this.aliveFlag)
+                {
+                    this.commandsQueue.DequeueCommandMessage(out command);
+                    if (command != null)
+                    {
+                        switch (command.Command)
+                        {
+                            case Message.CommandType.Handshake:///NewClient command accepted, proceed to authenticate.
+                                this.currentStatus = ClientStatus.Authenticating;
+                                break;
+                            case Message.CommandType.AuthenticationSuccess:
+                                ///Does nothing.
+                                break;
+                            case Message.CommandType.AuthenticationFail:///Running the autentication procces again.
+                                this.currentStatus = ClientStatus.Authenticating;
+                                break;
+                            case Message.CommandType.ServerFull:
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Serverfull.", this.id));
+                                this.BreakConnections(this, null);
+                                break;
+                            case Message.CommandType.UDPSettingUp:///Create the UDP conn.
+                                ///Reads the information sent by the server and starts the UDP setting up process.
+                                managedMessageReference = (ManagedMessage)command;
+                                udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 9);
+                                udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
+                                receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 13);
+
+                                if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork) && this.pairingCode != receivedPairingCode)
+                                {
+                                    udpServerInformationFromNetwork.Clone(ref this.udpServerInformation);
+                                    this.pairingCode = ~receivedPairingCode;
+                                    this.currentStatus = ClientStatus.UDPSettingUp;
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode, 2)));
+                                }
+                                break;
+                            case Message.CommandType.ChatSettingUp:
+                                if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
+                                {
+                                    this.chatSystem.Owner = this;
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Chat system is online, {1} groups registered.", this.id, this.chatSystem.RegisteredGroups));
+                                }
+                                break;
+                            case Message.CommandType.Chat:
+                                if (this.chatSystem != null)///Checking if the chat system is already set up.
+                                {
+                                    if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                                    {
+                                        ///Checking if the message should be filtered or not.
+                                        if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                        {
+                                            this.chatSystem.AttachMessage(incomingChatMessage);
+                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        ///Cleaning up.
+                        command.Release();
+                        command = null;
+                    }
+                    this.incomingUDPMessages.DequeueCommandMessage(out command);
+                    if (command != null)
+                    {
+                        switch (command.Command)
+                        {
+                            ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
+                            case Message.CommandType.UDPPairingOk:
+                                this.currentStatus = ClientStatus.Connected;
+                                break;
+                            ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.
+                            ///At this the Connected status is going to be set, but a Warning must be raised.
+                            case Message.CommandType.UDPPairingFail:
+                                this.currentStatus = ClientStatus.Connected;
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
+                                break;
+                            case Message.CommandType.UDPChat:
+                                if (this.chatSystem != null)///Checking if the chat system is already set up.
+                                {
+                                    if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                                    {
+                                        ///Checking if the message should be filtered or not.
+                                        if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
+                                        {
+                                            this.chatSystem.AttachMessage(incomingChatMessage);
+                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-UDP-[{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        ///Cleaning up.
+                        this.udpIOMessagesPool.Recycle(command);
+                    }
+                    //Thread.Sleep(3);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.aliveFlag = false;
+            }
+        }
+
+        #endregion
 
         #region TCPCode
 
@@ -1287,9 +1424,15 @@ namespace KSPM.Network.Client
             this.mainBodyThread = null;
             this.handleOutgoingTCPMessagesThread = null;
 
+            /*
             this.handleUDPCommandsThread.Abort();
             this.handleUDPCommandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed handleUDPCommandsThread.", this.id));
+            */
+
+            this.handleIncomingMessagesThread.Abort();
+            this.handleIncomingMessagesThread.Join();
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed handleIncomingMessagesThread.", this.id));
 
             this.handleOutgoingUDPMessagesThread.Abort();
             this.handleOutgoingUDPMessagesThread.Join();
@@ -1468,7 +1611,6 @@ namespace KSPM.Network.Client
         }
 
         #endregion
-
 
         #region ErrorHandling
 
