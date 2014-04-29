@@ -6,6 +6,7 @@ namespace KSPM.Network.Common
     {
         protected System.Collections.Generic.Queue<SocketAsyncEventArgs> availableSAEA;
         protected uint availableSlots;
+        protected OnCompleteOperation sharedCompleteCallback;
 
         public delegate void OnCompleteOperation(object sender, SocketAsyncEventArgs e);
 
@@ -13,14 +14,16 @@ namespace KSPM.Network.Common
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
-            this.InitializeSlots(null);
+            this.sharedCompleteCallback = null;
+            this.InitializeSlots(this.sharedCompleteCallback);
         }
 
         public SocketAsyncEventArgsPool(uint initialCapacity, OnCompleteOperation callbackMethod)
         {
             this.availableSlots = initialCapacity;
             this.availableSAEA = new System.Collections.Generic.Queue<SocketAsyncEventArgs>((int)this.availableSlots);
-            this.InitializeSlots(callbackMethod);
+            this.sharedCompleteCallback = callbackMethod;
+            this.InitializeSlots(this.sharedCompleteCallback);
         }
 
         protected void InitializeSlots(OnCompleteOperation callbackMethod)
@@ -60,6 +63,10 @@ namespace KSPM.Network.Common
                     {
                         ///This should not happen.
                         SocketAsyncEventArgs extraItem = new SocketAsyncEventArgs();
+                        if (this.sharedCompleteCallback != null)
+                        {
+                            extraItem.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.sharedCompleteCallback);
+                        }
                         KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Warning, extra SAEA added");
                         return extraItem;
                     }
@@ -107,6 +114,7 @@ namespace KSPM.Network.Common
             }
             this.availableSAEA = null;
             this.availableSlots = 0;
+            this.sharedCompleteCallback = null;
         }
     }
 }

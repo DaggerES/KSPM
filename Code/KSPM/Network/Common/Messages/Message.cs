@@ -731,6 +731,50 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
+        /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// </summary>
+        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadUDPPairingMessage(NetworkEntity sender, ref Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            GameClient gameClientReference = (GameClient)sender;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 4;
+
+            ///Writing the Command byte.
+            gameClientReference.udpNetworkCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairing;
+            bytesToSend += 1;
+
+            ///Writing the pairing number.
+            byteBuffer = System.BitConverter.GetBytes(gameClientReference.PairingCode);
+            System.Buffer.BlockCopy(byteBuffer, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+
+            ///Writing the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, gameClientReference.udpNetworkCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            System.Buffer.BlockCopy(gameClientReference.udpNetworkCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.PrefixSize];
+
+            //targetMessage = new RawMessage((CommandType)gameClientReference.udpNetworkCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], gameClientReference.udpNetworkCollection.rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
         /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>

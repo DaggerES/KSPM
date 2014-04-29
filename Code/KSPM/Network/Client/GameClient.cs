@@ -19,7 +19,7 @@ namespace KSPM.Network.Client
     /// <summary>
     /// Class to represent the remote client.
     /// </summary>
-    public class GameClient : NetworkEntity, IAsyncReceiver, IAsyncSender, IPacketArrived
+    public class GameClient : NetworkEntity, IAsyncReceiver, IPacketArrived, IUDPPacketArrived //IAsyncSender
     {
         public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected };
 
@@ -140,11 +140,6 @@ namespace KSPM.Network.Client
         protected Thread handleOutgoingUDPMessagesThread;
 
         /// <summary>
-        /// Thread to handle the incoming UDP messages.
-        /// </summary>
-        protected Thread handleIncomingUDPMessagesThread;
-
-        /// <summary>
         /// Thread to handle all the UDP commands.
         /// </summary>
         protected Thread handleUDPCommandsThread;
@@ -183,6 +178,35 @@ namespace KSPM.Network.Client
         /// Pairing code.
         /// </summary>
         protected int pairingCode;
+
+        #endregion
+
+        #region UDP_Buffering
+
+        /// <summary>
+        /// Buffer used to store all the incoming messages.
+        /// </summary>
+        protected KSPM.IO.Memory.CyclicalMemoryBuffer udpBuffer;
+
+        /// <summary>
+        /// Converts all incoming bytes into proper information packets.
+        /// </summary>
+        protected PacketHandler udpPacketizer;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to receive udp datagrams.
+        /// </summary>
+        protected SharedBufferSAEAPool udpInputSAEAPool;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to send udp datagrams.
+        /// </summary>
+        protected SocketAsyncEventArgsPool udpOutSAEAPool;
+
+        /// <summary>
+        /// Pool of raw messages to use them to receive/send datagrams.
+        /// </summary>
+        protected MessagesPool udpIOMessagesPool;
 
         #endregion
 
@@ -228,17 +252,19 @@ namespace KSPM.Network.Client
 
             this.currentStatus = ClientStatus.None;
 
-            ///Threading code
-            this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));///////////CHECK THIS OUT
+            ///TCP Threading code.
+            this.mainBodyThread = new Thread(new ThreadStart(this.HandleMainBodyThreadMethod));
             this.handleOutgoingTCPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingTCPMessagesThreadMethod));
 
-            this.handleIncomingUDPMessagesThread = new Thread(new ThreadStart(this.HandleIncomingUDPMessagesThreadMethod));
+            ///UDP Threading code.
             this.handleOutgoingUDPMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingUDPMessagesThreadMethod));
             this.handleUDPCommandsThread = new Thread(new ThreadStart(this.HandleUDPCommandsThreadMethod));
 
+            ///TCP queues.
             this.commandsQueue = new CommandQueue();
             this.outgoingTCPMessages = new CommandQueue();
 
+            ///UDP queues.
             this.incomingUDPMessages = new CommandQueue();
             this.outgoingUDPMessages = new CommandQueue();
 
@@ -267,6 +293,13 @@ namespace KSPM.Network.Client
             //this.tcpKeepAliveInterval = 5000;
             this.tcpKeepAliveCallback = new TimerCallback( this.SendTCPKeepAliveCommand );
             this.tcpKeepAliveTimer = new System.Threading.Timer(this.tcpKeepAliveCallback, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+            ///UDP Buffers
+            this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(KSPM.Network.Server.ServerSettings.PoolingCacheSize, (uint)KSPM.Network.Server.ServerSettings.ServerBufferSize);
+            this.udpPacketizer = new PacketHandler(this.udpBuffer);
+            this.udpInputSAEAPool = new SharedBufferSAEAPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize, this.udpNetworkCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
+            this.udpOutSAEAPool = new SocketAsyncEventArgsPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize, this.OnUDPSendingDataComplete);
+            this.udpIOMessagesPool = new MessagesPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
         }
 
         /// <summary>
@@ -317,7 +350,6 @@ namespace KSPM.Network.Client
                 //this.mainBodyThread.Start();
                 this.handleOutgoingTCPMessagesThread.Start();
 
-                this.handleIncomingUDPMessagesThread.Start();
                 this.handleOutgoingUDPMessagesThread.Start();
                 this.handleUDPCommandsThread.Start();
             }
@@ -365,7 +397,7 @@ namespace KSPM.Network.Client
                 return Error.ErrorType.ClientInvalidServerInformation;
             }
 
-            ///Creating sockets and connecting and setting up everything
+            ///Creating sockets, connecting and setting up everything
             try
             {
                 this.ownerNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -380,7 +412,7 @@ namespace KSPM.Network.Client
                 connectThread = new Thread(new ThreadStart(this.HandleConnectThreadMethod));
                 this.currentStatus = ClientStatus.Handshaking;
                 this.udpServerInformation.Dispose();
-                this.outgoingTCPMessages.Purge(true);
+                this.outgoingTCPMessages.Purge(true);///Checking about
                 this.commandsQueue.Purge(true);
                 connectThread.Start();
                 if (!connectThread.Join((int)this.workingSettings.connectionTimeout))
@@ -388,9 +420,11 @@ namespace KSPM.Network.Client
                     ///Killing the thread because it has taken too much.
                     connectThread.Abort();
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection timeout.", this.id));
+
+                    ///Disposing used resources inside the connection process.
                     this.BreakConnections(this, null);
                 }
-                if (!this.holePunched)
+                if (!this.holePunched || !this.udpHolePunched)
                 {
                     return Error.ErrorType.ClientUnableToConnect;
                 }
@@ -414,7 +448,6 @@ namespace KSPM.Network.Client
             bool connected = false;
             Message outgoingMessage = null;
             ManagedMessage managedMessageReference = null;
-            RawMessage rawMessageReference = null;
             this.holePunched = false;
             this.udpHolePunched = false;
             try
@@ -448,10 +481,6 @@ namespace KSPM.Network.Client
                             this.currentStatus = ClientStatus.Awaiting;
                             break;
                         case ClientStatus.UDPSettingUp:
-                            /*
-                            this.currentStatus = ClientStatus.Connected;
-                            break;
-                            */
                             try
                             {
                                 this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -461,10 +490,12 @@ namespace KSPM.Network.Client
                                 this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
                                 if (this.udpHolePunched)
                                 {
-                                    Message.UDPPairingMessage(this, out outgoingMessage);
-                                    rawMessageReference = (RawMessage)outgoingMessage;
-                                    PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage);
+                                    outgoingMessage = this.udpIOMessagesPool.BorrowMessage;
+                                    Message.LoadUDPPairingMessage(this, ref outgoingMessage);
+                                    //rawMessageReference = (RawMessage)outgoingMessage;
+                                    //PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage);
                                     this.outgoingUDPMessages.EnqueueCommandMessage(ref outgoingMessage);
+                                    this.ReceiveUDPDatagram();
                                     this.currentStatus = ClientStatus.Awaiting;
                                 }
                                 else
@@ -589,8 +620,6 @@ namespace KSPM.Network.Client
             }
         }
 
-        #region DEPRECATED_CODE
-
         /// <summary>
         /// Threaded method to handle the commands on the main queue.
         /// </summary>
@@ -678,8 +707,6 @@ namespace KSPM.Network.Client
                 this.aliveFlag = false;
             }
         }
-
-        #endregion
 
         #region TCPCode
 
@@ -874,6 +901,132 @@ namespace KSPM.Network.Client
 
         #region UDPCode
 
+        protected void ReceiveUDPDatagram()
+        {
+#if PROFILING
+
+            this.profilerOutgoingMessages.Set();
+#endif
+            ///Checking if the reference is still running and the sockets are working.
+            if (!this.aliveFlag)
+                return;
+            SocketAsyncEventArgs incomingData = this.udpInputSAEAPool.NextSlot;
+            incomingData.AcceptSocket = this.udpNetworkCollection.socketReference;
+            incomingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;
+
+            ///Setting the buffer offset and count, keep in mind that we are no assigning a new buffer, we are only setting working paremeters.
+            ///Because at high speeds if you set the buffear inside each call, it is thrown a SocketError.Faul error.
+            incomingData.SetBuffer(0, (int)this.udpInputSAEAPool.BufferSize);
+            try
+            {
+                if (!this.udpNetworkCollection.socketReference.ReceiveFromAsync(incomingData))
+                {
+                    this.OnUDPIncomingDataComplete(this, incomingData);
+                }
+            }
+            catch (System.ObjectDisposedException ex)
+            {
+                ///REcycling the SAEA object.
+                this.udpInputSAEAPool.Recycle(incomingData);
+                this.runtimeErrors.Enqueue(ex);
+            }
+            catch (SocketException ex)
+            {
+                ///REcycling the SAEA object.
+                this.udpInputSAEAPool.Recycle(incomingData);
+                this.runtimeErrors.Enqueue(ex);
+            }
+            catch (System.NullReferenceException ex)
+            {
+                ///REcycling the SAEA object.
+                this.udpInputSAEAPool.Recycle(incomingData);
+                this.runtimeErrors.Enqueue(ex);
+            }
+        }
+
+        protected void OnUDPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
+        {
+#if PROFILING
+            if (this.profilerOutgoingMessages != null)
+            {
+                this.profilerOutgoingMessages.Mark();
+            }
+#endif
+            int readBytes = 0;
+            if (e.SocketError == SocketError.Success)
+            {
+                readBytes = e.BytesTransferred;
+                if (readBytes > 0 && this.aliveFlag)
+                {
+                    this.udpBuffer.Write(e.Buffer, (uint)readBytes);
+#if PROFILING
+                    this.profilerPacketizer.Set();
+#endif
+                    this.udpPacketizer.UDPPacketizeCRCLoadIntoMessage(this, this.udpIOMessagesPool);
+#if PROFILING
+                    if (this.profilerPacketizer != null)
+                    {
+                        this.profilerPacketizer.Mark();
+                    }
+#endif
+                    ///We need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                    if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                    {
+                        e.Dispose();
+                        e = null;
+                    }
+                    else
+                    {
+                        this.udpInputSAEAPool.Recycle(e);
+                    }
+
+                    this.ReceiveUDPDatagram();
+                }
+                else
+                {
+                    ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
+                    ///disconnected.
+                    this.udpInputSAEAPool.Recycle(e);
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete"));
+                    this.BreakConnections(this, null);
+                }
+            }
+            else
+            {
+                this.udpInputSAEAPool.Recycle(e);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the UDP remote client, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
+                this.BreakConnections(this, null);
+            }
+        }
+
+        /// <summary>
+        /// Not used at this moment.
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <param name="fixedLegth"></param>
+        public void ProcessUDPPacket(byte[] rawData, uint fixedLegth)
+        {
+            Message incomingMessage;
+            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+            if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
+            {
+                ///Puting the incoming RawMessage into the queue to be processed.
+                //this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
+                //this.ProcessUDPCommand();
+            }
+        }
+
+        /// <summary>
+        /// Process the incoming Message. At this moment only adds it into the Queue.
+        /// </summary>
+        /// <param name="incomingMessage"></param>
+        public void ProcessUDPMessage(Message incomingMessage)
+        {
+            this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
+        }
+
+        #region DEPRECATED_CODE
+
         protected void HandleIncomingUDPMessagesThreadMethod()
         {
             ///Holds the information about who is sending the packet.
@@ -949,10 +1102,12 @@ namespace KSPM.Network.Client
             }
         }
 
+        #endregion
+
         protected void HandleOutgoingUDPMessagesThreadMethod()
         {
             Message outgoingMessage = null;
-            RawMessage rawMessageReference = null;
+            SocketAsyncEventArgs outgoingData = null;
             
             if (!this.ableToRun)
             {
@@ -964,29 +1119,22 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle outgoing UDP messages.", this.id));
                 while (this.aliveFlag)
                 {
+                    ///Means that it is already connected.
                     if (this.udpHolePunched)
                     {
-                        if (!this.outgoingUDPMessages.IsEmpty())
+                        this.outgoingUDPMessages.DequeueCommandMessage(out outgoingMessage);
+                        if (outgoingMessage != null)
                         {
-                            this.outgoingUDPMessages.DequeueCommandMessage(out outgoingMessage);
-                            rawMessageReference = (RawMessage)outgoingMessage;
-                            if (outgoingMessage != null)
-                            {
-                                try
-                                {
-                                    this.udpNetworkCollection.socketReference.BeginSendTo(rawMessageReference.bodyMessage, 0, (int)rawMessageReference.MessageBytesSize, SocketFlags.None, this.udpServerInformation.NetworkEndPoint, this.AsyncSenderCallback, this);
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    this.runtimeErrors.Enqueue(ex);
-                                }
-                                ///Cleaning up
-                                outgoingMessage.Release();
-                                outgoingMessage = null;
-                            }
+                            outgoingData = this.udpOutSAEAPool.NextSlot;
+                            outgoingData.AcceptSocket = this.udpNetworkCollection.socketReference;
+                            outgoingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;
+                            outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                            outgoingData.UserToken = outgoingMessage;
+                            this.udpNetworkCollection.socketReference.SendToAsync(outgoingData);
                         }
                     }
-                    Thread.Sleep(7);
+                    ///Give some time to the send process.
+                    Thread.Sleep(3);
                 }
             }
             catch (ThreadAbortException)
@@ -996,23 +1144,42 @@ namespace KSPM.Network.Client
             }
         }
 
-		/// <summary>
-		/// Sends data in an async way. <b> Required to implement some way to inform to the upside levels.</b>
-		/// </summary>
-		/// <param name="result"></param>
-        public void AsyncSenderCallback(System.IAsyncResult result)
+        /// <summary>
+        /// Raised when a UDP sending process is completed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void OnUDPSendingDataComplete(object sender, SocketAsyncEventArgs e)
         {
-            int sentBytes;
-            GameClient owner = null;
-            try
+            int sentBytes = 0;
+            if (e.SocketError == SocketError.Success)
             {
-                owner = (GameClient)result.AsyncState;
-                sentBytes = owner.udpNetworkCollection.socketReference.EndSendTo(result);
-                //KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
+                sentBytes = e.BytesTransferred;
+                if (sentBytes > 0)
+                {
+                    //KSPMGlobals.Globals.Log.WriteTo("UDP_ " + sentBytes.ToString());
+                }
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                {
+                    e.Dispose();
+                    e = null;
+                }
+                else
+                {
+                    this.udpOutSAEAPool.Recycle(e);
+                }
             }
-			catch (System.Exception)
+            else
             {
-				//KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong sending the the datagram to the remote client, performing a disconnection process.", this.id, "OnUDPSendingDataComplete", e.SocketError));
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                ///Recycling the SAEA object used to perform the send process.
+                this.udpOutSAEAPool.Recycle(e);
+                this.BreakConnections(this, null);
             }
         }
 
@@ -1030,44 +1197,40 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle UDP commands.", this.id));
                 while (this.aliveFlag)
                 {
-                    if (!this.incomingUDPMessages.IsEmpty())
+                    this.incomingUDPMessages.DequeueCommandMessage(out command);
+                    if (command != null)
                     {
-                        this.incomingUDPMessages.DequeueCommandMessage(out command);
-                        if (command != null)
+                        switch (command.Command)
                         {
-                            switch (command.Command)
-                            {
-                                ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
-                                case Message.CommandType.UDPPairingOk:
-                                    this.currentStatus = ClientStatus.Connected;
-                                    break;
-                                ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.
-                                ///At this the Connected status is going to be set, but a Warning must be raised.
-                                case  Message.CommandType.UDPPairingFail:
-                                    this.currentStatus = ClientStatus.Connected;
-                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
-                                    break;
-                                case Message.CommandType.UDPChat:
-                                    if (this.chatSystem != null)///Checking if the chat system is already set up.
+                            ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
+                            case Message.CommandType.UDPPairingOk:
+                                this.currentStatus = ClientStatus.Connected;
+                                break;
+                            ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.
+                            ///At this the Connected status is going to be set, but a Warning must be raised.
+                            case Message.CommandType.UDPPairingFail:
+                                this.currentStatus = ClientStatus.Connected;
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
+                                break;
+                            case Message.CommandType.UDPChat:
+                                if (this.chatSystem != null)///Checking if the chat system is already set up.
+                                {
+                                    if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
                                     {
-                                        if (ChatMessage.InflateChatMessage(command.bodyMessage, out incomingChatMessage) == Error.ErrorType.Ok)
+                                        ///Checking if the message should be filtered or not.
+                                        if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
                                         {
-                                            ///Checking if the message should be filtered or not.
-                                            if (!this.chatSystem.ApplyFilters(incomingChatMessage, ChatManager.FilteringMode.And))
-                                            {
-                                                this.chatSystem.AttachMessage(incomingChatMessage);
-                                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-UDP-[{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
-                                            }
+                                            this.chatSystem.AttachMessage(incomingChatMessage);
+                                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-UDP-[{1}_{2}]-Says:{3}", this.id, incomingChatMessage.Time.ToShortTimeString(), incomingChatMessage.sendersUsername, incomingChatMessage.Body));
                                         }
                                     }
-                                    break;
-                            }
-                            ///Cleaning up.
-                            command.Release();
-                            command = null;
+                                }
+                                break;
                         }
+                        ///Cleaning up.
+                        this.udpIOMessagesPool.Recycle(command);
                     }
-                    Thread.Sleep(5);
+                    Thread.Sleep(3);
                 }
             }
             catch (ThreadAbortException)
@@ -1093,16 +1256,21 @@ namespace KSPM.Network.Client
         /// </summary>
         protected void ShutdownClient()
         {
+            Message disposingMessage = null;
             ///Avoiding to shutdown the client twice or more.
             if (!this.aliveFlag)
                 return;
             this.ableToRun = false;
             this.aliveFlag = false;
             this.holePunched = false;
-
-            this.tcpKeepAliveTimer.Dispose();
+            this.udpHolePunched = false;
 
             this.currentStatus = ClientStatus.None;
+
+            ///Releasing TCP keep alive timer.
+            this.tcpKeepAliveTimer.Dispose();
+            this.tcpKeepAliveTimer = null;
+
 
             ///*****************Killing threads.
             /*
@@ -1127,17 +1295,13 @@ namespace KSPM.Network.Client
             this.handleOutgoingUDPMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed handledOutgoingUDPThread.", this.id));
 
-            this.handleIncomingUDPMessagesThread.Abort();
-            this.handleIncomingUDPMessagesThread.Join();
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed handledIncomingUDPThread.", this.id));
+            this.handleUDPCommandsThread = null;
+            this.handleOutgoingUDPMessagesThread = null;
 
             this.errorHandlingThread.Abort();
             this.errorHandlingThread.Join();
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Killed errorHandlingThread.", this.id));
-
-            this.handleUDPCommandsThread = null;
-            this.handleOutgoingUDPMessagesThread = null;
-            this.handleIncomingUDPMessagesThread = null;
+            this.errorHandlingThread = null;
 
 
             ///***********************Sockets code
@@ -1149,6 +1313,15 @@ namespace KSPM.Network.Client
             this.ownerNetworkCollection.Dispose();
             this.ownerNetworkCollection = null;
 
+            ///UDP Socket code.
+            if (this.udpNetworkCollection.socketReference != null)
+            {
+                this.udpNetworkCollection.socketReference.Close();
+            }
+            this.udpNetworkCollection.Dispose();
+            this.udpNetworkCollection = null;
+
+            ///Setting to null the GameUser reference.
             this.clientOwner = null;
 
             ///*********************Releasing server information objects.
@@ -1158,6 +1331,38 @@ namespace KSPM.Network.Client
             ///**********************Cleaning up the messages's Queues.
             this.commandsQueue.Purge(false);
             this.outgoingTCPMessages.Purge(false);
+            this.commandsQueue = null;
+            this.outgoingTCPMessages = null;
+
+            ///Cleaning the UDP queues.
+            this.incomingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.incomingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            }
+            this.outgoingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.outgoingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            }
+            this.incomingUDPMessages.Purge(false);
+            this.outgoingUDPMessages.Purge(false);
+            this.incomingUDPMessages = null;
+            this.outgoingUDPMessages = null;
+
+            ///Cleaning UDP buffers.
+            this.udpBuffer.Release();
+            this.udpBuffer = null;
+            this.udpPacketizer.Release();
+            this.udpPacketizer = null;
+
+            ///Cleaning UDP SAEAs
+            this.udpInputSAEAPool.Release(false);
+            this.udpOutSAEAPool.Release(false);
+            this.udpInputSAEAPool = null;
+            this.udpOutSAEAPool = null;
 
             this.timer.Reset();
 
@@ -1174,11 +1379,18 @@ namespace KSPM.Network.Client
         /// <param name="arg"></param>
         protected void BreakConnections(NetworkEntity caller, object arg)
         {
+            Message disposingMessage;
+
+            ///To avoid execute twice or more times this method.
+            if (!this.holePunched)
+                return;
+
             ///***********************Sockets code
             this.udpHolePunched = false;
             this.holePunched = false;
             this.usingUDP = false;
 
+            ///Disabling the TCP keep alive timer.
             this.tcpKeepAliveTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
             if (this.ownerNetworkCollection.socketReference != null )
@@ -1209,15 +1421,27 @@ namespace KSPM.Network.Client
             ///**********************Cleaning up the messages's Queues.
             this.commandsQueue.Purge(true);
             this.outgoingTCPMessages.Purge(true);
-            this.incomingUDPMessages.Purge(true);
-            this.outgoingUDPMessages.Purge(true);
+
+            ///Cleaning the UDP queues.
+            this.incomingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.incomingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            }
+            this.outgoingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.outgoingUDPMessages.DequeueCommandMessage(out disposingMessage);
+            }
 
             ///*****************Cleaning the chat system.
             if (this.chatSystem != null)
             {
                 this.chatSystem.Release();
+                this.chatSystem = null;
             }
-            this.chatSystem = null;
 
             this.currentStatus = ClientStatus.None;
 
@@ -1287,14 +1511,6 @@ namespace KSPM.Network.Client
             }
         }
 
-        /*
-        protected void HandleConnectionErrors()
-        {
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Something happened to the connection, breaking connections.", this.id));
-            this.BreakConnections(this, null);
-        }
-        */
-
         #endregion
 
         #region Setters/Getters
@@ -1318,6 +1534,9 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Gets the chat system on this GameClient reference.
+        /// </summary>
         public ChatManager ChatSystem
         {
             get
@@ -1326,6 +1545,9 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Gets the TCP command queue of the outgoing messages.
+        /// </summary>
         public CommandQueue OutgoingTCPQueue
         {
             get
@@ -1334,6 +1556,9 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Gets the UDP command queue of the outgoing messages.
+        /// </summary>
         public CommandQueue OutgoingUDPQueue
         {
             get
@@ -1342,9 +1567,24 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Tells if the GameClient is still running.
+        /// </summary>
+        /// <returns></returns>
         public override bool IsAlive()
         {
             return this.aliveFlag;
+        }
+
+        /// <summary>
+        /// Gets the messges pool used to send/receive messages through the UDP connection.
+        /// </summary>
+        public MessagesPool UDPIOMessagesPool
+        {
+            get
+            {
+                return this.udpIOMessagesPool;
+            }
         }
 
         #endregion

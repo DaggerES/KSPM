@@ -1011,7 +1011,27 @@ namespace KSPM.Network.Common.Packet
                                 }
                                 else
                                 {
-                                    System.Buffer.BlockCopy(this.workingBuffer, startsAtIndex, incomingMessage.bodyMessage, 0, messageBlockSize);
+                                    //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("S: " + startsAtIndex.ToString());
+                                    //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(messageBlockSize.ToString());
+                                    /*
+                                    if (messageBlockSize > incomingMessage.bodyMessage.Length)
+                                    {
+                                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("MessageBlockSize: " + messageBlockSize.ToString());
+                                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(startsAtIndex.ToString());
+                                    }
+                                    if (startsAtIndex > incomingMessage.bodyMessage.Length)
+                                    {
+                                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("S: " + startsAtIndex.ToString());
+                                    }
+                                    */
+                                    if (messageBlockSize <= incomingMessage.bodyMessage.Length)
+                                    {
+                                        System.Buffer.BlockCopy(this.workingBuffer, startsAtIndex, incomingMessage.bodyMessage, 0, messageBlockSize);
+                                    }
+                                    else
+                                    {
+                                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("CRC:");
+                                    }
                                 }
                                 incomingMessage.MessageBytesSize = (uint)messageBlockSize;
                                 ((RawMessage)incomingMessage).ReallocateCommand();
