@@ -939,6 +939,9 @@ namespace KSPM.Network.Server
                 this.gameUser = null;
             }
 
+            ///Sleeping some time to give the oportunity to complete the asynchronous methods.
+            Thread.Sleep(500);
+
             ///Cleaning TCP buffers
             this.tcpBuffer.Release();
             this.tcpBuffer = null;
