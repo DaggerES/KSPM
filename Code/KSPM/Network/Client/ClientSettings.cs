@@ -64,6 +64,8 @@ namespace KSPM.Network.Client
                 settingsReader = new XmlTextReader(settingsStreamReader);
                 settingsSerializer = new XmlSerializer(typeof(ClientSettings));
                 settings = (ClientSettings)settingsSerializer.Deserialize(settingsReader);
+                settingsReader.Close();
+                settingsStreamReader.Close();
             }
             catch (FileNotFoundException)///If the file can not be loaded a default one is created iand written.
             {
