@@ -150,5 +150,14 @@ namespace KSPM.Globals
                 return this.ioFilePath;
             }
         }
+
+        public bool IsRunningUnderMono
+        {
+            get
+            {
+                System.Type monoType = System.Type.GetType("Mono.Runtime");
+                return monoType != null;
+            }
+        }
     }
 }
