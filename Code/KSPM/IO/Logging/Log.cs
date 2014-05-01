@@ -13,6 +13,9 @@ namespace KSPM.IO.Logging
         /// <param name="message"></param>
         public abstract void WriteTo(string message);
 
+        /// <summary>
+        /// Releases all the utilized resources.
+        /// </summary>
         public abstract void Dispose();
 
         public enum LogginMode : byte { DevNull, File, Console, Buffered };

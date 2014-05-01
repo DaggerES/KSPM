@@ -27,6 +27,12 @@ namespace KSPM.Network.Server
         [XmlIgnore]
         protected static readonly uint ServerMaxConnectedClients = 8;
 
+        /// <summary>
+        /// Tells the size of those buffers used internally such as the PacketHandler buffer.
+        /// </summary>
+        [XmlIgnore]
+        public static readonly uint PoolingCacheSize = 16;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
