@@ -426,7 +426,10 @@ namespace KSPM.Network.Server
             udpLocalEndPoint = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             try
             {
-                this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
+                if (!KSPMGlobals.Globals.IsRunningUnderMono)
+                {
+                    this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
+                }
                 this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, 0));//0 because It should be any available port.
                 this.usingUdpConnection = false;
             }

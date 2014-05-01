@@ -94,6 +94,8 @@ namespace ConsoleFakeClient
                     this.botClient.ChatSystem.SendUDPChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
                     break;
                 case FloodMode.Both:
+                    this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
+                    this.botClient.ChatSystem.SendUDPChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
                     break;
                 case FloodMode.None:
                     break;
