@@ -92,14 +92,17 @@ namespace KSPM.Network.Server.UserManagement
 
         public void UDPBroadcastClients(Message messageToSend)
         {
-            //Message outgoingMessage = null;
+            Message outgoingMessage = null;
             lock (this.clients)
             {
                 for (int i = 0; i < this.clients.Count; i++)
                 {
+                    outgoingMessage = ((ServerSideClient)this.clients[i]).IOUDPMessagesPool.BorrowMessage;
+                    ((RawMessage)outgoingMessage).LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);
+                    outgoingMessage.IsBroadcast = true;
                     //outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
-                    messageToSend.IsBroadcast = true;
-                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref messageToSend);
+                    //messageToSend.IsBroadcast = true;
+                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
                     ((ServerSideClient)this.clients[i]).SendUDPDatagram();
                     //((ServerSideClient)this.clients[i]).SendAsDatagram(messageToSend);
                 }

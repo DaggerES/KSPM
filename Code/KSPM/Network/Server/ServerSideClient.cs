@@ -1,4 +1,4 @@
-﻿#define PROFILING
+﻿//#define PROFILING
 
 using System.Net;
 using System.Net.Sockets;
@@ -74,47 +74,6 @@ namespace KSPM.Network.Server
 
         #endregion
 
-        #region UDP_Buffering
-
-        /// <summary>
-        /// Buffer used to store all the incoming messages.
-        /// </summary>
-        protected KSPM.IO.Memory.CyclicalMemoryBuffer udpBuffer;
-
-        /// <summary>
-        /// Converts all incoming bytes into proper information packets.
-        /// </summary>
-        protected PacketHandler udpPacketizer;
-
-        /// <summary>
-        /// Pool of SocketAsyncEventArgs used to receive udp datagrams.
-        /// </summary>
-        protected SharedBufferSAEAPool udpInputSAEAPool;
-
-        /// <summary>
-        /// Pool of SocketAsyncEventArgs used to send udp datagrams.
-        /// </summary>
-        protected SocketAsyncEventArgsPool udpOutSAEAPool;
-
-        protected MessagesPool udpIOMessagesPool;
-
-        #endregion
-
-        #region UserHandling
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public event UserConnectedEventHandler UserConnected;
-
-        /// <summary>
-        /// A reference to the game user, this is kind a second level of the KSPM model.
-        /// I have made it public to perform fastest implementations.
-        /// </summary>
-        public User gameUser;
-
-        #endregion
-
         #region UDP
 
         /// <summary>
@@ -159,6 +118,50 @@ namespace KSPM.Network.Server
 
         #endregion
 
+        #region UDP_Buffering
+
+        /// <summary>
+        /// Buffer used to store all the incoming messages.
+        /// </summary>
+        protected KSPM.IO.Memory.CyclicalMemoryBuffer udpBuffer;
+
+        /// <summary>
+        /// Converts all incoming bytes into proper information packets.
+        /// </summary>
+        protected PacketHandler udpPacketizer;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to receive udp datagrams.
+        /// </summary>
+        protected SharedBufferSAEAPool udpInputSAEAPool;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to send udp datagrams.
+        /// </summary>
+        protected SocketAsyncEventArgsPool udpOutSAEAPool;
+
+        /// <summary>
+        /// Pool of Messages to be used to send/receive datagrams.
+        /// </summary>
+        protected MessagesPool udpIOMessagesPool;
+
+        #endregion
+
+        #region UserHandling
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event UserConnectedEventHandler UserConnected;
+
+        /// <summary>
+        /// A reference to the game user, this is kind a second level of the KSPM model.
+        /// I have made it public to perform fastest implementations.
+        /// </summary>
+        public User gameUser;
+
+        #endregion
+
         #region InitializingCode
 
         /// <summary>
@@ -180,14 +183,15 @@ namespace KSPM.Network.Server
 
             this.connected = false;
 
-            this.incomingPackets = new CommandQueue();
-            this.outgoingPackets = new CommandQueue();
-
             ///TCP Buffering
             this.tcpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
             this.packetizer = new PacketHandler(this.tcpBuffer);
             this.tcpInEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, this.OnTCPIncomingDataComplete);
             this.tcpOutEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, KSPMGlobals.Globals.KSPMServer.OnSendingOutgoingDataComplete);
+
+            ///Setting UDP queues.
+            this.incomingPackets = new CommandQueue();
+            this.outgoingPackets = new CommandQueue();
 
             ///UDP Buffering
             this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
@@ -269,10 +273,7 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
                         this.usingUdpConnection = true;
-                        //this.ReceiveUDPDatagramNoSAEA();
-                        KSPMGlobals.Globals.Log.WriteTo("Starting to receive");
                         this.ReceiveUDPDatagram();
-                        KSPMGlobals.Globals.Log.WriteTo("Starting to receive_2");
 
                         break;
                     case ClientStatus.Connected:
@@ -425,7 +426,10 @@ namespace KSPM.Network.Server
             udpLocalEndPoint = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             try
             {
-                this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
+                if (!KSPMGlobals.Globals.IsRunningUnderMono)
+                {
+                    this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
+                }
                 this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, 0));//0 because It should be any available port.
                 this.usingUdpConnection = false;
             }
@@ -457,7 +461,6 @@ namespace KSPM.Network.Server
                 if (!this.udpCollection.socketReference.ReceiveFromAsync(incomingData))
                 {
                     this.OnUDPIncomingDataComplete(this, incomingData);
-                    KSPMGlobals.Globals.Log.WriteTo("Sync receive");
                 }
             }
             catch (System.ObjectDisposedException ex)
@@ -511,30 +514,53 @@ namespace KSPM.Network.Server
                         this.profilerPacketizer.Mark();
                     }
 #endif
+                    ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                    if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                    {
+                        e.Dispose();
+                        e = null;
+                    }
+                    else
+                    {
+                        this.udpInputSAEAPool.Recycle(e);
+                    }
+
                     this.ReceiveUDPDatagram();
                 }
                 else
                 {
                     ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
                     ///disconnected.
-                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete"));
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected 0 bytes received, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete"));
+                    ///Recycling the SAEA object before killing this reference.
+                    ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                    if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                    {
+                        e.Dispose();
+                        e = null;
+                    }
+                    else
+                    {
+                        this.udpInputSAEAPool.Recycle(e);
+                    }
                     KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
                 }
             }
             else
             {
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
+                    ///Recycling the SAEA object before killing this reference.
+                    ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                    if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                    {
+                        e.Dispose();
+                        e = null;
+                    }
+                    else
+                    {
+                        this.udpInputSAEAPool.Recycle(e);
+                    }
                     KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
-            }
-            ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            if (this.udpInputSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
-            {
-                e.Dispose();
-                e = null;
-            }
-            else
-            {
-                this.udpInputSAEAPool.Recycle(e);
             }
         }
 
@@ -740,47 +766,12 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Sends a queued message.
+        /// Sends a queued message as a datagram.
         /// </summary>
         public void SendUDPDatagram()
         {
             Message outgoingMessage = null;
             SocketAsyncEventArgs outgoingData = null;
-            /*
-            if (!this.ableToRun)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerClientUnableToRun.ToString());
-                return;
-            }
-            */
-            /*
-            try
-            {
-                if (this.usingUdpConnection)
-                {
-                    this.outgoingPackets.DequeueCommandMessage(out outgoingMessage);
-                    if (outgoingMessage != null)
-                    {
-                        ///Checking if the reference is alive.
-                        if (this.aliveFlag)
-                        {
-                            outgoingData = this.udpOutSAEAPool.NextSlot;
-                            outgoingData.AcceptSocket = this.udpCollection.socketReference;
-                            outgoingData.RemoteEndPoint = this.udpCollection.remoteEndPoint;
-                            outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                            outgoingData.UserToken = outgoingMessage;
-                            this.udpCollection.socketReference.SendToAsync(outgoingData);
-                        }
-                        else
-                        {
-                            ///Recycling the message because it is not going to be sent.
-                            this.udpIOMessagesPool.Recycle(outgoingMessage);
-                            KSPMGlobals.Globals.Log.WriteTo("Dropping message, not alive");
-                        }
-                    }
-                }
-            }
-                */
             try
             {
                 if (this.aliveFlag)///Is it still alive?.
@@ -848,23 +839,26 @@ namespace KSPM.Network.Server
                 {
                     //KSPMGlobals.Globals.Log.WriteTo("UDP_ " + sentBytes.ToString());
                 }
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                {
+                    e.Dispose();
+                    e = null;
+                }
+                else
+                {
+                    this.udpOutSAEAPool.Recycle(e);
+                }
             }
             else
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnUDPSendingDataComplete", e.SocketError));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
-            }
-            ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
-            this.udpIOMessagesPool.Recycle((Message)e.UserToken);
-            ///Either we have success sending the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            if (this.udpOutSAEAPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
-            {
-                e.Dispose();
-                e = null;
-            }
-            else
-            {
+                ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
+                this.udpIOMessagesPool.Recycle((Message)e.UserToken);
                 this.udpOutSAEAPool.Recycle(e);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
             }
         }
 
@@ -914,11 +908,12 @@ namespace KSPM.Network.Server
         /// </summary>
         public void ShutdownClient()
         {
+            Message disposingMessage = null;
             ///***********************Killing threads code
             this.aliveFlag = false;
             this.ableToRun = false;
             this.connected = false;
-            this.markedToDie = true;
+            this.markedToDie = true;///To avoid killing twice or more the same reference.
 
             ///***********************TCP Sockets code
             if (this.ownerNetworkCollection.socketReference != null)
@@ -947,9 +942,8 @@ namespace KSPM.Network.Server
                 this.gameUser = null;
             }
 
-            ///Cleaning up the UDP queues;
-            this.outgoingPackets.Purge(false);
-            this.incomingPackets.Purge(false);
+            ///Sleeping some time to give the oportunity to complete the asynchronous methods.
+            Thread.Sleep(500);
 
             ///Cleaning TCP buffers
             this.tcpBuffer.Release();
@@ -963,21 +957,35 @@ namespace KSPM.Network.Server
             this.tcpOutEventsPool.Release(false);
             this.tcpOutEventsPool = null;
 
-            ///Cleaning UDP MessagesPool
-            this.udpIOMessagesPool.Release();
-            this.udpIOMessagesPool = null;
+            ///Cleaning the UDP queues.
+            this.incomingPackets.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.incomingPackets.DequeueCommandMessage(out disposingMessage);
+            }
+            this.outgoingPackets.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.udpIOMessagesPool.Recycle(disposingMessage);
+                this.outgoingPackets.DequeueCommandMessage(out disposingMessage);
+            }
+            this.incomingPackets.Purge(false);
+            this.outgoingPackets.Purge(false);
+            this.incomingPackets = null;
+            this.outgoingPackets = null;
+
+            ///Cleaning UDP buffers.
+            this.udpBuffer.Release();
+            this.udpBuffer = null;
+            this.udpPacketizer.Release();
+            this.udpPacketizer = null;
 
             ///Cleaning UDP SAEAs
             this.udpInputSAEAPool.Release(false);
-            this.udpInputSAEAPool = null;
             this.udpOutSAEAPool.Release(false);
+            this.udpInputSAEAPool = null;
             this.udpOutSAEAPool = null;
-
-            ///Cleaning UDP buffers
-            this.udpPacketizer.Release();
-            this.udpPacketizer = null;
-            this.udpBuffer.Release();
-            this.udpBuffer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             

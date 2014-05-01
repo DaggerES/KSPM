@@ -32,13 +32,14 @@ namespace KSPM.IO.Logging
             this.printedLinesCounter++;
             if (this.printedLinesCounter > this.maxBufferedLines)
             {
-                this.Dispose();
+                this.buffer.Remove(0, this.buffer.Length);
             }
         }
 
         public override void Dispose()
         {
             this.buffer.Remove(0, this.buffer.Length);
+            this.buffer = null;
         }
 
         public string Buffer

@@ -112,6 +112,7 @@ namespace KSPM.Network.Server
         protected Thread outgoingMessagesThread;
         protected Thread localCommandsThread;
         protected Thread priorityOutgoingMessagesThread;
+        protected Thread handleOutgoingUDPSents;
 
         #endregion
 
@@ -231,6 +232,7 @@ namespace KSPM.Network.Server
                 this.outgoingMessagesThread.Start();
                 this.localCommandsThread.Start();
                 this.priorityOutgoingMessagesThread.Start();
+                //this.handleOutgoingUDPSents.Start();
 
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle conenctions[ " + this.alive + " ]");
@@ -256,6 +258,7 @@ namespace KSPM.Network.Server
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
             this.priorityOutgoingMessagesThread.Abort();
+            //this.handleOutgoingUDPSents.Abort();
 
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
@@ -265,6 +268,7 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
             this.priorityOutgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed priorityOutgoingMessagesTread .");
+            //this.handleOutgoingUDPSents.Join();
 
 
             ///*************************Killing TCP socket code
@@ -762,6 +766,27 @@ namespace KSPM.Network.Server
             }
             catch (System.Exception)
             {
+            }
+        }
+
+        protected void HandleUDPSend()
+        {
+            if (!this.ableToRun)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
+            }
+            try
+            {
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle udp send[ " + this.alive + " ]");
+                while (this.alive)
+                {
+                    
+                    Thread.Sleep(5);
+                }
+            }
+            catch (ThreadAbortException)
+            {
+                this.alive = false;
             }
         }
 

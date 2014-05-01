@@ -50,6 +50,7 @@ namespace KSPM_TestingConsole
         {
             //Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
             KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+            ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
         }
 
         static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
