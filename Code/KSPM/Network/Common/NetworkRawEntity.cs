@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace KSPM.Network.Common
 {
@@ -19,10 +20,17 @@ namespace KSPM.Network.Common
         /// </summary>
         protected System.Guid id;
 
+        /// <summary>
+        /// A timer to tells how much time has been alive this object reference.
+        /// </summary>
+        protected Stopwatch timer;
+
         protected NetworkRawEntity()
         {
             this.ownerNetworkCollection = null;
             this.id = System.Guid.NewGuid();
+            this.timer = new Stopwatch();
+            this.timer.Start();
         }
 
         public NetworkRawEntity(ref Socket owner)
@@ -30,6 +38,8 @@ namespace KSPM.Network.Common
             this.id = System.Guid.NewGuid();
             this.ownerNetworkCollection = new NetworkBaseCollection(KSPM.Network.Server.ServerSettings.ServerBufferSize);
             this.ownerNetworkCollection.socketReference = owner;
+            this.timer = new Stopwatch();
+            this.timer.Start();
         }
 
         /// <summary>
@@ -44,8 +54,21 @@ namespace KSPM.Network.Common
         }
 
         /// <summary>
+        /// Gets the amount of miliseconds which this reference has been alive.
+        /// </summary>
+        public long AliveTime
+        {
+            get
+            {
+                return this.timer.ElapsedMilliseconds;
+            }
+        }
+
+        /// <summary>
         /// Abstract method that should be used to release all the resources ocupied by the object itself, such as the socket and the arrays.
         /// </summary>
         public abstract void Release();
+
+        public abstract bool IsAlive();
     }
 }

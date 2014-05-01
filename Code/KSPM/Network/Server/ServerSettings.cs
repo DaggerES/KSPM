@@ -3,6 +3,8 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.IO;
 
+using KSPM.Network.Common;
+
 namespace KSPM.Network.Server
 {
     /// <summary>
@@ -11,7 +13,7 @@ namespace KSPM.Network.Server
     public class ServerSettings : KSPM.Network.Common.AbstractSettings
     {
         [XmlIgnore]
-        public static string SettingsFilename = "serverSettings.xml";
+        public static string SettingsFilename = "serversettings.xml";
         [XmlIgnore]
         public static readonly int ServerBufferSize = 1024*1;
         [XmlIgnore]
@@ -20,6 +22,16 @@ namespace KSPM.Network.Server
         protected static int ServerAuthenticationAllowingTries = 3;
 		[XmlIgnore]
 		public static readonly int DefaultTCPListeningPort = 4700;
+        [XmlIgnore]
+        public static readonly long ConnectionProcessTimeOut = 5000;
+        [XmlIgnore]
+        protected static readonly uint ServerMaxConnectedClients = 8;
+
+        /// <summary>
+        /// Tells the size of those buffers used internally such as the PacketHandler buffer.
+        /// </summary>
+        [XmlIgnore]
+        public static readonly uint PoolingCacheSize = 16;
 
         [XmlElement("TCPPort")]
         public int tcpPort;
@@ -39,23 +51,35 @@ namespace KSPM.Network.Server
         /// </summary>
         /// <param name="settings">Reference to the ServerSettings object which would be filled.</param>
         /// <returns>False if there was an error during the write task.</returns>
-        public static bool ReadSettings(ref ServerSettings settings)
+        public static Error.ErrorType ReadSettings(out ServerSettings settings)
         {
-            bool success = false;
+            Error.ErrorType success = Error.ErrorType.Ok;
             StreamReader settingsStreamReader;
             XmlSerializer settingsSerializer;
             XmlTextReader settingsReader;
-            settingsStreamReader = new StreamReader(ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
-            settingsReader = new XmlTextReader(settingsStreamReader);
-            settingsSerializer = new XmlSerializer(typeof(ServerSettings));
+            settings = null;
             try
             {
+                settingsStreamReader = new StreamReader(KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+                settingsReader = new XmlTextReader(settingsStreamReader);
+                settingsSerializer = new XmlSerializer(typeof(ServerSettings));
                 settings = (ServerSettings)settingsSerializer.Deserialize(settingsReader);
                 settings.connectionsBackog = ServerSettings.ServerConnectionsBacklog;
-                success = true;
             }
             catch (InvalidOperationException)
             {
+                ServerSettings.DefaultSettings(out settings);
+                success = ServerSettings.WriteSettings(ref settings);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                success = Error.ErrorType.IODirectoryNotFound;
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
+            catch (FileNotFoundException)
+            {
+                ServerSettings.DefaultSettings(out settings);
+                success = ServerSettings.WriteSettings(ref settings);
             }
             return success;
         }
@@ -65,26 +89,42 @@ namespace KSPM.Network.Server
         /// </summary>
         /// <param name="settings">Reference to the ServerSettings object</param>
         /// <returns>False if there was an error such as if the reference is set to a null.</returns>
-        public static bool WriteSettings(ref ServerSettings settings)
+        public static Error.ErrorType WriteSettings(ref ServerSettings settings)
         {
-            bool success = false;
+            Error.ErrorType success = Error.ErrorType.Ok;
             XmlTextWriter settingsWriter;
             XmlSerializer settingsSerializer;
             if (settings == null)
-                return false;
-            settingsWriter = new XmlTextWriter(ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
-            settingsWriter.Formatting = Formatting.Indented;
-            settingsSerializer = new XmlSerializer(typeof(ServerSettings));
+            {
+                ServerSettings.DefaultSettings(out settings);
+            }
             try
             {
+                settingsWriter = new XmlTextWriter(KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ServerSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+                settingsWriter.Formatting = Formatting.Indented;
+                settingsSerializer = new XmlSerializer(typeof(ServerSettings));
                 settingsSerializer.Serialize(settingsWriter, settings);
                 settingsWriter.Close();
-                success = true;
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex)
             {
+                success = Error.ErrorType.IOFileCanNotBeWritten;
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                success = Error.ErrorType.IODirectoryNotFound;
             }
             return success;
+        }
+
+        public static void DefaultSettings(out ServerSettings settings)
+        {
+            settings = new ServerSettings();
+            settings.connectionsBackog = ServerSettings.ServerConnectionsBacklog;
+            settings.maxAuthenticationAttempts = ServerSettings.ServerAuthenticationAllowingTries;
+            settings.maxConnectedClients = ServerSettings.ServerMaxConnectedClients;
+            settings.tcpPort = ServerSettings.DefaultTCPListeningPort;
         }
 
         public override void Release()

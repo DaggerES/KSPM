@@ -7,7 +7,7 @@ namespace KSPM.Network.Server.UserManagement
 {
     public class LowlevelUserManagmentSystem : UserManagementSystem
     {
-        public override bool Query(ref Common.NetworkEntity entityToValidate)
+        public override bool Query(Common.NetworkEntity entityToValidate)
         {
             return true;
         }

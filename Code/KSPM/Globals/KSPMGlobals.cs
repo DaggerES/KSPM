@@ -1,4 +1,5 @@
 ﻿using KSPM.IO.Logging;
+using KSPM.IO.Encoding;
 using KSPM.Diagnostics;
 using KSPM.Network.Server;
 using KSPM.Network.NAT;
@@ -17,6 +18,7 @@ namespace KSPM.Globals
         protected ConsoleLog consoleLogger;
         protected DevNullLog nullLogger;
         protected Log.LogginMode loggingMode;
+        protected BufferedLog bufferLogger;
 
         protected bool binaryEnabled;
 
@@ -24,11 +26,17 @@ namespace KSPM.Globals
 
         #region Server variables
 
-        public RealTimer realTimer;
-
         protected GameServer gameServer;
 
         protected NATTraversal natTraversingMethod;
+
+        #endregion
+
+        #region IO
+
+        protected Encoder stringEncoder;
+
+        protected string ioFilePath;
 
         #endregion
 
@@ -39,6 +47,11 @@ namespace KSPM.Globals
             this.gameServer = null;
 
             this.natTraversingMethod = new NATNone();
+
+            this.stringEncoder = new UTF8Encoder();
+            this.ioFilePath = string.Format(".{0}config{1}", System.IO.Path.DirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+
+            RealTimer.Timer.Start();
         }
 
         /// <summary>
@@ -59,8 +72,14 @@ namespace KSPM.Globals
                     break;
                 case Log.LogginMode.File:
                     this.consoleLogger = null;
-                    this.fileLogger = new FileLog(FileLog.GetAUniqueFilename("KSPMLog"), this.binaryEnabled);
+                    this.fileLogger = new FileLog(this.ioFilePath + FileLog.GetAUniqueFilename("KSPMLog"), this.binaryEnabled);
                     this.log = this.fileLogger;
+                    break;
+                case Log.LogginMode.Buffered:
+                    this.consoleLogger = null;
+                    this.fileLogger = null;
+                    this.bufferLogger = new BufferedLog();
+                    this.log = this.bufferLogger;
                     break;
                 ///In this mode no other loggers will be created, so if you need to change the logging mode we have to create a method to handle that action.
                 case Log.LogginMode.DevNull:
@@ -77,6 +96,16 @@ namespace KSPM.Globals
         public void SetServerReference(ref GameServer reference)
         {
             this.gameServer = reference;
+        }
+
+        /// <summary>
+        /// Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
+        /// </summary>
+        /// <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
+        public void ChangeIOFilePath(string newPath)
+        {
+            string normalizedPath = newPath.Replace('/', System.IO.Path.DirectorySeparatorChar);
+            this.ioFilePath = normalizedPath;
         }
 
         public Log Log
@@ -103,6 +132,31 @@ namespace KSPM.Globals
             get
             {
                 return this.natTraversingMethod;
+            }
+        }
+
+        public Encoder StringEncoder
+        {
+            get
+            {
+                return this.stringEncoder;
+            }
+        }
+
+        public string IOFilePath
+        {
+            get
+            {
+                return this.ioFilePath;
+            }
+        }
+
+        public bool IsRunningUnderMono
+        {
+            get
+            {
+                System.Type monoType = System.Type.GetType("Mono.Runtime");
+                return monoType != null;
             }
         }
     }

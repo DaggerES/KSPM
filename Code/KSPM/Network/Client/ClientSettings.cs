@@ -30,6 +30,12 @@ namespace KSPM.Network.Client
         [XmlIgnore]
         protected static long ClientConnectionTimeOut = 5000;
 
+        /// <summary>
+        /// Sets the interval of time to send a KeepAlive command.
+        /// </summary>
+        [XmlIgnore]
+        public static readonly long TCPKeepAliveInterval = 3600000;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
 
@@ -54,10 +60,12 @@ namespace KSPM.Network.Client
             settings = null;
             try
             {
-                settingsStreamReader = new StreamReader(ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+                settingsStreamReader = new StreamReader( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
                 settingsReader = new XmlTextReader(settingsStreamReader);
                 settingsSerializer = new XmlSerializer(typeof(ClientSettings));
                 settings = (ClientSettings)settingsSerializer.Deserialize(settingsReader);
+                settingsReader.Close();
+                settingsStreamReader.Close();
             }
             catch (FileNotFoundException)///If the file can not be loaded a default one is created iand written.
             {
@@ -88,7 +96,7 @@ namespace KSPM.Network.Client
             {
                 ClientSettings.DefaultSettings(out settings);
             }
-            settingsWriter = new XmlTextWriter(ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
+            settingsWriter = new XmlTextWriter( KSPM.Globals.KSPMGlobals.Globals.IOFilePath + ClientSettings.SettingsFilename, System.Text.UTF8Encoding.UTF8);
             settingsWriter.Formatting = Formatting.Indented;
             settingsSerializer = new XmlSerializer(typeof(ClientSettings));
             try

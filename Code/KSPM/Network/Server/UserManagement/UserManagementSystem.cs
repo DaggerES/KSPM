@@ -25,7 +25,7 @@ namespace KSPM.Network.Server.UserManagement
         /// </summary>
         /// <param name="entityToValidate"></param>
         /// <returns></returns>
-        public abstract bool Query(ref Network.Common.NetworkEntity entityToValidate);
+        public abstract bool Query(Network.Common.NetworkEntity entityToValidate);
 
         /// <summary>
         /// Replaces the current filter with the new one.

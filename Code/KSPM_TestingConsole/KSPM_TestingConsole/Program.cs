@@ -19,57 +19,45 @@ namespace KSPM_TestingConsole
 {
     class Program
     {
+        static long totalMessages = 0;
+        static long callCounter = 0;
         static void Main(string[] args)
         {
             KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Console, false);
+            System.Timers.Timer eventRiser = new System.Timers.Timer(10000);
+            eventRiser.Elapsed += new System.Timers.ElapsedEventHandler(eventRiser_Elapsed);
 
 			////Server test
 			
             ServerSettings gameSettings = null;
-            ServerSettings.ReadSettings(ref gameSettings);
-            GameServer server = new GameServer(ref gameSettings);
-			KSPMGlobals.Globals.SetServerReference (ref server);
-            server.StartServer();
+            if (ServerSettings.ReadSettings(out gameSettings) == KSPM.Network.Common.Error.ErrorType.Ok)
+            {
+                GameServer server = new GameServer(ref gameSettings);
+                KSPMGlobals.Globals.SetServerReference(ref server);
+                server.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(server_UDPMessageArrived);
+                server.StartServer();
+                eventRiser.Enabled = true;
+                Console.ReadLine();
+                eventRiser.Enabled = false;
+                Console.WriteLine(string.Format("Event raised:{0} times, total of the messages: {1}", Program.callCounter, Program.totalMessages));
+                server.ShutdownServer();
+            }
             Console.ReadLine();
-			server.ShutdownServer();
-            Console.ReadLine();
-			
-            /*
-			string userName = "Scr_Ra(s0_o)";
-			byte[] utf8Bytes;
-			UTF8Encoding utf8Encoder = new UTF8Encoding();
-			utf8Bytes = utf8Encoder.GetBytes(userName);
-			GameUser myUser = new GameUser(ref userName, ref utf8Bytes);
-			ServerInformation server = new ServerInformation();
-			ServerList hosts = null;
-			ServerList.ReadServerList(out hosts);
 
-			OperatingSystem os = Environment.OSVersion;
-			//server.ip = "189.210.119.226";
-			/*
-			server.ip = "192.168.15.114";
-            server.port = 4700;
-			server.name = "Testeando";
-			hosts.Hosts.Add(server);
-			*/
-            /*
-			KSPM.Network.Common.Error.ErrorType a =  ServerList.WriteServerList(ref hosts);
-			GameClient client = new GameClient();
-			ConsoleKeyInfo pressedKey;
-			bool exit = false;
-			//client.SetGameUser(myUser);
-			//client.SetServerHostInformation(server);
-			client.InitializeClient();
-
-			client.SetGameUser (myUser);
-			client.SetServerHostInformation (hosts.Hosts [2]);
-			client.Connect ();
-			Thread.Sleep (10000);
-			client.Disconnect();
-			Console.ReadLine();
-			client.Release();
-            */
         }
 
+        static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
+        {
+            //Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
+            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+            ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
+        }
+
+        static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Program.callCounter++;
+            Program.totalMessages += KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount;
+            //KSPMGlobals.Globals.Log.WriteTo(KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.DirtyCount.ToString());
+        }
     }
 }

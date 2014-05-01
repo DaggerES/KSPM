@@ -1,1 +1,7 @@
 *.log
+*.cache
+*.tlog
+*.vsp
+*.ctl
+/Code/Unity/KSPMUnity/Library/metadata/
+/Code/PerformanceReports/
