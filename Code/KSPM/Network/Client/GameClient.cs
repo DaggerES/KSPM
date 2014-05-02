@@ -585,8 +585,8 @@ namespace KSPM.Network.Client
                                     this.currentStatus = ClientStatus.UDPSettingUp;
                                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode, 2)));
                                 }
-                                udpServerInformation.Dispose();
-                                udpServerInformation = null;
+                                udpServerInformationFromNetwork.Dispose();
+                                udpServerInformationFromNetwork = null;
                                 break;
                             case Message.CommandType.ChatSettingUp:
                                 if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
