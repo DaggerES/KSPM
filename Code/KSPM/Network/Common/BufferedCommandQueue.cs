@@ -13,7 +13,7 @@ namespace KSPM.Network.Common
             this.ioBuffer = new MemoryBuffer(bufferSize);
         }
 
-        public override void EnqueueCommandMessage(ref Message newMessage)
+        public override bool EnqueueCommandMessage(ref Message newMessage)
         {
             BufferedMessage reference = (BufferedMessage)newMessage;
             uint startsAt = reference.StartsAt;
@@ -22,7 +22,7 @@ namespace KSPM.Network.Common
             reference.StartsAt = startsAt;
             ///Seting the buffer used by the command queue.
             newMessage.bodyMessage = this.ioBuffer.IOBuffer;
-            base.EnqueueCommandMessage(ref newMessage);
+            return base.EnqueueCommandMessage(ref newMessage);
         }
 
         public override void Purge(bool threadSafe)
