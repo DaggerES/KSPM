@@ -208,20 +208,31 @@ namespace KSPM.Network.Chat.Managers
             {
                 managedReference = (ManagedMessage) chatMessage;
                 PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
-                ((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage);
+                if (!((GameClient)this.owner).OutgoingTCPQueue.EnqueueCommandMessage(ref chatMessage))
+                {
+                    chatMessage.Release();
+                    chatMessage = null;
+                }
                 //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
             }
         }
 
         public void SendUDPChatMessage(ChatGroup targetGroup, string bodyMessage)
         {
-            Message chatMessage = null;
-            if (ChatMessage.CreateUDPChatMessage(this.owner, targetGroup, bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+            Message chatMessage = ((GameClient)this.owner).UDPIOMessagesPool.BorrowMessage;
+            if (ChatMessage.LoadUDPChatMessage(this.owner, targetGroup, bodyMessage, ref chatMessage) == Error.ErrorType.Ok)
             {
-                //managedReference = (ManagedMessage)chatMessage;
-                //PacketHandler.EncodeRawPacket(ref managedReference.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer);
-                ((GameClient)this.owner).OutgoingUDPQueue.EnqueueCommandMessage(ref chatMessage);
+                if (!((GameClient)this.owner).OutgoingUDPQueue.EnqueueCommandMessage(ref chatMessage))
+                {
+                    ///UDP queue is full, so recycling the message.
+                    ((GameClient)this.owner).UDPIOMessagesPool.Recycle(chatMessage);
+                }
                 //KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref chatMessage);
+            }
+            else
+            {
+                ///Something went wrong loading the UDP chat message.
+                ((GameClient)this.owner).UDPIOMessagesPool.Recycle(chatMessage);
             }
         }
 
