@@ -25,8 +25,25 @@ namespace KSPM.Network.Common
         /// Enqueue a new command message to the underlayin queue.
         /// </summary>
         /// <param name="newMessage">Reference to the new message, if it is null nothing will performed.</param>
-        public virtual void EnqueueCommandMessage(ref Message newMessage)
+        public virtual bool EnqueueCommandMessage(ref Message newMessage)
         {
+            if (newMessage != null)
+            {
+                lock (this.commandMessagesQueue)
+                {
+                    if (this.commandMessagesQueue.Count < this.maxNumberOfCommands)
+                    {
+                        this.commandMessagesQueue.Enqueue(newMessage);
+                        return true;
+                    }
+                    else
+                    {
+                        KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("!!!WARNING Droping packets!!!, MaxNumberOfMessagesAllowed reached: " + this.maxNumberOfCommands);
+                    }
+                }
+            }
+            return false;
+            /*
             lock (this.commandMessagesQueue)
             {
                 if (newMessage != null)
@@ -42,6 +59,7 @@ namespace KSPM.Network.Common
                     }
                 }
             }
+            */
         }
         
         /// <summary>
