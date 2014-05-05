@@ -112,6 +112,26 @@ namespace KSPM.Network.Server
         public CommandQueue outgoingPackets;
 
         /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        protected System.Threading.Timer udpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        protected int udpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        protected int udpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int udpMinimumMessagesAllowedAfterPurge;
+
+        /// <summary>
         /// Delegate to process the incoming UDP datagrams.
         /// </summary>
         protected delegate void ProcessUDPMessageAsync();
@@ -202,6 +222,11 @@ namespace KSPM.Network.Server
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
 
             this.markedToDie = false;
+
+            ///UDP Purge Timer
+            this.udpPurgeTimer = new Timer(this.HandleUDPPurgeTimerCallback);
+            this.udpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
+            this.udpMinimumMessagesAllowedAfterPurge = (int)(this.incomingPackets.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
@@ -316,7 +341,6 @@ namespace KSPM.Network.Server
             SocketAsyncEventArgs incomingData = this.tcpInEventsPool.NextSlot;
             incomingData.AcceptSocket = this.ownerNetworkCollection.socketReference;
             incomingData.SetBuffer(this.ownerNetworkCollection.secondaryRawBuffer, 0, this.ownerNetworkCollection.secondaryRawBuffer.Length);
-            //incomingData.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.OnTCPIncomingDataComplete);
             try
             {
                 if (!this.ownerNetworkCollection.socketReference.ReceiveAsync(incomingData))
@@ -597,9 +621,21 @@ namespace KSPM.Network.Server
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
-            if (!this.incomingPackets.EnqueueCommandMessage(ref incomingMessage))
+            if (Interlocked.CompareExchange(ref this.udpPurgeFlag, 0, 0) == 0)
             {
-                ///If this code is reached means the Queue is full, so you have to recycle the incoming message by hand.
+                if (!this.incomingPackets.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    ///If this code is reached means the incoming queue is full, so we need to recycle the incoming message by hand.
+                    this.udpIOMessagesPool.Recycle(incomingMessage);
+
+                    ///This must be invoked only one time.
+                    Interlocked.Exchange(ref this.udpPurgeFlag, 1);
+                    this.udpPurgeTimer.Change(this.udpPurgeTimeInterval, this.udpPurgeTimeInterval);
+                }
+            }
+            else///Means that the system is full.
+            {
+                ///So we need to recycle the incoming message to avoid memory exhaustion.
                 this.udpIOMessagesPool.Recycle(incomingMessage);
             }
         }
@@ -818,6 +854,23 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called each amount of time specified by udpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleUDPPurgeTimerCallback(object state)
+        {
+            if (this.incomingPackets.DirtyCount <= this.udpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.udpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.udpPurgeFlag, 0);
+            }
+        }
+
         #endregion
 
         #region Management
@@ -942,6 +995,10 @@ namespace KSPM.Network.Server
             this.udpOutSAEAPool.Release(false);
             this.udpInputSAEAPool = null;
             this.udpOutSAEAPool = null;
+
+            ///Cleaning up udpPurgeTimer
+            this.udpPurgeTimer.Dispose();
+            this.udpPurgeTimer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ServerSide Client killed after {1} seconds alive.", this.id, this.AliveTime / 1000));
             
