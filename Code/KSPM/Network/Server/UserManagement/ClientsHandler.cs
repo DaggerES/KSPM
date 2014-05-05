@@ -100,14 +100,17 @@ namespace KSPM.Network.Server.UserManagement
                     outgoingMessage = ((ServerSideClient)this.clients[i]).IOUDPMessagesPool.BorrowMessage;
                     ((RawMessage)outgoingMessage).LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);
                     outgoingMessage.IsBroadcast = true;
-                    //outgoingMessage = new RawMessage(messageToSend.Command, ((RawMessage)messageToSend).bodyMessage, messageToSend.MessageBytesSize);
-                    //messageToSend.IsBroadcast = true;
-                    ((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage);
-                    ((ServerSideClient)this.clients[i]).SendUDPDatagram();
+                    if (!((ServerSideClient)this.clients[i]).outgoingPackets.EnqueueCommandMessage(ref outgoingMessage))
+                    {
+                        ///If this code is reached means the outgoing queue is full.
+                        ((ServerSideClient)this.clients[i]).IOUDPMessagesPool.Recycle(outgoingMessage);
+                    }
+                    else
+                    {
+                        ((ServerSideClient)this.clients[i]).SendUDPDatagram();
+                    }
                     //((ServerSideClient)this.clients[i]).SendAsDatagram(messageToSend);
                 }
-
-                //messageToSend.Release();
             }
         }
 
@@ -123,7 +126,11 @@ namespace KSPM.Network.Server.UserManagement
             outgoingBroadcast.SetBodyMessage(messageToSend.bodyMessage,((BufferedMessage)messageToSend).StartsAt , messageToSend.MessageBytesSize);
             outgoingMessage = outgoingBroadcast;
             messageToSend.IsBroadcast = true;
-            KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage);
+            if (!KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage))
+            {
+                outgoingBroadcast.Release();
+                outgoingBroadcast = null;
+            }
         }
 
         public List<NetworkEntity> RemoteClients

@@ -400,14 +400,22 @@ namespace KSPM.Network.Server
                 incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
                 ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
                 ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-                KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                if (!KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    ///If this code is executed means the queue is full.
+                    KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.Recycle(incomingMessage);
+                }
             }
             else
             {
                 incomingMessage = KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.BorrowMessage;
                 ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
                 ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-                KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                if (!KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    ///If this code is executed means the queue is full.
+                    KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.Recycle(incomingMessage);
+                }
             }
         }
 
@@ -571,6 +579,7 @@ namespace KSPM.Network.Server
         /// <param name="fixedLegth"></param>
         public void ProcessUDPPacket(byte[] rawData, uint fixedLegth)
         {
+            /*
             Message incomingMessage;
             KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
@@ -579,6 +588,7 @@ namespace KSPM.Network.Server
                 this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
                 this.ProcessUDPCommand();
             }
+            */
         }
 
         /// <summary>
@@ -587,7 +597,11 @@ namespace KSPM.Network.Server
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
-            this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
+            if (!this.incomingPackets.EnqueueCommandMessage(ref incomingMessage))
+            {
+                ///If this code is reached means the Queue is full, so you have to recycle the incoming message by hand.
+                this.udpIOMessagesPool.Recycle(incomingMessage);
+            }
         }
 
         /// <summary>
@@ -638,9 +652,6 @@ namespace KSPM.Network.Server
                             this.SendUDPDatagram();
                             ///Recycling the message used in the connection process.
                             this.udpIOMessagesPool.Recycle(incomingMessage);
-                            /*
-                            incomingMessage.Release();
-                            incomingMessage = null;*/
                             break;
                         case Message.CommandType.UDPChat:
                             ///At this moment we only raises the event, but it can be raised with whichever incoming message.
@@ -667,61 +678,6 @@ namespace KSPM.Network.Server
         {
             ///Does nothing
         }
-
-        #region DEPRECATED_CODE
-
-        protected void ProcessUDPCommand()
-        {
-            Message incomingMessage = null;
-            Message responseMessage = null;
-            RawMessage rawMessageReference = null;
-            int intBuffer;
-            this.incomingPackets.DequeueCommandMessage(out incomingMessage);
-            if (incomingMessage != null)
-            {
-                rawMessageReference = (RawMessage)incomingMessage;
-                switch (incomingMessage.Command)
-                {
-                    case Message.CommandType.UDPPairing:
-                        intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
-                        responseMessage = this.udpIOMessagesPool.BorrowMessage;
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
-                        if ((this.pairingCode & intBuffer) == 0)//UDP tested.
-                        {
-                            Message.LoadUDPPairingOkMessage(this, ref responseMessage);
-                            if (responseMessage != null)
-                            {
-                                rawMessageReference = (RawMessage)responseMessage;
-                                this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
-                                this.currentStatus = ClientStatus.Connected;
-                            }
-                        }
-                        else
-                        {
-                            Message.LoadUDPPairingFailMessage(this, ref responseMessage);
-                            if (responseMessage != null)
-                            {
-                                rawMessageReference = (RawMessage)responseMessage;
-                                this.outgoingPackets.EnqueueCommandMessage(ref responseMessage);
-                                this.currentStatus = ClientStatus.Connected;
-                            }
-                        }
-                        this.SendUDPDatagram();
-                        incomingMessage.Release();
-                        incomingMessage = null;
-                        break;
-                    case Message.CommandType.UDPChat:
-                        KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
-                        break;
-                    default:
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
-                        break;
-                }
-                //this.SendUDPDatagram();
-            }
-        }
-
-        #endregion
 
         /// <summary>
         /// Sends a message as datagram, but the message is not queued at all.

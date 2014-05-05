@@ -112,7 +112,6 @@ namespace KSPM.Network.Server
         protected Thread outgoingMessagesThread;
         protected Thread localCommandsThread;
         protected Thread priorityOutgoingMessagesThread;
-        protected Thread handleOutgoingUDPSents;
 
         #endregion
 
@@ -232,7 +231,6 @@ namespace KSPM.Network.Server
                 this.outgoingMessagesThread.Start();
                 this.localCommandsThread.Start();
                 this.priorityOutgoingMessagesThread.Start();
-                //this.handleOutgoingUDPSents.Start();
 
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle conenctions[ " + this.alive + " ]");
@@ -258,7 +256,6 @@ namespace KSPM.Network.Server
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
             this.priorityOutgoingMessagesThread.Abort();
-            //this.handleOutgoingUDPSents.Abort();
 
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
@@ -268,7 +265,6 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
             this.priorityOutgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed priorityOutgoingMessagesTread .");
-            //this.handleOutgoingUDPSents.Join();
 
 
             ///*************************Killing TCP socket code
@@ -394,7 +390,10 @@ namespace KSPM.Network.Server
             incomingMessage = this.priorityMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(packetOwner);
-            this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+            if (!this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
+            {
+                this.priorityMessagesPool.Recycle(incomingMessage);
+            }
         }
 
         #endregion
@@ -423,26 +422,30 @@ namespace KSPM.Network.Server
                         {
                             case Message.CommandType.Chat:
                                 this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
-                                    /*
-                                    if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
-                                    {
-                                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
-                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
-                                    }
-                                    */
-                                    break;
+                                /*
+                                if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+                                {
+                                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
+                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
+                                }
+                                */
+                                break;
                             case Message.CommandType.KeepAlive:
-                                    KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
-                                    break;
+                                KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
+                                break;
                             case Message.CommandType.Unknown:
                             default:
-                            KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
-                            break;
+                                KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                break;
                         }
                         ///Releasing and recycling the message.
                         this.incomingMessagesPool.Recycle(messageToProcess);
                     }
-                    Thread.Sleep(3);
+                    else
+                    {
+                        ///Yielding the process.
+                        Thread.Sleep(0);
+                    }
                 }
             }
             catch (ThreadAbortException)
@@ -486,7 +489,7 @@ namespace KSPM.Network.Server
                                     broadcastReference = (BroadcastMessage)outgoingMessage;
                                     for (entityCounter = 0; entityCounter < broadcastReference.Targets.Length; entityCounter++)
                                     {
-                                        if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[ entityCounter].IsAlive() )
+                                        if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[entityCounter].IsAlive())
                                         {
                                             blockSize = System.BitConverter.ToInt32(outgoingMessage.bodyMessage, 4);
                                             if (blockSize == outgoingMessage.MessageBytesSize)
@@ -537,7 +540,7 @@ namespace KSPM.Network.Server
                             }
                             catch (System.Exception ex)
                             {
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", ( outgoingMessage.IsBroadcast ?  ((BroadcastMessage)outgoingMessage).Targets[ entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id ), "HandleOutgoingMessages", ex.Message));
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", (outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id), "HandleOutgoingMessages", ex.Message));
                                 this.DisconnectClient((outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter] : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity));
                             }
                             finally
@@ -547,11 +550,14 @@ namespace KSPM.Network.Server
                                 outgoingMessage = null;
                             }
                         }
+                        else
+                        {
+                            Thread.Sleep(0);
+                        }
 #if PROFILING
                         this.profilerOutgoingMessages.Mark();
 #endif
                     }
-                    Thread.Sleep(3);
             }
             catch (ThreadAbortException)
             {
@@ -688,7 +694,7 @@ namespace KSPM.Network.Server
                             this.priorityMessagesPool.Recycle(messageToProcess);
                         }
 
-                    Thread.Sleep(9);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)
@@ -737,7 +743,7 @@ namespace KSPM.Network.Server
                             outgoingMessage.Release();
                             outgoingMessage = null;
                         }
-                    Thread.Sleep(5);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)

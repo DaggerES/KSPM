@@ -585,8 +585,8 @@ namespace KSPM.Network.Client
                                     this.currentStatus = ClientStatus.UDPSettingUp;
                                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode, 2)));
                                 }
-                                udpServerInformation.Dispose();
-                                udpServerInformation = null;
+                                udpServerInformationFromNetwork.Dispose();
+                                udpServerInformationFromNetwork = null;
                                 break;
                             case Message.CommandType.ChatSettingUp:
                                 if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
@@ -770,7 +770,11 @@ namespace KSPM.Network.Client
             Message keepAliveCommand = null;
             if (Message.KeepAlive(this, out keepAliveCommand) == Error.ErrorType.Ok)
             {
-                this.outgoingTCPMessages.EnqueueCommandMessage(ref keepAliveCommand);
+                if (!this.outgoingTCPMessages.EnqueueCommandMessage(ref keepAliveCommand))
+                {
+                    keepAliveCommand.Release();
+                    keepAliveCommand = null;
+                }
             }
         }
 
@@ -841,19 +845,25 @@ namespace KSPM.Network.Client
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
-                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
+                if (!this.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    incomingMessage.Release();
+                    incomingMessage = null;
+                }
                 //this.ProcessTCPCommand();
             }
         }
 
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
+            /*
             Message incomingMessage = null;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLength.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
             }
+            */
         }
 
         #endregion
@@ -983,7 +993,11 @@ namespace KSPM.Network.Client
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
-            this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
+            if (!this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage))
+            {
+                ///If this code is reached means the incoming queue is full, so we need to recycle the incoming message by hand.
+                this.udpIOMessagesPool.Recycle(incomingMessage);
+            }
         }
 
         /// <summary>
