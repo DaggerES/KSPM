@@ -50,7 +50,7 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
-        #region TCP Variables
+        #region TCPProperties
 
         /// <summary>
         /// TCP socket used to receive the new incoming connections.
@@ -71,6 +71,26 @@ namespace KSPM.Network.Server
         /// SockeAsyncEventArgs pool to accept connections and to receive the first command.
         /// </summary>
         protected SocketAsyncEventArgsPool incomingConnectionsPool;
+
+        /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        internal System.Threading.Timer tcpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        internal int tcpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        internal int tcpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int tcpMinimumMessagesAllowedAfterPurge;
 
         #endregion
 
@@ -176,6 +196,8 @@ namespace KSPM.Network.Server
 
         #endregion
 
+        #region CreationAndInitialization
+
         /// <summary>
         /// Constructor of the server
         /// </summary>
@@ -226,20 +248,16 @@ namespace KSPM.Network.Server
 
             this.incomingConnectionsPool = new SocketAsyncEventArgsPool((uint)this.lowLevelOperationSettings.connectionsBackog);
 
+            ///TCP Purge Timer
+            this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
+            this.tcpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
+            this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
+
             this.ableToRun = true;
             this.alive = false;
         }
 
-        /// <summary>
-        /// Gets 
-        /// </summary>
-        public bool IsAlive
-        {
-            get
-            {
-                return this.alive;
-            }
-        }
+        #endregion
 
         #region Management
 
@@ -346,6 +364,10 @@ namespace KSPM.Network.Server
 
             this.usersAccountManager = null;
             this.lowLevelOperationSettings = null;
+
+            ///Releasing the TCP purge timer.
+            this.tcpPurgeTimer.Dispose();
+            this.tcpPurgeTimer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
 
@@ -650,6 +672,24 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called each amount of time specified by udpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleTCPPurgeTimerCallback(object state)
+        {
+            if (this.commandsQueue.DirtyCount <= this.tcpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.tcpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("TCPPurge finished."));
+            }
+        }
+
         #endregion
 
         #region PrioritizedCommandsHandle
@@ -897,6 +937,21 @@ namespace KSPM.Network.Server
             get
             {
                 return this.clientsHandler;
+            }
+        }
+
+        #endregion
+
+        #region Setters/Getters
+
+        /// <summary>
+        /// Tells if the server is still running.
+        /// </summary>
+        public bool IsAlive
+        {
+            get
+            {
+                return this.alive;
             }
         }
 

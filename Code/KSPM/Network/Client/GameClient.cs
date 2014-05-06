@@ -115,6 +115,26 @@ namespace KSPM.Network.Client
         /// </summary>
         protected long tcpKeepAliveInterval;
 
+        /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        protected System.Threading.Timer tcpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        protected int tcpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        protected int tcpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int tcpMinimumMessagesAllowedAfterPurge;
+
 
         #endregion
 
@@ -315,6 +335,13 @@ namespace KSPM.Network.Client
             this.udpPurgeTimer = new Timer(this.HandleUDPPurgeTimerCallback);
             this.udpPurgeTimeInterval = (int)ClientSettings.PurgeTimeIterval;
             this.udpMinimumMessagesAllowedAfterPurge = (int)(this.incomingUDPMessages.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
+            this.udpPurgeFlag = 0;
+
+            ///TCP Purge Timer
+            this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
+            this.tcpPurgeTimeInterval = (int)ClientSettings.PurgeTimeIterval;
+            this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
+            this.tcpPurgeFlag = 0;
         }
 
         /// <summary>
@@ -808,6 +835,24 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Method called each amount of time specified by tcpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleTCPPurgeTimerCallback(object state)
+        {
+            if (this.commandsQueue.DirtyCount <= this.tcpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.tcpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] TCPPurge finished.", this.id));
+            }
+        }
+
         #region TCP_Processing
 
         public void ReceiveTCPStream()
@@ -872,15 +917,21 @@ namespace KSPM.Network.Client
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
             Message incomingMessage = null;
-            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
-            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+            if (Interlocked.CompareExchange(ref this.tcpPurgeFlag, 0, 0) == 0)
             {
-                if (!this.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+                if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
                 {
-                    incomingMessage.Release();
-                    incomingMessage = null;
+                    if (!this.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                    {
+                        incomingMessage.Release();
+                        incomingMessage = null;
+
+                        ///Must be invoked only one time.
+                        Interlocked.Exchange(ref this.tcpPurgeFlag, 1);
+                        this.tcpPurgeTimer.Change(this.tcpPurgeTimeInterval, this.tcpPurgeTimeInterval);
+                    }
                 }
-                //this.ProcessTCPCommand();
             }
         }
 
@@ -1095,6 +1146,7 @@ namespace KSPM.Network.Client
 
                 ///Disabling the purge flag.
                 Interlocked.Exchange(ref this.udpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDPPurge finished.", this.id));
             }
         }
 
@@ -1217,6 +1269,10 @@ namespace KSPM.Network.Client
             this.udpPurgeTimer.Dispose();
             this.udpPurgeTimer = null;
 
+            ///Cleaning up tcpPurgeTimer
+            this.tcpPurgeTimer.Dispose();
+            this.tcpPurgeTimer = null;
+
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client killed!!!", this.id));
         }
 
@@ -1293,6 +1349,7 @@ namespace KSPM.Network.Client
 
             ///Disabling the timer.
             this.udpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
             this.currentStatus = ClientStatus.None;
 

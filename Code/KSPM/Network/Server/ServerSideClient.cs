@@ -227,6 +227,7 @@ namespace KSPM.Network.Server
             this.udpPurgeTimer = new Timer(this.HandleUDPPurgeTimerCallback);
             this.udpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
             this.udpMinimumMessagesAllowedAfterPurge = (int)(this.incomingPackets.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
+            this.udpPurgeFlag = 0;
 
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
@@ -398,8 +399,14 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Not USED.
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <param name="fixedLegth"></param>
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
+            /*
             Message incomingMessage = null;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
@@ -413,6 +420,7 @@ namespace KSPM.Network.Server
                     KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
                 }
             }
+            */
         }
 
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
@@ -421,13 +429,19 @@ namespace KSPM.Network.Server
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLength.ToString());
             if (this.connected)
             {
-                incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
-                ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
-                ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-                if (!KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                if (Interlocked.CompareExchange(ref KSPMGlobals.Globals.KSPMServer.tcpPurgeFlag, 0, 0) == 0)
                 {
-                    ///If this code is executed means the queue is full.
-                    KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.Recycle(incomingMessage);
+                    incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
+                    ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
+                    ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
+                    if (!KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                    {
+                        ///If this code is executed means the queue is full.
+                        KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.Recycle(incomingMessage);
+
+                        Interlocked.Exchange(ref KSPMGlobals.Globals.KSPMServer.tcpPurgeFlag, 1);
+                        KSPMGlobals.Globals.KSPMServer.tcpPurgeTimer.Change(KSPMGlobals.Globals.KSPMServer.tcpPurgeTimeInterval, KSPMGlobals.Globals.KSPMServer.tcpPurgeTimeInterval);
+                    }
                 }
             }
             else
@@ -868,6 +882,7 @@ namespace KSPM.Network.Server
 
                 ///Disabling the purge flag.
                 Interlocked.Exchange(ref this.udpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDPPurge finished.", this.id));
             }
         }
 
