@@ -201,6 +201,11 @@ namespace KSPM.Network.Client
         /// </summary>
         protected int udpMinimumMessagesAllowedAfterPurge;
 
+        /// <summary>
+        /// Event raised when an UDP message arrives to the system.
+        /// </summary>
+        public event UDPMessageArrived UDPMessageArrived;
+
         #endregion
 
         #region UDP_Buffering
@@ -348,6 +353,8 @@ namespace KSPM.Network.Client
             this.tcpPurgeTimeInterval = (int)ClientSettings.PurgeTimeIterval;
             this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
             this.tcpPurgeFlag = 0;
+
+            this.UDPMessageArrived = null;
         }
 
         /// <summary>
@@ -1154,6 +1161,14 @@ namespace KSPM.Network.Client
                 ///Disabling the purge flag.
                 Interlocked.Exchange(ref this.udpPurgeFlag, 0);
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDPPurge finished.", this.id));
+            }
+        }
+
+        protected void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
+        {
+            if (this.UDPMessageArrived != null)
+            {
+                this.UDPMessageArrived(sender, message);
             }
         }
 
