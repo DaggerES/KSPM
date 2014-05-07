@@ -101,6 +101,14 @@ namespace KSPM.Network.Common
             }
         }
 
+        public long MaxCommandAllowed
+        {
+            get
+            {
+                return this.maxNumberOfCommands;
+            }
+        }
+
         /// <summary>
         /// Removes all messages and calls the Release method on each one.
         /// </summary>
