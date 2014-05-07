@@ -33,6 +33,18 @@ namespace KSPM.Network.Server
         [XmlIgnore]
         public static readonly uint PoolingCacheSize = 16;
 
+        /// <summary>
+        /// Sets the amount of time that the system will check if it is able to process commands.<b>DO NOT CHANGE IT IF YOU DON NOT KNOW WHAT YOU ARE DOING.</b>
+        /// </summary>
+        [XmlIgnore]
+        public static readonly long PurgeTimeIterval = 1000;
+
+        /// <summary>
+        /// Tells how much available space has to have the queue to start accepting messages.<b>Is set in percent.</b>
+        /// </summary>
+        [XmlIgnore]
+        public static readonly float AvailablePercentAfterPurge = 0.95f;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
         [XmlElement("MaxConnectedClients")]
@@ -118,6 +130,10 @@ namespace KSPM.Network.Server
             return success;
         }
 
+        /// <summary>
+        /// Load a default sattings values into the given paremeter.
+        /// </summary>
+        /// <param name="settings"></param>
         public static void DefaultSettings(out ServerSettings settings)
         {
             settings = new ServerSettings();
@@ -127,6 +143,9 @@ namespace KSPM.Network.Server
             settings.tcpPort = ServerSettings.DefaultTCPListeningPort;
         }
 
+        /// <summary>
+        /// <b>Does nothing.</b>
+        /// </summary>
         public override void Release()
         {
         }
