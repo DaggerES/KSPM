@@ -39,6 +39,9 @@ namespace ConsoleFakeClient
                         case "tcp":
                             mode = ChatBot.FloodMode.TCP;
                             break;
+                        case "both":
+                            mode = ChatBot.FloodMode.Both;
+                            break;
                         default:
                             mode = ChatBot.FloodMode.TCP;
                             break;
@@ -65,6 +68,7 @@ namespace ConsoleFakeClient
             //client.SetGameUser(myUser);
             //client.SetServerHostInformation(server);
             client.InitializeClient();
+            client.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(client_UserDisconnected);
             client.Connect();
             /*GroupFilter group = new GroupFilter();
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
@@ -120,6 +124,11 @@ namespace ConsoleFakeClient
             Console.ReadLine();
             client.Disconnect();
             client.Release();
+        }
+
+        static void client_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+        {
+            Console.WriteLine(e.ToString());
         }
     }
 }

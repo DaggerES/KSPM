@@ -36,6 +36,18 @@ namespace KSPM.Network.Client
         [XmlIgnore]
         public static readonly long TCPKeepAliveInterval = 3600000;
 
+        /// <summary>
+        /// Sets the amount of time that the system will check if it is able to process commands.<b>DO NOT CHANGE IT IF YOU DON NOT KNOW WHAT YOU ARE DOING.</b>
+        /// </summary>
+        [XmlIgnore]
+        public static readonly long PurgeTimeIterval = 1000;
+
+        /// <summary>
+        /// Tells how much available space has to have the queue to start accepting messages.<b>Is set in percent.</b>
+        /// </summary>
+        [XmlIgnore]
+        public static readonly float AvailablePercentAfterPurge = 0.95f;
+
         [XmlElement("TCPPort")]
         public int tcpPort;
 
