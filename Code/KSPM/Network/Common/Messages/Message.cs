@@ -111,7 +111,7 @@ namespace KSPM.Network.Common.Messages
             ChatSettingUp,
 
             /// <summary>
-            /// Resets the TCP timer and avoids the TimedOut socket error.
+            /// Resets the TCP timer and avoids the TimedOut socket error.<b>TCP timeout exception ocurs after 8 hours of inactivity.</b>
             /// [MessageHeader{ byte:4}][Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
             /// </summary>
             KeepAlive,
