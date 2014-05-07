@@ -41,40 +41,63 @@ namespace KSPM.Network.Server
         protected bool alive;
 
         /// <summary>
-        /// Controls id the server is set and raeady to run.
+        /// Controls if the server is set and ready to run.
         /// </summary>
         protected bool ableToRun;
-
-        #region TCP Variables
-
-        /// <summary>
-        /// TCP socket used to receive the connections.
-        /// </summary>
-        protected Socket tcpSocket;
-
-        /// <summary>
-        /// The IP information required to set the TCP socket. IP address and port are required
-        /// </summary>
-        protected IPEndPoint tcpIpEndPoint;
-
-        /// <summary>
-        /// Byte buffer attached to the TCP socket.
-        /// </summary>
-        protected byte[] tcpBuffer;
-
-        protected SocketAsyncEventArgsPool incomingConnectionsPool;
-
-        #endregion
 
         /// <summary>
         /// Settings to operate at low level, like listening ports and the like.
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
-        #region Commands code
+        #region TCPProperties
 
         /// <summary>
-        /// Holds the commands to be processed by de server, like the command chat.
+        /// TCP socket used to receive the new incoming connections.
+        /// </summary>
+        protected Socket tcpSocket;
+
+        /// <summary>
+        /// The IP information required to set the TCP socket.<b>IP address and port are required.</b>
+        /// </summary>
+        protected IPEndPoint tcpIpEndPoint;
+
+        /// <summary>
+        /// Byte buffer attached to the TCP socket.<b>Used to receive the first commandof a new client.</b>
+        /// </summary>
+        protected byte[] tcpBuffer;
+
+        /// <summary>
+        /// SockeAsyncEventArgs pool to accept connections and to receive the first command.
+        /// </summary>
+        protected SocketAsyncEventArgsPool incomingConnectionsPool;
+
+        /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        internal System.Threading.Timer tcpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        internal int tcpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        internal int tcpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int tcpMinimumMessagesAllowedAfterPurge;
+
+        #endregion
+
+        #region CommandsCode
+
+        /// <summary>
+        /// Holds the commands to be processed by de server, like the command chat and other commands not required to the connection process.
         /// </summary>
         public BufferedCommandQueue commandsQueue;
 
@@ -108,11 +131,25 @@ namespace KSPM.Network.Server
 
         #region Threading code
 
+        /// <summary>
+        /// Thread used to handle the incoming commands.
+        /// </summary>
         protected Thread commandsThread;
+
+        /// <summary>
+        /// Thread to handle the sending process of non priority commands.
+        /// </summary>
         protected Thread outgoingMessagesThread;
+
+        /// <summary>
+        /// Thread to handle those prioritized commands, like those used in the connection process.
+        /// </summary>
         protected Thread localCommandsThread;
+
+        /// <summary>
+        /// Thread to handle the prioritized outgoing commands.
+        /// </summary>
         protected Thread priorityOutgoingMessagesThread;
-        protected Thread handleOutgoingUDPSents;
 
         #endregion
 
@@ -124,7 +161,7 @@ namespace KSPM.Network.Server
         protected UserManagementSystem defaultUserManagementSystem;
 
         /// <summary>
-        /// Provides a basic authentication.
+        /// Provides a basic authentication.<b>At this moment is a by pass method.</b>
         /// </summary>
         protected AccountManager usersAccountManager;
 
@@ -133,10 +170,19 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientsHandler clientsHandler;
 
+        /// <summary>
+        /// Event raised when a new user is connected.
+        /// </summary>
         public event UserConnectedEventHandler UserConnected;
 
+        /// <summary>
+        /// Event raised when an user is disconnected from the user.
+        /// </summary>
         public event UserDisconnectedEventHandler UserDisconnected;
 
+        /// <summary>
+        /// Event raised when an UDP message has arrived to the server.
+        /// </summary>
         public event UDPMessageArrived UDPMessageArrived;
 
         #endregion
@@ -144,11 +190,13 @@ namespace KSPM.Network.Server
         #region Chat
 
         /// <summary>
-        /// Handles the KSPM Chat system.
+        /// Handles the KSPM Chat system, either UDP and TCP chating system.
         /// </summary>
         public ChatManager chatManager;
 
         #endregion
+
+        #region CreationAndInitialization
 
         /// <summary>
         /// Constructor of the server
@@ -160,7 +208,7 @@ namespace KSPM.Network.Server
 #if PROFILING
             this.profilerOutgoingMessages = new Profiler("OutgoingMessages");
 #endif
-
+            ///Assigning settings to work.
             this.lowLevelOperationSettings = operationSettings;
             if (this.lowLevelOperationSettings == null)
             {
@@ -168,16 +216,20 @@ namespace KSPM.Network.Server
                 return;
             }
 
+            ///Used to receive the first command.
             this.tcpBuffer = new byte[ServerSettings.ServerBufferSize];
 
-            ///Creating a new buffered CommandQueue capable to suport upto 1000 messages, each one of 1024 bytes length.
+            ///Creating a new buffered CommandQueue capable to suport up to 1000 messages, each one of 1024 bytes length.
             this.commandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 1000);
             ///Creating the local commands queue, capable to hold up to 100 messages, each one of 1024 bytes length.
             this.localCommandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 100);
+
             this.priorityOutgoingMessagesQueue = new CommandQueue();
             this.outgoingMessagesQueue = new CommandQueue();
 
+            ///Pool of pre-allocated messages with an initial capacity if 2000 messages.
             this.incomingMessagesPool = new MessagesPool(2000, new BufferedMessage(Message.CommandType.Null, 0, 0));
+            ///Pool of pre-allocated messages used in the connection process. Up to 100 messages.
             this.priorityMessagesPool = new MessagesPool(100, new BufferedMessage(Message.CommandType.Null, 0, 0));
 
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
@@ -191,29 +243,27 @@ namespace KSPM.Network.Server
             ///It still missing the filter
             this.usersAccountManager = new AccountManager();
 
+            ///Creating a chat manager in non-persistent mode. It means that none of the chat messages will be stored.
             this.chatManager = new ChatManager(ChatManager.DefaultStorageMode.NonPersistent);
 
             this.incomingConnectionsPool = new SocketAsyncEventArgsPool((uint)this.lowLevelOperationSettings.connectionsBackog);
+
+            ///TCP Purge Timer
+            this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
+            this.tcpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
+            this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
 
             this.ableToRun = true;
             this.alive = false;
         }
 
-        /// <summary>
-        /// Gets 
-        /// </summary>
-        public bool IsAlive
-        {
-            get
-            {
-                return this.alive;
-            }
-        }
+        #endregion
 
         #region Management
 
         public bool StartServer()
         {
+            bool result = false;
             KSPMGlobals.Globals.Log.WriteTo("Starting KSPM server.");
             if (!this.ableToRun)
             {
@@ -228,15 +278,18 @@ namespace KSPM.Network.Server
             {
                 this.tcpSocket.Bind(this.tcpIpEndPoint);
                 this.alive = true;
+
+                ///Starting working threads.
                 this.commandsThread.Start();
                 this.outgoingMessagesThread.Start();
                 this.localCommandsThread.Start();
                 this.priorityOutgoingMessagesThread.Start();
-                //this.handleOutgoingUDPSents.Start();
 
+                ///Starting to listen for connections.
                 this.tcpSocket.Listen(this.lowLevelOperationSettings.connectionsBackog);
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle conenctions[ " + this.alive + " ]");
                 this.StartReceiveConnections();
+                result = true;
             }
             catch (Exception ex)
             {
@@ -245,7 +298,7 @@ namespace KSPM.Network.Server
                 this.ShutdownServer();
                 this.alive = false;
             }
-            return true;  
+            return result;
         }
 
         public void ShutdownServer()
@@ -258,7 +311,6 @@ namespace KSPM.Network.Server
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
             this.priorityOutgoingMessagesThread.Abort();
-            //this.handleOutgoingUDPSents.Abort();
 
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
@@ -268,7 +320,6 @@ namespace KSPM.Network.Server
             KSPMGlobals.Globals.Log.WriteTo("Killed outgoingMessagesTread .");
             this.priorityOutgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed priorityOutgoingMessagesTread .");
-            //this.handleOutgoingUDPSents.Join();
 
 
             ///*************************Killing TCP socket code
@@ -290,6 +341,8 @@ namespace KSPM.Network.Server
 
             ///*********************Killing server itself
             this.ableToRun = false;
+
+            ///Releasing command queues.
             this.commandsQueue.Purge(false);
             this.outgoingMessagesQueue.Purge(false);
             this.localCommandsQueue.Purge(false);
@@ -299,15 +352,28 @@ namespace KSPM.Network.Server
             this.outgoingMessagesQueue = null;
             this.priorityOutgoingMessagesQueue = null;
 
+            ///Releasing messages pools.
             this.priorityMessagesPool.Release();
             this.incomingMessagesPool.Release();
+            this.priorityMessagesPool = null;
+            this.incomingMessagesPool = null;
+
+            ///Releasing SAEA pool.
+            this.incomingConnectionsPool.Release(false);
+            this.incomingConnectionsPool = null;
+
+            this.usersAccountManager = null;
+            this.lowLevelOperationSettings = null;
+
+            ///Releasing the TCP purge timer.
+            this.tcpPurgeTimer.Dispose();
+            this.tcpPurgeTimer = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
 
 #if PROFILING
             this.profilerOutgoingMessages.Dispose();
 #endif
-
         }
 
         #endregion
@@ -388,16 +454,28 @@ namespace KSPM.Network.Server
             this.incomingConnectionsPool.Recycle(e);
         }
 
+        /// <summary>
+        /// Used to process an incoming stream.
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <param name="rawDataOffset"></param>
+        /// <param name="fixedLength"></param>
+        /// <param name="packetOwner"></param>
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength, NetworkEntity packetOwner)
         {
             Message incomingMessage = null;
             incomingMessage = this.priorityMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(packetOwner);
-            this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
+            if (!this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
+            {
+                this.priorityMessagesPool.Recycle(incomingMessage);
+            }
         }
 
         #endregion
+
+        #region Non-prioritizedCommandHandle
 
         /// <summary>
         /// Handles the those commands send by the client through a TCP socket.
@@ -423,26 +501,30 @@ namespace KSPM.Network.Server
                         {
                             case Message.CommandType.Chat:
                                 this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
-                                    /*
-                                    if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
-                                    {
-                                        //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
-                                        this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
-                                    }
-                                    */
-                                    break;
+                                /*
+                                if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
+                                {
+                                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
+                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
+                                }
+                                */
+                                break;
                             case Message.CommandType.KeepAlive:
-                                    KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
-                                    break;
+                                KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
+                                break;
                             case Message.CommandType.Unknown:
                             default:
-                            KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
-                            break;
+                                KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                break;
                         }
                         ///Releasing and recycling the message.
                         this.incomingMessagesPool.Recycle(messageToProcess);
                     }
-                    Thread.Sleep(3);
+                    else
+                    {
+                        ///Yielding the process.
+                        Thread.Sleep(0);
+                    }
                 }
             }
             catch (ThreadAbortException)
@@ -486,7 +568,7 @@ namespace KSPM.Network.Server
                                     broadcastReference = (BroadcastMessage)outgoingMessage;
                                     for (entityCounter = 0; entityCounter < broadcastReference.Targets.Length; entityCounter++)
                                     {
-                                        if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[ entityCounter].IsAlive() )
+                                        if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[entityCounter].IsAlive())
                                         {
                                             blockSize = System.BitConverter.ToInt32(outgoingMessage.bodyMessage, 4);
                                             if (blockSize == outgoingMessage.MessageBytesSize)
@@ -495,7 +577,6 @@ namespace KSPM.Network.Server
                                                 sendingData.AcceptSocket = broadcastReference.Targets[entityCounter].ownerNetworkCollection.socketReference;
                                                 sendingData.UserToken = broadcastReference.Targets[entityCounter];
                                                 sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                                //sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
                                                 if (!broadcastReference.Targets[entityCounter].ownerNetworkCollection.socketReference.SendAsync(sendingData))
                                                 {
                                                     this.OnSendingOutgoingDataComplete(this, sendingData);
@@ -521,12 +602,10 @@ namespace KSPM.Network.Server
                                             sendingData.AcceptSocket = managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference;
                                             sendingData.UserToken = managedReference.OwnerNetworkEntity;
                                             sendingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
-                                            //sendingData.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnSendingOutgoingDataComplete);
                                             if (!managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.SendAsync(sendingData))
                                             {
                                                 this.OnSendingOutgoingDataComplete(this, sendingData);
                                             }
-                                            //managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                                         }
                                     }
                                     else
@@ -537,7 +616,7 @@ namespace KSPM.Network.Server
                             }
                             catch (System.Exception ex)
                             {
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", ( outgoingMessage.IsBroadcast ?  ((BroadcastMessage)outgoingMessage).Targets[ entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id ), "HandleOutgoingMessages", ex.Message));
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", (outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id), "HandleOutgoingMessages", ex.Message));
                                 this.DisconnectClient((outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter] : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity));
                             }
                             finally
@@ -547,11 +626,15 @@ namespace KSPM.Network.Server
                                 outgoingMessage = null;
                             }
                         }
+                        else
+                        {
+                            ///Yielding the process.
+                            Thread.Sleep(0);
+                        }
 #if PROFILING
                         this.profilerOutgoingMessages.Mark();
 #endif
                     }
-                    Thread.Sleep(3);
             }
             catch (ThreadAbortException)
             {
@@ -574,7 +657,6 @@ namespace KSPM.Network.Server
                     networkEntitySender.MessageSent(networkEntitySender, null);
                 }
             }
-            e.Completed -= this.OnSendingOutgoingDataComplete;
 
             ///Checking if the SocketAsyncEventArgs pool has not been released and set to null.
             ///If the situtation mentioned above we have to dispose the SocketAsyncEventArgs by hand.
@@ -590,6 +672,27 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called each amount of time specified by udpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleTCPPurgeTimerCallback(object state)
+        {
+            if (this.commandsQueue.DirtyCount <= this.tcpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.tcpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("TCPPurge finished."));
+            }
+        }
+
+        #endregion
+
+        #region PrioritizedCommandsHandle
         /// <summary>
         /// Handles the commands passed by the UI or the console if is it one implemented.
         /// </summary>
@@ -688,7 +791,7 @@ namespace KSPM.Network.Server
                             this.priorityMessagesPool.Recycle(messageToProcess);
                         }
 
-                    Thread.Sleep(9);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)
@@ -737,7 +840,7 @@ namespace KSPM.Network.Server
                             outgoingMessage.Release();
                             outgoingMessage = null;
                         }
-                    Thread.Sleep(5);
+                    Thread.Sleep(1);
                 }
             }
             catch (ThreadAbortException)
@@ -769,26 +872,7 @@ namespace KSPM.Network.Server
             }
         }
 
-        protected void HandleUDPSend()
-        {
-            if (!this.ableToRun)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
-            }
-            try
-            {
-                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle udp send[ " + this.alive + " ]");
-                while (this.alive)
-                {
-                    
-                    Thread.Sleep(5);
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                this.alive = false;
-            }
-        }
+        #endregion
 
         #region UserManagement
 
@@ -853,6 +937,21 @@ namespace KSPM.Network.Server
             get
             {
                 return this.clientsHandler;
+            }
+        }
+
+        #endregion
+
+        #region Setters/Getters
+
+        /// <summary>
+        /// Tells if the server is still running.
+        /// </summary>
+        public bool IsAlive
+        {
+            get
+            {
+                return this.alive;
             }
         }
 

@@ -7,6 +7,7 @@ using KSPM.Network.Common.Packet;
 using KSPM.Game;
 using KSPM.Globals;
 using KSPM.Network.NAT;
+using KSPM.Network.Common.Events;
 using KSPM.Network.Client.RemoteServer;
 using KSPM.Network.Chat.Managers;
 using KSPM.Network.Chat.Messages;
@@ -63,6 +64,12 @@ namespace KSPM.Network.Client
         /// </summary>
         protected bool holePunched;
 
+        #region UserManagement
+
+        public event UserDisconnectedEventHandler UserDisconnected;
+
+        #endregion
+
         #region TCP_Buffering
 
         /// <summary>
@@ -114,6 +121,26 @@ namespace KSPM.Network.Client
         /// </summary>
         protected long tcpKeepAliveInterval;
 
+        /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        protected System.Threading.Timer tcpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        protected int tcpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        protected int tcpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int tcpMinimumMessagesAllowedAfterPurge;
+
 
         #endregion
 
@@ -153,6 +180,31 @@ namespace KSPM.Network.Client
         /// Pairing code.
         /// </summary>
         protected int pairingCode;
+
+        /// <summary>
+        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// </summary>
+        protected System.Threading.Timer udpPurgeTimer;
+
+        /// <summary>
+        /// Amount of time to set when the timer should check the capacity of the referred queue.
+        /// </summary>
+        protected int udpPurgeTimeInterval;
+
+        /// <summary>
+        /// Tells when the system is purging an UDP queue.
+        /// </summary>
+        protected int udpPurgeFlag;
+
+        /// <summary>
+        /// Tells the amount of messages are allowe to receive messages again.
+        /// </summary>
+        protected int udpMinimumMessagesAllowedAfterPurge;
+
+        /// <summary>
+        /// Event raised when an UDP message arrives to the system.
+        /// </summary>
+        public event UDPMessageArrived UDPMessageArrived;
 
         #endregion
 
@@ -224,6 +276,8 @@ namespace KSPM.Network.Client
 
         #endregion
 
+        #region CreationAndInitializationCode
+
         /// <summary>
         /// Creates a GameClient reference a initialize some properties.
         /// </summary>
@@ -287,6 +341,20 @@ namespace KSPM.Network.Client
             this.udpInputSAEAPool = new SharedBufferSAEAPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize, this.udpNetworkCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
             this.udpOutSAEAPool = new SocketAsyncEventArgsPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize, this.OnUDPSendingDataComplete);
             this.udpIOMessagesPool = new MessagesPool(KSPM.Network.Server.ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
+
+            ///UDP Purge Timer
+            this.udpPurgeTimer = new Timer(this.HandleUDPPurgeTimerCallback);
+            this.udpPurgeTimeInterval = (int)ClientSettings.PurgeTimeIterval;
+            this.udpMinimumMessagesAllowedAfterPurge = (int)(this.incomingUDPMessages.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
+            this.udpPurgeFlag = 0;
+
+            ///TCP Purge Timer
+            this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
+            this.tcpPurgeTimeInterval = (int)ClientSettings.PurgeTimeIterval;
+            this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
+            this.tcpPurgeFlag = 0;
+
+            this.UDPMessageArrived = null;
         }
 
         /// <summary>
@@ -349,6 +417,8 @@ namespace KSPM.Network.Client
             return result;
         }
 
+        #endregion
+
         #region Connection
 
         /// <summary>
@@ -407,7 +477,7 @@ namespace KSPM.Network.Client
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection timeout.", this.id));
 
                     ///Disposing used resources inside the connection process.
-                    this.BreakConnections(this, null);
+                    this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.Connect, KSPMEventArgs.EventCause.ConnectionTimeOut));
                 }
                 if (!this.holePunched || !this.udpHolePunched)
                 {
@@ -445,7 +515,7 @@ namespace KSPM.Network.Client
                 {
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Hole punching can not be done, reassigning connection. Try again", this.id));
                     this.reassignAddress = true;
-                    this.BreakConnections(this, null);
+                    this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.Connect, KSPMEventArgs.EventCause.TCPHolePunchingCannotBeDone) );
                     return;
                 }
                 this.ReceiveTCPStream();
@@ -568,7 +638,7 @@ namespace KSPM.Network.Client
                                 break;
                             case Message.CommandType.ServerFull:
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Serverfull.", this.id));
-                                this.BreakConnections(this, null);
+                                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.Connect, KSPMEventArgs.EventCause.ServerFull) );
                                 break;
                             case Message.CommandType.UDPSettingUp:///Create the UDP conn.
                                 ///Reads the information sent by the server and starts the UDP setting up process.
@@ -585,8 +655,8 @@ namespace KSPM.Network.Client
                                     this.currentStatus = ClientStatus.UDPSettingUp;
                                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP pairing code. {1}", this.id, System.Convert.ToString(this.pairingCode, 2)));
                                 }
-                                udpServerInformation.Dispose();
-                                udpServerInformation = null;
+                                udpServerInformationFromNetwork.Dispose();
+                                udpServerInformationFromNetwork = null;
                                 break;
                             case Message.CommandType.ChatSettingUp:
                                 if (ChatManager.CreateChatManagerFromMessage(command.bodyMessage, ChatManager.DefaultStorageMode.Persistent, out this.chatSystem) == Error.ErrorType.Ok)
@@ -746,7 +816,7 @@ namespace KSPM.Network.Client
             {
                 if (e.BytesTransferred > 0)
                 {
-                    ///Do  whatever you want here.
+                    this.MessageSent(this, null);
                 }
             }
             //e.Completed -= this.OnSendingOutgoingDataComplete;
@@ -770,7 +840,29 @@ namespace KSPM.Network.Client
             Message keepAliveCommand = null;
             if (Message.KeepAlive(this, out keepAliveCommand) == Error.ErrorType.Ok)
             {
-                this.outgoingTCPMessages.EnqueueCommandMessage(ref keepAliveCommand);
+                if (!this.outgoingTCPMessages.EnqueueCommandMessage(ref keepAliveCommand))
+                {
+                    keepAliveCommand.Release();
+                    keepAliveCommand = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Method called each amount of time specified by tcpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleTCPPurgeTimerCallback(object state)
+        {
+            if (this.commandsQueue.DirtyCount <= this.tcpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.tcpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] TCPPurge finished.", this.id));
             }
         }
 
@@ -808,52 +900,65 @@ namespace KSPM.Network.Client
                     ///We can change it to another method that no allocates memory.
                     this.packetizer.PacketizeCRCCreateMemory(this);
                     this.ReceiveTCPStream();
+
+                    ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
+                    //e.Completed -= this.OnTCPIncomingDataComplete;
+                    if (this.tcpInEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
+                    {
+                        e.Dispose();
+                        e = null;
+                    }
+                    else
+                    {
+                        this.tcpInEventsPool.Recycle(e);
+                    }
                 }
                 else
                 {
                     ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
                     ///disconnected.
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
-                    //KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                    this.BreakConnections(this,  new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected) );
                 }
             }
             else
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
-                //KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
-            }
-            ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
-            //e.Completed -= this.OnTCPIncomingDataComplete;
-            if (this.tcpInEventsPool == null)///Means that the reference has been killed. So we have to release this SocketAsyncEventArgs by hand.
-            {
-                e.Dispose();
-                e = null;
-            }
-            else
-            {
-                this.tcpInEventsPool.Recycle(e);
+                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
             }
         }
 
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
             Message incomingMessage = null;
-            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
-            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+            if (Interlocked.CompareExchange(ref this.tcpPurgeFlag, 0, 0) == 0)
             {
-                this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                //this.ProcessTCPCommand();
+                //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
+                if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
+                {
+                    if (!this.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                    {
+                        incomingMessage.Release();
+                        incomingMessage = null;
+
+                        ///Must be invoked only one time.
+                        Interlocked.Exchange(ref this.tcpPurgeFlag, 1);
+                        this.tcpPurgeTimer.Change(this.tcpPurgeTimeInterval, this.tcpPurgeTimeInterval);
+                    }
+                }
             }
         }
 
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
+            /*
             Message incomingMessage = null;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLength.ToString());
             if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
             {
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
             }
+            */
         }
 
         #endregion
@@ -949,14 +1054,14 @@ namespace KSPM.Network.Client
                     ///disconnected.
                     this.udpInputSAEAPool.Recycle(e);
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete"));
-                    this.BreakConnections(this, null);
+                    this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
                 }
             }
             else
             {
                 this.udpInputSAEAPool.Recycle(e);
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the UDP remote client, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
-                this.BreakConnections(this, null);
+                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
             }
         }
 
@@ -983,7 +1088,23 @@ namespace KSPM.Network.Client
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
-            this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage);
+            if (Interlocked.CompareExchange(ref this.udpPurgeFlag, 0, 0) == 0)
+            {
+                if (!this.incomingUDPMessages.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    ///If this code is reached means the incoming queue is full, so we need to recycle the incoming message by hand.
+                    this.udpIOMessagesPool.Recycle(incomingMessage);
+
+                    ///This must be invoked only one time.
+                    Interlocked.Exchange(ref this.udpPurgeFlag, 1);
+                    this.udpPurgeTimer.Change(this.udpPurgeTimeInterval, this.udpPurgeTimeInterval);
+                }
+            }
+            else///Means that the system is full.
+            {
+                ///So we need to recycle the incoming message to avoid memory exhaustion.
+                this.udpIOMessagesPool.Recycle(incomingMessage);
+            }
         }
 
         /// <summary>
@@ -1021,7 +1142,33 @@ namespace KSPM.Network.Client
                 this.udpIOMessagesPool.Recycle((Message)e.UserToken);
                 ///Recycling the SAEA object used to perform the send process.
                 this.udpOutSAEAPool.Recycle(e);
-                this.BreakConnections(this, null);
+                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+            }
+        }
+
+        /// <summary>
+        /// Method called each amount of time specified by udpPurgeTimeInterval property.
+        /// Checks if the queue is able to receive new messages.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void HandleUDPPurgeTimerCallback(object state)
+        {
+            if (this.incomingUDPMessages.DirtyCount <= this.udpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
+            {
+                ///Disabling the timer.
+                this.udpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                ///Disabling the purge flag.
+                Interlocked.Exchange(ref this.udpPurgeFlag, 0);
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDPPurge finished.", this.id));
+            }
+        }
+
+        protected void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
+        {
+            if (this.UDPMessageArrived != null)
+            {
+                this.UDPMessageArrived(sender, message);
             }
         }
 
@@ -1140,6 +1287,14 @@ namespace KSPM.Network.Client
             this.tcpBuffer.Release();
             this.tcpBuffer = null;
 
+            ///Cleaning up udpPurgeTimer
+            this.udpPurgeTimer.Dispose();
+            this.udpPurgeTimer = null;
+
+            ///Cleaning up tcpPurgeTimer
+            this.tcpPurgeTimer.Dispose();
+            this.tcpPurgeTimer = null;
+
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Client killed!!!", this.id));
         }
 
@@ -1147,14 +1302,22 @@ namespace KSPM.Network.Client
         /// Closes the connections, cleans references used by the client itself, such as sockets, and buffers.
         /// </summary>
         /// <param name="caller"></param>
-        /// <param name="arg"></param>
+        /// <param name="arg">KSPMEventArgs filled with informationa about what happened</param>
         protected void BreakConnections(NetworkEntity caller, object arg)
         {
             Message disposingMessage;
 
             ///To avoid execute twice or more times this method.
+            ///
+            /*
             if (!this.holePunched)
                 return;
+            */
+
+            if (this.currentStatus == ClientStatus.None)
+                return;
+
+            this.currentStatus = ClientStatus.None;
 
             ///***********************Sockets code
             this.udpHolePunched = false;
@@ -1214,7 +1377,18 @@ namespace KSPM.Network.Client
                 this.chatSystem = null;
             }
 
-            this.currentStatus = ClientStatus.None;
+            ///Disabling the timer.
+            this.udpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+            if (arg == null)
+            {
+                this.OnUserDisconnected(this, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
+            }
+            else
+            {
+                this.OnUserDisconnected(this, (KSPMEventArgs)arg);
+            }
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected after {1} seconds alive.", this.id, this.AliveTime / 1000));
         }
@@ -1268,7 +1442,7 @@ namespace KSPM.Network.Client
                             else if (exceptionKind.Equals(typeof(SocketException)))///Something happened to the connection.
                             {
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] ===Socket ERROR=== {1}.", this.id, runtimeError.Message));
-                                this.BreakConnections(this, null);
+                                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ErrorByException));
                             }
                         }
                     }
@@ -1354,6 +1528,23 @@ namespace KSPM.Network.Client
             get
             {
                 return this.udpIOMessagesPool;
+            }
+        }
+
+        #endregion
+
+        #region UserManagement
+
+        /// <summary>
+        /// Event raised when an user has connected to the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void OnUserDisconnected(NetworkEntity sender, KSPMEventArgs e)
+        {
+            if (this.UserDisconnected != null)
+            {
+                this.UserDisconnected(sender, e);
             }
         }
 
