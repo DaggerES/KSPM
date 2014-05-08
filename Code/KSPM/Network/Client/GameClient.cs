@@ -692,12 +692,16 @@ namespace KSPM.Network.Client
                             ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
                             case Message.CommandType.UDPPairingOk:
                                 this.currentStatus = ClientStatus.Connected;
+                                ///Cleaning up.
+                                this.udpIOMessagesPool.Recycle(command);
                                 break;
                             ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.
                             ///At this the Connected status is going to be set, but a Warning must be raised.
                             case Message.CommandType.UDPPairingFail:
                                 this.currentStatus = ClientStatus.Connected;
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
+                                ///Cleaning up.
+                                this.udpIOMessagesPool.Recycle(command);
                                 break;
                             case Message.CommandType.UDPChat:
                                 if (this.chatSystem != null)///Checking if the chat system is already set up.
@@ -712,10 +716,13 @@ namespace KSPM.Network.Client
                                         }
                                     }
                                 }
+                                ///Cleaning up.
+                                this.udpIOMessagesPool.Recycle(command);
+                                break;
+                            default:
+                                this.OnUDPMessageArrived(this, (RawMessage)command);
                                 break;
                         }
-                        ///Cleaning up.
-                        this.udpIOMessagesPool.Recycle(command);
                     }
                     //Thread.Sleep(3);
                 }
@@ -1072,6 +1079,7 @@ namespace KSPM.Network.Client
         /// <param name="fixedLegth"></param>
         public void ProcessUDPPacket(byte[] rawData, uint fixedLegth)
         {
+            /*
             Message incomingMessage;
             KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
             if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
@@ -1080,6 +1088,7 @@ namespace KSPM.Network.Client
                 //this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
                 //this.ProcessUDPCommand();
             }
+            */
         }
 
         /// <summary>
@@ -1169,6 +1178,11 @@ namespace KSPM.Network.Client
             if (this.UDPMessageArrived != null)
             {
                 this.UDPMessageArrived(sender, message);
+            }
+            else
+            {
+                ///If there is not a event assigned, we must proceed to clean up the given message.
+                this.udpIOMessagesPool.Recycle(message);
             }
         }
 

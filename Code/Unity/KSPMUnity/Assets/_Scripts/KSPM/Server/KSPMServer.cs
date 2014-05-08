@@ -8,13 +8,15 @@ using KSPM.IO.Logging;
 public class KSPMServer : MonoBehaviour
 {
     protected ServerSettings settings;
-    protected GameServer kspmServer;
     protected string text;
+
+    public GameServer KSPMServerReference;
+
 	// Use this for initialization
 	void Start ()
     {
         //Debug.Log(System.Environment.CurrentDirectory);
-        KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", UnityGlobals.IOSwapPath, UnityGlobals.SwapFolder));
+        KSPMGlobals.Globals.ChangeIOFilePath(UnityGlobals.WorkingDirectory);
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
 	}
 	
@@ -45,16 +47,16 @@ public class KSPMServer : MonoBehaviour
         KSPMGlobals.Globals.Log.Dispose();
     }
 
-    protected void StartServer()
+    public bool StartServer()
     {
-        if (this.kspmServer != null)
-            return;
+        if (this.KSPMServerReference != null)
+            return false;
         ServerSettings.ReadSettings(out settings);
-        this.kspmServer = new GameServer(ref settings);
-        this.kspmServer.UserConnected += new KSPM.Network.Common.Events.UserConnectedEventHandler(kspmServer_UserConnected);
-        this.kspmServer.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmServer_UserDisconnected);
-        KSPMGlobals.Globals.SetServerReference(ref this.kspmServer);
-        this.kspmServer.StartServer();
+        this.KSPMServerReference = new GameServer(ref settings);
+        this.KSPMServerReference.UserConnected += new KSPM.Network.Common.Events.UserConnectedEventHandler(kspmServer_UserConnected);
+        this.KSPMServerReference.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmServer_UserDisconnected);
+        KSPMGlobals.Globals.SetServerReference(ref KSPMServerReference);
+        return this.KSPMServerReference.StartServer();
     }
 
     void kspmServer_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
@@ -69,11 +71,11 @@ public class KSPMServer : MonoBehaviour
         Debug.Log(reference.gameUser.Username);
     }
 
-    protected void StopServer()
+    public void StopServer()
     {
-        if (this.kspmServer != null && this.kspmServer.IsAlive)
+        if (this.KSPMServerReference != null && this.KSPMServerReference.IsAlive)
         {
-            this.kspmServer.ShutdownServer();
+            this.KSPMServerReference.ShutdownServer();
         }
     }
 }
