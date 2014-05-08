@@ -16,7 +16,7 @@ public class KSPMClient : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", UnityGlobals.IOSwapPath, UnityGlobals.SwapFolder));
+        //KSPMGlobals.Globals.ChangeIOFilePath(string.Format("{0}/{1}/", UnityGlobals.IOSwapPath, UnityGlobals.SwapFolder));
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
         KSPMGlobals.Globals.Log.WriteTo(KSPMGlobals.Globals.IOFilePath);
         //this.StartClient();
