@@ -895,6 +895,11 @@ namespace KSPM.Network.Server
             {
                 this.UDPMessageArrived(sender, message);
             }
+            else
+            {
+                ///Recycling the message, to avoid message exhaustion.
+                ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
+            }
         }
 
         /// <summary>

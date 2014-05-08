@@ -709,6 +709,7 @@ namespace KSPM.Network.Server
                             break;
                         default:
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
+                            this.udpIOMessagesPool.Recycle(rawMessageReference);
                             break;
                     }
                     //this.SendUDPDatagram();
