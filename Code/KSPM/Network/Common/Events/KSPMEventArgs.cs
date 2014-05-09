@@ -26,6 +26,8 @@ namespace KSPM.Network.Common.Events
             ServerFull,
             ServerDisconnected,
 
+            ClientDisconnected,
+
             ErrorByException,
 
             NiceDisconnect,

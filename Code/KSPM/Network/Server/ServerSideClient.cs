@@ -318,7 +318,7 @@ namespace KSPM.Network.Server
                 {
                     this.markedToDie = true;
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connection process has taken too long: {1}.", this.id, this.timer.ElapsedMilliseconds));
-                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs( KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.ConnectionTimeOut));
                     thisThreadAlive = false;
                 }
                 Thread.Sleep(3);
@@ -352,12 +352,12 @@ namespace KSPM.Network.Server
             catch (System.ObjectDisposedException ex)
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
             catch (SocketException ex)
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveTCPStream", ex.SocketErrorCode, ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
         }
 
@@ -378,13 +378,13 @@ namespace KSPM.Network.Server
                     ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
                     ///disconnected.
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
-                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.ClientDisconnected));
                 }
             }
             else
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ClientDisconnected));
             }
             ///Either we have success reading the incoming data or not we need to recycle the SocketAsyncEventArgs used to perform this reading process.
             //e.Completed -= this.OnTCPIncomingDataComplete;
@@ -515,12 +515,12 @@ namespace KSPM.Network.Server
             catch (System.ObjectDisposedException ex)
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
             catch (SocketException ex)
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "ReceiveUDPDatagram", ex.SocketErrorCode, ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
             catch (System.NullReferenceException)
             {
@@ -592,7 +592,7 @@ namespace KSPM.Network.Server
                     {
                         this.udpInputSAEAPool.Recycle(e);
                     }
-                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.ClientDisconnected));
                 }
             }
             else
@@ -609,7 +609,7 @@ namespace KSPM.Network.Server
                     {
                         this.udpInputSAEAPool.Recycle(e);
                     }
-                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                    KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.ClientDisconnected));
             }
         }
 
@@ -771,7 +771,7 @@ namespace KSPM.Network.Server
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "SendAsDatagram", ex.SocketErrorCode, ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
         }
 
@@ -830,7 +830,7 @@ namespace KSPM.Network.Server
             catch (SocketException ex)///Something happened to the remote client, so it is required to this ServerSideClient to kill itself.
             {
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}:{3}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "SendUDPDatagram", ex.SocketErrorCode, ex.Message));
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Error, KSPMEventArgs.EventCause.ErrorByException));
             }
         }
 
@@ -868,7 +868,7 @@ namespace KSPM.Network.Server
                 ///Either we have have sucess sending the data, it's required to recycle the outgoing message.
                 this.udpIOMessagesPool.Recycle((Message)e.UserToken);
                 this.udpOutSAEAPool.Recycle(e);
-                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this);
+                KSPMGlobals.Globals.KSPMServer.DisconnectClient(this, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.ClientDisconnected));
             }
         }
 

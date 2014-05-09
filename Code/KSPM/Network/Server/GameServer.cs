@@ -624,7 +624,7 @@ namespace KSPM.Network.Server
                             catch (System.Exception ex)
                             {
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", (outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter].Id : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity.Id), "HandleOutgoingMessages", ex.Message));
-                                this.DisconnectClient((outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter] : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity));
+                                this.DisconnectClient((outgoingMessage.IsBroadcast ? ((BroadcastMessage)outgoingMessage).Targets[entityCounter] : ((ManagedMessage)outgoingMessage).OwnerNetworkEntity), new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ErrorByException));
                             }
                             finally
                             {
@@ -786,7 +786,7 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
-                                    this.DisconnectClient(managedMessageReference.OwnerNetworkEntity);
+                                    this.DisconnectClient(managedMessageReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
@@ -840,7 +840,7 @@ namespace KSPM.Network.Server
                             catch (System.Exception ex)
                             {
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingPriorityMessages", ex.Message));
-                                this.DisconnectClient(managedReference.OwnerNetworkEntity);
+                                this.DisconnectClient(managedReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ErrorByException));
                             }
 
                             ///Releasing the processed command.
@@ -913,11 +913,11 @@ namespace KSPM.Network.Server
         /// Internal method used to disconnect clients, also raises the OnUserDisconnected event.
         /// </summary>
         /// <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
-        internal void DisconnectClient(NetworkEntity target)
+        internal void DisconnectClient(NetworkEntity target, KSPMEventArgs cause)
         {
             if (target != null && target.IsAlive())
             {
-                this.OnUserDisconnected(target, null);
+                this.OnUserDisconnected(target, cause);
                 this.chatManager.UnregisterUser(target);
                 this.clientsHandler.RemoveClient(target);
             }
