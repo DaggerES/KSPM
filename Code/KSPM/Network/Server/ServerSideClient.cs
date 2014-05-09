@@ -468,6 +468,7 @@ namespace KSPM.Network.Server
         protected Error.ErrorType InitializeUDPConnection()
         {
             IPEndPoint udpLocalEndPoint;
+            int newPortNumber = -1;
             this.udpCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             udpLocalEndPoint = (IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint;
             try
@@ -476,7 +477,9 @@ namespace KSPM.Network.Server
                 {
                     this.udpCollection.socketReference.IOControl((IOControlCode)(-1744830452), new byte[] { 0, 0, 0, 0 }, null);
                 }
-                this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, 0));//0 because It should be any available port.
+                //this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, 0));//0 because It should be any available port.
+                newPortNumber = KSPMGlobals.Globals.KSPMServer.ioPortManager.NextPort(IOPortManager.PortProtocool.UDP);
+                this.udpCollection.socketReference.Bind(new IPEndPoint(udpLocalEndPoint.Address, newPortNumber));
                 this.usingUdpConnection = false;
             }
             catch (System.Exception ex)
@@ -955,6 +958,7 @@ namespace KSPM.Network.Server
             ///****************UDP sockets code.
             if (this.udpCollection.socketReference != null)
             {
+                KSPMGlobals.Globals.KSPMServer.ioPortManager.RecyclePort(((IPEndPoint)this.udpCollection.socketReference.LocalEndPoint).Port);
                 this.udpCollection.socketReference.Close();
             }
             this.udpCollection.Dispose();

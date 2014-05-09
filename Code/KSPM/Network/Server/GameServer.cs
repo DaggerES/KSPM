@@ -50,6 +50,8 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
+        protected internal IOPortManager ioPortManager;
+
         #region TCPProperties
 
         /// <summary>
@@ -253,6 +255,8 @@ namespace KSPM.Network.Server
             this.tcpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
             this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
 
+            this.ioPortManager = new IOPortManager(50000, 50500);
+
             this.ableToRun = true;
             this.alive = false;
         }
@@ -368,6 +372,9 @@ namespace KSPM.Network.Server
             ///Releasing the TCP purge timer.
             this.tcpPurgeTimer.Dispose();
             this.tcpPurgeTimer = null;
+
+            this.ioPortManager.Release();
+            this.ioPortManager = null;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Server KSPM killed after {0} miliseconds alive!!!", RealTimer.Timer.ElapsedMilliseconds));
 

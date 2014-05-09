@@ -101,6 +101,7 @@
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Common\NetworkEntity.cs" />
     <Compile Include="Network\Common\NetworkRawEntity.cs" />
+    <Compile Include="Network\Server\IOPortManager.cs" />
     <Compile Include="Network\Server\ServerSettings.cs" />
     <Compile Include="Network\Server\ServerSideClient.cs" />
     <Compile Include="Network\Server\UserManagement\AccountManager.cs" />
