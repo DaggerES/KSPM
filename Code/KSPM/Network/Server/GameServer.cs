@@ -255,7 +255,7 @@ namespace KSPM.Network.Server
             this.tcpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
             this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
 
-            this.ioPortManager = new IOPortManager(50000, 50500);
+            this.ioPortManager = new IOPortManager(this.lowLevelOperationSettings.udpPortRange.assignablePortStart, this.lowLevelOperationSettings.udpPortRange.assignablePortEnd);
 
             this.ableToRun = true;
             this.alive = false;

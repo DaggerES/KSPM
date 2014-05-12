@@ -27,6 +27,11 @@ namespace KSPM.Network.Server
         [XmlIgnore]
         protected static readonly uint ServerMaxConnectedClients = 8;
 
+        [XmlIgnore]
+        protected static readonly int UDPPortRangeStart = 50000;
+        [XmlIgnore]
+        protected static readonly int UDPPortRangeEnd = 50500;
+
         /// <summary>
         /// Tells the size of those buffers used internally such as the PacketHandler buffer.
         /// </summary>
@@ -47,8 +52,13 @@ namespace KSPM.Network.Server
 
         [XmlElement("TCPPort")]
         public int tcpPort;
+
+        [XmlElement("UDPPortRange")]
+        public IOPortManager.AssignablePortRange udpPortRange;
+
         [XmlElement("MaxConnectedClients")]
         public uint maxConnectedClients;
+
         [XmlElement("AuthenticationAttempts")]
         public int maxAuthenticationAttempts;
 
@@ -141,6 +151,8 @@ namespace KSPM.Network.Server
             settings.maxAuthenticationAttempts = ServerSettings.ServerAuthenticationAllowingTries;
             settings.maxConnectedClients = ServerSettings.ServerMaxConnectedClients;
             settings.tcpPort = ServerSettings.DefaultTCPListeningPort;
+            settings.udpPortRange.assignablePortStart = ServerSettings.UDPPortRangeStart;
+            settings.udpPortRange.assignablePortEnd = ServerSettings.UDPPortRangeEnd;
         }
 
         /// <summary>

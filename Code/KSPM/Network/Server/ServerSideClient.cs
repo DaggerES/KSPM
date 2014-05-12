@@ -54,6 +54,11 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        protected long profilerTimeSnapshot;
+        protected long profilerTimeStart;
+        protected long profilerTimeMark;
+        protected long profilerTimeCounter;
+
         #region TCP_Buffering
 
         /// <summary>
@@ -229,6 +234,11 @@ namespace KSPM.Network.Server
             this.udpMinimumMessagesAllowedAfterPurge = (int)(this.incomingPackets.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
             this.udpPurgeFlag = 0;
 
+            this.profilerTimeCounter = 0;
+            this.profilerTimeMark = 0;
+            this.profilerTimeSnapshot = 0;
+            this.profilerTimeStart = 0;
+
             this.timer = new System.Diagnostics.Stopwatch();
             this.timer.Start();
 
@@ -278,6 +288,7 @@ namespace KSPM.Network.Server
                 return;
             }
 			KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]Going alive {1}", this.id, this.ownerNetworkCollection.socketReference.RemoteEndPoint.ToString()));
+
             while (thisThreadAlive)
             {
                 switch (this.currentStatus)
@@ -287,12 +298,24 @@ namespace KSPM.Network.Server
                         Message.HandshakeAccetpMessage(myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
-                        this.currentStatus = ClientStatus.Awaiting;
+
                         //Awaiting for the Authentication message coming from the remote client.
+                        this.currentStatus = ClientStatus.Awaiting;
+
+                        ///Starting to measure the connection process.
+                        this.profilerTimeStart = this.timer.ElapsedMilliseconds;
                         break;
                     case ClientStatus.Awaiting:
                         break;
+
                     case ClientStatus.Authenticated:
+
+                        ///Profiling
+                        this.profilerTimeMark = this.timer.ElapsedMilliseconds;
+                        this.profilerTimeSnapshot += this.profilerTimeMark - this.profilerTimeStart;
+                        this.profilerTimeStart = this.profilerTimeMark;
+                        this.profilerTimeCounter++;
+
                         this.currentStatus = ClientStatus.UDPSettingUp;
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
@@ -301,8 +324,18 @@ namespace KSPM.Network.Server
                         this.usingUdpConnection = true;
                         this.ReceiveUDPDatagram();
 
+                        this.currentStatus = ClientStatus.Awaiting;
+
                         break;
+
                     case ClientStatus.Connected:
+
+                        ///Profiling
+                        this.profilerTimeMark = this.timer.ElapsedMilliseconds;
+                        this.profilerTimeSnapshot += this.profilerTimeMark - this.profilerTimeStart;
+                        this.profilerTimeStart = this.profilerTimeMark;
+                        this.profilerTimeCounter++;
+
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
                         Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
@@ -327,10 +360,17 @@ namespace KSPM.Network.Server
 
         protected void AsyncConnectionProccesComplete(System.IAsyncResult result)
         {
+            ///Profiling
+            this.profilerTimeMark = this.timer.ElapsedMilliseconds;
+            this.profilerTimeSnapshot += this.profilerTimeMark - this.profilerTimeStart;
+            this.profilerTimeStart = this.profilerTimeMark;
+            this.profilerTimeCounter++;
+            this.profilerTimeSnapshot /= this.profilerTimeCounter;
+
             ConnectAsync caller = (ConnectAsync)result.AsyncState;
             caller.EndInvoke(result);
             this.OnUserConnected(null);
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]Connection complete", this.id));
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]Connection complete: avg timing {1} ms.", this.id, this.profilerTimeSnapshot));
         }
 
         #endregion
@@ -1105,6 +1145,17 @@ namespace KSPM.Network.Server
             get
             {
                 return this.udpIOMessagesPool;
+            }
+        }
+
+        /// <summary>
+        /// Gets the averge of time taken by this client to process a single command.
+        /// </summary>
+        public long ClientLatency
+        {
+            get
+            {
+                return this.profilerTimeSnapshot;
             }
         }
 

@@ -12,15 +12,16 @@
             TCP
         };
 
-        /// <summary>
-        /// Tells where the assignation table starts.
-        /// </summary>
-        protected int assignablePortNumberStart;
+        public struct AssignablePortRange
+        {
+            public int assignablePortStart;
+            public int assignablePortEnd;
+        };
 
         /// <summary>
-        /// Tells where the assignation table ends.
+        /// Port assignation table.
         /// </summary>
-        protected int assignablePortNumberEnd;
+        protected AssignablePortRange assignablePortRange;
 
         /// <summary>
         /// Dictionary to keep track of the assigned ports.
@@ -39,11 +40,11 @@
         /// <param name="endAssignationPort">Where the assignation should end at<b>Set 0 to use the MaxPort available (65535)</b></param>
         public IOPortManager(int startAssignationPort, int endAssignationPort)
         {
-            this.assignablePortNumberStart = startAssignationPort;
-            this.assignablePortNumberEnd = (endAssignationPort == 0) ? System.Net.IPEndPoint.MaxPort : endAssignationPort;
+            this.assignablePortRange.assignablePortStart = startAssignationPort;
+            this.assignablePortRange.assignablePortEnd = (endAssignationPort == 0) ? System.Net.IPEndPoint.MaxPort : endAssignationPort;
             this.assignedPorts = new System.Collections.Generic.Dictionary<int, PortProtocool>();
-            this.freePorts = new System.Collections.Generic.Queue<int>(this.assignablePortNumberEnd - this.assignablePortNumberStart + 1);
-            for (int i = this.assignablePortNumberStart; i <= this.assignablePortNumberEnd; i++)
+            this.freePorts = new System.Collections.Generic.Queue<int>(this.assignablePortRange.assignablePortEnd - this.assignablePortRange.assignablePortStart + 1);
+            for (int i = this.assignablePortRange.assignablePortStart; i <= this.assignablePortRange.assignablePortEnd; i++)
             {
                 this.freePorts.Enqueue(i);
             }
@@ -96,7 +97,7 @@
             this.freePorts = null;
             this.assignedPorts.Clear();
             this.assignedPorts = null;
-            this.assignablePortNumberStart = this.assignablePortNumberEnd = 0;
+            this.assignablePortRange.assignablePortStart = this.assignablePortRange.assignablePortEnd = 0;
         }
     }
 }
