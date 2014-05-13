@@ -13,6 +13,11 @@ namespace KSPM.Network.Common.Messages
         protected NetworkEntity messageOwner;
 
         /// <summary>
+        /// Index to tell where the bodymessage starts.
+        /// </summary>
+        protected uint startsAt;
+
+        /// <summary>
         /// Creates an instance and set the NetworkEntity owner of this message.
         /// </summary>
         /// <param name="commandType"></param>
@@ -20,6 +25,7 @@ namespace KSPM.Network.Common.Messages
         public ManagedMessage(CommandType commandType, NetworkEntity messageOwner) : base( commandType )
         {
             this.messageOwner = messageOwner;
+            this.startsAt = 0;
         }
 
         /// <summary>
@@ -72,6 +78,18 @@ namespace KSPM.Network.Common.Messages
         /// </summary>
         public override void Dispose()
         {
+        }
+
+        public uint StartsAt
+        {
+            get
+            {
+                return this.startsAt;
+            }
+            set
+            {
+                this.startsAt = value;
+            }
         }
 
         public void SwapReceivedBufferToSend(ManagedMessage otherMessage)

@@ -519,6 +519,9 @@ namespace KSPM.Network.Server
                             case Message.CommandType.KeepAlive:
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
                                 break;
+                            case Message.CommandType.User:
+                                ///Still does nothing.
+                                break;
                             case Message.CommandType.Unknown:
                             default:
                                 KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
@@ -787,6 +790,9 @@ namespace KSPM.Network.Server
                                 case Message.CommandType.Disconnect:
                                     ///Disconnects either a NetworkEntity or a ServerSideClient.
                                     this.DisconnectClient(managedMessageReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
+                                    break;
+                                case Message.CommandType.User:
+                                    ///Still does nothing.
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:

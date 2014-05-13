@@ -750,6 +750,10 @@ namespace KSPM.Network.Server
                             ///At this moment we only raises the event, but it can be raised with whichever incoming message.
                             KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
                             break;
+                        case Message.CommandType.User:
+                            ///At this moment we only raises the event, but it can be raised with whichever incoming message.
+                            KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                            break;
                         default:
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
                             this.udpIOMessagesPool.Recycle(rawMessageReference);

@@ -123,9 +123,9 @@ namespace KSPM.Network.Server.UserManagement
         {
             Message outgoingMessage = null;
             BroadcastMessage outgoingBroadcast = new BroadcastMessage(messageToSend.Command, targets);
-            outgoingBroadcast.SetBodyMessage(messageToSend.bodyMessage,((BufferedMessage)messageToSend).StartsAt , messageToSend.MessageBytesSize);
+            outgoingBroadcast.SetBodyMessage(messageToSend.bodyMessage,((ManagedMessage)messageToSend).StartsAt , messageToSend.MessageBytesSize);
             outgoingMessage = outgoingBroadcast;
-            messageToSend.IsBroadcast = true;
+            outgoingMessage.IsBroadcast = true;
             if (!KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage))
             {
                 outgoingBroadcast.Release();

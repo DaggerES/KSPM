@@ -122,6 +122,11 @@ namespace KSPM.Network.Common.Messages
             /// </summary>
             Disconnect,
             #endregion
+
+            /// <summary>
+            /// Command used to mark the message and bypass it to the app.
+            /// </summary>
+            User,
         }
 
         /// <summary>
@@ -138,6 +143,11 @@ namespace KSPM.Network.Common.Messages
         /// Command type
         /// </summary>
         protected CommandType command;
+
+        /// <summary>
+        /// Byte value used to sent user defined commands.
+        /// </summary>
+        public byte UserDefinedCommand;
 
         /// <summary>
         /// How many bytes of the buffer are usable, only used when the messages is being sent.

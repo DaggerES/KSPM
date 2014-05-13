@@ -2,7 +2,6 @@
 {
     public class BufferedMessage : ManagedMessage
     {
-        protected uint startsAt;
         protected uint endsAt;
 
         public BufferedMessage(CommandType kindOfCommand, uint startsAt, uint endsAt)
@@ -58,19 +57,7 @@
             return item;
         }
 
-        #region Setters/Getters
-
-        public uint StartsAt
-        {
-            get
-            {
-                return this.startsAt;
-            }
-            set
-            {
-                this.startsAt = value;
-            }
-        }
+        #region Setters/Getters        
 
         public uint EndsAt
         {
