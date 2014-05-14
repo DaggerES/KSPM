@@ -6,6 +6,7 @@ namespace KSPM.Network.Common.Events
     public delegate void UserDisconnectedEventHandler( object sender, KSPMEventArgs e );
 
     public delegate void UDPMessageArrived( object sender, Messages.Message message );
+    public delegate void TCPMessageArrived( object sender, Messages.Message message );
     
     public class KSPMEventArgs : System.EventArgs
     {

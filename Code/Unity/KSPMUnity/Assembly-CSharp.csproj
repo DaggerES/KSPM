@@ -57,6 +57,8 @@
      <Compile Include="Assets\_Scripts\Pong\GameMotion\MovementManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\WallCollitionController.cs" />
      <None Include="Assets\ServerConfiguration\serversettings.xml" />
+     <None Include="Assets\ClientConfiguration\KSPMServerList.xml" />
+     <None Include="Assets\ClientConfiguration\clientSettings.xml" />
  <Reference Include="KSPM">
  <HintPath>Assets\_DLL\KSPM.dll</HintPath>
  </Reference>

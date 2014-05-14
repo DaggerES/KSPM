@@ -2,6 +2,7 @@
 using System.Collections;
 
 using KSPM.Network.Server;
+using KSPM.Network.Common.Messages;
 using KSPM.Globals;
 using KSPM.IO.Logging;
 
@@ -61,14 +62,20 @@ public class KSPMServer : MonoBehaviour
 
     void kspmServer_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
-        ServerSideClient reference = (ServerSideClient)sender;
-        Debug.Log(reference.gameUser.Username + " se fue." );
+        ServerSideClient ssClientConnected = (ServerSideClient)sender;
+        Message userConnectedMessage = null;
+        GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage);
+        this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        Debug.Log(ssClientConnected.gameUser.Username + " se fue." );
     }
 
     void kspmServer_UserConnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
-        ServerSideClient reference = (ServerSideClient)sender;
-        Debug.Log(reference.gameUser.Username);
+        ServerSideClient ssClientConnected = (ServerSideClient)sender;
+        Message userConnectedMessage = null;
+        GameMessage.UserConnectedMessage(ssClientConnected, out userConnectedMessage);
+        this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        Debug.Log(ssClientConnected.gameUser.Username);
     }
 
     public void StopServer()

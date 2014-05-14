@@ -30,10 +30,10 @@ public class UnityGlobals : MonoBehaviour
         switch (this.workingMode)
         {
             case WorkingMode.Server:
-                UnityGlobals.WorkingDirectory = string.Format("{0}{1}{2}{3}", Application.dataPath, Path.DirectorySeparatorChar, ServerIOFolder, Path.DirectorySeparatorChar);
+                UnityGlobals.WorkingDirectory = string.Format("{0}{1}{2}{3}", Path.GetDirectoryName( Application.dataPath ), Path.DirectorySeparatorChar, ServerIOFolder, Path.DirectorySeparatorChar);
                 break;
             case WorkingMode.Client:
-                UnityGlobals.WorkingDirectory = string.Format("{0}{1}{2}{3}", Application.dataPath, Path.DirectorySeparatorChar, ClientIOFolder, Path.DirectorySeparatorChar);
+                UnityGlobals.WorkingDirectory = string.Format("{0}{1}{2}{3}", Path.GetDirectoryName( Application.dataPath ), Path.DirectorySeparatorChar, ClientIOFolder, Path.DirectorySeparatorChar);
                 break;
             case WorkingMode.None:
                 Debug.LogWarning("Not working mode assigned");

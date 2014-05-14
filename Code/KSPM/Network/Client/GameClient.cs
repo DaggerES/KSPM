@@ -64,6 +64,20 @@ namespace KSPM.Network.Client
         /// </summary>
         protected bool holePunched;
 
+        #region Events
+
+        /// <summary>
+        /// Event raised when a TCP message arrives to the system and it is marked as User command.
+        /// </summary>
+        public event TCPMessageArrived TCPMessageArrived;
+
+        /// <summary>
+        /// Event raised when an UDP message arrives to the system and it is marked as User or Chat command.
+        /// </summary>
+        public event UDPMessageArrived UDPMessageArrived;
+
+        #endregion
+
         #region UserManagement
 
         public event UserDisconnectedEventHandler UserDisconnected;
@@ -200,11 +214,6 @@ namespace KSPM.Network.Client
         /// Tells the amount of messages are allowe to receive messages again.
         /// </summary>
         protected int udpMinimumMessagesAllowedAfterPurge;
-
-        /// <summary>
-        /// Event raised when an UDP message arrives to the system.
-        /// </summary>
-        public event UDPMessageArrived UDPMessageArrived;
 
         #endregion
 
@@ -354,7 +363,9 @@ namespace KSPM.Network.Client
             this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ClientSettings.AvailablePercentAfterPurge));
             this.tcpPurgeFlag = 0;
 
+            ///Setting the events to null.
             this.UDPMessageArrived = null;
+            this.TCPMessageArrived = null;
         }
 
         /// <summary>
@@ -622,6 +633,7 @@ namespace KSPM.Network.Client
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Starting to handle incoming messages body.", this.id));
                 while (this.aliveFlag)
                 {
+                    ///TCP processing.
                     this.commandsQueue.DequeueCommandMessage(out command);
                     if (command != null)
                     {
@@ -679,11 +691,15 @@ namespace KSPM.Network.Client
                                     }
                                 }
                                 break;
+                            case Message.CommandType.User:
+                                this.OnTCPMessageArrived(this, (ManagedMessage)command);
+                                break;
                         }
                         ///Cleaning up.
                         command.Release();
                         command = null;
                     }
+                    ///UDP Processing.
                     this.incomingUDPMessages.DequeueCommandMessage(out command);
                     if (command != null)
                     {
@@ -966,6 +982,19 @@ namespace KSPM.Network.Client
                 this.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
             }
             */
+        }
+
+        /// <summary>
+        /// Raises the TCPMessageArrived event.
+        /// </summary>
+        /// <param name="sender">Underlaying NetworkEntity who raises the event.</param>
+        /// <param name="message">Arrived message.</param>
+        protected void OnTCPMessageArrived(NetworkEntity sender, ManagedMessage message)
+        {
+            if (this.TCPMessageArrived != null)
+            {
+                this.TCPMessageArrived(sender, message);
+            }
         }
 
         #endregion

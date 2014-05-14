@@ -5,13 +5,50 @@ using KSPM.Network.Common.Messages;
 using KSPM.Network.Common;
 using KSPM.Network.Server;
 
-public class GameMessage : BufferedMessage
+/// <summary>
+/// GameMessage used to be sent through the TCP socket<b>THIS MESSAGE CAN NOT BE SENT USING THE UDP SOCKET.</b>.
+/// 5th position is where the user's defined command is placed inside the body message. BE CAREFUL THAT THIS IS 0-BASED.
+/// </summary>
+public class GameMessage : ManagedMessage
 {
     public enum GameCommand : byte
     {
         Null = 0,
         UserConnected,
         UserDisconnected,
+    }
+
+    /// <summary>
+    /// Tells what kind of message it is.
+    /// </summary>
+    protected GameCommand gameCommand;
+
+    /// <summary>
+    /// Creates a new GameMessage instance, setting it as a User command type, allowing it to be bypassed by the underlaying layer.
+    /// </summary>
+    /// <param name="commandType">GameCommand parameter to say what kind of message is.</param>
+    /// <param name="messageOwner">Network entity who has control over this message.</param>
+    public GameMessage(GameCommand commandType, NetworkEntity messageOwner)
+        : base(CommandType.User, messageOwner)
+    {
+        this.gameCommand = commandType;
+    }
+
+    public override Message Empty()
+    {
+        return new GameMessage(GameCommand.Null, null);
+    }
+
+    public override void Dispose()
+    {
+        this.gameCommand = GameCommand.Null;
+        base.Dispose();
+    }
+
+    public override void Release()
+    {
+        this.gameCommand = GameCommand.Null;
+        base.Release();
     }
 
     #region StaticMethods
@@ -57,7 +94,8 @@ public class GameMessage : BufferedMessage
         System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
         ///Creating the Message
-        targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+        ///5th position is where the user's defined command is placed inside the body message. BE CAREFUL THAT THIS IS 0-BASED.
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }
@@ -102,7 +140,52 @@ public class GameMessage : BufferedMessage
         System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
         ///Creating the Message
-        targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
+        targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
+        return Error.ErrorType.Ok;
+    }
+
+    /// <summary>
+    /// Creates a user disconnected message.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="targetMessage"></param>
+    /// <returns></returns>
+    public static Error.ErrorType UserDisconnectedMessage(NetworkEntity sender, out Message targetMessage)
+    {
+        int bytesToSend = Message.HeaderOfMessageCommand.Length;
+        byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+        targetMessage = null;
+        byte[] messageHeaderContent = null;
+        if (sender == null)
+        {
+            return Error.ErrorType.InvalidNetworkEntity;
+        }
+
+        ///Writing header
+        System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+        bytesToSend += 4;
+
+        ///Writing the command.
+        rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+        bytesToSend += 1;
+
+        ///Write your own data here, settting the proper command and before setting the EndOfMessageCommand.
+
+        ///Writing the user-s defined command.
+        rawBuffer[bytesToSend] = (byte)GameCommand.UserDisconnected;
+        bytesToSend += 1;
+
+        ///Writing the EndOfMessageCommand.
+        System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+        bytesToSend += EndOfMessageCommand.Length;
+
+        ///Writing the message length.
+        messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+        System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+        ///Creating the Message
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }
