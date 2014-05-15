@@ -19,6 +19,7 @@ public class KSPMServer : MonoBehaviour
         //Debug.Log(System.Environment.CurrentDirectory);
         KSPMGlobals.Globals.ChangeIOFilePath(UnityGlobals.WorkingDirectory);
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
+        this.KSPMServerReference = null;
 	}
 	
 	// Update is called once per frame
@@ -83,6 +84,8 @@ public class KSPMServer : MonoBehaviour
         if (this.KSPMServerReference != null && this.KSPMServerReference.IsAlive)
         {
             this.KSPMServerReference.ShutdownServer();
+            this.KSPMServerReference = null;
+            Debug.Log("Server killed");
         }
     }
 }

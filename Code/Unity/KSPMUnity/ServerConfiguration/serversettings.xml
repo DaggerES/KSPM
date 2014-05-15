@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServerSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TCPPort>4700</TCPPort>
+  <UDPPortRange>
+    <assignablePortStart>50000</assignablePortStart>
+    <assignablePortEnd>50500</assignablePortEnd>
+  </UDPPortRange>
+  <MaxConnectedClients>8</MaxConnectedClients>
+  <AuthenticationAttempts>3</AuthenticationAttempts>
+</ServerSettings>

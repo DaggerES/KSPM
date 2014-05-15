@@ -54,9 +54,24 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ClientStatus currentStatus;
 
+        /// <summary>
+        /// Avg time taken by the server to process a single command coming from this ServerSideClient reference.
+        /// </summary>
         protected long profilerTimeSnapshot;
+
+        /// <summary>
+        /// Holds the start of the time lapse.
+        /// </summary>
         protected long profilerTimeStart;
+
+        /// <summary>
+        /// Holds the end of the time lapse.
+        /// </summary>
         protected long profilerTimeMark;
+
+        /// <summary>
+        /// Counts how many measures were took.
+        /// </summary>
         protected long profilerTimeCounter;
 
         #region TCP_Buffering
@@ -377,6 +392,9 @@ namespace KSPM.Network.Server
 
         #region TCPCode
 
+        /// <summary>
+        /// Asynchronous method to receive TCP streams.
+        /// </summary>
         protected void ReceiveTCPStream()
         {
             SocketAsyncEventArgs incomingData = this.tcpInEventsPool.NextSlot;
@@ -401,6 +419,11 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called each time an asynchronous reception is completed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">SocketAsyncEventArgs used to perform the asynchronous reception.</param>
         protected void OnTCPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
             int readBytes = 0;
@@ -440,7 +463,7 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Not USED.
+        /// <b>DOES NOTHING AT ALL, NOT TO USE.</b>
         /// </summary>
         /// <param name="rawData"></param>
         /// <param name="fixedLegth"></param>
@@ -463,6 +486,12 @@ namespace KSPM.Network.Server
             */
         }
 
+        /// <summary>
+        /// Process a stream of bytes and load them into a message to be processed by the server.
+        /// </summary>
+        /// <param name="rawData">Array of bytes holding the information in RAW format.</param>
+        /// <param name="rawDataOffset">Index from where the information starts.</param>
+        /// <param name="fixedLength">How many bytes are composing the message.</param>
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
             Message incomingMessage = null;
@@ -530,6 +559,9 @@ namespace KSPM.Network.Server
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Asynchronous method used to receive the UDP datagrams.
+        /// </summary>
         protected void ReceiveUDPDatagram()
         {
 #if PROFILING
@@ -567,6 +599,11 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called once the asynchronous datagram reception.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">SocketAsyncEventArgs used to perform the reception process.</param>
         protected void OnUDPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
 #if PROFILING
@@ -654,7 +691,7 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Not used at this moment.
+        /// <b>DOES NOTHING AT ALL.</b> NOT TO USE.
         /// </summary>
         /// <param name="rawData"></param>
         /// <param name="fixedLegth"></param>
@@ -673,7 +710,7 @@ namespace KSPM.Network.Server
         }
 
         /// <summary>
-        /// Process the incoming Message. At this moment only adds it into the Queue.
+        /// Process the incoming Message, also checks if the queue is not full.
         /// </summary>
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
@@ -699,6 +736,7 @@ namespace KSPM.Network.Server
 
         /// <summary>
         /// Asynchronous method to process each incoming UDP datagram.
+        /// <b>UDPChat and User commands are being bypassed to the OnUDPMessageArrive, so the subscriber  must recycle the message.</b>
         /// </summary>
         protected void ProcessUDPCommandAsyncMethod()
         {
@@ -759,10 +797,10 @@ namespace KSPM.Network.Server
                             this.udpIOMessagesPool.Recycle(rawMessageReference);
                             break;
                     }
-                    //this.SendUDPDatagram();
                 }
                 else
                 {
+                    ///If there is no message to process, waits a little and check again.
                     Thread.Sleep(5);
                 }
             }

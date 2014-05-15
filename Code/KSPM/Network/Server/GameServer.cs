@@ -50,6 +50,9 @@ namespace KSPM.Network.Server
         /// </summary>
         protected ServerSettings lowLevelOperationSettings;
 
+        /// <summary>
+        /// Port manager to handle the UDP ports, ensuring an available port each time it is required.
+        /// </summary>
         protected internal IOPortManager ioPortManager;
 
         #region TCPProperties
@@ -265,6 +268,10 @@ namespace KSPM.Network.Server
 
         #region Management
 
+        /// <summary>
+        /// Starts the server making it able to work.
+        /// </summary>
+        /// <returns>True if everything goes well, False otherwise.</returns>
         public bool StartServer()
         {
             bool result = false;
@@ -299,12 +306,17 @@ namespace KSPM.Network.Server
             {
                 ///If there is some exception, the server must shutdown itself and its threads.
                 KSPMGlobals.Globals.Log.WriteTo(ex.Message);
+                KSPMGlobals.Globals.Log.WriteTo(ex.StackTrace);
+                KSPMGlobals.Globals.Log.WriteTo(ex.GetType().FullName);
                 this.ShutdownServer();
                 this.alive = false;
             }
             return result;
         }
 
+        /// <summary>
+        /// Stops the server, making it unable it to work. So if you must create a new instance of the server if you want to run it again.
+        /// </summary>
         public void ShutdownServer()
         {
             KSPMGlobals.Globals.Log.WriteTo("Shuttingdown the KSPM server .");
@@ -315,7 +327,7 @@ namespace KSPM.Network.Server
             this.outgoingMessagesThread.Abort();
             this.localCommandsThread.Abort();
             this.priorityOutgoingMessagesThread.Abort();
-
+            
             this.commandsThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed commandsTread .");
             this.localCommandsThread.Join();
@@ -325,13 +337,15 @@ namespace KSPM.Network.Server
             this.priorityOutgoingMessagesThread.Join();
             KSPMGlobals.Globals.Log.WriteTo("Killed priorityOutgoingMessagesTread .");
 
-
             ///*************************Killing TCP socket code
             if (this.tcpSocket.Connected)
             {
+                ///If it is connected, it must call shutdown method.
                 this.tcpSocket.Shutdown(SocketShutdown.Both);
-                this.tcpSocket.Close();
             }
+            ///Either it is connected or not it must be closed.
+            
+            this.tcpSocket.Close();
             this.tcpBuffer = null;
             this.tcpIpEndPoint = null;
 
@@ -396,11 +410,16 @@ namespace KSPM.Network.Server
             SocketAsyncEventArgs incomingConnection = this.incomingConnectionsPool.NextSlot;
             incomingConnection.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnAsyncIncomingConnectionComplete);
 
-            ///Returns false if the process was completed synchrounosly.
-            if (!this.tcpSocket.AcceptAsync(incomingConnection))
+            try
             {
-                this.OnAsyncIncomingConnectionComplete(this, incomingConnection);
+                ///Returns false if the process was completed synchrounosly.
+                if (!this.tcpSocket.AcceptAsync(incomingConnection))
+                {
+                    this.OnAsyncIncomingConnectionComplete(this, incomingConnection);
+                }
             }
+            catch (System.Exception)
+            { }
         }
 
         /// <summary>
@@ -427,6 +446,7 @@ namespace KSPM.Network.Server
             }
             else
             {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("Something happened while the accepting process: {0}", e.SocketError.ToString()));
                 ///If something fails, we started to receive another conn.
                 this.StartReceiveConnections();
             }
@@ -826,7 +846,7 @@ namespace KSPM.Network.Server
             }
             try
             {
-                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle outgoing messages[ " + this.alive + " ]");
+                KSPMGlobals.Globals.Log.WriteTo("-Starting to handle priority outgoing messages[ " + this.alive + " ]");
                 while (this.alive)
                 {
                         this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
@@ -902,6 +922,11 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Method called each time an UDP message is received, if there is no attached method  to the event, the message is recycled.
+        /// </summary>
+        /// <param name="sender">Network entity who has received the message.</param>
+        /// <param name="message">Reference to the received message.</param>
         protected internal void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
         {
             if (this.UDPMessageArrived != null)
@@ -919,6 +944,7 @@ namespace KSPM.Network.Server
         /// Internal method used to disconnect clients, also raises the OnUserDisconnected event.
         /// </summary>
         /// <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
+        /// <param name="cause">Information about what was the cause of the disconnection.</param>
         internal void DisconnectClient(NetworkEntity target, KSPMEventArgs cause)
         {
             if (target != null && target.IsAlive())
@@ -950,6 +976,9 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Returns the ClientManager reference used by the server.
+        /// </summary>
         public ClientsHandler ClientsManager
         {
             get

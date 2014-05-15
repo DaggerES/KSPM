@@ -1566,6 +1566,11 @@
             Settings to operate at low level, like listening ports and the like.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Server.GameServer.ioPortManager">
+            <summary>
+            Port manager to handle the UDP ports, ensuring an available port each time it is required.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Server.GameServer.tcpSocket">
             <summary>
             TCP socket used to receive the new incoming connections.
@@ -1682,6 +1687,17 @@
             </summary>
             <param name="operationSettings"></param>
         </member>
+        <member name="M:KSPM.Network.Server.GameServer.StartServer">
+            <summary>
+            Starts the server making it able to work.
+            </summary>
+            <returns>True if everything goes well, False otherwise.</returns>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.ShutdownServer">
+            <summary>
+            Stops the server, making it unable it to work. So if you must create a new instance of the server if you want to run it again.
+            </summary>
+        </member>
         <member name="M:KSPM.Network.Server.GameServer.StartReceiveConnections">
             <summary>
             Starts to receive incoming connections asynchronously.
@@ -1757,11 +1773,19 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnUDPMessageArrived(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.RawMessage)">
+            <summary>
+            Method called each time an UDP message is received, if there is no attached method  to the event, the message is recycled.
+            </summary>
+            <param name="sender">Network entity who has received the message.</param>
+            <param name="message">Reference to the received message.</param>
+        </member>
         <member name="M:KSPM.Network.Server.GameServer.DisconnectClient(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Events.KSPMEventArgs)">
             <summary>
             Internal method used to disconnect clients, also raises the OnUserDisconnected event.
             </summary>
             <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
+            <param name="cause">Information about what was the cause of the disconnection.</param>
         </member>
         <member name="M:KSPM.Network.Server.GameServer.RejectMessageToClient(KSPM.Network.Common.NetworkEntity,System.Object)">
             <summary>
@@ -1788,6 +1812,11 @@
         <member name="P:KSPM.Network.Server.GameServer.ConnectedClients">
             <summary>
             Returns an array of NetworkEntities connected to the server.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.GameServer.ClientsManager">
+            <summary>
+            Returns the ClientManager reference used by the server.
             </summary>
         </member>
         <member name="P:KSPM.Network.Server.GameServer.IsAlive">
@@ -2234,6 +2263,26 @@
             Tells the current stage of the mainThread.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Server.ServerSideClient.profilerTimeSnapshot">
+            <summary>
+            Avg time taken by the server to process a single command coming from this ServerSideClient reference.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSideClient.profilerTimeStart">
+            <summary>
+            Holds the start of the time lapse.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSideClient.profilerTimeMark">
+            <summary>
+            Holds the end of the time lapse.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSideClient.profilerTimeCounter">
+            <summary>
+            Counts how many measures were took.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Server.ServerSideClient.tcpBuffer">
             <summary>
             Buffer used to store all the incoming messages.
@@ -2353,12 +2402,32 @@
             Handles the main behaviour of the server side client.
             </summary>
         </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.ReceiveTCPStream">
+            <summary>
+            Asynchronous method to receive TCP streams.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.OnTCPIncomingDataComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called each time an asynchronous reception is completed.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">SocketAsyncEventArgs used to perform the asynchronous reception.</param>
+        </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.ProcessPacket(System.Byte[],System.UInt32)">
             <summary>
-            Not USED.
+            <b>DOES NOTHING AT ALL, NOT TO USE.</b>
             </summary>
             <param name="rawData"></param>
             <param name="fixedLegth"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.ProcessPacket(System.Byte[],System.UInt32,System.UInt32)">
+            <summary>
+            Process a stream of bytes and load them into a message to be processed by the server.
+            </summary>
+            <param name="rawData">Array of bytes holding the information in RAW format.</param>
+            <param name="rawDataOffset">Index from where the information starts.</param>
+            <param name="fixedLength">How many bytes are composing the message.</param>
         </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.InitializeUDPConnection">
             <summary>
@@ -2366,22 +2435,35 @@
             </summary>
             <returns>If there is some exception caught the return is ServerClientUnableToRun</returns>
         </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.ReceiveUDPDatagram">
+            <summary>
+            Asynchronous method used to receive the UDP datagrams.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.OnUDPIncomingDataComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called once the asynchronous datagram reception.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">SocketAsyncEventArgs used to perform the reception process.</param>
+        </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.ProcessUDPPacket(System.Byte[],System.UInt32)">
             <summary>
-            Not used at this moment.
+            <b>DOES NOTHING AT ALL.</b> NOT TO USE.
             </summary>
             <param name="rawData"></param>
             <param name="fixedLegth"></param>
         </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.ProcessUDPMessage(KSPM.Network.Common.Messages.Message)">
             <summary>
-            Process the incoming Message. At this moment only adds it into the Queue.
+            Process the incoming Message, also checks if the queue is not full.
             </summary>
             <param name="incomingMessage"></param>
         </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.ProcessUDPCommandAsyncMethod">
             <summary>
             Asynchronous method to process each incoming UDP datagram.
+            <b>UDPChat and User commands are being bypassed to the OnUDPMessageArrive, so the subscriber  must recycle the message.</b>
             </summary>
         </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.OnProcessUDPCommandComplete(System.IAsyncResult)">

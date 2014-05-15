@@ -103,6 +103,11 @@ namespace KSPM.Network.Server
                 ServerSettings.DefaultSettings(out settings);
                 success = ServerSettings.WriteSettings(ref settings);
             }
+            catch (System.IO.IsolatedStorage.IsolatedStorageException)
+            {
+                ServerSettings.DefaultSettings(out settings);
+                success = ServerSettings.WriteSettings(ref settings);
+            }
             return success;
         }
 
