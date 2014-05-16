@@ -27,6 +27,7 @@ public class UnityGlobals : MonoBehaviour
 
     void Awake()
     {
+        DontDestroyOnLoad(this);
         switch (this.workingMode)
         {
             case WorkingMode.Server:

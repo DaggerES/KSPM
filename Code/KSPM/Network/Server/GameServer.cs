@@ -452,7 +452,15 @@ namespace KSPM.Network.Server
             }
             ///Restoring the AsyncEventArgs used to perform the connection process.
             e.Completed -= this.OnAsyncIncomingConnectionComplete;
-            this.incomingConnectionsPool.Recycle(e);
+            if (this.incomingConnectionsPool != null)
+            {
+                this.incomingConnectionsPool.Recycle(e);
+            }
+            else
+            {
+                e.Dispose();
+                e = null;
+            }
         }
 
         /// <summary>

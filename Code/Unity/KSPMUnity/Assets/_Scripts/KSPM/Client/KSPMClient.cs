@@ -6,16 +6,26 @@ using KSPM.IO.Logging;
 using KSPM.Game;
 using KSPM.Network.Client;
 using KSPM.Network.Client.RemoteServer;
+using KSPM.Network.Common.Messages;
 
 //[ExecuteInEditMode]
 public class KSPMClient : MonoBehaviour
 {
+    public GameManager gameManager;
+    public SceneManager sceneManager;
+
     protected GameClient kspmClient;
     protected ServerList hosts;
     protected string userName = "Username...";
     protected ServerInformation uiServerInformation;
     protected int serverInformationIndex;
     protected GameUser gameUserReference;
+    protected int usersConnected;
+
+    void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
 
 	// Use this for initialization
 	void Start ()
@@ -26,8 +36,19 @@ public class KSPMClient : MonoBehaviour
         ServerList.ReadServerList(out hosts);
         hosts.Hosts[0].Clone(ref this.uiServerInformation);
         this.serverInformationIndex = 0;
+        this.usersConnected = 0;
+        this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
         this.StartClient();
 	}
+
+    void sceneManager_LoadingComplete(object sender, System.EventArgs e)
+    {
+        string loadeLevelName = (string)sender;
+        if (loadeLevelName.Equals("Game", System.StringComparison.OrdinalIgnoreCase))
+        {
+            this.gameManager.StartGame();
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -91,8 +112,35 @@ public class KSPMClient : MonoBehaviour
         {
             this.kspmClient = new GameClient();
             this.kspmClient.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmClient_UserDisconnected);
+            this.kspmClient.TCPMessageArrived += new KSPM.Network.Common.Events.TCPMessageArrived(kspmClient_TCPMessageArrived);
             this.kspmClient.InitializeClient();
         }
+    }
+
+    void kspmClient_TCPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
+    {
+        GameMessage gameMessage = null;
+        Message incomingMessage = null;
+        GameMessage.LoadFromMessage(out incomingMessage, message);
+        message.Dispose();
+        gameMessage = (GameMessage)incomingMessage;
+        switch (gameMessage.UserCommand)
+        {
+            case GameMessage.GameCommand.UserConnected:
+                Debug.Log("User connected");
+                this.usersConnected++;
+                if (this.usersConnected == this.gameManager.RequiredUsers)
+                {
+                    Debug.Log("Ready to start");
+                    StartCoroutine(this.sceneManager.LoadLevel("Game"));
+                }
+                break;
+            case GameMessage.GameCommand.UserDisconnected:
+                break;
+            default:
+                break;
+        }
+        gameMessage.Release();
     }
 
     void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)

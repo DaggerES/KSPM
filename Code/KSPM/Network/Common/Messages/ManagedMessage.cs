@@ -78,6 +78,14 @@ namespace KSPM.Network.Common.Messages
         /// </summary>
         public override void Dispose()
         {
+            this.messageOwner = null;
+            this.messageRawLength = 0;
+            if (!this.broadcasted)
+            {
+                ///Releasing the body message is passed to the BroadcastMessage, so you don't have to worry abou it.
+                this.bodyMessage = null;
+            }
+            this.broadcasted = false;
         }
 
         public uint StartsAt

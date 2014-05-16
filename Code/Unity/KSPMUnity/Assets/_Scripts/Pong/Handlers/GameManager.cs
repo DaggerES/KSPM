@@ -18,6 +18,13 @@ public class GameManager : MonoBehaviour
 
     public GameStatus currentStatus;
 
+    public int RequiredUsers;
+
+    void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
+
 	// Use this for initialization
 	void Start ()
     {
@@ -44,4 +51,13 @@ public class GameManager : MonoBehaviour
                 break;
         }
 	}
+
+    public void StartGame()
+    {
+        this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
+        if (this.movementManager != null)
+        {
+            this.currentStatus = GameStatus.Starting;
+        }
+    }
 }

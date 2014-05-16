@@ -47,15 +47,18 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\_Scripts\KSPM\Client\KSPMClient.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\GameError.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\GameMessage.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Globals\UnityGlobals.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Server\KSPMServer.cs" />
      <Compile Include="Assets\_Scripts\Pong\Controls\HostControl.cs" />
+     <Compile Include="Assets\_Scripts\Pong\DisposableScripts\Test.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\BallMotionManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\BarCollitionManager.cs" />
-     <Compile Include="Assets\_Scripts\Pong\GameMotion\GameManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\MovementManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\WallCollitionController.cs" />
+     <Compile Include="Assets\_Scripts\Pong\Handlers\GameManager.cs" />
+     <Compile Include="Assets\_Scripts\Pong\Handlers\SceneManager.cs" />
      <None Include="Assets\ServerConfiguration\serversettings.xml" />
      <None Include="Assets\ClientConfiguration\KSPMServerList.xml" />
      <None Include="Assets\ClientConfiguration\clientSettings.xml" />

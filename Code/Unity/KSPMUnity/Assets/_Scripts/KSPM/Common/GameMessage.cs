@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
 using KSPM.Network.Common;
 using KSPM.Network.Server;
@@ -50,6 +51,21 @@ public class GameMessage : ManagedMessage
         this.gameCommand = GameCommand.Null;
         base.Release();
     }
+
+    #region Setters/Getters
+
+    /// <summary>
+    /// Gets the user defined command.
+    /// </summary>
+    public GameCommand UserCommand
+    {
+        get
+        {
+            return this.gameCommand;
+        }
+    }
+
+    #endregion
 
     #region StaticMethods
 
@@ -188,6 +204,23 @@ public class GameMessage : ManagedMessage
         targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
+    }
+
+    public static GameError.ErrorType LoadFromMessage(out Message targetMessage, Message srcMessage)
+    {
+        targetMessage = null;
+        if (srcMessage == null)
+        {
+            return GameError.ErrorType.MessageNullSourceMessage;
+        }
+        if (srcMessage.Command != CommandType.User)
+        {
+            return GameError.ErrorType.MessageInvalidSourceMessage;
+        }
+        srcMessage.UserDefinedCommand = srcMessage.bodyMessage[PacketHandler.PrefixSize + 1];
+        targetMessage = new GameMessage((GameCommand)srcMessage.UserDefinedCommand, ((ManagedMessage)srcMessage).OwnerNetworkEntity);
+        ((GameMessage)targetMessage).SetBodyMessageNoClone(srcMessage.bodyMessage, srcMessage.MessageBytesSize);
+        return GameError.ErrorType.Ok;
     }
 
     #endregion

@@ -625,6 +625,7 @@ namespace KSPM.Network.Server
                     this.udpBuffer.Write(e.Buffer, (uint)readBytes);
                     ///Setting the sender of the datagram.
                     this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
+                    KSPMGlobals.Globals.Log.WriteTo(e.RemoteEndPoint.ToString());
 #if PROFILING
                     this.profilerPacketizer.Set();
 #endif
