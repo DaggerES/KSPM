@@ -550,14 +550,16 @@ namespace KSPM.Network.Client
                             try
                             {
                                 this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                                this.udpNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.workingSettings.udpPort));
+                                this.udpNetworkCollection.socketReference.Bind(new IPEndPoint( ((IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint).Address, this.workingSettings.udpPort));
+                                //this.udpNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.workingSettings.udpPort));
                                 KSPMGlobals.Globals.NAT.Punch(ref this.udpNetworkCollection.socketReference, this.udpServerInformation.ip, this.udpServerInformation.port);
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP hole status: {1}.", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
                                 this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
                                 if (this.udpHolePunched)
                                 {
                                     outgoingMessage = this.udpIOMessagesPool.BorrowMessage;
-                                    Message.LoadUDPPairingMessage(this, ref outgoingMessage);
+                                    //Message.LoadUDPPairingMessage(this, ref outgoingMessage);
+                                    Message.LoadUDPInfoAndPairingMessage(this, ref outgoingMessage);
                                     //rawMessageReference = (RawMessage)outgoingMessage;
                                     //PacketHandler.EncodeRawPacket(ref rawMessageReference.bodyMessage);
                                     this.outgoingUDPMessages.EnqueueCommandMessage(ref outgoingMessage);

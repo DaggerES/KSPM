@@ -132,7 +132,8 @@ public class KSPMClient : MonoBehaviour
                 if (this.usersConnected == this.gameManager.RequiredUsers)
                 {
                     Debug.Log("Ready to start");
-                    StartCoroutine(this.sceneManager.LoadLevel("Game"));
+                    Application.LoadLevel("Game");
+                    //this.sceneManager.LoadLevel(SceneManager.Scenes.Game);
                 }
                 break;
             case GameMessage.GameCommand.UserDisconnected:

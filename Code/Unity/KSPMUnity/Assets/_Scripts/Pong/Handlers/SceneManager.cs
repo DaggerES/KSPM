@@ -7,6 +7,17 @@ public class SceneManager : MonoBehaviour
     protected AsyncOperation asyncMethod;
     protected float loadingProgress;
 
+    /// <summary>
+    /// Delegate definition to load a level asynchronously.
+    /// </summary>
+    /// <param name="sceneToLoad"></param>
+    protected delegate void LoadLevelAsync(SceneManager.Scenes sceneToLoad);
+
+    /// <summary>
+    /// Property used to load a level.
+    /// </summary>
+    protected LoadLevelAsync asynchronousLoader;
+
     public enum Scenes : byte
     {
         None = 0,
@@ -18,14 +29,40 @@ public class SceneManager : MonoBehaviour
 
     public event LoadingCompleteEventHandler LoadingComplete;
 
+    void Awake()
+    {
+        this.working = false;
+        
+    }
+
 	// Use this for initialization
 	void Start ()
     {
         DontDestroyOnLoad(this);
-        this.working = false;
         this.asyncMethod = null;
 	}
 
+    protected void LoadingCompleteAsync(System.IAsyncResult result)
+    {
+        this.OnLoadingComplete(result.AsyncState, null);
+    }
+
+    public void StartLoadingAsync(Scenes sceneToLoad)
+    {
+        Application.LoadLevel(sceneToLoad.ToString());
+    }
+
+    public void LoadLevel(Scenes sceneToLoad)
+    {
+        if (this.working)
+            return;
+        this.working = true;
+        Debug.Log("CALLED");
+        this.asynchronousLoader = new LoadLevelAsync(this.StartLoadingAsync);
+        this.asynchronousLoader.BeginInvoke(sceneToLoad, this.LoadingCompleteAsync, sceneToLoad);
+    }
+
+    /*
     public IEnumerator LoadLevel(string levelName)
     {
         if (this.working)
@@ -42,6 +79,7 @@ public class SceneManager : MonoBehaviour
         this.loadingProgress = this.asyncMethod.progress;
         this.OnLoadingComplete(levelName, System.EventArgs.Empty);
     }
+    */
 
     public float LoadingProgress
     {
@@ -51,7 +89,7 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    public void OnLoadingComplete(object sender, System.EventArgs e)
+    protected void OnLoadingComplete(object sender, System.EventArgs e)
     {
         if (this.LoadingComplete != null)
         {

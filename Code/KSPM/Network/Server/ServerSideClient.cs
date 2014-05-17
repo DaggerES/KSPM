@@ -624,7 +624,12 @@ namespace KSPM.Network.Server
                 {
                     this.udpBuffer.Write(e.Buffer, (uint)readBytes);
                     ///Setting the sender of the datagram.
-                    this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
+                    //this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
+
+                    if (e.ReceiveMessageFromPacketInfo.Address != null)
+                    {
+                        KSPMGlobals.Globals.Log.WriteTo(e.ReceiveMessageFromPacketInfo.Address.ToString());
+                    }
                     KSPMGlobals.Globals.Log.WriteTo(e.RemoteEndPoint.ToString());
 #if PROFILING
                     this.profilerPacketizer.Set();
@@ -745,6 +750,7 @@ namespace KSPM.Network.Server
             Message responseMessage = null;
             RawMessage rawMessageReference = null;
             int intBuffer;
+            byte[] byteBuffer;
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-Starting to handle UDP commands [{1}].", this.id, this.aliveFlag));
 
@@ -758,7 +764,12 @@ namespace KSPM.Network.Server
                     switch (incomingMessage.Command)
                     {
                         case Message.CommandType.UDPPairing:
-                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
+                            byteBuffer = new byte[rawMessageReference.bodyMessage[PacketHandler.PrefixSize + 1]];
+                            System.Buffer.BlockCopy(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 2, byteBuffer, 0, byteBuffer.Length);
+                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 2 + byteBuffer.Length);
+                            this.udpCollection.remoteEndPoint = new IPEndPoint(new IPAddress(byteBuffer), intBuffer);
+                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 6 + byteBuffer.Length);
+                            //intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
                             responseMessage = this.udpIOMessagesPool.BorrowMessage;
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
                             if ((this.pairingCode & intBuffer) == 0)//UDP tested.
