@@ -13,6 +13,7 @@ public class KSPMClient : MonoBehaviour
 {
     public GameManager gameManager;
     public SceneManager sceneManager;
+    public KSPMManager manager;
 
     protected GameClient kspmClient;
     protected ServerList hosts;
@@ -132,11 +133,19 @@ public class KSPMClient : MonoBehaviour
                 if (this.usersConnected == this.gameManager.RequiredUsers)
                 {
                     Debug.Log("Ready to start");
-                    Application.LoadLevel("Game");
+                    KSPMAction action = new KSPMAction(KSPMAction.ActionType.LoadScene, "Game");
+                    action.method.IEnumerateActionMethod = this.sceneManager.LoadLevel;
+                    //action.IEnumerateActionMethod = this.sceneManager.LoadLevel;
+                    this.manager.ActionsToDo.Enqueue(action);
+                    //manager.load();
+                    //manager.loadGameScene = true;
+                    //StartCoroutine(this.sceneManager.LoadLevel("Game"));
+                    //Application.LoadLevel("Game");
                     //this.sceneManager.LoadLevel(SceneManager.Scenes.Game);
                 }
                 break;
             case GameMessage.GameCommand.UserDisconnected:
+                this.usersConnected--;
                 break;
             default:
                 break;

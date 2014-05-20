@@ -4,15 +4,21 @@ using System.Collections;
 public class Test : MonoBehaviour
 {
     public SceneManager sceneManager;
+    public KSPMManager kspmBridge;
+
+    void Start()
+    {
+        this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
+    }
 
     void OnGUI()
     {
         if (GUI.Button(new Rect(100, 100, 128, 128), "Load"))
         {
-            this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
+            //this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
             //this.sceneManager.StartLoadingAsync(SceneManager.Scenes.Game);
             //this.sceneManager.LoadLevel(SceneManager.Scenes.Game);
-            StartCoroutine(PrepareScene());
+            LoadGame();
         }
     }
 
@@ -24,6 +30,13 @@ public class Test : MonoBehaviour
     void sceneManager_LoadingComplete(object sender, System.EventArgs e)
     {
         Debug.Log(sender.ToString());
+    }
+
+    protected void LoadGame()
+    {
+        KSPMAction action = new KSPMAction(KSPMAction.ActionType.LoadScene, "Game");
+        action.method.IEnumerateActionMethod = this.sceneManager.LoadLevel;
+        this.kspmBridge.ActionsToDo.Enqueue(action);
     }
 
     IEnumerator PrepareScene()

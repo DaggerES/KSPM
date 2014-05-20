@@ -54,32 +54,35 @@ public class SceneManager : MonoBehaviour
 
     public void LoadLevel(Scenes sceneToLoad)
     {
+        /*
         if (this.working)
             return;
         this.working = true;
         Debug.Log("CALLED");
         this.asynchronousLoader = new LoadLevelAsync(this.StartLoadingAsync);
         this.asynchronousLoader.BeginInvoke(sceneToLoad, this.LoadingCompleteAsync, sceneToLoad);
+        */
     }
 
-    /*
-    public IEnumerator LoadLevel(string levelName)
+    
+    public IEnumerator LoadLevel(object caller, object levelName)
     {
         if (this.working)
         {
             yield return null;
         }
         this.working = true;
-        this.asyncMethod = Application.LoadLevelAsync(levelName);
+        this.asyncMethod = Application.LoadLevelAsync((string)levelName);
+        Debug.Log("Complete_1");
         while( !this.asyncMethod.isDone )
         {
             this.loadingProgress = this.asyncMethod.progress;
             yield return null;
         }
+        Debug.Log("Complete_2");
         this.loadingProgress = this.asyncMethod.progress;
         this.OnLoadingComplete(levelName, System.EventArgs.Empty);
     }
-    */
 
     public float LoadingProgress
     {
@@ -91,8 +94,10 @@ public class SceneManager : MonoBehaviour
 
     protected void OnLoadingComplete(object sender, System.EventArgs e)
     {
+        Debug.Log("Complete");
         if (this.LoadingComplete != null)
         {
+            Debug.Log("Callings");
             this.LoadingComplete(sender, e);
         }
     }

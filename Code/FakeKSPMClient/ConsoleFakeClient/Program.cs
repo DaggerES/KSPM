@@ -69,7 +69,7 @@ namespace ConsoleFakeClient
             //client.SetServerHostInformation(server);
             client.InitializeClient();
             client.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(client_UserDisconnected);
-            client.Connect();
+            //client.Connect();
             /*GroupFilter group = new GroupFilter();
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
             client.ChatSystem.RegisterFilter(group);*/
@@ -83,9 +83,11 @@ namespace ConsoleFakeClient
 
                 while (!exit)
                 {
+                    /*
                     bot.Flood(mode);
                     System.Threading.Thread.Sleep((int)delay);
-                    /*
+                    */
+
                     Console.WriteLine("Press q to quit");
                     Console.WriteLine("Press r to connect");
                     Console.WriteLine("Press d to disconnect");
@@ -96,12 +98,13 @@ namespace ConsoleFakeClient
                             exit = true;
                             break;
                         case ConsoleKey.R:
-                            client.SetGameUser(myUser);
+                            ///client.SetGameUser(myUser);
+                            bot.GenerateRandomUser();
                             client.SetServerHostInformation(hosts.Hosts[ 0 ]);
                             if (client.Connect() == KSPM.Network.Common.Error.ErrorType.Ok)
                             {
                                 //System.Threading.Thread.Sleep(1000);
-                                client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
+                                //client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
                             }
                             break;
                         case ConsoleKey.D:
@@ -110,7 +113,7 @@ namespace ConsoleFakeClient
                         default:
                             break;
                     }
-                    */
+                    
                     /*
                     client.SetGameUser(myUser);
                     client.SetServerHostInformation(hosts.Hosts[0]);
