@@ -4,34 +4,53 @@ using System.Runtime.InteropServices;
 
 public class KSPMAction
 {
-    public delegate GameError.ErrorType ActionSingleParameter(object caller, object parameter);
-    public delegate IEnumerator IEnumerateActionSincleParameter(object caller, object parameter);
+    public delegate IEnumerator IEnumerateAction<T,U>(T caller, System.Collections.Generic.Stack<U> parameters);
+    public delegate GameError.ErrorType Action<T,U>(T caller, System.Collections.Generic.Stack<U> parameters);
+
+    public System.Collections.Generic.Stack<object> ParametersStack;
 
     public enum ActionType : byte
     {
         Null = 0,
-        LoadScene
+        EnumeratedMethod,
+        NormalMethod,
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct ActionMethod
+    public struct ActionWrapper
     {
         [FieldOffset(0)]
-        public ActionSingleParameter ActionSingleParameterMethod;
-        
+        public IEnumerateAction<object,object> EnumeratedAction;
+
         [FieldOffset(0)]
-        public IEnumerateActionSincleParameter IEnumerateActionMethod;
+        public Action<object,object> BasicAction;
     };
+    
+    public ActionWrapper ActionMethod;
 
-    public ActionMethod method;
+    public ActionType ActionKind;
 
-    public IEnumerateActionSincleParameter IEnumerateActionMethod;
-    public ActionType Action;
-    public object actionParameter;
-
-    public KSPMAction(ActionType action, object parameter)
+    public KSPMAction()
     {
-        this.Action = action;
-        this.actionParameter = parameter;
+        this.ActionKind = ActionType.Null;
+        this.ParametersStack = new System.Collections.Generic.Stack<object>();
+    }
+
+    public virtual KSPMAction Empty()
+    {
+        return new KSPMAction();
+    }
+
+    public virtual void Release()
+    {
+        this.ActionKind = ActionType.Null;
+        this.ParametersStack.Clear();
+        this.ParametersStack = null;
+    }
+
+    public virtual void Dispose()
+    {
+        this.ActionKind = ActionType.Null;
+        this.ParametersStack.Clear();
     }
 }

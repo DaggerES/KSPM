@@ -13,7 +13,7 @@ public class KSPMClient : MonoBehaviour
 {
     public GameManager gameManager;
     public SceneManager sceneManager;
-    public KSPMManager manager;
+    public KSPMManager kspmManager;
 
     protected GameClient kspmClient;
     protected ServerList hosts;
@@ -42,13 +42,15 @@ public class KSPMClient : MonoBehaviour
         this.StartClient();
 	}
 
-    void sceneManager_LoadingComplete(object sender, System.EventArgs e)
+    void sceneManager_LoadingComplete(object sender, GameEvenArgs e)
     {
+        /*
         string loadeLevelName = (string)sender;
         if (loadeLevelName.Equals("Game", System.StringComparison.OrdinalIgnoreCase))
         {
             this.gameManager.StartGame();
         }
+        */
     }
 	
 	// Update is called once per frame
@@ -125,6 +127,7 @@ public class KSPMClient : MonoBehaviour
         GameMessage.LoadFromMessage(out incomingMessage, message);
         message.Dispose();
         gameMessage = (GameMessage)incomingMessage;
+        Debug.Log(incomingMessage.Command);
         switch (gameMessage.UserCommand)
         {
             case GameMessage.GameCommand.UserConnected:
@@ -133,19 +136,24 @@ public class KSPMClient : MonoBehaviour
                 if (this.usersConnected == this.gameManager.RequiredUsers)
                 {
                     Debug.Log("Ready to start");
-                    KSPMAction action = new KSPMAction(KSPMAction.ActionType.LoadScene, "Game");
-                    action.method.IEnumerateActionMethod = this.sceneManager.LoadLevel;
-                    //action.IEnumerateActionMethod = this.sceneManager.LoadLevel;
-                    this.manager.ActionsToDo.Enqueue(action);
-                    //manager.load();
-                    //manager.loadGameScene = true;
-                    //StartCoroutine(this.sceneManager.LoadLevel("Game"));
-                    //Application.LoadLevel("Game");
-                    //this.sceneManager.LoadLevel(SceneManager.Scenes.Game);
+                    KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
+                    action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
+                    action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
+                    action.ParametersStack.Push("Game");
+                    action.ParametersStack.Push(this);
+                    this.kspmManager.ActionsToDo.Enqueue(action);
                 }
                 break;
             case GameMessage.GameCommand.UserDisconnected:
                 this.usersConnected--;
+                break;
+            case GameMessage.GameCommand.GameStatus:
+                switch ((GameManager.GameStatus)gameMessage.bodyMessage[10])
+                {
+                    case GameManager.GameStatus.Starting:
+                        this.gameManager.StartGame();
+                        break;
+                }
                 break;
             default:
                 break;

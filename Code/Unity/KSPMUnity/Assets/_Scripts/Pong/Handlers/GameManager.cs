@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
         switch (this.currentStatus)
         {
             case GameStatus.Starting:
+                StartCoroutine(this.WaitABit(5));
                 this.movementManager.RandomForce();
                 this.currentStatus = GameStatus.Playing;
                 break;
@@ -51,6 +52,11 @@ public class GameManager : MonoBehaviour
                 break;
         }
 	}
+
+    IEnumerator WaitABit(float time)
+    {
+        yield return new WaitForSeconds(time);
+    }
 
     public void StartGame()
     {

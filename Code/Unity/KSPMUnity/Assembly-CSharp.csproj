@@ -47,10 +47,12 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\_Scripts\KSPM\Client\KSPMClient.cs" />
-     <Compile Include="Assets\_Scripts\KSPM\Client\KSPMManager.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\GameError.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\GameEventArgs.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\GameMessage.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\KSPMAction.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\KSPMActionsPool.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\KSPMManager.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Globals\UnityGlobals.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Server\KSPMServer.cs" />
      <Compile Include="Assets\_Scripts\Pong\Controls\HostControl.cs" />

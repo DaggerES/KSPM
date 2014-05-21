@@ -25,7 +25,7 @@ public class SceneManager : MonoBehaviour
         Game,
     };
 
-    public delegate void LoadingCompleteEventHandler(object sender, System.EventArgs e);
+    public delegate void LoadingCompleteEventHandler(object sender, GameEvenArgs e);
 
     public event LoadingCompleteEventHandler LoadingComplete;
 
@@ -52,36 +52,22 @@ public class SceneManager : MonoBehaviour
         Application.LoadLevel(sceneToLoad.ToString());
     }
 
-    public void LoadLevel(Scenes sceneToLoad)
-    {
-        /*
-        if (this.working)
-            return;
-        this.working = true;
-        Debug.Log("CALLED");
-        this.asynchronousLoader = new LoadLevelAsync(this.StartLoadingAsync);
-        this.asynchronousLoader.BeginInvoke(sceneToLoad, this.LoadingCompleteAsync, sceneToLoad);
-        */
-    }
-
-    
-    public IEnumerator LoadLevel(object caller, object levelName)
+    public IEnumerator LoadLevelAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         if (this.working)
         {
             yield return null;
         }
+        string levelToLoad = (string)parameters.Pop();
         this.working = true;
-        this.asyncMethod = Application.LoadLevelAsync((string)levelName);
-        Debug.Log("Complete_1");
-        while( !this.asyncMethod.isDone )
+        this.asyncMethod = Application.LoadLevelAsync(levelToLoad);
+        while (!this.asyncMethod.isDone)
         {
             this.loadingProgress = this.asyncMethod.progress;
             yield return null;
         }
-        Debug.Log("Complete_2");
         this.loadingProgress = this.asyncMethod.progress;
-        this.OnLoadingComplete(levelName, System.EventArgs.Empty);
+        this.OnLoadingComplete(caller, new GameEvenArgs(GameEvenArgs.EventType.GameSceneLoaded, levelToLoad));
     }
 
     public float LoadingProgress
@@ -92,12 +78,10 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    protected void OnLoadingComplete(object sender, System.EventArgs e)
+    protected void OnLoadingComplete(object sender, GameEvenArgs e)
     {
-        Debug.Log("Complete");
         if (this.LoadingComplete != null)
         {
-            Debug.Log("Callings");
             this.LoadingComplete(sender, e);
         }
     }

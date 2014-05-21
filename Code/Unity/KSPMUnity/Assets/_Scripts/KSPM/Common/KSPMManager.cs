@@ -5,13 +5,17 @@ public class KSPMManager : MonoBehaviour
 {
     public System.Collections.Generic.Queue<KSPMAction> ActionsToDo;
 
+    public int poolSize;
+
+    public KSPMActionsPool ActionsPool;
+
     public SceneManager sceneManager;
-    public bool loadGameScene;
     protected KSPMAction actionToDo;
 	// Use this for initialization
 	void Start ()
     {
         DontDestroyOnLoad(this);
+        this.ActionsPool = new KSPMActionsPool((uint)this.poolSize, new KSPMAction());
         this.ActionsToDo = new System.Collections.Generic.Queue<KSPMAction>();
         this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(this.sceneManager_LoadingComplete);
 	}
@@ -32,13 +36,16 @@ public class KSPMManager : MonoBehaviour
         if (this.ActionsToDo.Count > 0)
         {
             actionToDo = this.ActionsToDo.Dequeue();
-            StartCoroutine(actionToDo.method.IEnumerateActionMethod(null, actionToDo.actionParameter));
-            //StartCoroutine(actionToDo.IEnumerateActionMethod(null, actionToDo.actionParameter));
+            switch (actionToDo.ActionKind)
+            {
+                case KSPMAction.ActionType.EnumeratedMethod:
+                    StartCoroutine(actionToDo.ActionMethod.EnumeratedAction(actionToDo.ParametersStack.Pop(), actionToDo.ParametersStack));
+                    break;
+                case KSPMAction.ActionType.NormalMethod:
+                    actionToDo.ActionMethod.BasicAction(actionToDo.ParametersStack.Pop(), actionToDo.ParametersStack);
+                    break;
+            }
+            this.ActionsPool.Recyle(actionToDo);
         }
-    }
-
-    public void load()
-    {
-        //StartCoroutine(this.sceneManager.LoadLevel("Game"));
     }
 }

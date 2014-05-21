@@ -1,22 +1,33 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using KSPM.Network.Common;
 using KSPM.Network.Server;
 using KSPM.Network.Common.Messages;
 using KSPM.Globals;
 using KSPM.IO.Logging;
 
+[RequireComponent(typeof(KSPMManager))]
 public class KSPMServer : MonoBehaviour
 {
     protected ServerSettings settings;
     protected string text;
+    protected KSPMManager kspmManager;
 
     public GameServer KSPMServerReference;
+    public GameManager gameManager;
+    public SceneManager sceneManager;
+
+
+    void Awake()
+    {
+        this.kspmManager = this.GetComponent<KSPMManager>();
+    }
 
 	// Use this for initialization
 	void Start ()
     {
-        //Debug.Log(System.Environment.CurrentDirectory);
+        DontDestroyOnLoad(this);
         KSPMGlobals.Globals.ChangeIOFilePath(UnityGlobals.WorkingDirectory);
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
         this.KSPMServerReference = null;
@@ -77,6 +88,30 @@ public class KSPMServer : MonoBehaviour
         GameMessage.UserConnectedMessage(ssClientConnected, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
         Debug.Log(ssClientConnected.gameUser.Username);
+        Debug.Log(this.KSPMServerReference.ClientsManager.ConnectedClients);
+        if (this.KSPMServerReference.ClientsManager.ConnectedClients == this.gameManager.RequiredUsers)
+        {
+            this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
+            KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
+            action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
+            action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
+            action.ParametersStack.Push("Game");
+            action.ParametersStack.Push(ssClientConnected);
+            this.kspmManager.ActionsToDo.Enqueue(action);
+        }
+    }
+
+    void sceneManager_LoadingComplete(object sender, GameEvenArgs e)
+    {
+        string loadedLevel = (string)e.EventParameter;
+        if (loadedLevel.Equals("Game"))
+        {
+            this.gameManager.StartGame();
+            //ServerSideClient ssClientConnected = (ServerSideClient)sender;
+            Message userConnectedMessage = null;
+            GameMessage.GameStatusMessage((NetworkEntity)sender, this.gameManager,out userConnectedMessage);
+            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        }
     }
 
     public void StopServer()

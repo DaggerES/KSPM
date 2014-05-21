@@ -22,11 +22,6 @@ public class Test : MonoBehaviour
         }
     }
 
-    public void ASD()
-    {
-        Application.LoadLevel("Game");
-    }
-
     void sceneManager_LoadingComplete(object sender, System.EventArgs e)
     {
         Debug.Log(sender.ToString());
@@ -34,18 +29,11 @@ public class Test : MonoBehaviour
 
     protected void LoadGame()
     {
-        KSPMAction action = new KSPMAction(KSPMAction.ActionType.LoadScene, "Game");
-        action.method.IEnumerateActionMethod = this.sceneManager.LoadLevel;
+        KSPMAction action = kspmBridge.ActionsPool.BorrowAction;
+        action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
+        action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
+        action.ParametersStack.Push("Game");
+        action.ParametersStack.Push(this);
         this.kspmBridge.ActionsToDo.Enqueue(action);
-    }
-
-    IEnumerator PrepareScene()
-    {
-        this.sceneManager.LoadLevel(SceneManager.Scenes.Game);
-        while (this.sceneManager.LoadingProgress < 1.0f)
-        {
-            yield return null;
-        }
-        Debug.Log("Complete");
     }
 }
