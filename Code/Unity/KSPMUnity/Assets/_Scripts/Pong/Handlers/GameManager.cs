@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     {
         None,
         NetworkSettingUp,
+        Waiting,
         Starting,
         Playing,
         Finished
@@ -43,8 +44,9 @@ public class GameManager : MonoBehaviour
     {
         switch (this.currentStatus)
         {
+            case GameStatus.Waiting:
+                break;
             case GameStatus.Starting:
-                StartCoroutine(this.WaitABit(5));
                 this.movementManager.RandomForce();
                 this.currentStatus = GameStatus.Playing;
                 break;
@@ -55,15 +57,36 @@ public class GameManager : MonoBehaviour
 
     IEnumerator WaitABit(float time)
     {
+        this.currentStatus = GameStatus.Waiting;
+        yield return new WaitForSeconds(time);
+        this.currentStatus = GameStatus.Starting;
+    }
+
+    IEnumerator WaitSome(float time)
+    {
         yield return new WaitForSeconds(time);
     }
 
-    public void StartGame()
+    public void StartGame(UnityGlobals.WorkingMode mode)
     {
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
         if (this.movementManager != null)
         {
-            this.currentStatus = GameStatus.Starting;
+            this.movementManager.WorkingMode = mode;
+            StartCoroutine(WaitABit(5f));
         }
+    }
+
+    public GameError.ErrorType StartGameAction(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        StartCoroutine(WaitSome(2));
+        Debug.Log("Buscando");
+        this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
+        if (this.movementManager != null)
+        {
+            this.currentStatus = GameStatus.Waiting;
+            return GameError.ErrorType.Ok;
+        }
+        return GameError.ErrorType.Ok;
     }
 }

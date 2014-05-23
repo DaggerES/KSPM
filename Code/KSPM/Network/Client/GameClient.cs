@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿#define DEBUG_PRINT
+using System.Net.Sockets;
 using System.Net;
 
 using KSPM.Network.Common;
@@ -737,6 +738,9 @@ namespace KSPM.Network.Client
                                 ///Cleaning up.
                                 this.udpIOMessagesPool.Recycle(command);
                                 break;
+                            case Message.CommandType.User:
+                                this.OnUDPMessageArrived(this, (RawMessage)command);
+                                break;
                             default:
                                 this.OnUDPMessageArrived(this, (RawMessage)command);
                                 break;
@@ -961,6 +965,9 @@ namespace KSPM.Network.Client
                 //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
                 if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
                 {
+#if DEBUG_PRINT
+                    KSPMGlobals.Globals.Log.WriteTo("Received: " + fixedLegth.ToString());
+#endif
                     if (!this.commandsQueue.EnqueueCommandMessage(ref incomingMessage))
                     {
                         incomingMessage.Release();
@@ -993,6 +1000,9 @@ namespace KSPM.Network.Client
         /// <param name="message">Arrived message.</param>
         protected void OnTCPMessageArrived(NetworkEntity sender, ManagedMessage message)
         {
+#if DEBUG_PRINT
+            KSPMGlobals.Globals.Log.WriteTo(message.ToString());
+#endif
             if (this.TCPMessageArrived != null)
             {
                 this.TCPMessageArrived(sender, message);
@@ -1206,6 +1216,10 @@ namespace KSPM.Network.Client
 
         protected void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
         {
+#if DEBUG_PRINT
+
+            KSPMGlobals.Globals.Log.WriteTo(message.ToString());
+#endif
             if (this.UDPMessageArrived != null)
             {
                 this.UDPMessageArrived(sender, message);

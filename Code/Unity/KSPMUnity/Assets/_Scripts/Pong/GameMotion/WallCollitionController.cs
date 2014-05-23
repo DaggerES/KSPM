@@ -5,6 +5,7 @@ public class WallCollitionController : MonoBehaviour
 {
     public MovementManager movementManager;
     public Vector3 collitionForceFactor;
+
 	// Use this for initialization
 	void Start () {
 	

@@ -15,8 +15,13 @@ public class UnityGlobals : MonoBehaviour
         Client
     }
 
+    public static UnityGlobals SingletonReference = null;
+
     public string ServerIOFolder = "ServerConfiguration";
     public string ClientIOFolder = "ClientConfiguration";
+
+    public KSPMServer KSPMServerReference;
+    public KSPMClient KSPMClientReference;
 
     public WorkingMode workingMode = WorkingMode.None;
 
@@ -27,6 +32,8 @@ public class UnityGlobals : MonoBehaviour
 
     void Awake()
     {
+        SingletonReference = this;
+
         DontDestroyOnLoad(this);
         switch (this.workingMode)
         {

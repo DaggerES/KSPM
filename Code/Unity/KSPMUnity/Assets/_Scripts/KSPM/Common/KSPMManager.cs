@@ -5,7 +5,7 @@ public class KSPMManager : MonoBehaviour
 {
     public System.Collections.Generic.Queue<KSPMAction> ActionsToDo;
 
-    public int poolSize;
+    public int poolSize = 32;
 
     public KSPMActionsPool ActionsPool;
 
@@ -17,14 +17,7 @@ public class KSPMManager : MonoBehaviour
         DontDestroyOnLoad(this);
         this.ActionsPool = new KSPMActionsPool((uint)this.poolSize, new KSPMAction());
         this.ActionsToDo = new System.Collections.Generic.Queue<KSPMAction>();
-        this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(this.sceneManager_LoadingComplete);
 	}
-
-    void sceneManager_LoadingComplete(object sender, System.EventArgs e)
-    {
-        Debug.Log("HOLA");
-        Debug.Log(sender.ToString());
-    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -42,6 +35,7 @@ public class KSPMManager : MonoBehaviour
                     StartCoroutine(actionToDo.ActionMethod.EnumeratedAction(actionToDo.ParametersStack.Pop(), actionToDo.ParametersStack));
                     break;
                 case KSPMAction.ActionType.NormalMethod:
+                    Debug.Log("NormalMethod");
                     actionToDo.ActionMethod.BasicAction(actionToDo.ParametersStack.Pop(), actionToDo.ParametersStack);
                     break;
             }

@@ -9,15 +9,16 @@ using KSPM.Network.Client.RemoteServer;
 using KSPM.Network.Common.Messages;
 
 //[ExecuteInEditMode]
+[RequireComponent(typeof(KSPMManager))]
 public class KSPMClient : MonoBehaviour
 {
     public GameManager gameManager;
     public SceneManager sceneManager;
-    public KSPMManager kspmManager;
+    protected KSPMManager kspmManager;
 
     protected GameClient kspmClient;
     protected ServerList hosts;
-    protected string userName = "Username...";
+    protected string userName = "Chuchito";
     protected ServerInformation uiServerInformation;
     protected int serverInformationIndex;
     protected GameUser gameUserReference;
@@ -26,6 +27,7 @@ public class KSPMClient : MonoBehaviour
     void Awake()
     {
         DontDestroyOnLoad(this);
+        this.kspmManager = this.GetComponent<KSPMManager>();
     }
 
 	// Use this for initialization
@@ -44,13 +46,15 @@ public class KSPMClient : MonoBehaviour
 
     void sceneManager_LoadingComplete(object sender, GameEvenArgs e)
     {
-        /*
-        string loadeLevelName = (string)sender;
+        string loadeLevelName = (string)e.EventParameter;
         if (loadeLevelName.Equals("Game", System.StringComparison.OrdinalIgnoreCase))
         {
-            this.gameManager.StartGame();
+            KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
+            action.ActionKind = KSPMAction.ActionType.NormalMethod;
+            action.ActionMethod.BasicAction = this.gameManager.StartGameAction;
+            action.ParametersStack.Push(this);
+            this.kspmManager.ActionsToDo.Enqueue(action);
         }
-        */
     }
 	
 	// Update is called once per frame
@@ -116,8 +120,35 @@ public class KSPMClient : MonoBehaviour
             this.kspmClient = new GameClient();
             this.kspmClient.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmClient_UserDisconnected);
             this.kspmClient.TCPMessageArrived += new KSPM.Network.Common.Events.TCPMessageArrived(kspmClient_TCPMessageArrived);
+            this.kspmClient.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(kspmClient_UDPMessageArrived);
             this.kspmClient.InitializeClient();
         }
+    }
+
+    void kspmClient_UDPMessageArrived(object sender, Message message)
+    {
+        float x,y,z;
+        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[9])
+        {
+            case UDPGameMessage.UDPGameCommand.BallUpdate:
+                KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
+                action.ActionKind = KSPMAction.ActionType.NormalMethod;
+                action.ActionMethod.BasicAction = this.gameManager.movementManager.UpdateTargerPositionAction;
+                action.ParametersStack.Push(System.BitConverter.ToSingle( message.bodyMessage, 10 ));
+                action.ParametersStack.Push(System.BitConverter.ToSingle(message.bodyMessage, 14));
+                action.ParametersStack.Push(System.BitConverter.ToSingle(message.bodyMessage, 18));
+                action.ParametersStack.Push(this);
+                this.kspmManager.ActionsToDo.Enqueue(action);
+                break;
+            case UDPGameMessage.UDPGameCommand.BallForce:
+                x = System.BitConverter.ToSingle(message.bodyMessage, 10);
+                y = System.BitConverter.ToSingle(message.bodyMessage, 14);
+                z = System.BitConverter.ToSingle(message.bodyMessage, 18);
+                Debug.Log(x);
+                this.gameManager.movementManager.ApplyForce( x, y, z);
+                break;
+        }
+        ((GameClient)sender).UDPIOMessagesPool.Recycle(message);
     }
 
     void kspmClient_TCPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
@@ -127,15 +158,13 @@ public class KSPMClient : MonoBehaviour
         GameMessage.LoadFromMessage(out incomingMessage, message);
         message.Dispose();
         gameMessage = (GameMessage)incomingMessage;
-        Debug.Log(incomingMessage.Command);
+        Debug.Log(gameMessage.UserCommand);
         switch (gameMessage.UserCommand)
         {
             case GameMessage.GameCommand.UserConnected:
-                Debug.Log("User connected");
                 this.usersConnected++;
                 if (this.usersConnected == this.gameManager.RequiredUsers)
-                {
-                    Debug.Log("Ready to start");
+                {   
                     KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
                     action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
                     action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
@@ -150,8 +179,7 @@ public class KSPMClient : MonoBehaviour
             case GameMessage.GameCommand.GameStatus:
                 switch ((GameManager.GameStatus)gameMessage.bodyMessage[10])
                 {
-                    case GameManager.GameStatus.Starting:
-                        this.gameManager.StartGame();
+                    case GameManager.GameStatus.Waiting:
                         break;
                 }
                 break;
@@ -164,6 +192,13 @@ public class KSPMClient : MonoBehaviour
     void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
         Debug.Log(e.ToString());
+    }
+
+    public void SendControlsUpdate(UnityEngine.Vector3 displacement)
+    {
+        Message updateMessage = this.kspmClient.UDPIOMessagesPool.BorrowMessage;
+        UDPGameMessage.LoadUDPControlUpdateMessage(this.kspmClient, displacement, ref updateMessage);
+        this.kspmClient.OutgoingUDPQueue.EnqueueCommandMessage(ref updateMessage);
     }
 
     protected void StopClient()

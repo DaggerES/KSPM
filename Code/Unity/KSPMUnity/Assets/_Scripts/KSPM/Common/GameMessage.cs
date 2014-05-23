@@ -256,6 +256,8 @@ public class GameMessage : ManagedMessage
         return Error.ErrorType.Ok;
     }
 
+
+
     public static GameError.ErrorType LoadFromMessage(out Message targetMessage, Message srcMessage)
     {
         targetMessage = null;

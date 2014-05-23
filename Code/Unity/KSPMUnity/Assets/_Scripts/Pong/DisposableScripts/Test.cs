@@ -24,7 +24,7 @@ public class Test : MonoBehaviour
 
     void sceneManager_LoadingComplete(object sender, System.EventArgs e)
     {
-        Debug.Log(sender.ToString());
+        //Debug.Log(sender.ToString());
     }
 
     protected void LoadGame()

@@ -44,6 +44,12 @@ namespace KSPM.Game
         protected int authenticationAttempts;
 
         /// <summary>
+        /// Reference to keep any object required by the user who is implementing the system.
+        /// When an User reference is created and released this reference is set to null, so you have to release whatever it is.
+        /// </summary>
+        public object UserDefinedHolder;
+
+        /// <summary>
         /// Tries to convert the amount of bytes especified by the bytesToRead argument to an UTF-8 encoded string.
         /// <b>Note:</b> If the offset + bytesToRead is greather than the array's lenght the amount of read bytes would be truncated.
         /// </summary>
@@ -134,6 +140,7 @@ namespace KSPM.Game
             this.hash = hashCode;
             this.id = User.UserReferencesCounter++;
             this.username = string.Format("GameUser-{0}", this.id);
+            this.UserDefinedHolder = null;
         }
 
         /// <summary>
@@ -187,6 +194,7 @@ namespace KSPM.Game
             this.humanHash = null;
             this.authenticationAttempts = int.MaxValue;
             this.id = 0;
+            this.UserDefinedHolder = null;
         }
     }
 }

@@ -26,11 +26,13 @@ public class HostControl : MonoBehaviour
         {
             this.moving = true;
             this.displacement.Set(this.displacement.x, this.displacementFactor.y, this.displacement.z);
+            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
         }
         if (Input.GetKey(KeyCode.S))
         {
             this.moving = true;
             this.displacement.Set(this.displacement.x, -this.displacementFactor.y, this.displacement.z);
+            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
         }
 	}
 

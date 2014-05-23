@@ -253,6 +253,15 @@ namespace KSPM.Network.Common.Messages
             return this.messageRawLength;
         }
 
+        /// <summary>
+        /// Gets a basic information of the message.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0} [{1}] Command, [{2}] bytes length", this.GetType().ToString(), this.command.ToString(), this.messageRawLength);
+        }
+
         public abstract void Release();
 
         public abstract void Dispose();
