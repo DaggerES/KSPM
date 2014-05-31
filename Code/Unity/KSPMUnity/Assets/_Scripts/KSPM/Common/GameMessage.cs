@@ -258,21 +258,21 @@ public class GameMessage : ManagedMessage
 
 
 
-    public static GameError.ErrorType LoadFromMessage(out Message targetMessage, Message srcMessage)
+    public static GameError.GameErrorType LoadFromMessage(out Message targetMessage, Message srcMessage)
     {
         targetMessage = null;
         if (srcMessage == null)
         {
-            return GameError.ErrorType.MessageNullSourceMessage;
+            return GameError.GameErrorType.MessageNullSourceMessage;
         }
         if (srcMessage.Command != CommandType.User)
         {
-            return GameError.ErrorType.MessageInvalidSourceMessage;
+            return GameError.GameErrorType.MessageInvalidSourceMessage;
         }
         srcMessage.UserDefinedCommand = srcMessage.bodyMessage[PacketHandler.PrefixSize + 1];
         targetMessage = new GameMessage((GameCommand)srcMessage.UserDefinedCommand, ((ManagedMessage)srcMessage).OwnerNetworkEntity);
         ((GameMessage)targetMessage).SetBodyMessageNoClone(srcMessage.bodyMessage, srcMessage.MessageBytesSize);
-        return GameError.ErrorType.Ok;
+        return GameError.GameErrorType.Ok;
     }
 
     #endregion

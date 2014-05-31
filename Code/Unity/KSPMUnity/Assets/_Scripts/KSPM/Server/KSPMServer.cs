@@ -21,13 +21,13 @@ public class KSPMServer : MonoBehaviour
 
     void Awake()
     {
+        DontDestroyOnLoad(this);
         this.kspmManager = this.GetComponent<KSPMManager>();
     }
 
 	// Use this for initialization
 	void Start ()
     {
-        DontDestroyOnLoad(this);
         KSPMGlobals.Globals.ChangeIOFilePath(UnityGlobals.WorkingDirectory);
         KSPMGlobals.Globals.InitiLogging(Log.LogginMode.Buffered, false);
         this.KSPMServerReference = null;
@@ -39,7 +39,6 @@ public class KSPMServer : MonoBehaviour
         
         if (GUI.Button(new Rect(0, 0, 128, 32), "Start server"))
         {
-            //text += " HOLA";
             this.StartServer();
         }
         if (GUI.Button(new Rect(160, 0, 128, 32), "Stop server"))
@@ -68,6 +67,16 @@ public class KSPMServer : MonoBehaviour
         return this.KSPMServerReference.StartServer();
     }
 
+    public void StopServer()
+    {
+        if (this.KSPMServerReference != null && this.KSPMServerReference.IsAlive)
+        {
+            this.KSPMServerReference.ShutdownServer();
+            this.KSPMServerReference = null;
+            Debug.Log("Server killed");
+        }
+    }
+
     void KSPMServerReference_UDPMessageArrived(object sender, Message message)
     {
         
@@ -79,26 +88,37 @@ public class KSPMServer : MonoBehaviour
         Message userConnectedMessage = null;
         GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        //((GameObject)(ssClientConnected.gameUser.UserDefinedHolder) ).GetComponent<MPGamePlayer>().r
         ((ServerSideClientController)ssClientConnected.gameUser.UserDefinedHolder).Release();
         Debug.Log(ssClientConnected.gameUser.Username + " se fue." );
     }
 
     void kspmServer_UserConnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
-        ServerSideClient ssClientConnected = (ServerSideClient)sender;
-        ssClientConnected.gameUser.UserDefinedHolder = 
-        ssClientConnected.gameUser.UserDefinedHolder = new ServerSideClientController(ssClientConnected.ClientLatency, ssClientConnected ,this.TickTimerElapsed);
+        KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+        action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.CreateEmptyPlayerAction;
+        action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+        action.ParametersStack.Push(sender);
+        action.Completed += new KSPMAction<object, object>.ActionCompleted(GamePlayerCreated);
+        this.kspmManager.ActionsToDo.Enqueue(action);
+    }
+
+    void GamePlayerCreated(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        ServerSideClient ssClientConnected = (ServerSideClient)caller;
+        Debug.Log(ssClientConnected.gameUser.Username);
+
+        ///Creating the message of the connected user and broadcasting to everyone in the network.
         Message userConnectedMessage = null;
         GameMessage.UserConnectedMessage(ssClientConnected, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
-        Debug.Log(ssClientConnected.gameUser.Username);
-        Debug.Log(this.KSPMServerReference.ClientsManager.ConnectedClients);
+
         if (this.KSPMServerReference.ClientsManager.ConnectedClients == this.gameManager.RequiredUsers)
         {
             this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
-            KSPMAction action = this.kspmManager.ActionsPool.BorrowAction;
+            KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
             action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
-            action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
+            action.ActionKind = KSPMAction<object, object>.ActionType.EnumeratedMethod;
             action.ParametersStack.Push("Game");
             action.ParametersStack.Push(ssClientConnected);
             this.kspmManager.ActionsToDo.Enqueue(action);
@@ -111,7 +131,6 @@ public class KSPMServer : MonoBehaviour
         if (loadedLevel.Equals("Game"))
         {
             this.gameManager.StartGame(UnityGlobals.WorkingMode.Server);
-            //ServerSideClient ssClientConnected = (ServerSideClient)sender;
             Message userConnectedMessage = null;
             GameMessage.GameStatusMessage((NetworkEntity)sender, this.gameManager,out userConnectedMessage);
             this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
@@ -139,15 +158,5 @@ public class KSPMServer : MonoBehaviour
         UDPGameMessage.LoadUDPBallForceMessage( ssClientReference, this.gameManager.movementManager, ref updateMessage );
         this.KSPMServerReference.ClientsManager.UDPBroadcastClients(updateMessage);
         ssClientReference.IOUDPMessagesPool.Recycle(updateMessage);
-    }
-
-    public void StopServer()
-    {
-        if (this.KSPMServerReference != null && this.KSPMServerReference.IsAlive)
-        {
-            this.KSPMServerReference.ShutdownServer();
-            this.KSPMServerReference = null;
-            Debug.Log("Server killed");
-        }
     }
 }

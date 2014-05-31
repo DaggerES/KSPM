@@ -18,30 +18,4 @@ public class HostControl : MonoBehaviour
         this.displacement = Vector3.zero;
         this.moving = false;
 	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-        if (Input.GetKey(KeyCode.W))
-        {
-            this.moving = true;
-            this.displacement.Set(this.displacement.x, this.displacementFactor.y, this.displacement.z);
-            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            this.moving = true;
-            this.displacement.Set(this.displacement.x, -this.displacementFactor.y, this.displacement.z);
-            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
-        }
-	}
-
-    void LateUpdate()
-    {
-        if (this.moving)
-        {
-            this.target.transform.position += this.displacement;
-        }
-        this.moving = false;
-    }
 }

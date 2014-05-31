@@ -29,8 +29,8 @@ public class Test : MonoBehaviour
 
     protected void LoadGame()
     {
-        KSPMAction action = kspmBridge.ActionsPool.BorrowAction;
-        action.ActionKind = KSPMAction.ActionType.EnumeratedMethod;
+        KSPMAction<object, object> action = kspmBridge.ActionsPool.BorrowAction;
+        action.ActionKind = KSPMAction<object, object>.ActionType.EnumeratedMethod;
         action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
         action.ParametersStack.Push("Game");
         action.ParametersStack.Push(this);

@@ -11,3 +11,4 @@ D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\ResolveAssemblyReference.cache
 D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\Assembly-CSharp.dll
 D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\obj\Debug\Assembly-CSharp.pdb
+D:\Projects\CSharp\KSPM\Code\Unity\KSPMUnity\Temp\bin\Debug\KSPM.xml

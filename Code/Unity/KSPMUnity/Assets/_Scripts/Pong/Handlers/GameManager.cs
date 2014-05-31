@@ -11,15 +11,19 @@ public class GameManager : MonoBehaviour
         Starting,
         Playing,
         Finished
-    }
+    };
 
     public bool fake;
+
+    public PlayerManager PlayerManagerReference;
 
     public MovementManager movementManager;
 
     public GameStatus currentStatus;
 
     public int RequiredUsers;
+
+    public HostControl[] UserControls;
 
     void Awake()
     {
@@ -67,26 +71,47 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(time);
     }
 
+    /// <summary>
+    /// Method used by the server so Don't try to use it inside a client body.
+    /// </summary>
+    /// <param name="mode"></param>
     public void StartGame(UnityGlobals.WorkingMode mode)
     {
+        GameObject goGeneric;
+        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
+        this.UserControls[0] = goGeneric.AddComponent<HostControl>();
+        this.UserControls[0].target = goGeneric;
+        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
+        this.UserControls[1] = goGeneric.AddComponent<HostControl>();
+        this.PlayerManagerReference.Players[0].GetComponent<MPGamePlayer>().InputControl = this.UserControls[0];
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
+        /*
         if (this.movementManager != null)
         {
             this.movementManager.WorkingMode = mode;
             StartCoroutine(WaitABit(5f));
         }
+        */
     }
 
     public GameError.ErrorType StartGameAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        StartCoroutine(WaitSome(2));
-        Debug.Log("Buscando");
+        GameObject goGeneric;
+        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
+        this.UserControls[0] = goGeneric.AddComponent<UserHostControl>();
+        this.UserControls[0].target = goGeneric;
+        UserHostControl.SetLeftControls((UserHostControl)this.UserControls[0]);
+        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
+        this.UserControls[1] = goGeneric.AddComponent<UserHostControl>();
+        this.PlayerManagerReference.Players[0].GetComponent<GamePlayer>().InputControl = this.UserControls[0];
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
+        /*
         if (this.movementManager != null)
         {
             this.currentStatus = GameStatus.Waiting;
             return GameError.ErrorType.Ok;
         }
+        */
         return GameError.ErrorType.Ok;
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 public class GameError : KSPM.Network.Common.Error
 {
-    public enum ErrorType : byte
+    public enum GameErrorType : byte
     {
         Ok = 0,
 
