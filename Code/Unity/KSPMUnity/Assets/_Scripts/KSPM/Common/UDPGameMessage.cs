@@ -157,4 +157,47 @@ public class UDPGameMessage
         ((RawMessage)targetMessage).ReallocateCommand();
         return Error.ErrorType.Ok;
     }
+
+    /// <summary>
+    /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+    /// </summary>
+    /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
+    /// <param name="targetMessage">Out reference to the Message object to be created.</param>
+    /// <returns></returns>
+    public static Error.ErrorType LoadUDPControlUpdateMessage(NetworkEntity sender, UserHostControl.MovementAction actionToDo, ref Message targetMessage)
+    {
+        int bytesToSend = Message.HeaderOfMessageCommand.Length;
+        byte[] messageHeaderContent = null;
+        if (sender == null)
+        {
+            return Error.ErrorType.InvalidNetworkEntity;
+        }
+
+        ///Writing header
+        System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, targetMessage.bodyMessage, 0, Message.HeaderOfMessageCommand.Length);
+        bytesToSend += 4;///4 bytes reserver to the message length.
+
+        ///Writing the Command byte.
+        targetMessage.bodyMessage[bytesToSend] = (byte)Message.CommandType.User;
+        bytesToSend += 1;
+
+        targetMessage.bodyMessage[bytesToSend] = (byte)UDPGameCommand.ControlUpdate;
+        bytesToSend += 1;
+
+        targetMessage.bodyMessage[bytesToSend] = (byte)actionToDo;
+        bytesToSend += 1;
+
+        ///Writint the EndOfMessageCommand.
+        System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, targetMessage.bodyMessage, bytesToSend, Message.EndOfMessageCommand.Length);
+        bytesToSend += Message.EndOfMessageCommand.Length;
+
+        ///Writint the message length.
+        messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+        System.Buffer.BlockCopy(messageHeaderContent, 0, targetMessage.bodyMessage, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+        //System.Buffer.BlockCopy(targetMessage.bodyMessage, 0, targetMessage.bodyMessage, 0, bytesToSend);
+        targetMessage.MessageBytesSize = (uint)bytesToSend;
+        ((RawMessage)targetMessage).ReallocateCommand();
+        return Error.ErrorType.Ok;
+    }
 }

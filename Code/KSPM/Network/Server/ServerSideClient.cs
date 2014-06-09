@@ -626,11 +626,13 @@ namespace KSPM.Network.Server
                     ///Setting the sender of the datagram.
                     //this.udpCollection.remoteEndPoint = e.RemoteEndPoint;
 
+                    /*
                     if (e.ReceiveMessageFromPacketInfo.Address != null)
                     {
                         KSPMGlobals.Globals.Log.WriteTo(e.ReceiveMessageFromPacketInfo.Address.ToString());
                     }
                     KSPMGlobals.Globals.Log.WriteTo(e.RemoteEndPoint.ToString());
+                    */
 #if PROFILING
                     this.profilerPacketizer.Set();
 #endif

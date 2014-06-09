@@ -11,23 +11,18 @@ public class UserHostControl : HostControl
         if (Input.GetKey(UpKey))
         {
             this.moving = true;
+            this.currentMovement = MovementAction.Up;
             this.displacement.Set(this.displacement.x, this.displacementFactor.y, this.displacement.z);
-            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
+            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.Up);
+            //UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
         }
         if (Input.GetKey(DownKey))
         {
             this.moving = true;
+            this.currentMovement = MovementAction.Down;
             this.displacement.Set(this.displacement.x, -this.displacementFactor.y, this.displacement.z);
-            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
-        }
-    }
-
-    void LateUpdate()
-    {
-        if (this.moving)
-        {
-            this.target.transform.position += this.displacement;
-            this.moving = false;
+            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.Down);
+            //UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
         }
     }
 
@@ -42,5 +37,6 @@ public class UserHostControl : HostControl
     {
         userInput.UpKey = KeyCode.UpArrow;
         userInput.DownKey = KeyCode.DownArrow;
+        userInput.displacementFactor.Set(0f, 0.1f, 0f);
     }
 }

@@ -213,10 +213,21 @@ public class KSPMClient : MonoBehaviour
         Debug.Log(e.ToString());
     }
 
+    /// <summary>
+    /// Deprecated.
+    /// </summary>
+    /// <param name="displacement"></param>
     public void SendControlsUpdate(UnityEngine.Vector3 displacement)
     {
         Message updateMessage = this.kspmClient.UDPIOMessagesPool.BorrowMessage;
         UDPGameMessage.LoadUDPControlUpdateMessage(this.kspmClient, displacement, ref updateMessage);
+        this.kspmClient.OutgoingUDPQueue.EnqueueCommandMessage(ref updateMessage);
+    }
+
+    public void SendControlsUpdate(HostControl.MovementAction update)
+    {
+        Message updateMessage = this.kspmClient.UDPIOMessagesPool.BorrowMessage;
+        UDPGameMessage.LoadUDPControlUpdateMessage(this.kspmClient, update, ref updateMessage);
         this.kspmClient.OutgoingUDPQueue.EnqueueCommandMessage(ref updateMessage);
     }
 

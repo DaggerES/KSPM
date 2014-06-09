@@ -79,7 +79,30 @@ public class KSPMServer : MonoBehaviour
 
     void KSPMServerReference_UDPMessageArrived(object sender, Message message)
     {
-        
+        ServerSideClient ssClientReference = (ServerSideClient) sender;
+        ///Checking what kind of user defined command this message is.
+        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[9])
+        {
+            case UDPGameMessage.UDPGameCommand.ControlUpdate:
+                /*
+                float x, y, z;
+                x = System.BitConverter.ToSingle(message.bodyMessage, 10);
+                y = System.BitConverter.ToSingle(message.bodyMessage, 14);
+                z = System.BitConverter.ToSingle(message.bodyMessage, 18);
+                */
+                //Debug.Log(message.bodyMessage[10]);
+                KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+                action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                action.ActionMethod.BasicAction = HostControl.StaticMoveTargetAction;
+                //action.ParametersStack.Push(z);
+                //action.ParametersStack.Push(y);
+                //action.ParametersStack.Push(x);
+                action.ParametersStack.Push(message.bodyMessage[10]);
+                action.ParametersStack.Push(sender);
+                this.kspmManager.ActionsToDo.Enqueue(action);
+                break;
+        }
+        ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
     }
 
     void kspmServer_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
@@ -89,7 +112,7 @@ public class KSPMServer : MonoBehaviour
         GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
         //((GameObject)(ssClientConnected.gameUser.UserDefinedHolder) ).GetComponent<MPGamePlayer>().r
-        ((ServerSideClientController)ssClientConnected.gameUser.UserDefinedHolder).Release();
+        //((ServerSideClientController)ssClientConnected.gameUser.UserDefinedHolder).Release();
         Debug.Log(ssClientConnected.gameUser.Username + " se fue." );
     }
 
