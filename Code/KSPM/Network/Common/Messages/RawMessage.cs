@@ -53,12 +53,12 @@ namespace KSPM.Network.Common.Messages
                 bytesToCopy = (uint)this.bodyMessage.Length;
             System.Buffer.BlockCopy(src, (int)srcOffset, this.bodyMessage, 0, (int)bytesToCopy);
             this.messageRawLength = bytesToCopy;
-            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 8];
         }
 
         public void ReallocateCommand()
         {
-            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 8];
         }
 
         /// <summary>
@@ -95,6 +95,7 @@ namespace KSPM.Network.Common.Messages
             this.bodyMessage = null;
             this.broadcasted = false;
             this.pooling = false;
+            this.MessageId = 0;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Releasing");
         }
 
@@ -107,6 +108,7 @@ namespace KSPM.Network.Common.Messages
             this.command = CommandType.Null;
             this.messageRawLength = 0;
             this.broadcasted = false;
+            this.MessageId = 0;
         }
     }
 }

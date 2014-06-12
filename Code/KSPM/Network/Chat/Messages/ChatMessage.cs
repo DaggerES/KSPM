@@ -104,7 +104,7 @@ namespace KSPM.Network.Chat.Messages
 
             ///Writing header
             System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-            bytesToSend += 4;
+            bytesToSend += 8;
 
             ///Writing the command.
             rawBuffer[bytesToSend] = (byte)Message.CommandType.Chat;
@@ -183,7 +183,7 @@ namespace KSPM.Network.Chat.Messages
 
             ///Writing header
             System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-            bytesToSend += 4;
+            bytesToSend += 8;
 
             ///Writing the command.
             rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPChat;
@@ -262,7 +262,7 @@ namespace KSPM.Network.Chat.Messages
 
             ///Writing header
             System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-            bytesToSend += 4;
+            bytesToSend += 8;
 
             ///Writing the command.
             rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPChat;
@@ -325,7 +325,7 @@ namespace KSPM.Network.Chat.Messages
         public static Error.ErrorType InflateChatMessage(byte[] rawBytes, out ChatMessage messageTarget)
         {
             int bytesBlockSize;
-            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 4 + 1;
+            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 4 + 4 + 1;
             short shortBuffer;
             byte[] bytesBuffer = null;
             string stringBuffer = null;
@@ -376,7 +376,7 @@ namespace KSPM.Network.Chat.Messages
         public static short InflateTargetGroupId(byte[] rawBytes)
         {
             int bytesBlockSize;
-            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 4 + 1;
+            int readingIndex = (int)Message.HeaderOfMessageCommand.Length + 8 + 1;///8 bytes because we are taking in mind 4 message size bytes plus 4 message id bytes.
             short shortBuffer;
             if (rawBytes.Length < 4)
                 return -1;

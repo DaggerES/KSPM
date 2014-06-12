@@ -640,6 +640,7 @@ namespace KSPM.Network.Client
                     this.commandsQueue.DequeueCommandMessage(out command);
                     if (command != null)
                     {
+                        KSPMGlobals.Globals.Log.WriteTo(command.ToString());
                         switch (command.Command)
                         {
                             case Message.CommandType.Handshake:///NewClient command accepted, proceed to authenticate.
@@ -659,9 +660,9 @@ namespace KSPM.Network.Client
                                 ///Reads the information sent by the server and starts the UDP setting up process.
                                 managedMessageReference = (ManagedMessage)command;
                                 udpServerInformationFromNetwork = new ServerInformation();
-                                udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 9);
+                                udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 13);
                                 udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
-                                receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 13);
+                                receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 17);
 
                                 if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork) && this.pairingCode != receivedPairingCode)
                                 {
@@ -776,6 +777,9 @@ namespace KSPM.Network.Client
                         this.outgoingTCPMessages.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
+                            System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+
                             try
                             {
                                 if (this.ownerNetworkCollection != null && this.ownerNetworkCollection.socketReference != null)
@@ -813,6 +817,10 @@ namespace KSPM.Network.Client
                         this.outgoingUDPMessages.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            ///Setting up the MessageId
+                            outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
+                            System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+
                             outgoingData = this.udpOutSAEAPool.NextSlot;
                             outgoingData.AcceptSocket = this.udpNetworkCollection.socketReference;
                             outgoingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;

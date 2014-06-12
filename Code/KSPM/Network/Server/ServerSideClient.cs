@@ -766,11 +766,11 @@ namespace KSPM.Network.Server
                     switch (incomingMessage.Command)
                     {
                         case Message.CommandType.UDPPairing:
-                            byteBuffer = new byte[rawMessageReference.bodyMessage[PacketHandler.PrefixSize + 1]];
-                            System.Buffer.BlockCopy(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 2, byteBuffer, 0, byteBuffer.Length);
-                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 2 + byteBuffer.Length);
+                            byteBuffer = new byte[rawMessageReference.bodyMessage[PacketHandler.PrefixSize + 4 + 1]];
+                            System.Buffer.BlockCopy(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 2, byteBuffer, 0, byteBuffer.Length);
+                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 2 + byteBuffer.Length);
                             this.udpCollection.remoteEndPoint = new IPEndPoint(new IPAddress(byteBuffer), intBuffer);
-                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 6 + byteBuffer.Length);
+                            intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 6 + byteBuffer.Length);
                             //intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
                             responseMessage = this.udpIOMessagesPool.BorrowMessage;
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
@@ -888,6 +888,10 @@ namespace KSPM.Network.Server
                         ///Already set up the UDP socket.
                         if (this.usingUdpConnection)
                         {
+                            ///Setting the MessageId
+                            outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
+                            System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+
                             if (outgoingMessage.IsBroadcast)///Message sent through broadcasting methods.
                             {
                                 if (this.connected)///Is already connected.

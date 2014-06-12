@@ -165,7 +165,7 @@ namespace KSPM.Network.Chat.Managers
             short availableGroups;
             ChatGroup chatRoom = null;
             manager = null;
-            int readingOffset = (int)KSPM.Network.Common.Packet.PacketHandler.RawMessageHeaderSize + 1;
+            int readingOffset = (int)KSPM.Network.Common.Packet.PacketHandler.RawMessageHeaderSize + 1 + 4;
             availableGroups = System.BitConverter.ToInt16(rawBytes, readingOffset);
             if (availableGroups < 0)
             {

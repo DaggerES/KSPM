@@ -61,6 +61,7 @@ namespace KSPM.Network.Common.Messages
                 this.bodyMessage = null;
             }
             this.broadcasted = false;
+            this.MessageId = 0;
         }
 
         /// <summary>
@@ -86,6 +87,7 @@ namespace KSPM.Network.Common.Messages
                 this.bodyMessage = null;
             }
             this.broadcasted = false;
+            this.MessageId = 0;
         }
 
         public uint StartsAt
@@ -100,6 +102,10 @@ namespace KSPM.Network.Common.Messages
             }
         }
 
+        /// <summary>
+        /// DEPRECATED
+        /// </summary>
+        /// <param name="otherMessage"></param>
         public void SwapReceivedBufferToSend(ManagedMessage otherMessage)
         {
             System.Buffer.BlockCopy(otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);

@@ -161,7 +161,7 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 if (bytesBlockSize > Server.ServerSettings.ServerBufferSize)
                     return Error.ErrorType.MessageCRCError;
-                messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[8], bytesOwner);
+                messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[12], bytesOwner);
                 messageTarget.SetBodyMessageNoClone(rawBuffer, (uint)bytesBlockSize);
             }
             catch (System.Exception ex)
@@ -201,8 +201,9 @@ namespace KSPM.Network.Common.Packet
                     return Error.ErrorType.MessageBadFormat;
                 if (bytesBlockSize > Server.ServerSettings.ServerBufferSize)
                     return Error.ErrorType.MessageCRCError;
-                messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[8], bytesOwner);
+                messageTarget = new ManagedMessage((Message.CommandType)rawBuffer[12], bytesOwner);
                 messageTarget.SetBodyMessageNoClone(rawBuffer, (uint)bytesBlockSize);
+                messageTarget.MessageId = (uint)System.BitConverter.ToInt32(messageTarget.bodyMessage, (int)PacketHandler.PrefixSize);
             }
             catch (System.Exception ex)
             {

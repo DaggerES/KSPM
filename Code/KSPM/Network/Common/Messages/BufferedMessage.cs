@@ -30,7 +30,7 @@
         public uint Load(byte[] rawBytes, uint rawBytesOffset, uint blockSize)
         {
             this.bodyMessage = rawBytes;
-            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 4];
+            this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 8];
             this.startsAt = rawBytesOffset;
             this.endsAt = this.startsAt + blockSize;
             this.messageRawLength = blockSize;
@@ -49,6 +49,7 @@
                 this.bodyMessage = null;
             }
             this.broadcasted = false;
+            this.MessageId = 0;
         }
 
         public override Message Empty()
@@ -79,6 +80,7 @@
                 this.bodyMessage = null;
             }
             this.broadcasted = false;
+            this.MessageId = 0;
         }
 
         #endregion

@@ -32,6 +32,7 @@ namespace KSPM.Network.Common.Messages
             this.targets = null;
             this.broadcasted = false;
             this.targets = null;
+            this.MessageId = 0;
         }
 
         /// <summary>

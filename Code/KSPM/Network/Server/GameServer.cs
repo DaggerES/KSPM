@@ -536,13 +536,6 @@ namespace KSPM.Network.Server
                         {
                             case Message.CommandType.Chat:
                                 this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
-                                /*
-                                if (ChatMessage.InflateChatMessage(messageToProcess.bodyMessage, out chatMessage) == Error.ErrorType.Ok)
-                                {
-                                    //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][{1}_{2}]-Says:{3}", managedMessageReference.OwnerNetworkEntity.Id, chatMessage.Time.ToShortTimeString(), chatMessage.sendersUsername, chatMessage.Body));
-                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.AttachMessage(chatMessage).MembersAsList, messageToProcess);
-                                }
-                                */
                                 break;
                             case Message.CommandType.KeepAlive:
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
@@ -601,7 +594,8 @@ namespace KSPM.Network.Server
                         this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
-                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
+                            outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
+                            System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
                             try
                             {
                                 ///If it is broadcaste message a different sending procces is performed.
@@ -864,6 +858,10 @@ namespace KSPM.Network.Server
                         this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
+                            System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+                            KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
+
                             //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
                             managedReference = (ManagedMessage)outgoingMessage;
                             try
@@ -871,6 +869,7 @@ namespace KSPM.Network.Server
                                 ///Checking if the NetworkEntity is still running.
                                 if (managedReference.OwnerNetworkEntity.IsAlive())
                                 {
+                                    ///Writing the outgoing message command.
                                     KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
                                     managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                                 }
