@@ -545,6 +545,7 @@ namespace KSPM.Network.Server
                                 break;
                             case Message.CommandType.Disconnect:
                                 ///Disconnects either a NetworkEntity or a ServerSideClient.
+                                KSPMGlobals.Globals.Log.WriteTo("Disconnect command");
                                 this.DisconnectClient(managedMessageReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
                                 break;
                             case Message.CommandType.Unknown:
@@ -958,8 +959,10 @@ namespace KSPM.Network.Server
         /// <param name="cause">Information about what was the cause of the disconnection.</param>
         internal void DisconnectClient(NetworkEntity target, KSPMEventArgs cause)
         {
-            if (target != null && target.IsAlive())
+            if (target != null && target.IsAlive() && !target.MarkedToDie)
             {
+                target.MarkedToDie = true;
+                KSPMGlobals.Globals.Log.WriteTo("Desconectando");
                 this.OnUserDisconnected(target, cause);
                 this.chatManager.UnregisterUser(target);
                 this.clientsHandler.RemoveClient(target);

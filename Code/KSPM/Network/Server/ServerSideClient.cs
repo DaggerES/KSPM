@@ -117,11 +117,6 @@ namespace KSPM.Network.Server
         protected bool connected;
 
         /// <summary>
-        /// Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
-        /// </summary>
-        protected bool markedToDie;
-
-        /// <summary>
         /// UDPMessages queue to hold those incoming packets.
         /// </summary>
         protected CommandQueue incomingPackets;
@@ -769,7 +764,9 @@ namespace KSPM.Network.Server
                             byteBuffer = new byte[rawMessageReference.bodyMessage[PacketHandler.PrefixSize + 4 + 1]];
                             System.Buffer.BlockCopy(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 2, byteBuffer, 0, byteBuffer.Length);
                             intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 2 + byteBuffer.Length);
-                            this.udpCollection.remoteEndPoint = new IPEndPoint(new IPAddress(byteBuffer), intBuffer);
+                            //this.udpCollection.remoteEndPoint = new IPEndPoint(new IPAddress(byteBuffer), intBuffer);
+                            this.udpCollection.remoteEndPoint = new IPEndPoint(((IPEndPoint)this.ownerNetworkCollection.socketReference.RemoteEndPoint).Address, intBuffer);
+                            KSPMGlobals.Globals.Log.WriteTo(this.udpCollection.remoteEndPoint.ToString());
                             intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 6 + byteBuffer.Length);
                             //intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
                             responseMessage = this.udpIOMessagesPool.BorrowMessage;

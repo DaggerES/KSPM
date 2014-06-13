@@ -51,10 +51,14 @@ namespace KSPM.Network.Chat.Group
 
         public void RemoveMember(NetworkEntity memberToRemove)
         {
-            if (this.members.ContainsKey(memberToRemove.Id))
+            if (this.members.Count > 0)
             {
-                this.performanceDataStructureMembers.Remove(memberToRemove);
-                this.members.Remove(memberToRemove.Id);
+                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Removing: " + memberToRemove.Id);
+                if (this.members.ContainsKey(memberToRemove.Id))
+                {
+                    this.performanceDataStructureMembers.Remove(memberToRemove);
+                    this.members.Remove(memberToRemove.Id);
+                }
             }
         }
 

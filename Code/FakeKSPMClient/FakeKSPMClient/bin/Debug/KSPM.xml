@@ -528,6 +528,12 @@
             Counts how many times this user have tried to authenticate into the server.
             </summary>
         </member>
+        <member name="F:KSPM.Game.User.UserDefinedHolder">
+            <summary>
+            Reference to keep any object required by the user who is implementing the system.
+            When an User reference is created and released this reference is set to null, so you have to release whatever it is.
+            </summary>
+        </member>
         <member name="M:KSPM.Game.User.DecodeUsernameFromBytes(System.Byte[]@,System.UInt32,System.UInt32,System.String@)">
             <summary>
             Tries to convert the amount of bytes especified by the bytesToRead argument to an UTF-8 encoded string.
@@ -582,6 +588,11 @@
             Sets/gets the authentication attempts counter.
             </summary>
         </member>
+        <member name="T:KSPM.Network.Common.Messages.Message">
+            <summary>
+            Abstrac class to represent a single message, holds the basic information required to work.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.EndOfMessageCommand">
             <summary>
             4 bytes to mark the end of the message, is kind of the differential manchester encoding plus 1.
@@ -592,9 +603,19 @@
             4 bytes to mark the beggining of the message
             </summary>
         </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageCounter">
+            <summary>
+            Message counter to set to an unique id to each message.<b>Is defined as Int because System.Threading.Interlocked.Increment method only handles autommatically the overflow on Int32.</b>
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.command">
             <summary>
             Command type
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageId">
+            <summary>
+            Message id to be used whatever you want, like server message sync or stuff like that.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.UserDefinedCommand">
@@ -604,7 +625,7 @@
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.messageRawLength">
             <summary>
-            How many bytes of the buffer are usable, only used when the messages is being sent.
+            How many bytes of the buffer are usable, only used when the messages is being sent. This can hold up to 65535.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.broadcasted">
@@ -637,6 +658,12 @@
             Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that.</b>
             </summary>
             <param name="rawBytes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.ToString">
+            <summary>
+            Gets a basic information of the message.
+            </summary>
             <returns></returns>
         </member>
         <member name="M:KSPM.Network.Common.Messages.Message.HandshakeAccetpMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
@@ -952,6 +979,12 @@
             <summary>
             Does nothing.
             </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SwapReceivedBufferToSend(KSPM.Network.Common.Messages.ManagedMessage)">
+            <summary>
+            DEPRECATED
+            </summary>
+            <param name="otherMessage"></param>
         </member>
         <member name="P:KSPM.Network.Common.Messages.ManagedMessage.OwnerNetworkEntity">
             <summary>

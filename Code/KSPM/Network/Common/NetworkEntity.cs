@@ -39,6 +39,11 @@ namespace KSPM.Network.Common
         protected MessageSentCallback messageSentCallback;
 
         /// <summary>
+        /// Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
+        /// </summary>
+        protected bool markedToDie;
+
+        /// <summary>
         /// Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.
         /// </summary>
         /// <param name="caller"></param>
@@ -108,14 +113,37 @@ namespace KSPM.Network.Common
             }
         }
 
+        /// <summary>
+        /// Gets the HashCode of this NetworkEntity.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return this.id.GetHashCode();
         }
 
+        /// <summary>
+        /// Tells if the NetworkEntity is alive or no.
+        /// </summary>
+        /// <returns></returns>
         public override bool IsAlive()
         {
             return true;
+        }
+
+        /// <summary>
+        /// Tells if this NetworkEntity reference is marked to die.<b>Helps you to avoid kill twice or more times a single reference.</b>
+        /// </summary>
+        public bool MarkedToDie
+        {
+            get
+            {
+                return this.markedToDie;
+            }
+            set
+            {
+                this.markedToDie = value;
+            }
         }
     }
 }
