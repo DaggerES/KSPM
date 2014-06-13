@@ -134,7 +134,7 @@ public class KSPMClient : MonoBehaviour
     void kspmClient_UDPMessageArrived(object sender, Message message)
     {
         float x,y,z;
-        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[9])
+        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[13])
         {
             case UDPGameMessage.UDPGameCommand.BallUpdate:
                 KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;

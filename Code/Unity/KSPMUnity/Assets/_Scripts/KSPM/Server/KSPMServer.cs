@@ -81,7 +81,7 @@ public class KSPMServer : MonoBehaviour
     {
         ServerSideClient ssClientReference = (ServerSideClient) sender;
         ///Checking what kind of user defined command this message is.
-        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[9])
+        switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[13])
         {
             case UDPGameMessage.UDPGameCommand.ControlUpdate:
                 /*
@@ -97,7 +97,7 @@ public class KSPMServer : MonoBehaviour
                 //action.ParametersStack.Push(z);
                 //action.ParametersStack.Push(y);
                 //action.ParametersStack.Push(x);
-                action.ParametersStack.Push(message.bodyMessage[10]);
+                action.ParametersStack.Push(message.bodyMessage[14]);
                 action.ParametersStack.Push(sender);
                 this.kspmManager.ActionsToDo.Enqueue(action);
                 break;

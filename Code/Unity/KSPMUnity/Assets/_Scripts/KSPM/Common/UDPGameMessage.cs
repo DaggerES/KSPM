@@ -33,7 +33,7 @@ public class UDPGameMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;///4 bytes reserver to the message length.
+        bytesToSend += 8;///4 bytes reserver to the message length.
 
         ///Writing the Command byte.
         ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
@@ -81,7 +81,7 @@ public class UDPGameMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;///4 bytes reserver to the message length.
+        bytesToSend += 8;///4 bytes reserver to the message length.
 
         ///Writing the Command byte.
         ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
@@ -128,7 +128,7 @@ public class UDPGameMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, targetMessage.bodyMessage, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;///4 bytes reserver to the message length.
+        bytesToSend += 8;///4 bytes reserver to the message length.
 
         ///Writing the Command byte.
         targetMessage.bodyMessage[bytesToSend] = (byte)Message.CommandType.User;
@@ -175,7 +175,7 @@ public class UDPGameMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, targetMessage.bodyMessage, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;///4 bytes reserver to the message length.
+        bytesToSend += 8;///4 bytes reserver to the message length.
 
         ///Writing the Command byte.
         targetMessage.bodyMessage[bytesToSend] = (byte)Message.CommandType.User;

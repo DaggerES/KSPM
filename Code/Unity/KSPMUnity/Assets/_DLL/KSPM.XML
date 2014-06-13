@@ -388,6 +388,11 @@
             Reference to an MessageSentCallback.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Common.NetworkEntity.markedToDie">
+            <summary>
+            Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
+            </summary>
+        </member>
         <member name="M:KSPM.Network.Common.NetworkEntity.MessageSent(KSPM.Network.Common.NetworkEntity,System.Object)">
             <summary>
             Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.
@@ -414,6 +419,23 @@
         <member name="M:KSPM.Network.Common.NetworkEntity.Release">
             <summary>
             Releases all the resources on the NetworkEntity reference. <b>Do not confuse this method with the Dispose one.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.GetHashCode">
+            <summary>
+            Gets the HashCode of this NetworkEntity.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.IsAlive">
+            <summary>
+            Tells if the NetworkEntity is alive or no.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Common.NetworkEntity.MarkedToDie">
+            <summary>
+            Tells if this NetworkEntity reference is marked to die.<b>Helps you to avoid kill twice or more times a single reference.</b>
             </summary>
         </member>
         <member name="T:KSPM.Network.Common.NetworkEntity.MessageSentCallback">
@@ -588,6 +610,11 @@
             Sets/gets the authentication attempts counter.
             </summary>
         </member>
+        <member name="T:KSPM.Network.Common.Messages.Message">
+            <summary>
+            Abstrac class to represent a single message, holds the basic information required to work.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.EndOfMessageCommand">
             <summary>
             4 bytes to mark the end of the message, is kind of the differential manchester encoding plus 1.
@@ -598,9 +625,19 @@
             4 bytes to mark the beggining of the message
             </summary>
         </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageCounter">
+            <summary>
+            Message counter to set to an unique id to each message.<b>Is defined as Int because System.Threading.Interlocked.Increment method only handles autommatically the overflow on Int32.</b>
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.command">
             <summary>
             Command type
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageId">
+            <summary>
+            Message id to be used whatever you want, like server message sync or stuff like that.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.UserDefinedCommand">
@@ -610,7 +647,7 @@
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.messageRawLength">
             <summary>
-            How many bytes of the buffer are usable, only used when the messages is being sent.
+            How many bytes of the buffer are usable, only used when the messages is being sent. This can hold up to 65535.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.broadcasted">
@@ -964,6 +1001,12 @@
             <summary>
             Does nothing.
             </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SwapReceivedBufferToSend(KSPM.Network.Common.Messages.ManagedMessage)">
+            <summary>
+            DEPRECATED
+            </summary>
+            <param name="otherMessage"></param>
         </member>
         <member name="P:KSPM.Network.Common.Messages.ManagedMessage.OwnerNetworkEntity">
             <summary>
@@ -2336,11 +2379,6 @@
         <member name="F:KSPM.Network.Server.ServerSideClient.connected">
             <summary>
             Flag which tells if the ServerSideClient has finished the connection process with the remote client.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSideClient.markedToDie">
-            <summary>
-            Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
             </summary>
         </member>
         <member name="F:KSPM.Network.Server.ServerSideClient.incomingPackets">

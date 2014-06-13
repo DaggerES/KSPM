@@ -137,7 +137,7 @@ public class GameMessage : ManagedMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;
+        bytesToSend += 8;
 
         ///Writing the command.
         rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
@@ -158,7 +158,7 @@ public class GameMessage : ManagedMessage
         System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
         ///Creating the Message
-        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }
@@ -182,7 +182,7 @@ public class GameMessage : ManagedMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;
+        bytesToSend += 8;
 
         ///Writing the command.
         rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
@@ -203,7 +203,7 @@ public class GameMessage : ManagedMessage
         System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
         ///Creating the Message
-        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }
@@ -227,7 +227,7 @@ public class GameMessage : ManagedMessage
 
         ///Writing header
         System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-        bytesToSend += 4;
+        bytesToSend += 8;
 
         ///Writing the command.
         rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
@@ -251,7 +251,7 @@ public class GameMessage : ManagedMessage
         System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
         ///Creating the Message
-        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }
@@ -269,7 +269,7 @@ public class GameMessage : ManagedMessage
         {
             return GameError.GameErrorType.MessageInvalidSourceMessage;
         }
-        srcMessage.UserDefinedCommand = srcMessage.bodyMessage[PacketHandler.PrefixSize + 1];
+        srcMessage.UserDefinedCommand = srcMessage.bodyMessage[PacketHandler.PrefixSize + 4 + 1];
         targetMessage = new GameMessage((GameCommand)srcMessage.UserDefinedCommand, ((ManagedMessage)srcMessage).OwnerNetworkEntity);
         ((GameMessage)targetMessage).SetBodyMessageNoClone(srcMessage.bodyMessage, srcMessage.MessageBytesSize);
         return GameError.GameErrorType.Ok;
