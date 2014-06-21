@@ -46,23 +46,22 @@ public class MovementManager : MonoBehaviour
 
     public void ApplyForce(float x, float y, float z)
     {
-        Debug.Log(x);
         this.force.Set(x, y, z);
         this.moving = true;
         if (this.WorkingMode == UnityGlobals.WorkingMode.Server)
         {
-            UnityGlobals.SingletonReference.KSPMServerReference.SendBallForce();
+            //UnityGlobals.SingletonReference.KSPMServerReference.SendBallForce();
         }
     }
 
-    public GameError.ErrorType UpdateTargerPositionAction(object caller, System.Collections.Generic.Stack<object> parameters)
+    public GameError.ErrorType UpdateTargetPositionAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         float newX, newY, newZ;
         newZ = (float)parameters.Pop();
         newY = (float)parameters.Pop();
         newX = (float)parameters.Pop();
         this.target.transform.position.Set(newX, newY, newZ);
-        Debug.Log(newX);
+        Debug.Log(this.target.transform.position);
         return GameError.ErrorType.Ok;
     }
 

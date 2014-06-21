@@ -51,8 +51,8 @@ public class GameManager : MonoBehaviour
             case GameStatus.Waiting:
                 break;
             case GameStatus.Starting:
-                this.movementManager.RandomForce();
-                this.currentStatus = GameStatus.Playing;
+                //this.movementManager.RandomForce();
+                //this.currentStatus = GameStatus.Playing;
                 break;
             case GameStatus.Playing:
                 break;
@@ -85,13 +85,13 @@ public class GameManager : MonoBehaviour
         this.UserControls[1] = goGeneric.AddComponent<HostControl>();
         this.PlayerManagerReference.Players[0].GetComponent<MPGamePlayer>().InputControl = this.UserControls[0];
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
-        /*
+        
         if (this.movementManager != null)
         {
             this.movementManager.WorkingMode = mode;
-            StartCoroutine(WaitABit(5f));
+            this.currentStatus = GameStatus.Waiting;
+            //this.currentStatus = GameStatus.Playing;
         }
-        */
     }
 
     public GameError.ErrorType StartGameAction(object caller, System.Collections.Generic.Stack<object> parameters)
@@ -105,13 +105,12 @@ public class GameManager : MonoBehaviour
         this.UserControls[1] = goGeneric.AddComponent<UserHostControl>();
         this.PlayerManagerReference.Players[0].GetComponent<GamePlayer>().InputControl = this.UserControls[0];
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
-        /*
+        
         if (this.movementManager != null)
         {
             this.currentStatus = GameStatus.Waiting;
             return GameError.ErrorType.Ok;
         }
-        */
         return GameError.ErrorType.Ok;
     }
 }

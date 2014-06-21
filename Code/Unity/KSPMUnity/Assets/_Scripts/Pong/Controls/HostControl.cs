@@ -19,6 +19,7 @@ public class HostControl : MonoBehaviour
         None = 0,
         Up,
         Down,
+        ResetBall,
     }
 
     public MovementAction currentMovement;
@@ -36,10 +37,8 @@ public class HostControl : MonoBehaviour
         if (this.currentMovement != MovementAction.None)
         {
             this.target.transform.position += this.displacement;
-            //this.target.transform.position = Vector3.Lerp( this.target.transform.position, this.target.transform.position + this.displacement, 0.5f );
             this.moving = false;
             this.currentMovement = MovementAction.None;
-            Debug.Log(this.target.transform.position);
         }
     }
 
@@ -50,25 +49,22 @@ public class HostControl : MonoBehaviour
         switch (actionToDo)
         {
             case MovementAction.Up:
-                ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.displacement.Set(0f, 0.1f,0f);
+                ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.displacement.Set(0f, 0.1f, 0f);
                 ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.currentMovement = actionToDo;
                 break;
             case MovementAction.Down:
                 ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.displacement.Set(0f, -0.1f, 0f);
                 ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.currentMovement = actionToDo;
                 break;
+            case MovementAction.ResetBall:
+                UnityGlobals.SingletonReference.KSPMServerReference.gameManager.currentStatus = GameManager.GameStatus.Playing;
+                UnityGlobals.SingletonReference.KSPMServerReference.gameManager.movementManager.RandomForce();
+                break;
             case MovementAction.None:
                 ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.displacement.Set(0f, 0f, 0f);
                 ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.currentMovement = actionToDo;
                 break;
         }
-        /*
-        float x = (float)parameters.Pop();
-        float y = (float)parameters.Pop();
-        float z = (float)parameters.Pop();
-        ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.displacement.Set(x,y,z);
-        ((GameObject)(ssClientReference.gameUser.UserDefinedHolder)).GetComponent<MPGamePlayer>().InputControl.moving = true;
-        */
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 }

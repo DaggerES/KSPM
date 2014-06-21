@@ -5,6 +5,7 @@ public class UserHostControl : HostControl
 {
     public KeyCode UpKey;
     public KeyCode DownKey;
+    public KeyCode ResetBallKey;
 
     void Update()
     {
@@ -14,7 +15,6 @@ public class UserHostControl : HostControl
             this.currentMovement = MovementAction.Up;
             this.displacement.Set(this.displacement.x, this.displacementFactor.y, this.displacement.z);
             UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.Up);
-            //UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
         }
         if (Input.GetKey(DownKey))
         {
@@ -22,7 +22,14 @@ public class UserHostControl : HostControl
             this.currentMovement = MovementAction.Down;
             this.displacement.Set(this.displacement.x, -this.displacementFactor.y, this.displacement.z);
             UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.Down);
-            //UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(this.displacement);
+        }
+        if (Input.GetKeyDown(ResetBallKey))
+        {
+            UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.ResetBall);
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            UnityGlobals.SingletonReference.KSPMClientReference.gameManager.movementManager.target.transform.position = Vector3.zero;
         }
     }
 
@@ -30,6 +37,7 @@ public class UserHostControl : HostControl
     {
         userInput.UpKey = KeyCode.W;
         userInput.DownKey = KeyCode.S;
+        userInput.ResetBallKey = KeyCode.Space;
         userInput.displacementFactor.Set(0f, 0.1f, 0f);
     }
 

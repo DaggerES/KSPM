@@ -108,12 +108,21 @@ public class KSPMServer : MonoBehaviour
     void kspmServer_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)sender;
+        KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+        action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.StopPlayer;
+        action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+        action.ParametersStack.Push(ssClientConnected.gameUser.UserDefinedHolder);
+        action.Completed += new KSPMAction<object, object>.ActionCompleted(GamePlayerStoped);
+        this.kspmManager.ActionsToDo.Enqueue(action);
+    }
+
+    void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        ServerSideClient ssClientConnected = (ServerSideClient)((GameObject)caller).GetComponent<GamePlayer>().Parent;
         Message userConnectedMessage = null;
         GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
-        //((GameObject)(ssClientConnected.gameUser.UserDefinedHolder) ).GetComponent<MPGamePlayer>().r
-        //((ServerSideClientController)ssClientConnected.gameUser.UserDefinedHolder).Release();
-        Debug.Log(ssClientConnected.gameUser.Username + " se fue." );
+        Debug.Log(ssClientConnected.gameUser.Username + " se fue.");
     }
 
     void kspmServer_UserConnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
@@ -129,6 +138,8 @@ public class KSPMServer : MonoBehaviour
     void GamePlayerCreated(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)caller;
+        //((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(ssClientConnected.ClientLatency, ssClientConnected, this.TickTimerElapsed);
+        ((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(2000, ssClientConnected, this.TickTimerElapsed);
         Debug.Log(ssClientConnected.gameUser.Username);
 
         ///Creating the message of the connected user and broadcasting to everyone in the network.
@@ -162,14 +173,16 @@ public class KSPMServer : MonoBehaviour
 
     protected void TickTimerElapsed(object state)
     {
-        /*
-        Message updateMessage;
-        ServerSideClient ssClientReference = (ServerSideClient)state;
-        updateMessage = ssClientReference.IOUDPMessagesPool.BorrowMessage;
-        UDPGameMessage.LoadUDPUpdateBallMessage(ssClientReference, this.gameManager.movementManager, this.gameManager.movementManager.targetPosition, ref updateMessage);
-        ssClientReference.outgoingPackets.EnqueueCommandMessage(ref updateMessage);
-        ssClientReference.SendUDPDatagram();
-        */
+        if (this.gameManager.currentStatus == GameManager.GameStatus.Playing)
+        {
+            Message updateMessage;
+            ServerSideClient ssClientReference = (ServerSideClient)state;
+            updateMessage = ssClientReference.IOUDPMessagesPool.BorrowMessage;
+            UDPGameMessage.LoadUDPUpdateBallMessage(ssClientReference, this.gameManager.movementManager, this.gameManager.movementManager.targetPosition, ref updateMessage);
+            ssClientReference.outgoingPackets.EnqueueCommandMessage(ref updateMessage);
+            ssClientReference.SendUDPDatagram();
+            Debug.Log(this.gameManager.movementManager.targetPosition.x);
+        }
     }
 
     public void SendBallForce()
@@ -180,6 +193,7 @@ public class KSPMServer : MonoBehaviour
         updateMessage = ssClientReference.IOUDPMessagesPool.BorrowMessage;
         UDPGameMessage.LoadUDPBallForceMessage( ssClientReference, this.gameManager.movementManager, ref updateMessage );
         this.KSPMServerReference.ClientsManager.UDPBroadcastClients(updateMessage);
+        Debug.Log(updateMessage.ToString());
         ssClientReference.IOUDPMessagesPool.Recycle(updateMessage);
     }
 }

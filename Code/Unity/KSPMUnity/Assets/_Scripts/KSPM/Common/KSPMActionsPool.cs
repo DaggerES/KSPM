@@ -57,6 +57,7 @@ public class KSPMActionsPool<T, U>
             {
                 if (this.pool.Count > 0)
                 {
+                    //UnityEngine.Debug.Log( "Taking, count before: " + this.pool.Count);
                     borrowedAction = this.pool.Dequeue();
                 }
             }
@@ -77,6 +78,7 @@ public class KSPMActionsPool<T, U>
         lock (this.pool)
         {
             this.pool.Enqueue(oldItem);
+            //UnityEngine.Debug.Log("Recycling: " + this.pool.Count);
         }
     }
 }

@@ -61,6 +61,7 @@ public class KSPMClient : MonoBehaviour
 
     void GameStartAction_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
     {
+        this.gameManager.currentStatus = GameManager.GameStatus.Playing;
     }
 	
 	// Update is called once per frame
@@ -128,6 +129,7 @@ public class KSPMClient : MonoBehaviour
             this.kspmClient.TCPMessageArrived += new KSPM.Network.Common.Events.TCPMessageArrived(kspmClient_TCPMessageArrived);
             this.kspmClient.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(kspmClient_UDPMessageArrived);
             this.kspmClient.InitializeClient();
+            this.gameManager.currentStatus = GameManager.GameStatus.NetworkSettingUp;
         }
     }
 
@@ -137,19 +139,26 @@ public class KSPMClient : MonoBehaviour
         switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[13])
         {
             case UDPGameMessage.UDPGameCommand.BallUpdate:
-                KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
-                action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
-                action.ActionMethod.BasicAction = this.gameManager.movementManager.UpdateTargerPositionAction;
-                action.ParametersStack.Push(System.BitConverter.ToSingle( message.bodyMessage, 10 ));
-                action.ParametersStack.Push(System.BitConverter.ToSingle(message.bodyMessage, 14));
-                action.ParametersStack.Push(System.BitConverter.ToSingle(message.bodyMessage, 18));
-                action.ParametersStack.Push(this);
-                this.kspmManager.ActionsToDo.Enqueue(action);
+                if (this.gameManager.currentStatus == GameManager.GameStatus.Playing)
+                {
+                    x = System.BitConverter.ToSingle(message.bodyMessage, 14);
+                    y = System.BitConverter.ToSingle(message.bodyMessage, 18);
+                    z = System.BitConverter.ToSingle(message.bodyMessage, 22);
+                    KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+                    action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                    action.ActionMethod.BasicAction = this.gameManager.movementManager.UpdateTargetPositionAction;
+                    action.ParametersStack.Push(x);
+                    action.ParametersStack.Push(y);
+                    action.ParametersStack.Push(z);
+                    action.ParametersStack.Push(this);
+                    this.kspmManager.ActionsToDo.Enqueue(action);
+                    Debug.Log(x);
+                }
                 break;
             case UDPGameMessage.UDPGameCommand.BallForce:
-                x = System.BitConverter.ToSingle(message.bodyMessage, 10);
-                y = System.BitConverter.ToSingle(message.bodyMessage, 14);
-                z = System.BitConverter.ToSingle(message.bodyMessage, 18);
+                x = System.BitConverter.ToSingle(message.bodyMessage, 14);
+                y = System.BitConverter.ToSingle(message.bodyMessage, 18);
+                z = System.BitConverter.ToSingle(message.bodyMessage, 22);
                 Debug.Log(x);
                 this.gameManager.movementManager.ApplyForce( x, y, z);
                 break;
@@ -199,6 +208,7 @@ public class KSPMClient : MonoBehaviour
         ///Checking if there are enough players to start the game.
         if (this.usersConnected == this.gameManager.RequiredUsers)
         {
+            this.gameManager.currentStatus = GameManager.GameStatus.Starting;
             KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
             action.ActionKind = KSPMAction<object, object>.ActionType.EnumeratedMethod;
             action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;

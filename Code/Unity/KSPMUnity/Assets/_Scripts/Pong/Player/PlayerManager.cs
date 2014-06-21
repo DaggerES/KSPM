@@ -52,4 +52,11 @@ public class PlayerManager : MonoBehaviour
         parameters.Push(go);
         return GameError.ErrorType.Ok;
     }
+
+    public GameError.ErrorType StopPlayer(object caller, Stack<object> parameters)
+    {
+        GameObject go = (GameObject)caller;
+        go.GetComponent<GamePlayer>().Release();
+        return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
 }

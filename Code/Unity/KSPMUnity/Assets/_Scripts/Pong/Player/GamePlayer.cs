@@ -21,4 +21,8 @@ public class GamePlayer : MonoBehaviour
 	void Update () {
 	
 	}
+
+    public virtual void Release()
+    {
+    }
 }
