@@ -138,8 +138,8 @@ public class KSPMServer : MonoBehaviour
     void GamePlayerCreated(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)caller;
-        //((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(ssClientConnected.ClientLatency, ssClientConnected, this.TickTimerElapsed);
-        ((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(2000, ssClientConnected, this.TickTimerElapsed);
+        ((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(ssClientConnected.ClientLatency, ssClientConnected, this.TickTimerElapsed);
+        //((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(2000, ssClientConnected, this.TickTimerElapsed);
         Debug.Log(ssClientConnected.gameUser.Username);
 
         ///Creating the message of the connected user and broadcasting to everyone in the network.

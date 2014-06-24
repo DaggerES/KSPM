@@ -6,6 +6,8 @@ public class MovementManager : MonoBehaviour
     public UnityGlobals.WorkingMode WorkingMode = UnityGlobals.WorkingMode.Client;
 
     public GameObject target;
+    protected Rigidbody physicsTarget;
+    public bool IsPhysicsTarget;
     public bool moving;
 
     public Vector3 multiplicator;
@@ -16,6 +18,7 @@ public class MovementManager : MonoBehaviour
 	void Start ()
     {
         this.moving = false;
+        this.physicsTarget = target.rigidbody;
 	}
 	
 	// Update is called once per frame
@@ -25,8 +28,14 @@ public class MovementManager : MonoBehaviour
 
     void FixedUpdate()
     {
-
-        this.targetPosition.Set(this.target.transform.position.x, this.target.transform.position.y, this.target.transform.position.z);
+        if (this.IsPhysicsTarget)
+        {
+            this.targetPosition.Set(this.physicsTarget.position.x, this.physicsTarget.position.y, this.physicsTarget.position.z);
+        }
+        else
+        {
+            this.targetPosition.Set(this.target.transform.position.x, this.target.transform.position.y, this.target.transform.position.z);
+        }
         if (this.moving)
         {
             this.target.rigidbody.AddForce(this.force.x * this.multiplicator.x, this.force.y * this.multiplicator.y, this.force.z * this.multiplicator.z, ForceMode.Force);
@@ -60,8 +69,15 @@ public class MovementManager : MonoBehaviour
         newZ = (float)parameters.Pop();
         newY = (float)parameters.Pop();
         newX = (float)parameters.Pop();
-        this.target.transform.position.Set(newX, newY, newZ);
-        Debug.Log(this.target.transform.position);
+        if (this.IsPhysicsTarget)
+        {
+            this.physicsTarget.MovePosition(new Vector3(newX, newY, newZ));
+        }
+        else
+        {
+            this.target.transform.position.Set(newX, newY, newZ);
+        }
+        //Debug.Log(this.target.transform.position);
         return GameError.ErrorType.Ok;
     }
 
