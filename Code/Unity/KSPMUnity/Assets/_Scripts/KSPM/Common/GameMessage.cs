@@ -17,8 +17,10 @@ public class GameMessage : ManagedMessage
         Null = 0,
         UserConnected,
         UserDisconnected,
+        UserGameParameters,
 
         GameStatus,
+        GameParameters,
     }
 
     /// <summary>
@@ -124,12 +126,13 @@ public class GameMessage : ManagedMessage
     /// <param name="sender"></param>
     /// <param name="targetMessage"></param>
     /// <returns></returns>
-    public static Error.ErrorType UserConnectedMessage(NetworkEntity sender, out Message targetMessage)
+    public static Error.ErrorType UserConnectedMessage(NetworkEntity sender, GamePlayer playerGameObject,out Message targetMessage)
     {
         int bytesToSend = Message.HeaderOfMessageCommand.Length;
         byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
         targetMessage = null;
         byte[] messageHeaderContent = null;
+        byte[] byteBuffer;
         if (sender == null)
         {
             return Error.ErrorType.InvalidNetworkEntity;
@@ -148,6 +151,134 @@ public class GameMessage : ManagedMessage
         ///Writing the user-s defined command.
         rawBuffer[bytesToSend] = (byte)GameCommand.UserConnected;
         bytesToSend += 1;
+
+        ///Writing the Player GameId.
+        //player = playerGameObject.GetComponent<MPGamePlayer>();
+        byteBuffer = System.BitConverter.GetBytes(playerGameObject.GameId);
+        System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+        bytesToSend += byteBuffer.Length;
+
+        ///Writing the EndOfMessageCommand.
+        System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+        bytesToSend += EndOfMessageCommand.Length;
+
+        ///Writing the message length.
+        messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+        System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+        ///Creating the Message
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
+        targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
+        return Error.ErrorType.Ok;
+    }
+
+    /// <summary>
+    /// Creates a user connected message. 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="targetMessage"></param>
+    /// <returns></returns>
+    public static Error.ErrorType UserGameParametersMessage(NetworkEntity sender, GamePlayer playerGameObject, out Message targetMessage)
+    {
+        int bytesToSend = Message.HeaderOfMessageCommand.Length;
+        byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+        targetMessage = null;
+        byte[] messageHeaderContent = null;
+        byte[] byteBuffer;
+        GamePlayer player = null;
+
+        if (sender == null)
+        {
+            return Error.ErrorType.InvalidNetworkEntity;
+        }
+
+        ///Writing header
+        System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+        bytesToSend += 8;
+
+        ///Writing the command.
+        rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+        bytesToSend += 1;
+
+        ///Write your own data here, settting the proper command and before setting the EndOfMessageCommand.
+
+        ///Writing the user-s defined command.
+        rawBuffer[bytesToSend] = (byte)GameCommand.UserGameParameters;
+        bytesToSend += 1;
+
+        ///Writing the Player GameId.
+        //player = playerGameObject.GetComponent<MPGamePlayer>();
+        byteBuffer = System.BitConverter.GetBytes(playerGameObject.GameId);
+        System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+        bytesToSend += byteBuffer.Length;
+
+        ///Writing the Player gaming rol.
+        rawBuffer[bytesToSend] = (byte)playerGameObject.GamingRol;
+        bytesToSend += 1;
+
+        ///Writing the EndOfMessageCommand.
+        System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+        bytesToSend += EndOfMessageCommand.Length;
+
+        ///Writing the message length.
+        messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+        System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+        ///Creating the Message
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
+        targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
+        return Error.ErrorType.Ok;
+    }
+
+    public static Error.ErrorType GameStartParametersMessage(NetworkEntity sender, System.Collections.Generic.List<GameObject> players, out Message targetMessage)
+    {
+        int bytesToSend = Message.HeaderOfMessageCommand.Length;
+        byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+        targetMessage = null;
+        byte[] messageHeaderContent = null;
+        byte[] byteBuffer;
+
+        if (sender == null)
+        {
+            return Error.ErrorType.InvalidNetworkEntity;
+        }
+
+        if (players == null)
+        {
+            return Error.ErrorType.InvalidArray;
+        }
+
+        ///Writing header
+        System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+        bytesToSend += 8;
+
+        ///Writing the command.
+        rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+        bytesToSend += 1;
+
+        ///Write your own data here, settting the proper command and before setting the EndOfMessageCommand.
+
+        ///Writing the user-s defined command.
+        rawBuffer[bytesToSend] = (byte)GameCommand.GameParameters;
+        bytesToSend += 1;
+
+        ///Writing the users information.
+        ///Writing how many users are connected.
+        byteBuffer = System.BitConverter.GetBytes(players.Count);
+        System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+        bytesToSend += byteBuffer.Length;
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            ///Writing the player GameId.
+            byteBuffer = System.BitConverter.GetBytes(players[ i ].GetComponent<GamePlayer>().GameId);
+            System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+
+            ///Writing the player gaming rol.
+            rawBuffer[bytesToSend] = (byte)players[i].GetComponent<GamePlayer>().GamingRol;
+            bytesToSend += 1;
+        }
 
         ///Writing the EndOfMessageCommand.
         System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);

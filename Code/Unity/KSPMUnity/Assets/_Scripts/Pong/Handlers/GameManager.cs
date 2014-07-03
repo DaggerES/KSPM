@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 
     public int RequiredUsers;
 
-    public HostControl[] UserControls;
+    public System.Collections.Generic.List<HostControl> UserControls;
 
     void Awake()
     {
@@ -78,12 +78,36 @@ public class GameManager : MonoBehaviour
     public void StartGame(UnityGlobals.WorkingMode mode)
     {
         GameObject goGeneric;
-        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
-        this.UserControls[0] = goGeneric.AddComponent<HostControl>();
-        this.UserControls[0].target = goGeneric;
-        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
-        this.UserControls[1] = goGeneric.AddComponent<HostControl>();
-        this.PlayerManagerReference.Players[0].GetComponent<MPGamePlayer>().InputControl = this.UserControls[0];
+        HostControl hostControl;
+        GamePlayer gamePlayer;
+        for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
+        {
+            gamePlayer = this.PlayerManagerReference.Players[i].GetComponent<GamePlayer>();
+            switch (gamePlayer.GamingRol)
+            {
+                case PlayerManager.GameRol.Local:
+                    goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
+                    hostControl = goGeneric.AddComponent<HostControl>();
+                    hostControl.target = goGeneric;
+                    this.UserControls.Add(hostControl);
+                    gamePlayer.InputControl = hostControl;
+                    break;
+                case PlayerManager.GameRol.Remote:
+                    goGeneric = GameObject.FindGameObjectWithTag("RightUser");
+                    hostControl = goGeneric.AddComponent<HostControl>();
+                    hostControl.target = goGeneric;
+                    gamePlayer.InputControl = hostControl;
+                    this.UserControls.Add(hostControl);
+                    break;
+                case PlayerManager.GameRol.Spectator:
+                    goGeneric = new GameObject();
+                    hostControl = goGeneric.AddComponent<HostControl>();
+                    hostControl.target = goGeneric;
+                    gamePlayer.InputControl = hostControl;
+                    this.UserControls.Add(hostControl);
+                    break;
+            }
+        }
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
         
         if (this.movementManager != null)
@@ -97,6 +121,19 @@ public class GameManager : MonoBehaviour
     public GameError.ErrorType StartGameAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         GameObject goGeneric;
+        for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
+        {
+            switch( this.PlayerManagerReference.Players[ i ].GetComponent<GamePlayer>().GamingRol )
+            {
+                case PlayerManager.GameRol.Left:
+                    break;
+                case PlayerManager.GameRol.Right:
+                    break;
+                case PlayerManager.GameRol.Spectator:
+                    break;
+            }
+        }
+        //this.PlayerManagerReference.Players
         goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
         this.UserControls[0] = goGeneric.AddComponent<UserHostControl>();
         this.UserControls[0].target = goGeneric;

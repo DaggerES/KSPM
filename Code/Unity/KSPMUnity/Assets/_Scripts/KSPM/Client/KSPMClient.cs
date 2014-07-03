@@ -23,11 +23,16 @@ public class KSPMClient : MonoBehaviour
     protected int serverInformationIndex;
     protected GameUser gameUserReference;
     protected int usersConnected;
+    protected PlayerManager.GameRol connectedUserGamingRol = PlayerManager.GameRol.Spectator;
+    protected int connectedUserGameId = -1;
+
+    protected bool ableToPlay;
 
     void Awake()
     {
         DontDestroyOnLoad(this);
         this.kspmManager = this.GetComponent<KSPMManager>();
+        this.ableToPlay = false;
     }
 
 	// Use this for initialization
@@ -118,6 +123,15 @@ public class KSPMClient : MonoBehaviour
             this.hosts.Hosts[serverInformationIndex].Clone(ref this.uiServerInformation);
         }
         GUI.EndGroup();
+
+        GUI.BeginGroup(new Rect(700, 480, 256, 256), "Game");
+        if (this.ableToPlay)
+        {
+            if (GUI.Button(new Rect(10, 20, 96, 30), "Start"))
+            {
+            }
+        }
+        GUI.EndGroup();
     }
 
     protected void StartClient()
@@ -171,17 +185,48 @@ public class KSPMClient : MonoBehaviour
         GameMessage gameMessage = null;
         Message incomingMessage = null;
         GameMessage.LoadFromMessage(out incomingMessage, message);
+        int intBuffer = -1;
+        int userId;
+        byte gamingRol;
+        KSPMAction<object, object> action;
         message.Dispose();
         gameMessage = (GameMessage)incomingMessage;
         Debug.Log(gameMessage.UserCommand);
         switch (gameMessage.UserCommand)
         {
+            case GameMessage.GameCommand.UserGameParameters:
+                this.connectedUserGameId = System.BitConverter.ToInt32(gameMessage.bodyMessage, 14);
+                this.connectedUserGamingRol = (PlayerManager.GameRol)gameMessage.bodyMessage[18];
+                break;
+            case GameMessage.GameCommand.GameParameters:
+                action = this.kspmManager.ActionsPool.BorrowAction;
+                action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.CheckGamePlayersSummaryAction;
+                action.Completed += new KSPMAction<object, object>.ActionCompleted(PlayersSummaryCheck_Completed);
+                
+                intBuffer = System.BitConverter.ToInt32(gameMessage.bodyMessage, 14);
+                for (int i = 0; i < intBuffer; i++)
+                {
+                    userId = System.BitConverter.ToInt32(gameMessage.bodyMessage, 18 + i * 5);
+                    gamingRol = gameMessage.bodyMessage[22 + i * 5];
+                    action.ParametersStack.Push(gamingRol);
+                    action.ParametersStack.Push(userId);
+                }
+                action.ParametersStack.Push(intBuffer);
+                action.ParametersStack.Push(this.kspmClient);
+                this.kspmManager.ActionsToDo.Enqueue(action);
+
+                break;
             case GameMessage.GameCommand.UserConnected:
                 this.usersConnected++;
-                KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+                intBuffer = System.BitConverter.ToInt32(gameMessage.bodyMessage, 14);
+                action = this.kspmManager.ActionsPool.BorrowAction;
                 action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
                 action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.CreateEmptyLocalPlayerAction;
                 action.Completed += new KSPMAction<object, object>.ActionCompleted(LocalGamePlayerCreated_Completed);
+                action.ParametersStack.Push(intBuffer);
+                action.ParametersStack.Push(this.connectedUserGameId);
+                action.ParametersStack.Push(this.connectedUserGamingRol);
                 action.ParametersStack.Push(this.kspmClient);
                 this.kspmManager.ActionsToDo.Enqueue(action);
                 break;
@@ -203,11 +248,18 @@ public class KSPMClient : MonoBehaviour
         gameMessage.Release();
     }
 
+    void PlayersSummaryCheck_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        this.ableToPlay = true;
+    }
+
     void LocalGamePlayerCreated_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
     {
+        /*
         ///Checking if there are enough players to start the game.
         if (this.usersConnected == this.gameManager.RequiredUsers)
         {
+            this.ableToPlay = true;
             this.gameManager.currentStatus = GameManager.GameStatus.Starting;
             KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
             action.ActionKind = KSPMAction<object, object>.ActionType.EnumeratedMethod;
@@ -216,6 +268,7 @@ public class KSPMClient : MonoBehaviour
             action.ParametersStack.Push(this);
             this.kspmManager.ActionsToDo.Enqueue(action);
         }
+        */
     }
 
     void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)

@@ -84,12 +84,6 @@ public class KSPMServer : MonoBehaviour
         switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[13])
         {
             case UDPGameMessage.UDPGameCommand.ControlUpdate:
-                /*
-                float x, y, z;
-                x = System.BitConverter.ToSingle(message.bodyMessage, 10);
-                y = System.BitConverter.ToSingle(message.bodyMessage, 14);
-                z = System.BitConverter.ToSingle(message.bodyMessage, 18);
-                */
                 //Debug.Log(message.bodyMessage[10]);
                 KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
                 action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
@@ -138,17 +132,30 @@ public class KSPMServer : MonoBehaviour
     void GamePlayerCreated(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)caller;
-        ((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(ssClientConnected.ClientLatency, ssClientConnected, this.TickTimerElapsed);
-        //((GameObject)ssClientConnected.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>().tickController = new TickController(2000, ssClientConnected, this.TickTimerElapsed);
+        ///Taking out the result of the operation.
+        parameters.Pop();
+        MPGamePlayer createdPlayer = ((GameObject)parameters.Pop()).GetComponent<MPGamePlayer>();
+
+        ///Send a game paramaters message to the connected user.
+        Message gameParametersMessage = null;
+        GameMessage.UserGameParametersMessage(ssClientConnected, createdPlayer, out gameParametersMessage);
+        this.KSPMServerReference.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref gameParametersMessage);
+
+        createdPlayer.tickController = new TickController(ssClientConnected.ClientLatency, ssClientConnected, this.TickTimerElapsed);
         Debug.Log(ssClientConnected.gameUser.Username);
 
         ///Creating the message of the connected user and broadcasting to everyone in the network.
         Message userConnectedMessage = null;
-        GameMessage.UserConnectedMessage(ssClientConnected, out userConnectedMessage);
+        GameMessage.UserConnectedMessage(ssClientConnected, createdPlayer, out userConnectedMessage);
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
 
         if (this.KSPMServerReference.ClientsManager.ConnectedClients == this.gameManager.RequiredUsers)
         {
+            
+            Message startParametersMessage = null;
+            GameMessage.GameStartParametersMessage(ssClientConnected, this.gameManager.PlayerManagerReference.Players, out startParametersMessage);
+            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, startParametersMessage);
+
             this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
             KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
             action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
