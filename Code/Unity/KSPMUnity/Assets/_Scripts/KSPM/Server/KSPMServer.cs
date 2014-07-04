@@ -63,6 +63,7 @@ public class KSPMServer : MonoBehaviour
         this.KSPMServerReference.UserConnected += new KSPM.Network.Common.Events.UserConnectedEventHandler(kspmServer_UserConnected);
         this.KSPMServerReference.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmServer_UserDisconnected);
         this.KSPMServerReference.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(KSPMServerReference_UDPMessageArrived);
+        
         KSPMGlobals.Globals.SetServerReference(ref KSPMServerReference);
         return this.KSPMServerReference.StartServer();
     }

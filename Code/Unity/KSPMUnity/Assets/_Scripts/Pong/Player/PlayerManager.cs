@@ -14,7 +14,7 @@ public class PlayerManager : MonoBehaviour
     {
         Undefined = 0,
         Spectator,
-        Local,
+        Host,
         Remote,
         Left,
         Right,
@@ -59,7 +59,7 @@ public class PlayerManager : MonoBehaviour
         int remotePlayerId = (int)parameters.Pop();
         GamePlayer localPlayer;
 
-        go = new GameObject(string.Format("Player_{0}", localPlayerId));
+        go = new GameObject(string.Format("Player_{0}", remotePlayerId));
         DontDestroyOnLoad(go);///Setting the flag to avoid being destroyed by the Unity GC.
 
         localPlayer = go.AddComponent<GamePlayer>();
@@ -70,6 +70,7 @@ public class PlayerManager : MonoBehaviour
         {
             gameClientConnected.ClientOwner.UserDefinedHolder = go;
             localPlayer.Parent = gameClientConnected;
+            localPlayer.SetLocal(true);
         }
         this.Players.Add(go);
         this.PlayersInternalStructure.Add(localPlayer.GameId, localPlayer);
@@ -103,6 +104,11 @@ public class PlayerManager : MonoBehaviour
                 this.PlayersInternalStructure.Add(localPlayer.GameId, localPlayer);
             }
         }
+        ///Pushing the GamePlayer object into the stack.
+        ///
+        /*
+        localPlayer = ((GameObject)((GameClient)caller).ClientOwner.UserDefinedHolder).GetComponent<GamePlayer>();
+        parameters.Push(localPlayer);*/
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 
@@ -118,9 +124,9 @@ public class PlayerManager : MonoBehaviour
         switch (this.GamingRolesFlag)
         {
             case GameRol.Undefined:
-                this.GamingRolesFlag = GameRol.Local;
+                this.GamingRolesFlag = GameRol.Host;
                 break;
-            case GameRol.Local:
+            case GameRol.Host:
                 this.GamingRolesFlag = GameRol.Remote;
                 break;
             case GameRol.Remote:

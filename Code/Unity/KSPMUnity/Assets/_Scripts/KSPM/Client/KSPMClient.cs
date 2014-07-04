@@ -59,14 +59,19 @@ public class KSPMClient : MonoBehaviour
             action.Completed += new KSPMAction<object, object>.ActionCompleted(GameStartAction_Completed);
             action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
             action.ActionMethod.BasicAction = this.gameManager.StartGameAction;
-            action.ParametersStack.Push(this);
+            action.ParametersStack.Push(this.kspmClient);
             this.kspmManager.ActionsToDo.Enqueue(action);
         }
     }
 
     void GameStartAction_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        this.gameManager.currentStatus = GameManager.GameStatus.Playing;
+        Message readytoStartMessage = null;
+        GameClient client = (GameClient)caller;
+        this.gameManager.currentStatus = GameManager.GameStatus.ReadyToStart;
+        GameMessage.GameStatusMessage(client, this.gameManager, out readytoStartMessage);
+        this.kspmClient.OutgoingTCPQueue.EnqueueCommandMessage(ref readytoStartMessage);
+        //this.gameManager.currentStatus = GameManager.GameStatus.Playing;
     }
 	
 	// Update is called once per frame
@@ -250,7 +255,14 @@ public class KSPMClient : MonoBehaviour
 
     void PlayersSummaryCheck_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        this.ableToPlay = true;
+        ///Ready to load the game scene.
+        this.gameManager.currentStatus = GameManager.GameStatus.Starting;
+        KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+        action.ActionKind = KSPMAction<object, object>.ActionType.EnumeratedMethod;
+        action.ActionMethod.EnumeratedAction = this.sceneManager.LoadLevelAction;
+        action.ParametersStack.Push("Game");
+        action.ParametersStack.Push(this);
+        this.kspmManager.ActionsToDo.Enqueue(action);
     }
 
     void LocalGamePlayerCreated_Completed(object caller, System.Collections.Generic.Stack<object> parameters)

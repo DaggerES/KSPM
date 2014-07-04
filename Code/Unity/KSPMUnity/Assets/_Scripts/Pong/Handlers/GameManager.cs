@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
         NetworkSettingUp,
         Waiting,
         Starting,
+        ReadyToStart,
         Playing,
         Finished
     };
@@ -50,6 +51,8 @@ public class GameManager : MonoBehaviour
         {
             case GameStatus.Waiting:
                 break;
+            case GameStatus.ReadyToStart:
+                break;
             case GameStatus.Starting:
                 //this.movementManager.RandomForce();
                 //this.currentStatus = GameStatus.Playing;
@@ -85,7 +88,7 @@ public class GameManager : MonoBehaviour
             gamePlayer = this.PlayerManagerReference.Players[i].GetComponent<GamePlayer>();
             switch (gamePlayer.GamingRol)
             {
-                case PlayerManager.GameRol.Local:
+                case PlayerManager.GameRol.Host:
                     goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                     hostControl = goGeneric.AddComponent<HostControl>();
                     hostControl.target = goGeneric;
@@ -118,29 +121,65 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// MEthod used by the client to initialize the scene game.
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
     public GameError.ErrorType StartGameAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         GameObject goGeneric;
+        GamePlayer playerObject;
+        UserHostControl inputControl;
         for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
         {
-            switch( this.PlayerManagerReference.Players[ i ].GetComponent<GamePlayer>().GamingRol )
+            playerObject = this.PlayerManagerReference.Players[i].GetComponent<GamePlayer>();
+            switch( playerObject.GamingRol )
             {
-                case PlayerManager.GameRol.Left:
+                case PlayerManager.GameRol.Host:
+                    if (playerObject.IsLocal)
+                    {
+                        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
+                        inputControl = goGeneric.AddComponent<UserHostControl>();
+                        UserHostControl.SetLeftControls(inputControl);
+                        inputControl.target = goGeneric;
+                        this.UserControls.Add(inputControl);
+                    }
+                    else
+                    {
+                        goGeneric = this.PlayerManagerReference.Players[i];
+                        inputControl = goGeneric.AddComponent<UserHostControl>();
+                        inputControl.target = goGeneric;
+                        this.UserControls.Add(inputControl);
+                    }
                     break;
-                case PlayerManager.GameRol.Right:
+                case PlayerManager.GameRol.Remote:
+                    if (playerObject.IsLocal)
+                    {
+                        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
+                        inputControl = goGeneric.AddComponent<UserHostControl>();
+                        UserHostControl.SetRightControls(inputControl);
+                        inputControl.target = goGeneric;
+                        this.UserControls.Add(inputControl);
+                    }
+                    else
+                    {
+                        goGeneric = this.PlayerManagerReference.Players[i];
+                        inputControl = goGeneric.AddComponent<UserHostControl>();
+                        inputControl.target = goGeneric;
+                        this.UserControls.Add(inputControl);
+                    }
                     break;
                 case PlayerManager.GameRol.Spectator:
+                    goGeneric = this.PlayerManagerReference.Players[i];
+                    inputControl = goGeneric.AddComponent<UserHostControl>();
+                    inputControl.target = goGeneric;
+                    this.UserControls.Add(inputControl);
                     break;
             }
         }
-        //this.PlayerManagerReference.Players
-        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
-        this.UserControls[0] = goGeneric.AddComponent<UserHostControl>();
-        this.UserControls[0].target = goGeneric;
-        UserHostControl.SetLeftControls((UserHostControl)this.UserControls[0]);
-        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
-        this.UserControls[1] = goGeneric.AddComponent<UserHostControl>();
-        this.PlayerManagerReference.Players[0].GetComponent<GamePlayer>().InputControl = this.UserControls[0];
+
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
         
         if (this.movementManager != null)

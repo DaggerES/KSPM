@@ -25,6 +25,34 @@ public class GamePlayer : MonoBehaviour
     /// </summary>
     public int GameId;
 
+    /// <summary>
+    /// Flag to tell if this game player is local on this computer.
+    /// </summary>
+    protected bool localPlayer = false;
+
+    /// <summary>
+    /// Sets the localPlayer flag to the given value.
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetLocal(bool value)
+    {
+        this.localPlayer = value;
+    }
+
+    /// <summary>
+    /// Gets the localPlayer flag.
+    /// </summary>
+    public bool IsLocal
+    {
+        get
+        {
+            return this.localPlayer;
+        }
+    }
+
+    /// <summary>
+    /// Virtual method to release the GamePlayer.
+    /// </summary>
     public virtual void Release()
     {
     }
