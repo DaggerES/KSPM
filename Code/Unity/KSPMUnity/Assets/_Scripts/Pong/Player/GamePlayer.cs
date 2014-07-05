@@ -28,7 +28,7 @@ public class GamePlayer : MonoBehaviour
     /// <summary>
     /// Flag to tell if this game player is local on this computer.
     /// </summary>
-    protected bool localPlayer = false;
+    public bool localPlayer = false;
 
     /// <summary>
     /// Flag to tell if this GamePlayer is ready to play.

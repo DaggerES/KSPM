@@ -11,5 +11,10 @@
       <IP_Address>192.168.15.11</IP_Address>
       <PortNumber>4700</PortNumber>
     </ServerInformation>
+    <ServerInformation>
+      <ServerName>Scr_RaSQUAD</ServerName>
+      <IP_Address>187.177.26.134</IP_Address>
+      <PortNumber>4700</PortNumber>
+    </ServerInformation>
   </KSPMServers>
 </ServerList>

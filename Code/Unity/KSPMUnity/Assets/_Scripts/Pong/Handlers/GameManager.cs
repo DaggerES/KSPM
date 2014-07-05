@@ -144,15 +144,18 @@ public class GameManager : MonoBehaviour
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         UserHostControl.SetLeftControls(ref inputControl);
                         inputControl.target = goGeneric;
+                        playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }/*
                     else
                     {
                         goGeneric = this.PlayerManagerReference.Players[i];
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         inputControl.target = goGeneric;
+                        playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
+                    */
                     break;
                 case PlayerManager.GameRol.Remote:
                     if (playerObject.IsLocal)
@@ -161,23 +164,28 @@ public class GameManager : MonoBehaviour
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         UserHostControl.SetRightControls(ref inputControl);
                         inputControl.target = goGeneric;
+                        playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }/*
                     else
                     {
                         goGeneric = this.PlayerManagerReference.Players[i];
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         inputControl.target = goGeneric;
+                        playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
+                    */
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = this.PlayerManagerReference.Players[i];
                     inputControl = goGeneric.AddComponent<UserHostControl>();
                     inputControl.target = goGeneric;
+                    playerObject.InputControl = inputControl;
                     this.UserControls.Add(inputControl);
                     break;
             }
+            playerObject.Ready = true;
         }
 
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
