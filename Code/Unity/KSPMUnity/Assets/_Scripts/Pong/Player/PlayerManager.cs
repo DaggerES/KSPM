@@ -78,6 +78,12 @@ public class PlayerManager : MonoBehaviour
         return GameError.ErrorType.Ok;
     }
 
+    /// <summary>
+    /// Method called by the clients to verify its own GamePlayer List.
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
     public GameError.ErrorType CheckGamePlayersSummaryAction(object caller, Stack<object> parameters)
     {
         int playerId;
@@ -109,6 +115,27 @@ public class PlayerManager : MonoBehaviour
         /*
         localPlayer = ((GameObject)((GameClient)caller).ClientOwner.UserDefinedHolder).GetComponent<GamePlayer>();
         parameters.Push(localPlayer);*/
+        return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
+
+    public GameError.ErrorType SetPlayerReady(object caller, Stack<object> parameters)
+    {
+        ServerSideClient remoteClient = (ServerSideClient)caller;
+        MPGamePlayer remotePlayerObject = ((GameObject)remoteClient.gameUser.UserDefinedHolder).GetComponent<MPGamePlayer>();
+        bool readyFlag = (bool)parameters.Pop();
+        remotePlayerObject.Ready = readyFlag;
+        readyFlag = true;
+
+        ///Reading the ready flag of every gameplayer.
+        for (int i = 0; i < this.Players.Count; i++)
+        {
+            if (!((GameObject)this.Players[i]).GetComponent<MPGamePlayer>().Ready)
+            {
+                readyFlag = false;
+                break;
+            }
+        }
+        parameters.Push(readyFlag);
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 

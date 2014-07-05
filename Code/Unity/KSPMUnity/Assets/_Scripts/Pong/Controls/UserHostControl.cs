@@ -33,7 +33,7 @@ public class UserHostControl : HostControl
         }
     }
 
-    public static void SetLeftControls(UserHostControl userInput)
+    public static void SetLeftControls(ref UserHostControl userInput)
     {
         userInput.UpKey = KeyCode.W;
         userInput.DownKey = KeyCode.S;
@@ -41,7 +41,7 @@ public class UserHostControl : HostControl
         userInput.displacementFactor.Set(0f, 0.1f, 0f);
     }
 
-    public static void SetRightControls(UserHostControl userInput)
+    public static void SetRightControls(ref UserHostControl userInput)
     {
         userInput.UpKey = KeyCode.UpArrow;
         userInput.DownKey = KeyCode.DownArrow;

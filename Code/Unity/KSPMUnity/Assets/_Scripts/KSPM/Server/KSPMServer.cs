@@ -83,7 +83,9 @@ public class KSPMServer : MonoBehaviour
     {
         GameMessage gameMessage = null;
         Message incomingMessage = null;
+        KSPMAction<object, object> action = null;
         GameMessage.LoadFromMessage(out incomingMessage, message);
+
 
         message.Dispose();
         gameMessage = (GameMessage)incomingMessage;
@@ -94,9 +96,13 @@ public class KSPMServer : MonoBehaviour
                 switch ((GameManager.GameStatus)gameMessage.bodyMessage[14])
                 {
                     case GameManager.GameStatus.ReadyToStart:
-                        Message userConnectedMessage = null;
-                        GameMessage.GameStatusMessage((NetworkEntity)sender, this.gameManager,out userConnectedMessage);
-                        this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+                        action = this.kspmManager.ActionsPool.BorrowAction;
+                        action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.SetPlayerReady;
+                        action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                        action.Completed += new KSPMAction<object, object>.ActionCompleted(ReadyFlagSet_Completed);
+                        action.ParametersStack.Push(true);
+                        action.ParametersStack.Push(sender);
+                        this.kspmManager.ActionsToDo.Enqueue(action);
                         break;
                 }
                 break;
@@ -104,6 +110,19 @@ public class KSPMServer : MonoBehaviour
                 break;
         }
         gameMessage.Release();
+    }
+
+    void ReadyFlagSet_Completed(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        bool allPlayersReady;
+        parameters.Pop();///Taking out the result of the previous method.
+        allPlayersReady = (bool)parameters.Pop();
+        if (allPlayersReady)
+        {
+            Message userConnectedMessage = null;
+            GameMessage.GameStatusMessage((NetworkEntity)caller, this.gameManager, out userConnectedMessage);
+            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        }
     }
 
     void KSPMServerReference_UDPMessageArrived(object sender, Message message)
@@ -139,6 +158,7 @@ public class KSPMServer : MonoBehaviour
         this.kspmManager.ActionsToDo.Enqueue(action);
     }
 
+    /*********************************CHECK**************************/
     void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)((GameObject)caller).GetComponent<GamePlayer>().Parent;

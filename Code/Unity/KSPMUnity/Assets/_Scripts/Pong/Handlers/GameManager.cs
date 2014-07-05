@@ -142,7 +142,7 @@ public class GameManager : MonoBehaviour
                     {
                         goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
-                        UserHostControl.SetLeftControls(inputControl);
+                        UserHostControl.SetLeftControls(ref inputControl);
                         inputControl.target = goGeneric;
                         this.UserControls.Add(inputControl);
                     }
@@ -159,7 +159,7 @@ public class GameManager : MonoBehaviour
                     {
                         goGeneric = GameObject.FindGameObjectWithTag("RightUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
-                        UserHostControl.SetRightControls(inputControl);
+                        UserHostControl.SetRightControls(ref inputControl);
                         inputControl.target = goGeneric;
                         this.UserControls.Add(inputControl);
                     }

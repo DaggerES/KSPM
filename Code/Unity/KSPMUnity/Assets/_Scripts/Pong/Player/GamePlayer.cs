@@ -31,6 +31,11 @@ public class GamePlayer : MonoBehaviour
     protected bool localPlayer = false;
 
     /// <summary>
+    /// Flag to tell if this GamePlayer is ready to play.
+    /// </summary>
+    public bool Ready = false;
+
+    /// <summary>
     /// Sets the localPlayer flag to the given value.
     /// </summary>
     /// <param name="value"></param>
