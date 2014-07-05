@@ -1789,6 +1789,13 @@
             <param name="fixedLength"></param>
             <param name="packetOwner"></param>
         </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnTCPMessageArrived(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.ManagedMessage)">
+            <summary>
+            Event raised each time an User command is received.
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+        </member>
         <member name="M:KSPM.Network.Server.GameServer.HandleCommandsThreadMethod">
             <summary>
             Handles the those commands send by the client through a TCP socket.
@@ -1857,6 +1864,16 @@
             <param name="caller"></param>
             <param name="arg"></param>
         </member>
+        <member name="E:KSPM.Network.Server.GameServer.UDPMessageArrived">
+            <summary>
+            Event raised when an UDP message has arrived to the server.
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Server.GameServer.TCPMessageArrived">
+            <summary>
+            Event raised when an User command is received by the server.
+            </summary>
+        </member>
         <member name="E:KSPM.Network.Server.GameServer.UserConnected">
             <summary>
             Event raised when a new user is connected.
@@ -1865,11 +1882,6 @@
         <member name="E:KSPM.Network.Server.GameServer.UserDisconnected">
             <summary>
             Event raised when an user is disconnected from the user.
-            </summary>
-        </member>
-        <member name="E:KSPM.Network.Server.GameServer.UDPMessageArrived">
-            <summary>
-            Event raised when an UDP message has arrived to the server.
             </summary>
         </member>
         <member name="P:KSPM.Network.Server.GameServer.ConnectedClients">

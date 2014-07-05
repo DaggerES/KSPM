@@ -63,6 +63,7 @@ public class KSPMServer : MonoBehaviour
         this.KSPMServerReference.UserConnected += new KSPM.Network.Common.Events.UserConnectedEventHandler(kspmServer_UserConnected);
         this.KSPMServerReference.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(kspmServer_UserDisconnected);
         this.KSPMServerReference.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(KSPMServerReference_UDPMessageArrived);
+        this.KSPMServerReference.TCPMessageArrived += new KSPM.Network.Common.Events.TCPMessageArrived(KSPMServerReference_TCPMessageArrived);
         
         KSPMGlobals.Globals.SetServerReference(ref KSPMServerReference);
         return this.KSPMServerReference.StartServer();
@@ -76,6 +77,33 @@ public class KSPMServer : MonoBehaviour
             this.KSPMServerReference = null;
             Debug.Log("Server killed");
         }
+    }
+
+    void KSPMServerReference_TCPMessageArrived(object sender, Message message)
+    {
+        GameMessage gameMessage = null;
+        Message incomingMessage = null;
+        GameMessage.LoadFromMessage(out incomingMessage, message);
+
+        message.Dispose();
+        gameMessage = (GameMessage)incomingMessage;
+        Debug.Log(gameMessage.UserCommand);
+        switch (gameMessage.UserCommand)
+        {
+            case GameMessage.GameCommand.GameStatus:
+                switch ((GameManager.GameStatus)gameMessage.bodyMessage[14])
+                {
+                    case GameManager.GameStatus.ReadyToStart:
+                        Message userConnectedMessage = null;
+                        GameMessage.GameStatusMessage((NetworkEntity)sender, this.gameManager,out userConnectedMessage);
+                        this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        gameMessage.Release();
     }
 
     void KSPMServerReference_UDPMessageArrived(object sender, Message message)
@@ -173,9 +201,6 @@ public class KSPMServer : MonoBehaviour
         if (loadedLevel.Equals("Game"))
         {
             this.gameManager.StartGame(UnityGlobals.WorkingMode.Server);
-            Message userConnectedMessage = null;
-            GameMessage.GameStatusMessage((NetworkEntity)sender, this.gameManager,out userConnectedMessage);
-            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
         }
     }
 

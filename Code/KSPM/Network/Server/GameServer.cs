@@ -55,6 +55,11 @@ namespace KSPM.Network.Server
         /// </summary>
         protected internal IOPortManager ioPortManager;
 
+        /// <summary>
+        /// Event raised when an UDP message has arrived to the server.
+        /// </summary>
+        public event UDPMessageArrived UDPMessageArrived;
+
         #region TCPProperties
 
         /// <summary>
@@ -96,6 +101,11 @@ namespace KSPM.Network.Server
         /// Tells the amount of messages are allowe to receive messages again.
         /// </summary>
         protected int tcpMinimumMessagesAllowedAfterPurge;
+
+        /// <summary>
+        /// Event raised when an User command is received by the server.
+        /// </summary>
+        public event TCPMessageArrived TCPMessageArrived;
 
         #endregion
 
@@ -184,11 +194,6 @@ namespace KSPM.Network.Server
         /// Event raised when an user is disconnected from the user.
         /// </summary>
         public event UserDisconnectedEventHandler UserDisconnected;
-
-        /// <summary>
-        /// Event raised when an UDP message has arrived to the server.
-        /// </summary>
-        public event UDPMessageArrived UDPMessageArrived;
 
         #endregion
 
@@ -508,6 +513,22 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Event raised each time an User command is received.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="message"></param>
+        protected internal void OnTCPMessageArrived(NetworkEntity sender, ManagedMessage message)
+        {
+            if (this.TCPMessageArrived != null)
+            {
+                this.TCPMessageArrived(sender, message);
+            }
+            else
+            {
+            }
+        }
+
         #endregion
 
         #region Non-prioritizedCommandHandle
@@ -541,7 +562,8 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
                                 break;
                             case Message.CommandType.User:
-                                ///Still does nothing.
+                                ///Rising the TCP event.
+                                this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
                                 break;
                             case Message.CommandType.Disconnect:
                                 ///Disconnects either a NetworkEntity or a ServerSideClient.
@@ -819,7 +841,8 @@ namespace KSPM.Network.Server
                                     this.DisconnectClient(managedMessageReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
                                     break;
                                 case Message.CommandType.User:
-                                    ///Still does nothing.
+                                    ///Raising the TCP message event.
+                                    this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:

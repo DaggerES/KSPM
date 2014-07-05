@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
         if (this.movementManager != null)
         {
             this.movementManager.WorkingMode = mode;
-            this.currentStatus = GameStatus.Waiting;
+            this.currentStatus = GameStatus.ReadyToStart;
             //this.currentStatus = GameStatus.Playing;
         }
     }
