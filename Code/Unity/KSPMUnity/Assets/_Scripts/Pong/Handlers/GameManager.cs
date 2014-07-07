@@ -6,9 +6,25 @@ public class GameManager : MonoBehaviour
     public enum GameStatus : byte
     {
         None,
+
+        /// <summary>
+        /// To tell that they are negotiating network stuff and the like.
+        /// </summary>
         NetworkSettingUp,
+
+        /// <summary>
+        /// Idle status.
+        /// </summary>
         Waiting,
+
+        /// <summary>
+        /// Thinking to use it to set tthe game.
+        /// </summary>
         Starting,
+
+        /// <summary>
+        /// Tells that everything is ready to start.
+        /// </summary>
         ReadyToStart,
         Playing,
         Finished
@@ -54,25 +70,11 @@ public class GameManager : MonoBehaviour
             case GameStatus.ReadyToStart:
                 break;
             case GameStatus.Starting:
-                //this.movementManager.RandomForce();
-                //this.currentStatus = GameStatus.Playing;
                 break;
             case GameStatus.Playing:
                 break;
         }
 	}
-
-    IEnumerator WaitABit(float time)
-    {
-        this.currentStatus = GameStatus.Waiting;
-        yield return new WaitForSeconds(time);
-        this.currentStatus = GameStatus.Starting;
-    }
-
-    IEnumerator WaitSome(float time)
-    {
-        yield return new WaitForSeconds(time);
-    }
 
     /// <summary>
     /// Method used by the server so Don't try to use it inside a client body.
@@ -117,12 +119,11 @@ public class GameManager : MonoBehaviour
         {
             this.movementManager.WorkingMode = mode;
             this.currentStatus = GameStatus.ReadyToStart;
-            //this.currentStatus = GameStatus.Playing;
         }
     }
 
     /// <summary>
-    /// MEthod used by the client to initialize the scene game.
+    /// Method used by the client to initialize the scene game.
     /// </summary>
     /// <param name="caller"></param>
     /// <param name="parameters"></param>
@@ -135,13 +136,14 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
         {
             playerObject = this.PlayerManagerReference.Players[i].GetComponent<GamePlayer>();
-            switch( playerObject.GamingRol )
+            switch (playerObject.GamingRol)
             {
                 case PlayerManager.GameRol.Host:
                     if (playerObject.IsLocal)
                     {
                         goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
+                        inputControl.enabled = false;
                         UserHostControl.SetLeftControls(ref inputControl);
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
@@ -163,6 +165,7 @@ public class GameManager : MonoBehaviour
                         goGeneric = GameObject.FindGameObjectWithTag("RightUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         UserHostControl.SetRightControls(ref inputControl);
+                        inputControl.enabled = false;
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
@@ -181,6 +184,7 @@ public class GameManager : MonoBehaviour
                     goGeneric = this.PlayerManagerReference.Players[i];
                     inputControl = goGeneric.AddComponent<UserHostControl>();
                     inputControl.target = goGeneric;
+                    inputControl.enabled = false;
                     playerObject.InputControl = inputControl;
                     this.UserControls.Add(inputControl);
                     break;
@@ -189,7 +193,7 @@ public class GameManager : MonoBehaviour
         }
 
         this.movementManager = GameObject.FindGameObjectWithTag("GameLogic").GetComponent<MovementManager>();
-        
+
         if (this.movementManager != null)
         {
             this.currentStatus = GameStatus.Waiting;
@@ -197,4 +201,15 @@ public class GameManager : MonoBehaviour
         }
         return GameError.ErrorType.Ok;
     }
+
+    public GameError.ErrorType SetPlayersEnableValueAction(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        bool enableValue = (bool)parameters.Pop();
+        for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
+        {
+            this.PlayerManagerReference.Players[i].GetComponent<UserHostControl>().enabled = enableValue;
+        }
+        return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
+
 }

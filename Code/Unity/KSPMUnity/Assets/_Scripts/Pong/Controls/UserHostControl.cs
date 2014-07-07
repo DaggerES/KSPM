@@ -27,10 +27,6 @@ public class UserHostControl : HostControl
         {
             UnityGlobals.SingletonReference.KSPMClientReference.SendControlsUpdate(MovementAction.ResetBall);
         }
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            UnityGlobals.SingletonReference.KSPMClientReference.gameManager.movementManager.target.transform.position = Vector3.zero;
-        }
     }
 
     public static void SetLeftControls(ref UserHostControl userInput)

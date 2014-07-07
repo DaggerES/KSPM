@@ -39,7 +39,10 @@ public class KSPMServer : MonoBehaviour
         
         if (GUI.Button(new Rect(0, 0, 128, 32), "Start server"))
         {
-            this.StartServer();
+            if (this.StartServer())
+            {
+                this.gameManager.currentStatus = GameManager.GameStatus.NetworkSettingUp;
+            }
         }
         if (GUI.Button(new Rect(160, 0, 128, 32), "Stop server"))
         {
@@ -119,6 +122,8 @@ public class KSPMServer : MonoBehaviour
         allPlayersReady = (bool)parameters.Pop();
         if (allPlayersReady)
         {
+            ///Setting the status to starting, so this is the signal to each client to start.
+            this.gameManager.currentStatus = GameManager.GameStatus.Starting;
             Message userConnectedMessage = null;
             GameMessage.GameStatusMessage((NetworkEntity)caller, this.gameManager, out userConnectedMessage);
             this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
