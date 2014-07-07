@@ -148,16 +148,16 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }/*
+                    }
                     else
                     {
-                        goGeneric = this.PlayerManagerReference.Players[i];
+                        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
+                        inputControl.enabled = false;
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
-                    */
                     break;
                 case PlayerManager.GameRol.Remote:
                     if (playerObject.IsLocal)
@@ -169,16 +169,16 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }/*
+                    }
                     else
                     {
-                        goGeneric = this.PlayerManagerReference.Players[i];
+                        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
+                        inputControl.enabled = false;
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
-                    */
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = this.PlayerManagerReference.Players[i];
