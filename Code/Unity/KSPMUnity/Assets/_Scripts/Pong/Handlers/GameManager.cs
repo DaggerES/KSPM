@@ -148,7 +148,7 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }/*
                     else
                     {
                         goGeneric = GameObject.FindGameObjectWithTag("RightUser");
@@ -157,7 +157,7 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }*/
                     break;
                 case PlayerManager.GameRol.Remote:
                     if (playerObject.IsLocal)
@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }/*
                     else
                     {
                         goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
@@ -178,7 +178,7 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }
+                    }*/
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = this.PlayerManagerReference.Players[i];

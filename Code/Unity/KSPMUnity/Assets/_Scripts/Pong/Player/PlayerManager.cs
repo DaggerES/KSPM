@@ -57,13 +57,14 @@ public class PlayerManager : MonoBehaviour
         GameRol gamingRol = (GameRol)parameters.Pop();
         int localPlayerId = (int)parameters.Pop();
         int remotePlayerId = (int)parameters.Pop();
+        GameRol remotePlayerGamingRol = (GameRol)parameters.Pop();
         GamePlayer localPlayer;
 
         go = new GameObject(string.Format("Player_{0}", remotePlayerId));
         DontDestroyOnLoad(go);///Setting the flag to avoid being destroyed by the Unity GC.
 
         localPlayer = go.AddComponent<GamePlayer>();
-        localPlayer.GamingRol = gamingRol;
+        localPlayer.GamingRol = remotePlayerGamingRol;
         localPlayer.GameId = remotePlayerId;
 
         if (localPlayerId == remotePlayerId)

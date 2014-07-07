@@ -216,6 +216,7 @@ public class KSPMClient : MonoBehaviour
                     gamingRol = gameMessage.bodyMessage[22 + i * 5];
                     action.ParametersStack.Push(gamingRol);
                     action.ParametersStack.Push(userId);
+                    Debug.Log(userId + ":" + gamingRol);
                 }
                 action.ParametersStack.Push(intBuffer);
                 action.ParametersStack.Push(this.kspmClient);
@@ -225,10 +226,12 @@ public class KSPMClient : MonoBehaviour
             case GameMessage.GameCommand.UserConnected:
                 this.usersConnected++;
                 intBuffer = System.BitConverter.ToInt32(gameMessage.bodyMessage, 14);
+                gamingRol = gameMessage.bodyMessage[18];
                 action = this.kspmManager.ActionsPool.BorrowAction;
                 action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
                 action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.CreateEmptyLocalPlayerAction;
                 action.Completed += new KSPMAction<object, object>.ActionCompleted(LocalGamePlayerCreated_Completed);
+                action.ParametersStack.Push(gamingRol);
                 action.ParametersStack.Push(intBuffer);
                 action.ParametersStack.Push(this.connectedUserGameId);
                 action.ParametersStack.Push(this.connectedUserGamingRol);
@@ -241,13 +244,13 @@ public class KSPMClient : MonoBehaviour
             case GameMessage.GameCommand.GameStatus:
                 switch ((GameManager.GameStatus)gameMessage.bodyMessage[14])
                 {
-                    case GameManager.GameStatus.Starting:
+                    case GameManager.GameStatus.Starting:/*
                         action = this.kspmManager.ActionsPool.BorrowAction;
                         action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
                         action.ActionMethod.BasicAction = this.gameManager.SetPlayersEnableValueAction;
                         action.ParametersStack.Push(true);
                         action.ParametersStack.Push(sender);
-                        this.kspmManager.ActionsToDo.Enqueue(action);
+                        this.kspmManager.ActionsToDo.Enqueue(action);*/
                         break;
                 }
                 break;

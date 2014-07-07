@@ -158,6 +158,9 @@ public class GameMessage : ManagedMessage
         System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
         bytesToSend += byteBuffer.Length;
 
+        rawBuffer[bytesToSend] = (byte)playerGameObject.GamingRol;
+        bytesToSend += 1;
+
         ///Writing the EndOfMessageCommand.
         System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
         bytesToSend += EndOfMessageCommand.Length;
