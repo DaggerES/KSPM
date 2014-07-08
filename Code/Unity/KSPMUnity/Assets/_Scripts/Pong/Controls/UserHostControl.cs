@@ -41,6 +41,12 @@ public class UserHostControl : HostControl
     {
         userInput.UpKey = KeyCode.UpArrow;
         userInput.DownKey = KeyCode.DownArrow;
+        userInput.ResetBallKey = KeyCode.Space;
+        userInput.displacementFactor.Set(0f, 0.1f, 0f);
+    }
+
+    public static void SetRemoteControls(ref UserHostControl userInput)
+    {
         userInput.displacementFactor.Set(0f, 0.1f, 0f);
     }
 }

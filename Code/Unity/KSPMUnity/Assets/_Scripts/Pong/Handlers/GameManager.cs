@@ -148,16 +148,17 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }/*
+                    }
                     else
                     {
-                        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
+                        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         inputControl.enabled = false;
+                        UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }*/
+                    }
                     break;
                 case PlayerManager.GameRol.Remote:
                     if (playerObject.IsLocal)
@@ -169,22 +170,24 @@ public class GameManager : MonoBehaviour
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }/*
+                    }
                     else
                     {
-                        goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
+                        goGeneric = GameObject.FindGameObjectWithTag("RightUser");
                         inputControl = goGeneric.AddComponent<UserHostControl>();
                         inputControl.enabled = false;
+                        UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
-                    }*/
+                    }
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = this.PlayerManagerReference.Players[i];
                     inputControl = goGeneric.AddComponent<UserHostControl>();
                     inputControl.target = goGeneric;
                     inputControl.enabled = false;
+                    UserHostControl.SetRemoteControls(ref inputControl);
                     playerObject.InputControl = inputControl;
                     this.UserControls.Add(inputControl);
                     break;
@@ -207,7 +210,7 @@ public class GameManager : MonoBehaviour
         bool enableValue = (bool)parameters.Pop();
         for (int i = 0; i < this.PlayerManagerReference.Players.Count; i++)
         {
-            this.PlayerManagerReference.Players[i].GetComponent<UserHostControl>().enabled = enableValue;
+            this.PlayerManagerReference.Players[i].GetComponent<GamePlayer>().InputControl.enabled = enableValue;
         }
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
