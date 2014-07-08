@@ -244,13 +244,13 @@ public class KSPMClient : MonoBehaviour
             case GameMessage.GameCommand.GameStatus:
                 switch ((GameManager.GameStatus)gameMessage.bodyMessage[14])
                 {
-                    case GameManager.GameStatus.Starting:/*
+                    case GameManager.GameStatus.Starting:
                         action = this.kspmManager.ActionsPool.BorrowAction;
                         action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
                         action.ActionMethod.BasicAction = this.gameManager.SetPlayersEnableValueAction;
                         action.ParametersStack.Push(true);
                         action.ParametersStack.Push(sender);
-                        this.kspmManager.ActionsToDo.Enqueue(action);*/
+                        this.kspmManager.ActionsToDo.Enqueue(action);
                         break;
                 }
                 break;
