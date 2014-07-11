@@ -247,7 +247,7 @@ public class GameManager : MonoBehaviour
             y = (float)parameters.Pop();
             z = (float)parameters.Pop();
             positionParameter.Set(x, y, z);
-            this.WorldPositions[i].UpdatePersistentValue(positionParameter);
+            this.WorldPositions[(this.WorldPositions.Count - 1) - i].UpdatePersistentValue(positionParameter);
         }
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
