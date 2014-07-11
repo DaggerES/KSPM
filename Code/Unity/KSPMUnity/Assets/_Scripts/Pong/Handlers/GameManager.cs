@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
 
     public System.Collections.Generic.List<HostControl> UserControls;
 
+    public System.Collections.Generic.List<IPersistentAttribute<Vector3>> WorldPositions;
+
     void Awake()
     {
         DontDestroyOnLoad(this);
@@ -96,6 +98,7 @@ public class GameManager : MonoBehaviour
                     hostControl.target = goGeneric;
                     this.UserControls.Add(hostControl);
                     gamePlayer.InputControl = hostControl;
+                    this.WorldPositions.Add(hostControl);
                     break;
                 case PlayerManager.GameRol.Remote:
                     goGeneric = GameObject.FindGameObjectWithTag("RightUser");
@@ -103,6 +106,7 @@ public class GameManager : MonoBehaviour
                     hostControl.target = goGeneric;
                     gamePlayer.InputControl = hostControl;
                     this.UserControls.Add(hostControl);
+                    this.WorldPositions.Add(hostControl);
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = new GameObject();
@@ -117,6 +121,7 @@ public class GameManager : MonoBehaviour
         
         if (this.movementManager != null)
         {
+            this.WorldPositions.Add(this.movementManager);
             this.movementManager.WorkingMode = mode;
             this.currentStatus = GameStatus.ReadyToStart;
         }
@@ -159,6 +164,7 @@ public class GameManager : MonoBehaviour
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
+                    this.WorldPositions.Add(inputControl);
                     break;
                 case PlayerManager.GameRol.Remote:
                     if (playerObject.IsLocal)
@@ -181,6 +187,7 @@ public class GameManager : MonoBehaviour
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
+                    this.WorldPositions.Add(inputControl);
                     break;
                 case PlayerManager.GameRol.Spectator:
                     goGeneric = this.PlayerManagerReference.Players[i];
@@ -199,12 +206,19 @@ public class GameManager : MonoBehaviour
 
         if (this.movementManager != null)
         {
+            this.WorldPositions.Add(this.movementManager);
             this.currentStatus = GameStatus.Waiting;
             return GameError.ErrorType.Ok;
         }
         return GameError.ErrorType.Ok;
     }
 
+    /// <summary>
+    /// Method called by the clients to set each of the
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
     public GameError.ErrorType SetPlayersEnableValueAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         bool enableValue = (bool)parameters.Pop();
@@ -215,4 +229,20 @@ public class GameManager : MonoBehaviour
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 
+    public GameError.ErrorType WorldUpdateAction(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        float x, y, z;
+        int itemsCount;
+        Vector3 positionParameter = Vector3.zero;
+        itemsCount = (int)parameters.Pop();
+        for (int i = 0; i < itemsCount; i++)
+        {
+            x = (float)parameters.Pop();
+            y = (float)parameters.Pop();
+            z = (float)parameters.Pop();
+            positionParameter.Set(x, y, z);
+            this.WorldPositions[i].UpdatePersistentValue(positionParameter);
+        }
+        return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
 }

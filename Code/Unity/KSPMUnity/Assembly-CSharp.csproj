@@ -50,6 +50,8 @@
      <Compile Include="Assets\_Scripts\KSPM\Common\GameError.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\GameEventArgs.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\GameMessage.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\IPersistablePosition.cs" />
+     <Compile Include="Assets\_Scripts\KSPM\Common\IPersistentAttribute.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\KSPMAction.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\KSPMActionsPool.cs" />
      <Compile Include="Assets\_Scripts\KSPM\Common\KSPMManager.cs" />

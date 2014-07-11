@@ -3,8 +3,9 @@ using System.Collections;
 
 using KSPM.Network.Server;
 
-public class HostControl : MonoBehaviour
+public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
 {
+    public GamePlayer Owner;
 
     public GameObject target;
 
@@ -14,15 +15,26 @@ public class HostControl : MonoBehaviour
 
     protected Vector3 displacement;
 
+    public Vector3 PersistentPosition;
+
     public enum MovementAction : byte
     {
         None = 0,
         Up,
         Down,
         ResetBall,
+        RemoteControl,
     }
 
+    /// <summary>
+    /// Current action to do.
+    /// </summary>
     public MovementAction currentMovement;
+
+    /// <summary>
+    /// Last action performed by this control.
+    /// </summary>
+    public MovementAction lastMovementAction;
 
 	// Use this for initialization
 	void Start ()
@@ -36,7 +48,15 @@ public class HostControl : MonoBehaviour
     {
         if (this.currentMovement != MovementAction.None)
         {
-            this.target.transform.position += this.displacement;
+            if (this.currentMovement == MovementAction.RemoteControl)
+            {
+                this.target.transform.position.Set(this.PersistentPosition.x, this.PersistentPosition.y, this.PersistentPosition.z);
+            }
+            else
+            {
+                this.target.transform.position += this.displacement;
+                this.PersistentPosition.Set(this.target.transform.position.x, this.target.transform.position.y, this.target.transform.position.z);
+            }
             this.moving = false;
             this.currentMovement = MovementAction.None;
         }
@@ -66,5 +86,28 @@ public class HostControl : MonoBehaviour
                 break;
         }
         return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
+
+
+    public void SetPersistent(Vector3 value)
+    {
+    }
+
+    public void SetPersistentRef(ref Vector3 value)
+    {
+    }
+
+    public void UpdatePersistentValue(Vector3 value)
+    {
+        if (!this.Owner.IsLocal)
+        {
+            this.PersistentPosition.Set(value.x, value.y, value.z);
+            this.currentMovement = MovementAction.RemoteControl;
+        }
+    }
+
+    public Vector3 Attribute()
+    {
+        return this.PersistentPosition;
     }
 }

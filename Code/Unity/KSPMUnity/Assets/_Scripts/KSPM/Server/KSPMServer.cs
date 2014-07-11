@@ -236,10 +236,11 @@ public class KSPMServer : MonoBehaviour
             Message updateMessage;
             ServerSideClient ssClientReference = (ServerSideClient)state;
             updateMessage = ssClientReference.IOUDPMessagesPool.BorrowMessage;
-            UDPGameMessage.LoadUDPUpdateBallMessage(ssClientReference, this.gameManager.movementManager, this.gameManager.movementManager.targetPosition, ref updateMessage);
+            UDPGameMessage.LoadUDPWorldUpdateMessage(ssClientReference, this.gameManager.WorldPositions, ref updateMessage);
+            //UDPGameMessage.LoadUDPUpdateBallMessage(ssClientReference, this.gameManager.movementManager, this.gameManager.movementManager.targetPosition, ref updateMessage);
             ssClientReference.outgoingPackets.EnqueueCommandMessage(ref updateMessage);
             ssClientReference.SendUDPDatagram();
-            Debug.Log(this.gameManager.movementManager.targetPosition.x);
+            //Debug.Log(this.gameManager.movementManager.targetPosition.x);
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MovementManager : MonoBehaviour
+public class MovementManager : MonoBehaviour, IPersistentAttribute<Vector3>
 {
     public UnityGlobals.WorkingMode WorkingMode = UnityGlobals.WorkingMode.Client;
 
@@ -19,11 +19,6 @@ public class MovementManager : MonoBehaviour
     {
         this.moving = false;
         this.physicsTarget = target.rigidbody;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 
     void FixedUpdate()
@@ -89,5 +84,30 @@ public class MovementManager : MonoBehaviour
         newX = (float)parameters.Pop();
         this.ApplyForce(newX, newY, newZ);
         return GameError.ErrorType.Ok;
+    }
+
+    public void SetPersistent(Vector3 value)
+    {
+    }
+
+    public void SetPersistentRef(ref Vector3 value)
+    {
+    }
+
+    public void UpdatePersistentValue(Vector3 value)
+    {
+        if (this.IsPhysicsTarget)
+        {
+            this.physicsTarget.MovePosition(new Vector3(value.x, value.y, value.z));
+        }
+        else
+        {
+            this.target.transform.position.Set(value.x, value.y, value.z);
+        }
+    }
+
+    public Vector3 Attribute()
+    {
+        return this.targetPosition;
     }
 }

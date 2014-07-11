@@ -155,6 +155,8 @@ public class KSPMClient : MonoBehaviour
     void kspmClient_UDPMessageArrived(object sender, Message message)
     {
         float x,y,z;
+        int itemsCount;
+        KSPMAction<object, object> action;
         switch ((UDPGameMessage.UDPGameCommand)message.bodyMessage[13])
         {
             case UDPGameMessage.UDPGameCommand.BallUpdate:
@@ -163,7 +165,7 @@ public class KSPMClient : MonoBehaviour
                     x = System.BitConverter.ToSingle(message.bodyMessage, 14);
                     y = System.BitConverter.ToSingle(message.bodyMessage, 18);
                     z = System.BitConverter.ToSingle(message.bodyMessage, 22);
-                    KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
+                    action = this.kspmManager.ActionsPool.BorrowAction;
                     action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
                     action.ActionMethod.BasicAction = this.gameManager.movementManager.UpdateTargetPositionAction;
                     action.ParametersStack.Push(x);
@@ -173,6 +175,24 @@ public class KSPMClient : MonoBehaviour
                     this.kspmManager.ActionsToDo.Enqueue(action);
                     Debug.Log(x);
                 }
+                break;
+            case UDPGameMessage.UDPGameCommand.WorldPositionsUpdate:
+                action = this.kspmManager.ActionsPool.BorrowAction;
+                action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                action.ActionMethod.BasicAction = this.gameManager.WorldUpdateAction;
+                itemsCount = System.BitConverter.ToInt32(message.bodyMessage, 14);
+                for (int i = 0; i < itemsCount; i++)
+                {
+                    x = System.BitConverter.ToSingle(message.bodyMessage, 18 + i * 12);
+                    y = System.BitConverter.ToSingle(message.bodyMessage, 22 + i * 12);
+                    z = System.BitConverter.ToSingle(message.bodyMessage, 26 + i * 12);
+                    action.ParametersStack.Push(z);
+                    action.ParametersStack.Push(y);
+                    action.ParametersStack.Push(x);
+                }
+                action.ParametersStack.Push(itemsCount);
+                action.ParametersStack.Push(sender);
+                this.kspmManager.ActionsToDo.Enqueue(action);
                 break;
             case UDPGameMessage.UDPGameCommand.BallForce:
                 x = System.BitConverter.ToSingle(message.bodyMessage, 14);
@@ -293,17 +313,6 @@ public class KSPMClient : MonoBehaviour
     void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
     {
         Debug.Log(e.ToString());
-    }
-
-    /// <summary>
-    /// Deprecated.
-    /// </summary>
-    /// <param name="displacement"></param>
-    public void SendControlsUpdate(UnityEngine.Vector3 displacement)
-    {
-        Message updateMessage = this.kspmClient.UDPIOMessagesPool.BorrowMessage;
-        UDPGameMessage.LoadUDPControlUpdateMessage(this.kspmClient, displacement, ref updateMessage);
-        this.kspmClient.OutgoingUDPQueue.EnqueueCommandMessage(ref updateMessage);
     }
 
     public void SendControlsUpdate(HostControl.MovementAction update)
