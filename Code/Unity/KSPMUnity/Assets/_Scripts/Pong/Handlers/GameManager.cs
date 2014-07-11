@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         DontDestroyOnLoad(this);
+        this.WorldPositions = new System.Collections.Generic.List<IPersistentAttribute<Vector3>>();
     }
 
 	// Use this for initialization
