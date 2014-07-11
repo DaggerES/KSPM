@@ -152,6 +152,7 @@ public class GameManager : MonoBehaviour
                         inputControl.enabled = false;
                         UserHostControl.SetLeftControls(ref inputControl);
                         inputControl.target = goGeneric;
+                        inputControl.Owner = playerObject;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -162,6 +163,7 @@ public class GameManager : MonoBehaviour
                         inputControl.enabled = false;
                         UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
+                        inputControl.Owner = playerObject;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -175,6 +177,7 @@ public class GameManager : MonoBehaviour
                         UserHostControl.SetRightControls(ref inputControl);
                         inputControl.enabled = false;
                         inputControl.target = goGeneric;
+                        inputControl.Owner = playerObject;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -185,6 +188,7 @@ public class GameManager : MonoBehaviour
                         inputControl.enabled = false;
                         UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
+                        inputControl.Owner = playerObject;
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -195,6 +199,7 @@ public class GameManager : MonoBehaviour
                     inputControl = goGeneric.AddComponent<UserHostControl>();
                     inputControl.target = goGeneric;
                     inputControl.enabled = false;
+                    inputControl.Owner = playerObject;
                     UserHostControl.SetRemoteControls(ref inputControl);
                     playerObject.InputControl = inputControl;
                     this.UserControls.Add(inputControl);
