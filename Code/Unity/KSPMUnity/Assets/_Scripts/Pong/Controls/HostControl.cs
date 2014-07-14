@@ -49,6 +49,7 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
         VectorAttributeDebug debugger;
         debugger = this.gameObject.AddComponent<VectorAttributeDebug>();
         debugger.target = this;
+        Debug.Log(debugger.target);
     }
 
     void LateUpdate()
@@ -57,7 +58,9 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
         {
             if (this.currentMovement == MovementAction.RemoteControl)
             {
-                this.target.transform.position.Set(this.PersistentPosition.x, this.PersistentPosition.y, this.PersistentPosition.z);
+                this.target.transform.position = this.PersistentPosition;
+                //this.target.transform.position.Set(this.PersistentPosition.x, this.PersistentPosition.y, this.PersistentPosition.z);
+                //Debug.Log("RPP: " + this.target.transform.position);
             }
             else
             {
@@ -106,6 +109,7 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
 
     public void UpdatePersistentValue(Vector3 value)
     {
+        //Debug.Log(this.Owner.IsLocal);
         if (!this.Owner.IsLocal)
         {
             this.PersistentPosition.Set(value.x, value.y, value.z);
@@ -115,6 +119,7 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
 
     public Vector3 Attribute()
     {
+        //Debug.Log("PP: " + this.PersistentPosition);
         return this.PersistentPosition;
     }
 }
