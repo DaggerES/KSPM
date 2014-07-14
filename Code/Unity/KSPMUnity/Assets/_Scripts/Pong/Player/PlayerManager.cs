@@ -26,6 +26,12 @@ public class PlayerManager : MonoBehaviour
         this.PlayersInternalStructure = new Dictionary<int, GamePlayer>();
     }
 
+    /// <summary>
+    /// Method used by the server to create an empty player.
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
     public GameError.ErrorType CreateEmptyPlayerAction(object caller, Stack<object> parameters)
     {
         ServerSideClient ssClientConnected = (ServerSideClient)caller;

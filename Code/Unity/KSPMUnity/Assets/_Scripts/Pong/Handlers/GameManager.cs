@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviour
                     goGeneric = GameObject.FindGameObjectWithTag("LeftUser");
                     hostControl = goGeneric.AddComponent<HostControl>();
                     hostControl.target = goGeneric;
+                    hostControl.SetDebug();
                     this.UserControls.Add(hostControl);
                     gamePlayer.InputControl = hostControl;
                     this.WorldPositions.Add(hostControl);
@@ -105,6 +106,7 @@ public class GameManager : MonoBehaviour
                     goGeneric = GameObject.FindGameObjectWithTag("RightUser");
                     hostControl = goGeneric.AddComponent<HostControl>();
                     hostControl.target = goGeneric;
+                    hostControl.SetDebug();
                     gamePlayer.InputControl = hostControl;
                     this.UserControls.Add(hostControl);
                     this.WorldPositions.Add(hostControl);
@@ -113,6 +115,7 @@ public class GameManager : MonoBehaviour
                     goGeneric = new GameObject();
                     hostControl = goGeneric.AddComponent<HostControl>();
                     hostControl.target = goGeneric;
+                    hostControl.SetDebug();
                     gamePlayer.InputControl = hostControl;
                     this.UserControls.Add(hostControl);
                     break;
@@ -153,6 +156,7 @@ public class GameManager : MonoBehaviour
                         UserHostControl.SetLeftControls(ref inputControl);
                         inputControl.target = goGeneric;
                         inputControl.Owner = playerObject;
+                        inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -164,6 +168,7 @@ public class GameManager : MonoBehaviour
                         UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
                         inputControl.Owner = playerObject;
+                        inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -178,6 +183,7 @@ public class GameManager : MonoBehaviour
                         inputControl.enabled = false;
                         inputControl.target = goGeneric;
                         inputControl.Owner = playerObject;
+                        inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -189,6 +195,7 @@ public class GameManager : MonoBehaviour
                         UserHostControl.SetRemoteControls(ref inputControl);
                         inputControl.target = goGeneric;
                         inputControl.Owner = playerObject;
+                        inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
                         this.UserControls.Add(inputControl);
                     }
@@ -200,6 +207,7 @@ public class GameManager : MonoBehaviour
                     inputControl.target = goGeneric;
                     inputControl.enabled = false;
                     inputControl.Owner = playerObject;
+                    inputControl.SetDebug();
                     UserHostControl.SetRemoteControls(ref inputControl);
                     playerObject.InputControl = inputControl;
                     this.UserControls.Add(inputControl);

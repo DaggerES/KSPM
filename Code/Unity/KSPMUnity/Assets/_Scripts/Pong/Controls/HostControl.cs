@@ -44,6 +44,13 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
         this.currentMovement = MovementAction.None;
 	}
 
+    public void SetDebug()
+    {
+        VectorAttributeDebug debugger;
+        debugger = this.gameObject.AddComponent<VectorAttributeDebug>();
+        debugger.target = this;
+    }
+
     void LateUpdate()
     {
         if (this.currentMovement != MovementAction.None)

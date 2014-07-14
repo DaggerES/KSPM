@@ -64,6 +64,7 @@
      <Compile Include="Assets\_Scripts\Pong\Controls\UserHostControl.cs" />
      <Compile Include="Assets\_Scripts\Pong\DisposableScripts\BallDebug.cs" />
      <Compile Include="Assets\_Scripts\Pong\DisposableScripts\Test.cs" />
+     <Compile Include="Assets\_Scripts\Pong\DisposableScripts\VectorAttributeDebug.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\BallMotionManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\BarCollitionManager.cs" />
      <Compile Include="Assets\_Scripts\Pong\GameMotion\MovementManager.cs" />
