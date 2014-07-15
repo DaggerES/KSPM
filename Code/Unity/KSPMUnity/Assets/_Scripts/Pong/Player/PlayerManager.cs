@@ -166,7 +166,9 @@ public class PlayerManager : MonoBehaviour
     public GameError.ErrorType StopPlayer(object caller, Stack<object> parameters)
     {
         GameObject go = (GameObject)caller;
-        go.GetComponent<GamePlayer>().Release();
+        GamePlayer player = go.GetComponent<GamePlayer>();
+        player.Release();
+        parameters.Push(player);
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 
@@ -189,5 +191,11 @@ public class PlayerManager : MonoBehaviour
                 break;
         }
         target.GamingRol = this.GamingRolesFlag;
+    }
+
+    public void RemovePlayer(ref GamePlayer player)
+    {
+        this.PlayersInternalStructure.Remove(player.GameId);
+        this.Players.Remove(player.gameObject);
     }
 }

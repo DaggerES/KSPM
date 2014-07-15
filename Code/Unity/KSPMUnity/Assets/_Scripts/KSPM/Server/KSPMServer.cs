@@ -156,7 +156,7 @@ public class KSPMServer : MonoBehaviour
     {
         ServerSideClient ssClientConnected = (ServerSideClient)sender;
         KSPMAction<object, object> action = this.kspmManager.ActionsPool.BorrowAction;
-        action.ActionMethod.BasicAction = this.gameManager.PlayerManagerReference.StopPlayer;
+        action.ActionMethod.BasicAction = this.gameManager.StopPlayer;
         action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
         action.ParametersStack.Push(ssClientConnected.gameUser.UserDefinedHolder);
         action.Completed += new KSPMAction<object, object>.ActionCompleted(GamePlayerStoped);
@@ -166,14 +166,18 @@ public class KSPMServer : MonoBehaviour
     /*********************************CHECK**************************/
     void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        GameObject go = (GameObject)caller;
-        Debug.Log(go.GetComponent<GamePlayer>());
+        parameters.Pop();///Taking out the result of the previous calling.
+        int disconnectedPlayerId = (int)parameters.Pop();
         ServerSideClient ssClientConnected = (ServerSideClient)(((GameObject)caller).GetComponent<GamePlayer>().Parent);
+
+        Debug.Log("Player with id["+ disconnectedPlayerId + "] se fue.");
+
+        ///Creatint a message to say everybody that this client were disconnected.
         Message userConnectedMessage = null;
-        Debug.Log(GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage));
-        
-        this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
-        Debug.Log(ssClientConnected.gameUser.Username + " se fue.");
+        if (GameMessage.UserDisconnectedMessage(ssClientConnected, disconnectedPlayerId,out userConnectedMessage) == Error.ErrorType.Ok)
+        {
+            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+        }
     }
 
     void kspmServer_UserConnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)

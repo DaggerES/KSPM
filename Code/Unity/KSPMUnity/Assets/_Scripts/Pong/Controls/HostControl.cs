@@ -31,11 +31,6 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
     /// </summary>
     public MovementAction currentMovement;
 
-    /// <summary>
-    /// Last action performed by this control.
-    /// </summary>
-    public MovementAction lastMovementAction;
-
 	// Use this for initialization
 	void Start ()
     {
@@ -121,5 +116,13 @@ public class HostControl : MonoBehaviour, IPersistentAttribute<Vector3>
     {
         //Debug.Log("PP: " + this.PersistentPosition);
         return this.PersistentPosition;
+    }
+
+    public void Release()
+    {
+        this.Owner = null;
+        this.target = null;
+        this.moving = false;
+        this.currentMovement = MovementAction.None;
     }
 }

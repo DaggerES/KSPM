@@ -40,8 +40,6 @@ public class GameManager : MonoBehaviour
 
     public int RequiredUsers;
 
-    public System.Collections.Generic.List<HostControl> UserControls;
-
     public System.Collections.Generic.List<IPersistentAttribute<Vector3>> WorldPositions;
 
     void Awake()
@@ -98,7 +96,6 @@ public class GameManager : MonoBehaviour
                     hostControl = goGeneric.AddComponent<HostControl>();
                     hostControl.target = goGeneric;
                     hostControl.SetDebug();
-                    this.UserControls.Add(hostControl);
                     gamePlayer.InputControl = hostControl;
                     this.WorldPositions.Add(hostControl);
                     break;
@@ -108,7 +105,6 @@ public class GameManager : MonoBehaviour
                     hostControl.target = goGeneric;
                     hostControl.SetDebug();
                     gamePlayer.InputControl = hostControl;
-                    this.UserControls.Add(hostControl);
                     this.WorldPositions.Add(hostControl);
                     break;
                 case PlayerManager.GameRol.Spectator:
@@ -117,7 +113,6 @@ public class GameManager : MonoBehaviour
                     hostControl.target = goGeneric;
                     hostControl.SetDebug();
                     gamePlayer.InputControl = hostControl;
-                    this.UserControls.Add(hostControl);
                     break;
             }
         }
@@ -158,7 +153,6 @@ public class GameManager : MonoBehaviour
                         inputControl.Owner = playerObject;
                         inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
-                        this.UserControls.Add(inputControl);
                     }
                     else
                     {
@@ -170,7 +164,6 @@ public class GameManager : MonoBehaviour
                         inputControl.Owner = playerObject;
                         inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
-                        this.UserControls.Add(inputControl);
                     }
                     this.WorldPositions.Add(inputControl);
                     break;
@@ -185,7 +178,6 @@ public class GameManager : MonoBehaviour
                         inputControl.Owner = playerObject;
                         inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
-                        this.UserControls.Add(inputControl);
                     }
                     else
                     {
@@ -197,7 +189,6 @@ public class GameManager : MonoBehaviour
                         inputControl.Owner = playerObject;
                         inputControl.SetDebug();
                         playerObject.InputControl = inputControl;
-                        this.UserControls.Add(inputControl);
                     }
                     this.WorldPositions.Add(inputControl);
                     break;
@@ -210,7 +201,6 @@ public class GameManager : MonoBehaviour
                     inputControl.SetDebug();
                     UserHostControl.SetRemoteControls(ref inputControl);
                     playerObject.InputControl = inputControl;
-                    this.UserControls.Add(inputControl);
                     break;
             }
             playerObject.Ready = true;
@@ -243,6 +233,12 @@ public class GameManager : MonoBehaviour
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 
+    /// <summary>
+    /// Method used by each client to update everything with the data incoming from the server.
+    /// </summary>
+    /// <param name="caller"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
     public GameError.ErrorType WorldUpdateAction(object caller, System.Collections.Generic.Stack<object> parameters)
     {
         float x, y, z;
@@ -257,6 +253,20 @@ public class GameManager : MonoBehaviour
             positionParameter.Set(x, y, z);
             this.WorldPositions[(this.WorldPositions.Count - 1) - i].UpdatePersistentValue(positionParameter);
         }
+        return KSPM.Network.Common.Error.ErrorType.Ok;
+    }
+
+    public GameError.ErrorType StopPlayer(object caller, System.Collections.Generic.Stack<object> parameters)
+    {
+        GameObject go = (GameObject)caller;
+        GamePlayer player = go.GetComponent<GamePlayer>();
+        this.WorldPositions.Remove(player.InputControl);
+        this.PlayerManagerReference.RemovePlayer(ref player);
+
+        parameters.Push(player.GameId);
+
+        player.Release();
+        GameObject.Destroy(player.gameObject);
         return KSPM.Network.Common.Error.ErrorType.Ok;
     }
 }

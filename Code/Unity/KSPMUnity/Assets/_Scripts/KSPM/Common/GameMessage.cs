@@ -303,12 +303,13 @@ public class GameMessage : ManagedMessage
     /// <param name="sender"></param>
     /// <param name="targetMessage"></param>
     /// <returns></returns>
-    public static Error.ErrorType UserDisconnectedMessage(NetworkEntity sender, out Message targetMessage)
+    public static Error.ErrorType UserDisconnectedMessage(NetworkEntity sender,int playerId, out Message targetMessage)
     {
         int bytesToSend = Message.HeaderOfMessageCommand.Length;
         byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
         targetMessage = null;
         byte[] messageHeaderContent = null;
+        byte[] byteBuffer;
         if (sender == null)
         {
             return Error.ErrorType.InvalidNetworkEntity;
@@ -327,6 +328,10 @@ public class GameMessage : ManagedMessage
         ///Writing the user-s defined command.
         rawBuffer[bytesToSend] = (byte)GameCommand.UserDisconnected;
         bytesToSend += 1;
+
+        byteBuffer = System.BitConverter.GetBytes(playerId);
+        System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+        bytesToSend += byteBuffer.Length;
 
         ///Writing the EndOfMessageCommand.
         System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);

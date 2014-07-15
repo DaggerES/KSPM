@@ -60,5 +60,12 @@ public class GamePlayer : MonoBehaviour
     /// </summary>
     public virtual void Release()
     {
+        this.GamingRol = PlayerManager.GameRol.Undefined;
+        this.GameId = -1;
+        this.localPlayer = this.Ready = false;
+        if (this.InputControl != null)
+        {
+            this.InputControl.Release();
+        }
     }
 }
