@@ -43,6 +43,7 @@ public class PlayerManager : MonoBehaviour
         ssClientConnected.gameUser.UserDefinedHolder = go;
         mpPlayer = go.AddComponent<MPGamePlayer>();
         mpPlayer.GameId = id;
+        mpPlayer.Parent = ssClientConnected;
         this.SetGamingRolToPlayer(mpPlayer);
 
         this.Players.Add(go);
@@ -86,7 +87,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Method called by the clients to verify its own GamePlayer List.
+    /// Method called by the clients to verify its own GamePlayer List, and to reorder the GamePlayer to match with the GameServer itself.
     /// </summary>
     /// <param name="caller"></param>
     /// <param name="parameters"></param>
@@ -98,12 +99,15 @@ public class PlayerManager : MonoBehaviour
         GameRol gamingRol;
         GameObject go = null;
         GamePlayer localPlayer;
+        int[] playersId_ServersOrder;
 
         playersCount = (int)parameters.Pop();
+        playersId_ServersOrder = new int[playersCount];
         for (int i = 0; i < playersCount; i++)
         {
             playerId = (int)parameters.Pop();
             gamingRol = (GameRol)parameters.Pop();
+            playersId_ServersOrder[i] = playerId;
             if (!this.PlayersInternalStructure.ContainsKey(playerId))
             {
                 go = new GameObject(string.Format("Player_{0}", playerId));
@@ -117,6 +121,19 @@ public class PlayerManager : MonoBehaviour
                 this.PlayersInternalStructure.Add(localPlayer.GameId, localPlayer);
             }
         }
+        System.Array.Reverse(playersId_ServersOrder);
+        ///Reordering players.
+
+        this.Players.Clear();
+        for (int i = 0; i < playersId_ServersOrder.Length; i++)
+        {
+            if (this.PlayersInternalStructure.TryGetValue(playersId_ServersOrder[i], out localPlayer))
+            {
+                this.Players.Add(localPlayer.gameObject);
+            }
+        }
+
+
         ///Pushing the GamePlayer object into the stack.
         ///
         /*

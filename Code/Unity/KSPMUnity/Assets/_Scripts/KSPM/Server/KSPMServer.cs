@@ -166,9 +166,12 @@ public class KSPMServer : MonoBehaviour
     /*********************************CHECK**************************/
     void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        ServerSideClient ssClientConnected = (ServerSideClient)((GameObject)caller).GetComponent<GamePlayer>().Parent;
+        GameObject go = (GameObject)caller;
+        Debug.Log(go.GetComponent<GamePlayer>());
+        ServerSideClient ssClientConnected = (ServerSideClient)(((GameObject)caller).GetComponent<GamePlayer>().Parent);
         Message userConnectedMessage = null;
-        GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage);
+        Debug.Log(GameMessage.UserDisconnectedMessage(ssClientConnected, out userConnectedMessage));
+        
         this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
         Debug.Log(ssClientConnected.gameUser.Username + " se fue.");
     }

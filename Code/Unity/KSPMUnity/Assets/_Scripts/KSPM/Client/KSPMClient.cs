@@ -259,6 +259,7 @@ public class KSPMClient : MonoBehaviour
                 this.kspmManager.ActionsToDo.Enqueue(action);
                 break;
             case GameMessage.GameCommand.UserDisconnected:
+                Debug.Log("Disconnected");
                 this.usersConnected--;
                 break;
             case GameMessage.GameCommand.GameStatus:

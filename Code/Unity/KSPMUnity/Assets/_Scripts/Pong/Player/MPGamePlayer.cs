@@ -9,5 +9,6 @@ public class MPGamePlayer : GamePlayer
     {
         base.Release();
         this.tickController.Release();
+        Debug.Log("Releasing");
     }
 }
