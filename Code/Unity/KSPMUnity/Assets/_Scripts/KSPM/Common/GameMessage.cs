@@ -21,6 +21,7 @@ public class GameMessage : ManagedMessage
 
         GameStatus,
         GameParameters,
+        GameTerminate,
     }
 
     /// <summary>
@@ -293,6 +294,53 @@ public class GameMessage : ManagedMessage
 
         ///Creating the Message
         targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 9], sender);
+        targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
+        return Error.ErrorType.Ok;
+    }
+
+    /// <summary>
+    /// Sends a message to terminate the game.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="targetMessage"></param>
+    /// <returns></returns>
+    public static Error.ErrorType TerminateGameMessage(NetworkEntity sender, out Message targetMessage)
+    {
+        int bytesToSend = Message.HeaderOfMessageCommand.Length;
+        byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+        targetMessage = null;
+        byte[] messageHeaderContent = null;
+        if (sender == null)
+        {
+            return Error.ErrorType.InvalidNetworkEntity;
+        }
+
+        ///Writing header
+        System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+        bytesToSend += 4;
+
+        ///Writing the command.
+        rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+        bytesToSend += 1;
+
+        ///Write your own data here, settting the proper command and before setting the EndOfMessageCommand.
+
+        ///Writing the user-s defined command.
+        rawBuffer[bytesToSend] = (byte)GameCommand.GameTerminate;
+        bytesToSend += 1;
+
+
+        ///Writing the EndOfMessageCommand.
+        System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+        bytesToSend += EndOfMessageCommand.Length;
+
+        ///Writing the message length.
+        messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+        System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+        ///Creating the Message
+        ///5th position is where the user's defined command is placed inside the body message. BE CAREFUL THAT THIS IS 0-BASED.
+        targetMessage = new GameMessage((GameCommand)rawBuffer[Message.HeaderOfMessageCommand.Length + 5], sender);
         targetMessage.SetBodyMessageNoClone(rawBuffer, (uint)bytesToSend);
         return Error.ErrorType.Ok;
     }

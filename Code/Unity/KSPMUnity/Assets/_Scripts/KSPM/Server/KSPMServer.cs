@@ -166,17 +166,31 @@ public class KSPMServer : MonoBehaviour
     /*********************************CHECK**************************/
     void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        parameters.Pop();///Taking out the result of the previous calling.
+        KSPM.Network.Common.Error.ErrorType returnedValue;
+        bool terminateGame;
+        Message responseMessage = null;
+        returnedValue = (KSPM.Network.Common.Error.ErrorType)parameters.Pop();///Taking out the result of the previous calling.
         int disconnectedPlayerId = (int)parameters.Pop();
+        terminateGame = (bool)parameters.Pop();
         ServerSideClient ssClientConnected = (ServerSideClient)(((GameObject)caller).GetComponent<GamePlayer>().Parent);
 
         Debug.Log("Player with id["+ disconnectedPlayerId + "] se fue.");
 
-        ///Creatint a message to say everybody that this client were disconnected.
-        Message userConnectedMessage = null;
-        if (GameMessage.UserDisconnectedMessage(ssClientConnected, disconnectedPlayerId,out userConnectedMessage) == Error.ErrorType.Ok)
+        if (terminateGame)
         {
-            this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, userConnectedMessage);
+            if (GameMessage.TerminateGameMessage(ssClientConnected, out responseMessage) == Error.ErrorType.Ok)
+            {
+                this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, responseMessage);
+            }
+            this.KSPMServerReference.DisconnectAll();
+        }
+        else
+        {
+            ///Creatint a message to say everybody that this client were disconnected.
+            if (GameMessage.UserDisconnectedMessage(ssClientConnected, disconnectedPlayerId, out responseMessage) == Error.ErrorType.Ok)
+            {
+                this.KSPMServerReference.ClientsManager.TCPBroadcastTo(this.KSPMServerReference.ClientsManager.RemoteClients, responseMessage);
+            }
         }
     }
 

@@ -102,6 +102,7 @@ public class KSPMClient : MonoBehaviour
             this.gameUserReference = new GameUser(ref this.userName, ref utf8Bytes);
             this.kspmClient.SetGameUser(this.gameUserReference);
             this.kspmClient.SetServerHostInformation(this.uiServerInformation);
+            this.gameManager.currentStatus = GameManager.GameStatus.NetworkSettingUp;
             if (this.kspmClient.Connect() == KSPM.Network.Common.Error.ErrorType.Ok)
             {
                 Debug.Log("Connected");
@@ -259,8 +260,18 @@ public class KSPMClient : MonoBehaviour
                 this.kspmManager.ActionsToDo.Enqueue(action);
                 break;
             case GameMessage.GameCommand.UserDisconnected:
+                intBuffer = System.BitConverter.ToInt32(gameMessage.bodyMessage, 14);
+                action = this.kspmManager.ActionsPool.BorrowAction;
+                action.ActionMethod.BasicAction = this.gameManager.StopPlayer;
+                action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+                action.ParametersStack.Push( ((GameClient)sender).ClientOwner.UserDefinedHolder);
+                action.Completed += new KSPMAction<object, object>.ActionCompleted(GamePlayerStoped);
+                this.kspmManager.ActionsToDo.Enqueue(action);
                 Debug.Log("Disconnected");
                 this.usersConnected--;
+                break;
+            case GameMessage.GameCommand.GameTerminate:
+                Debug.Log("ADIOS");
                 break;
             case GameMessage.GameCommand.GameStatus:
                 switch ((GameManager.GameStatus)gameMessage.bodyMessage[14])
@@ -311,8 +322,28 @@ public class KSPMClient : MonoBehaviour
         */
     }
 
-    void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+    /***/
+    void GamePlayerStoped(object caller, System.Collections.Generic.Stack<object> parameters)
     {
+        KSPM.Network.Common.Error.ErrorType returnedError = (KSPM.Network.Common.Error.ErrorType)parameters.Pop();///Taking out the result of the previous calling.
+        this.gameUserReference.Release();
+        this.gameUserReference = null;
+        if (returnedError == KSPM.Network.Common.Error.ErrorType.Ok)
+        {
+            int disconnectedPlayerId = (int)parameters.Pop();
+            Debug.Log("Player with id[" + disconnectedPlayerId + "] se fue.");
+        }
+    }
+
+    void kspmClient_UserDisconnected(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+    {   
+        KSPMAction<object, object> action;
+        action = this.kspmManager.ActionsPool.BorrowAction;
+        action.ActionMethod.BasicAction = this.gameManager.StopPlayer;
+        action.ActionKind = KSPMAction<object, object>.ActionType.NormalMethod;
+        action.ParametersStack.Push(this.gameUserReference.UserDefinedHolder);
+        action.Completed += new KSPMAction<object, object>.ActionCompleted(GamePlayerStoped);
+        this.kspmManager.ActionsToDo.Enqueue(action);
         Debug.Log(e.ToString());
     }
 

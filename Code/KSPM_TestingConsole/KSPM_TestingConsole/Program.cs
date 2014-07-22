@@ -39,7 +39,9 @@ namespace KSPM_TestingConsole
                 eventRiser.Enabled = true;
                 Console.ReadLine();
                 eventRiser.Enabled = false;
+                server.DisconnectAll();
                 Console.WriteLine(string.Format("Event raised:{0} times, total of the messages: {1}", Program.callCounter, Program.totalMessages));
+                Console.ReadLine();
                 server.ShutdownServer();
             }
             Console.ReadLine();

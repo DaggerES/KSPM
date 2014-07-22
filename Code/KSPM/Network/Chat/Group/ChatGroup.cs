@@ -29,8 +29,14 @@ namespace KSPM.Network.Chat.Group
         /// </summary>
         protected bool privateGroup;
 
+        /// <summary>
+        /// Chatgroup's name.
+        /// </summary>
         public string Name;
 
+        /// <summary>
+        /// Creates a new ChatGroup, setting it as public.
+        /// </summary>
         public ChatGroup()
         {
             this.id = ChatGroup.ChatGroupCounter++;
@@ -40,6 +46,10 @@ namespace KSPM.Network.Chat.Group
             this.Name = string.Format("Chatgroup-{0}", this.id);
         }
 
+        /// <summary>
+        /// Adds a new member to the group.
+        /// </summary>
+        /// <param name="newMember"></param>
         public void AddNewMember(NetworkEntity newMember)
         {
             if (!this.members.ContainsKey(newMember.Id))
@@ -49,6 +59,10 @@ namespace KSPM.Network.Chat.Group
             }
         }
 
+        /// <summary>
+        /// Removes a member from the group.
+        /// </summary>
+        /// <param name="memberToRemove"></param>
         public void RemoveMember(NetworkEntity memberToRemove)
         {
             if (this.members.Count > 0)
@@ -62,8 +76,23 @@ namespace KSPM.Network.Chat.Group
             }
         }
 
+        /// <summary>
+        /// Removes the whole members from this group.
+        /// </summary>
+        public void RemoveAllMembers()
+        {
+            if (this.members.Count > 0)
+            {
+                this.performanceDataStructureMembers.Clear();
+                this.members.Clear();
+            }
+        }
+
         #region Getters/Setters
 
+        /// <summary>
+        /// Gets the group Id assigned.
+        /// </summary>
         public short Id
         {
             get
@@ -72,6 +101,9 @@ namespace KSPM.Network.Chat.Group
             }
         }
 
+        /// <summary>
+        /// Gets the group members as a list.<b>To a fast iteration through them.</b>
+        /// </summary>
         public List<NetworkEntity> MembersAsList
         {
             get
@@ -80,6 +112,9 @@ namespace KSPM.Network.Chat.Group
             }
         }
 
+        /// <summary>
+        /// Gets if the current group is private or not.
+        /// </summary>
         public bool IsPrivate
         {
             get

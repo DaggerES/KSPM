@@ -1024,6 +1024,15 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Disconnect every connected user.<b>This method will not fire the Disconnect event attached to each member.</b>
+        /// </summary>
+        public void DisconnectAll()
+        {
+            this.clientsHandler.DisconnectAll();
+            this.chatManager.UnregisterAllUsers();
+        }
+
         #endregion
 
         #region Setters/Getters

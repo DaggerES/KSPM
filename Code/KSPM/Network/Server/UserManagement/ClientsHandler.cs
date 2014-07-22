@@ -51,9 +51,9 @@ namespace KSPM.Network.Server.UserManagement
             {
                 if (clientsEngine.ContainsKey(referredEntity.Id))
                 {
-                    referredEntity.Release();
                     this.clients.Remove(referredEntity);
                     this.clientsEngine.Remove(referredEntity.Id);
+                    referredEntity.Release();
                 }
             }
         }
@@ -140,6 +140,22 @@ namespace KSPM.Network.Server.UserManagement
                 lock (this.clients)
                 {
                     return this.clients;
+                }
+            }
+        }
+
+        internal void DisconnectAll()
+        {
+            NetworkEntity entity;
+            lock (this.clientsEngine)
+            {
+                for (int i = 0; i < this.clients.Count; i++)
+                {
+                    entity = this.clients[i];
+                    this.clients.Remove(entity);
+                    this.clientsEngine.Remove(entity.Id);
+                    entity.Release();
+                    entity = null;
                 }
             }
         }

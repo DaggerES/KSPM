@@ -280,6 +280,48 @@
             Tells if the chat groups is private or not.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.Name">
+            <summary>
+            Chatgroup's name.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.#ctor">
+            <summary>
+            Creates a new ChatGroup, setting it as public.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.AddNewMember(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Adds a new member to the group.
+            </summary>
+            <param name="newMember"></param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.RemoveMember(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Removes a member from the group.
+            </summary>
+            <param name="memberToRemove"></param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.RemoveAllMembers">
+            <summary>
+            Removes the whole members from this group.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.Id">
+            <summary>
+            Gets the group Id assigned.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.MembersAsList">
+            <summary>
+            Gets the group members as a list.<b>To a fast iteration through them.</b>
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.IsPrivate">
+            <summary>
+            Gets if the current group is private or not.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Chat.Group.NonPersistenChatGroup.messageCounter">
             <summary>
             Will count how many messages has been asigned to this group.
@@ -1065,6 +1107,25 @@
             <param name="incomingMessage"></param>
             <returns></returns>
         </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.RegisterUser(KSPM.Network.Common.NetworkEntity,KSPM.Network.Chat.Managers.ChatManager.UserRegisteringMode)">
+            <summary>
+            Register a user into each chat group if it is not a private one.
+            </summary>
+            <param name="newUser"></param>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.UnregisterUser(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Removes an user from the chat groups.
+            </summary>
+            <param name="userToRemove">NetworkEntity to remove.</param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.UnregisterAllUsers">
+            <summary>
+            Removes all users from the chat manager.
+            </summary>
+        </member>
         <member name="M:KSPM.Network.Chat.Managers.ChatManager.RegisterFilter(KSPM.Network.Chat.Filter.ChatFilter)">
             <summary>
             Adds a new filter to the available filters.
@@ -1085,6 +1146,11 @@
         <member name="P:KSPM.Network.Chat.Managers.ChatManager.RegisteredGroups">
             <summary>
             Gets how many chat groups are registered inside the manager.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Chat.Managers.ChatManager.Owner">
+            <summary>
+            Gets/Sets the owner of this chatmanager.
             </summary>
         </member>
         <member name="P:KSPM.Network.Chat.Managers.ChatManager.AvailableFilters">
@@ -1863,6 +1929,11 @@
             </summary>
             <param name="caller"></param>
             <param name="arg"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.DisconnectAll">
+            <summary>
+            Disconnect every connected user.<b>This method will not fire the Disconnect event attached to each member.</b>
+            </summary>
         </member>
         <member name="E:KSPM.Network.Server.GameServer.UDPMessageArrived">
             <summary>

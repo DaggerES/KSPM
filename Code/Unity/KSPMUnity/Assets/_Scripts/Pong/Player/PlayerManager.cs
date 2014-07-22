@@ -6,6 +6,7 @@ using KSPM.Network.Client;
 public class PlayerManager : MonoBehaviour
 {
     public List<GameObject> Players;
+    public List<GameObject> Spectators;
     protected Dictionary<int, GamePlayer> PlayersInternalStructure;
     protected static int PlayerCounter = 0;
     protected GameRol GamingRolesFlag = 0;
@@ -74,10 +75,11 @@ public class PlayerManager : MonoBehaviour
         localPlayer.GamingRol = remotePlayerGamingRol;
         localPlayer.GameId = remotePlayerId;
 
+        gameClientConnected.ClientOwner.UserDefinedHolder = go;
+        localPlayer.Parent = gameClientConnected;
+
         if (localPlayerId == remotePlayerId)
         {
-            gameClientConnected.ClientOwner.UserDefinedHolder = go;
-            localPlayer.Parent = gameClientConnected;
             localPlayer.SetLocal(true);
         }
         this.Players.Add(go);
@@ -193,9 +195,29 @@ public class PlayerManager : MonoBehaviour
         target.GamingRol = this.GamingRolesFlag;
     }
 
-    public void RemovePlayer(ref GamePlayer player)
+    /// <summary>
+    /// Removes a player and sets the GamingRol to a proper value.
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns>True if the host has been disconnected and the game must be terminated. False if other player were disconnected.</returns>
+    public bool RemovePlayer(ref GamePlayer player)
     {
+        bool terminateGame = false;
+        switch (player.GamingRol)
+        {
+            case GameRol.Spectator:
+                this.Spectators.Remove(player.gameObject);
+                break;
+            case GameRol.Remote:///Setting the GaminRolFlag to a previous state.
+                this.GamingRolesFlag = GameRol.Host;
+                break;
+            case GameRol.Host:///Setting the GaminRolFlag to a previous state.
+                this.GamingRolesFlag = GameRol.Undefined;
+                terminateGame = true;
+                break;
+        }
         this.PlayersInternalStructure.Remove(player.GameId);
         this.Players.Remove(player.gameObject);
+        return terminateGame;
     }
 }

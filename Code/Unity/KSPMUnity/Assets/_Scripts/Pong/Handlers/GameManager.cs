@@ -258,15 +258,22 @@ public class GameManager : MonoBehaviour
 
     public GameError.ErrorType StopPlayer(object caller, System.Collections.Generic.Stack<object> parameters)
     {
-        GameObject go = (GameObject)caller;
-        GamePlayer player = go.GetComponent<GamePlayer>();
-        this.WorldPositions.Remove(player.InputControl);
-        this.PlayerManagerReference.RemovePlayer(ref player);
+        KSPM.Network.Common.Error.ErrorType error = KSPM.Network.Common.Error.ErrorType.InvalidNetworkEntity;
+        bool terminateGame = false;
+        if (caller != null)
+        {
+            GameObject go = (GameObject)caller;
+            GamePlayer player = go.GetComponent<GamePlayer>();
+            this.WorldPositions.Remove(player.InputControl);
+            terminateGame = this.PlayerManagerReference.RemovePlayer(ref player);
 
-        parameters.Push(player.GameId);
+            parameters.Push(terminateGame);///Telling if the game must  be terminated.
+            parameters.Push(player.GameId);
 
-        player.Release();
-        GameObject.Destroy(player.gameObject);
-        return KSPM.Network.Common.Error.ErrorType.Ok;
+            player.Release();
+            GameObject.Destroy(player.gameObject);
+            error = KSPM.Network.Common.Error.ErrorType.Ok;
+        }
+        return error;
     }
 }

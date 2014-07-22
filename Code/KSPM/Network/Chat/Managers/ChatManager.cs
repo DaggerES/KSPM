@@ -300,6 +300,12 @@ namespace KSPM.Network.Chat.Managers
 
         #region UserHandling
 
+        /// <summary>
+        /// Register a user into each chat group if it is not a private one.
+        /// </summary>
+        /// <param name="newUser"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
         public int RegisterUser(NetworkEntity newUser, UserRegisteringMode mode)
         {
             int matchingGroups = 0;
@@ -316,6 +322,10 @@ namespace KSPM.Network.Chat.Managers
             return matchingGroups;
         }
 
+        /// <summary>
+        /// Removes an user from the chat groups.
+        /// </summary>
+        /// <param name="userToRemove">NetworkEntity to remove.</param>
         public void UnregisterUser(NetworkEntity userToRemove)
         {
             if (userToRemove == null)
@@ -326,6 +336,9 @@ namespace KSPM.Network.Chat.Managers
             }
         }
 
+        /// <summary>
+        /// Gets/Sets the owner of this chatmanager.
+        /// </summary>
         public NetworkEntity Owner
         {
             get
@@ -335,6 +348,17 @@ namespace KSPM.Network.Chat.Managers
             set
             {
                 this.owner = value;
+            }
+        }
+
+        /// <summary>
+        /// Removes all users from the chat manager.
+        /// </summary>
+        public void UnregisterAllUsers()
+        {
+            foreach (KeyValuePair<short, ChatGroup> entry in this.chatGroups)
+            {
+                entry.Value.RemoveAllMembers();
             }
         }
 
