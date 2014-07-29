@@ -158,6 +158,11 @@ namespace KSPM.Network.Common.Messages
         public uint MessageId;
 
         /// <summary>
+        /// Holds the priority group of the message.
+        /// </summary>
+        public byte PriorityGroup;
+
+        /// <summary>
         /// Byte value used to sent user defined commands.
         /// </summary>
         public byte UserDefinedCommand;
@@ -274,6 +279,39 @@ namespace KSPM.Network.Common.Messages
         public override string ToString()
         {
             return string.Format("{0} Id: [{1}], [{2}] Command, [{3}] bytes length", this.GetType().ToString(), this.MessageId.ToString(), this.command.ToString(), this.messageRawLength);
+        }
+
+        /// <summary>
+        /// Gets the command priority according to its command id.
+        /// </summary>
+        /// <param name="commandId"></param>
+        /// <returns>Command group, goes from [0-3], Default 0.</returns>
+        public static byte CommandPriority(byte commandId)
+        {
+            byte checker;
+            byte groupFlag = 192;
+            byte group = byte.MaxValue;
+            checker = (byte)(groupFlag & commandId);
+            if (checker == groupFlag)
+            {
+                group = 3;
+            }
+            else
+            {
+                group--;
+                groupFlag = 128;
+                while (groupFlag > 32)
+                {
+                    checker = (byte)(groupFlag & commandId);
+                    if (checker == groupFlag)
+                    {
+                        break;
+                    }
+                    groupFlag = (byte)(groupFlag >> 1);
+                    group--;
+                }
+            }
+            return group;
         }
 
         public abstract void Release();

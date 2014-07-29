@@ -34,6 +34,7 @@
             this.startsAt = rawBytesOffset;
             this.endsAt = this.startsAt + blockSize;
             this.messageRawLength = blockSize;
+            this.PriorityGroup = Message.CommandPriority((byte)this.command);
             return this.messageRawLength;
         }
 
