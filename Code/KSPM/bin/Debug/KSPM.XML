@@ -682,6 +682,11 @@
             Message id to be used whatever you want, like server message sync or stuff like that.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.PriorityGroup">
+            <summary>
+            Holds the priority group of the message.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.UserDefinedCommand">
             <summary>
             Byte value used to sent user defined commands.
@@ -729,6 +734,13 @@
             Gets a basic information of the message.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.CommandPriority(System.Byte)">
+            <summary>
+            Gets the command priority according to its command id.
+            </summary>
+            <param name="commandId"></param>
+            <returns>Command group, goes from [0-3], Default 0.</returns>
         </member>
         <member name="M:KSPM.Network.Common.Messages.Message.HandshakeAccetpMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
             <summary>
@@ -924,18 +936,6 @@
             
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Chat">
-            <summary>
-            Chat command.
-            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPChat">
-            <summary>
-            UDP Chat command. A chat message sent through the UDP connection.
-            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
         <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ChatSettingUp">
             <summary>
             Tells the remote client how many chat groups are registered inside the server.
@@ -957,6 +957,18 @@
         <member name="F:KSPM.Network.Common.Messages.Message.CommandType.User">
             <summary>
             Command used to mark the message and bypass it to the app.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Chat">
+            <summary>
+            Chat command.
+            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPChat">
+            <summary>
+            UDP Chat command. A chat message sent through the UDP connection.
+            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.BroadcastMessage.targets">

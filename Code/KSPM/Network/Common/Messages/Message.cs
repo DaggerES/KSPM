@@ -13,9 +13,18 @@ namespace KSPM.Network.Common.Messages
     {
         /// <summary>
         /// An enum representing what kind of commands could be handled by the server and the client.
+        /// Also each command has a priority level, the lowest the level number the highest priority.
+        /// 0 - High priority -> Connection commands.
+        /// 1 - User commands. These commands are passed to the upside level.
+        /// 2 - Chat commands, the lowest priority of the system.
         /// </summary>
         public enum CommandType : byte
         {
+            /// <summary>
+            /// These commands belongs to the 0 level of priority.
+            /// </summary>
+            #region LEVEL_0
+
             Null = 0,
             Unknown,
             #region ServerCommands
@@ -96,18 +105,6 @@ namespace KSPM.Network.Common.Messages
             #endregion
 
             /// <summary>
-            /// Chat command.
-            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            /// </summary>
-            Chat,
-
-            /// <summary>
-            /// UDP Chat command. A chat message sent through the UDP connection.
-            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            /// </summary>
-            UDPChat,
-
-            /// <summary>
             /// Tells the remote client how many chat groups are registered inside the server.
             /// [Header {byte:4}][ Command {byte:1} ][ ChatGroupsCount { byte:2 } ] ( [ChatGroupId {byte:2} ] [ ChatGroupNameLength{byte:}][ ChatGroupName{byte:1-}] ) ... [ EndOfMessage {byte:4} ]
             /// </summary>
@@ -126,10 +123,38 @@ namespace KSPM.Network.Common.Messages
             Disconnect,
             #endregion
 
+            #endregion
+
+            /// <summary>
+            /// These commands belongs to the 1 level of priority.
+            /// </summary>
+            #region LEVEL_1
+
             /// <summary>
             /// Command used to mark the message and bypass it to the app.
             /// </summary>
-            User,
+            User = 32,
+
+            #endregion
+
+            /// <summary>
+            /// These commands belongs to the 2 level of priority.
+            /// </summary>
+            #region LEVEL_2
+
+            /// <summary>
+            /// Chat command.
+            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// </summary>
+            Chat = 64,
+
+            /// <summary>
+            /// UDP Chat command. A chat message sent through the UDP connection.
+            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// </summary>
+            UDPChat,
+
+            #endregion
         }
 
         /// <summary>
