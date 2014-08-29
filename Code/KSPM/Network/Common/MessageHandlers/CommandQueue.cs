@@ -2,18 +2,32 @@
 
 using KSPM.Network.Common.Messages;
 
-namespace KSPM.Network.Common
+namespace KSPM.Network.Common.MessageHandlers
 {
     /// <summary>
     /// A thread safe queue which holds the command messages.
     /// </summary>
     public class CommandQueue
     {
+        /// <summary>
+        /// Queue of messages.
+        /// </summary>
         protected Queue<Message> commandMessagesQueue;
 
+        /// <summary>
+        /// Amount of allowed messages on this queue.
+        /// </summary>
         protected long maxNumberOfCommands;
 
+        /// <summary>
+        /// Default amount of allowed messages on all the queues.
+        /// </summary>
         protected static readonly long MaxQueueSize = 5000;
+
+        /// <summary>
+        /// Tells the occupied percent of the queue.
+        /// </summary>
+        protected int itemsCount;
 
         public CommandQueue()
         {
@@ -25,6 +39,7 @@ namespace KSPM.Network.Common
         /// Enqueue a new command message to the underlayin queue.
         /// </summary>
         /// <param name="newMessage">Reference to the new message, if it is null nothing will performed.</param>
+        /// <returns>True if the message was successfully enqueued, FALSE otherwise.</returns>
         public virtual bool EnqueueCommandMessage(ref Message newMessage)
         {
             if (newMessage != null)
@@ -34,6 +49,7 @@ namespace KSPM.Network.Common
                     if (this.commandMessagesQueue.Count < this.maxNumberOfCommands)
                     {
                         this.commandMessagesQueue.Enqueue(newMessage);
+                        this.itemsCount = this.commandMessagesQueue.Count;
                         return true;
                     }
                     else
@@ -74,6 +90,7 @@ namespace KSPM.Network.Common
                 if (this.commandMessagesQueue.Count > 0)
                 {
                     newMessage = this.commandMessagesQueue.Dequeue();
+                    this.itemsCount = this.commandMessagesQueue.Count;
                 }
             }
         }
@@ -101,6 +118,20 @@ namespace KSPM.Network.Common
             }
         }
 
+        /// <summary>
+        /// Tells the occupied percent of the queue.
+        /// </summary>
+        public int OccupiedSpace
+        {
+            get
+            {
+                return this.itemsCount * 100 / (int)this.maxNumberOfCommands;
+            }
+        }
+
+        /// <summary>
+        /// Tells the Max amount of messages allowed on this queue.
+        /// </summary>
         public long MaxCommandAllowed
         {
             get
@@ -137,6 +168,16 @@ namespace KSPM.Network.Common
                 }
                 this.commandMessagesQueue.Clear();
             }
+        }
+
+        /// <summary>
+        /// Returns a new CommandQueue instance ready to be used.
+        /// </summary>
+        /// <returns>CommandQueue reference.</returns>
+        public virtual CommandQueue CloneEmpty()
+        {
+            CommandQueue target = new CommandQueue();
+            return target;
         }
     }
 }

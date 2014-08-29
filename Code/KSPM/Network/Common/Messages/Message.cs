@@ -3,11 +3,13 @@ using KSPM.Network.Server;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Client;
 using KSPM.Game;
+using KSPM.Globals;
 
 namespace KSPM.Network.Common.Messages
 {
     /// <summary>
     /// Abstrac class to represent a single message, holds the basic information required to work.
+    /// Revision 2.0
     /// </summary>
     public abstract class Message
     {
@@ -16,14 +18,15 @@ namespace KSPM.Network.Common.Messages
         /// Also each command has a priority level, the lowest the level number the highest priority.
         /// 0 - High priority -> Connection commands.
         /// 1 - User commands. These commands are passed to the upside level.
-        /// 2 - Chat commands, the lowest priority of the system.
+        /// 2 - At this moment this level has no commands.
+        /// 3 - Chat commands, the lowest priority on the system.
         /// </summary>
         public enum CommandType : byte
         {
             /// <summary>
             /// These commands belongs to the 0 level of priority.
             /// </summary>
-            #region LEVEL_0
+            #region LEVEL_0 Ids range[0:63]
 
             Null = 0,
             Unknown,
@@ -126,27 +129,33 @@ namespace KSPM.Network.Common.Messages
             #endregion
 
             /// <summary>
-            /// These commands belongs to the 1 level of priority.
+            /// These commands belongs to the 1st level of priority.
             /// </summary>
-            #region LEVEL_1
+            #region LEVEL_1 Ids range[64:127]
 
             /// <summary>
             /// Command used to mark the message and bypass it to the app.
             /// </summary>
-            User = 32,
+            User = 64,
 
             #endregion
 
             /// <summary>
-            /// These commands belongs to the 2 level of priority.
+            /// These commands belongs to the 2nd level of priority.
             /// </summary>
-            #region LEVEL_2
+            #region LEVEL_2 Ids range[128:191]
+            #endregion
+
+            /// <summary>
+            /// These commands belongs to the 3rd level of priority.
+            /// </summary>
+            #region LEVEL_3 Ids range[192:255]
 
             /// <summary>
             /// Chat command.
             /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             /// </summary>
-            Chat = 64,
+            Chat = 192,
 
             /// <summary>
             /// UDP Chat command. A chat message sent through the UDP connection.
@@ -183,9 +192,9 @@ namespace KSPM.Network.Common.Messages
         public uint MessageId;
 
         /// <summary>
-        /// Holds the priority group of the message.
+        /// Holds the priority level of the message.
         /// </summary>
-        public byte PriorityGroup;
+        public KSPMSystem.PriorityLevel Priority;
 
         /// <summary>
         /// Byte value used to sent user defined commands.
@@ -219,6 +228,7 @@ namespace KSPM.Network.Common.Messages
             this.bodyMessage = null;
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = KSPMSystem.PriorityLevel.Disposable;
         }
 
         /// <summary>
@@ -277,6 +287,13 @@ namespace KSPM.Network.Common.Messages
             return this.messageRawLength;
         }
 
+        /// <summary>
+        /// Sets the bodymessage from another byte array and the given offset, cloning the array into its own buffer.<b>Creates a new byte array.</b>
+        /// </summary>
+        /// <param name="rawBytes">Source byte array.</param>
+        /// <param name="rawBytesOffset">Offset, index to indicate where to start to copying.</param>
+        /// <param name="blockSize">Amount of bytes to be copied.</param>
+        /// <returns></returns>
         public uint SetBodyMessage(byte[] rawBytes, uint rawBytesOffset, uint blockSize)
         {
             this.bodyMessage = new byte[blockSize];
@@ -286,9 +303,10 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
-        /// Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that.</b>
+        /// Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that. DOES NOT create a new array.</b>
         /// </summary>
-        /// <param name="rawBytes"></param>
+        /// <param name="rawBytes">Reference to the byte array.</param>
+        /// <param name="blockSize">Amount of bytes to be used.</param>
         /// <returns></returns>
         public uint SetBodyMessageNoClone(byte[] rawBytes, uint blockSize)
         {
@@ -303,13 +321,19 @@ namespace KSPM.Network.Common.Messages
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} Id: [{1}], [{2}] Command, [{3}] bytes length", this.GetType().ToString(), this.MessageId.ToString(), this.command.ToString(), this.messageRawLength);
+            return string.Format("{0} Id: [{1}], [{2}] Command, [{3}] bytes length, PriorityLevel: [{4}]", this.GetType().ToString(), this.MessageId.ToString(), this.command.ToString(), this.messageRawLength, this.Priority);
         }
+
+        public abstract void Release();
+
+        public abstract void Dispose();
+
+        public abstract Message Empty();
 
         /// <summary>
         /// Gets the command priority according to its command id.
         /// </summary>
-        /// <param name="commandId"></param>
+        /// <param name="commandId">The command id as byte type.</param>
         /// <returns>Command group, goes from [0-3], Default 0.</returns>
         public static byte CommandPriority(byte commandId)
         {
@@ -323,7 +347,7 @@ namespace KSPM.Network.Common.Messages
             }
             else
             {
-                group--;
+                group = 2;
                 groupFlag = 128;
                 while (groupFlag > 32)
                 {
@@ -338,12 +362,6 @@ namespace KSPM.Network.Common.Messages
             }
             return group;
         }
-
-        public abstract void Release();
-
-        public abstract void Dispose();
-
-        public abstract Message Empty();
 
         #region AuthenticationCode
 

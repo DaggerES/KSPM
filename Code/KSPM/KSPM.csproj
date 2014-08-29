@@ -46,6 +46,7 @@
     <Compile Include="Game\GameUser.cs" />
     <Compile Include="Game\User.cs" />
     <Compile Include="Globals\KSPMGlobals.cs" />
+    <Compile Include="Globals\KSPMSystem.cs" />
     <Compile Include="IO\Compression\Compressor.cs" />
     <Compile Include="IO\Encoding\Encoder.cs" />
     <Compile Include="IO\Encoding\UTF8Encoder.cs" />
@@ -73,8 +74,8 @@
     <Compile Include="Network\Client\GameClient.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerInformation.cs" />
     <Compile Include="Network\Client\RemoteServer\ServerList.cs" />
-    <Compile Include="Network\Common\BufferedCommandQueue.cs" />
-    <Compile Include="Network\Common\CommandQueue.cs" />
+    <Compile Include="Network\Common\MessageHandlers\BufferedCommandQueue.cs" />
+    <Compile Include="Network\Common\MessageHandlers\CommandQueue.cs" />
     <Compile Include="Network\Common\ConnectionlessNetworkCollection.cs" />
     <Compile Include="Network\Common\Error.cs" />
     <Compile Include="Network\Common\Events\KSPMEventArgs.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Network\Common\IAsyncSender.cs" />
     <Compile Include="Network\Common\IAsyncTCPReceiver.cs" />
     <Compile Include="Network\Common\IAsyncTCPSender.cs" />
+    <Compile Include="Network\Common\MessageHandlers\PriorityQueue3Way.cs" />
     <Compile Include="Network\Common\Messages\BroadcastMessage.cs" />
     <Compile Include="Network\Common\Messages\BufferedMessage.cs" />
     <Compile Include="Network\Common\Messages\ManagedMessage.cs" />

@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Net;
 
 using KSPM.Network.Common;
+using KSPM.Network.Common.MessageHandlers;
 using KSPM.Network.Common.Messages;
 using KSPM.Network.Common.Packet;
 using KSPM.Game;

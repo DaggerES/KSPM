@@ -62,6 +62,7 @@ namespace KSPM.Network.Common.Messages
             }
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
         }
 
         /// <summary>
@@ -88,8 +89,12 @@ namespace KSPM.Network.Common.Messages
             }
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
         }
 
+        /// <summary>
+        /// Gets the index posision where the message starts inside the byte array.
+        /// </summary>
         public uint StartsAt
         {
             get

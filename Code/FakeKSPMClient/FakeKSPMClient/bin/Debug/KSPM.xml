@@ -4,488 +4,25 @@
         <name>KSPM</name>
     </assembly>
     <members>
-        <member name="T:KSPM.Network.Common.CommandQueue">
+        <member name="T:KSPM.Diagnostics.RealTimer">
             <summary>
-            A thread safe queue which holds the command messages.
+            Holds a stopwatch
             </summary>
         </member>
-        <member name="M:KSPM.Network.Common.CommandQueue.EnqueueCommandMessage(KSPM.Network.Common.Messages.Message@)">
+        <member name="F:KSPM.Diagnostics.RealTimer.Clock">
             <summary>
-            Enqueue a new command message to the underlayin queue.
+            Performance stopwatch
             </summary>
-            <param name="newMessage">Reference to the new message, if it is null nothing will performed.</param>
         </member>
-        <member name="M:KSPM.Network.Common.CommandQueue.DequeueCommandMessage(KSPM.Network.Common.Messages.Message@)">
+        <member name="M:KSPM.Diagnostics.RealTimer.GetCurrentDateTime">
             <summary>
-            Dequeue a command message from the underlaying queue.
+            Return the current time in a preformatted string.
             </summary>
-            <param name="newMessage">out message, so it will hold the dequeued message, null if there was no message to dequeue.</param>
+            <returns>The current date time with miliseconds as an string.</returns>
         </member>
-        <member name="M:KSPM.Network.Common.CommandQueue.IsEmpty">
+        <member name="T:KSPM.Game.GameUser">
             <summary>
-            Verifies if the queue is empty or not.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.CommandQueue.Purge(System.Boolean)">
-            <summary>
-            Removes all messages and calls the Release method on each one.
-            </summary>
-            <param name="threadSafe">Tells if the call should be ThreadSafe and lock the queue.</param>
-        </member>
-        <member name="P:KSPM.Network.Common.CommandQueue.DirtyCount">
-            <summary>
-            As its name says it is not granted to return the actual count, it could change from one moment to another.
-            </summary>
-        </member>
-        <member name="T:KSPM.IO.Logging.BufferedLog">
-            <summary>
-            Log which instead of printing the output  it will store it inside a buffer.
-            </summary>
-        </member>
-        <member name="M:KSPM.IO.Logging.Log.WriteTo(System.String)">
-            <summary>
-            Writes a message into the log.
-            </summary>
-            <param name="message"></param>
-        </member>
-        <member name="M:KSPM.IO.Logging.Log.Dispose">
-            <summary>
-            Releases all the utilized resources.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.BufferedLog.buffer">
-            <summary>
-            Buffer in which is going to store all the output coming from WriteTo method.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.MessagesPool.Recycle(KSPM.Network.Common.Messages.Message)">
-            <summary>
-            Recycles the given item and put it back to the pool.
-            </summary>
-            <param name="oldItem"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.MessagesPool.Release">
-            <summary>
-            Releases all the stored messages, making this reference unable to perform any further job.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.MessagesPool.BorrowMessage">
-            <summary>
-            Takes off an item from the pool ready to be used.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.MessagesPool.FixedSize">
-            <summary>
-            Gets the initial size of the pool.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.MessagesPool.CurrentSize">
-            <summary>
-            Returns the current size of the pool.<b>This could be a dirty value, so be carefull about this value.</b>
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.MessagesPool.MessageSample">
-            <summary>
-            Returns the instance on which is based the MessagePool.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.name">
-            <summary>
-            Server name, it is used by the user to identify them best.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.ip">
-            <summary>
-            Ip address of the server.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.port">
-            <summary>
-            Port where the server will be listening for incoming connections.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.#ctor(System.String,System.String,System.Int32)">
-            <summary>
-            Creates a ServerInformation with the given parameters.
-            </summary>
-            <param name="serverName">Server name.</param>
-            <param name="ip">Ip.</param>
-            <param name="port">Port.</param>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.Dispose">
-            <summary>
-            Releases the properties and set them to null.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.Clone(KSPM.Network.Client.RemoteServer.ServerInformation@)">
-            <summary>
-            Clones its content to the target reference.
-            </summary>
-            <param name="target"></param>
-        </member>
-        <member name="P:KSPM.Network.Client.RemoteServer.ServerInformation.NetworkEndPoint">
-            <summary>
-            Gets the underlying IpEndPoint filled with the stored information.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Filter.ChatFilter.Query(KSPM.Network.Chat.Messages.ChatMessage)">
-            <summary>
-            Applies the filter statemen over the given ChatMessage reference.
-            </summary>
-            <param name="message"></param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Chat.Filter.ChatFilter.Release">
-            <summary>
-            Releases all resources handled by the filter.
-            </summary>
-        </member>
-        <member name="T:KSPM.IO.Security.Hash">
-            <summary>
-            Class to compute hashes., by default it uses the SHA512 method.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Security.Hash.Hasher">
-            <summary>
-            Static reference to the HashAlgorith.
-            </summary>
-        </member>
-        <member name="M:KSPM.IO.Security.Hash.Initialize(KSPM.IO.Security.Hash.HashingAlgorithm)">
-            <summary>
-            Initializes the hasher reference to a new one.
-            </summary>
-            <param name="algorithm">The algorithm that should be used.</param>
-        </member>
-        <member name="M:KSPM.IO.Security.Hash.GetHash(System.Byte[]@,System.UInt32,System.UInt32,System.Byte[]@)">
-            <summary>
-            Computes a hash from the given byte array and write it down into the hashedBytes param.
-            </summary>
-            <param name="rawBytes">Byte array that would be hashed.</param>
-            <param name="offset">The offset to take in count to perform the hash, so not the entire array would be hashed.</param>
-            <param name="bytesToHash">How many bytes must be read by the hasher.</param>
-            <param name="hashedBytes">Out reference to the hashed bytes.</param>
-            <returns></returns>
-        </member>
-        <member name="T:KSPM.IO.Security.Hash.HashingAlgorithm">
-            <summary>
-            Enum to define which method will be used to compute the hashes.
-            </summary>
-        </member>
-        <member name="T:KSPM.IO.Logging.FileLog">
-            <summary>
-            Writes messages into a file either in binary or text mode using the UTF8 enconding.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.FileLog.binaryLogEnabled">
-            <summary>
-            If it is false the log will be written in text style for human read, by default set to false.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.FileLog.logFileName">
-            <summary>
-            Name of the filename where the log will be written, it must contain the path either.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.FileLog.logOutputStream">
-            <summary>
-            A stream which will hold the log messages
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.FileLog.logTextWriter">
-            <summary>
-            Writer used to save as text mode.
-            </summary>
-        </member>
-        <member name="F:KSPM.IO.Logging.FileLog.logBinaryWriter">
-            <summary>
-            Writer used to save as binary mode.
-            </summary>
-        </member>
-        <member name="M:KSPM.IO.Logging.FileLog.#ctor(System.String,System.Boolean)">
-            <summary>
-            Creates a FileLog object using the UTF8 encoding to to that.
-            </summary>
-            <param name="logFileName">The name of the file which will contain the messages.</param>
-            <param name="isBinaryLog">Tells if the file would be written using a binary mode or a text mode</param>
-        </member>
-        <member name="M:KSPM.IO.Logging.FileLog.GetAUniqueFilename(System.String)">
-            <summary>
-            Returns an unique filename merged with the given baseName, it uses the DateTime to create the returned name.
-            </summary>
-            <param name="baseName">The basename to be used, if one is provided.</param>
-            <returns>An unique filename</returns>
-        </member>
-        <member name="M:KSPM.IO.Logging.FileLog.WriteTo(System.String)">
-            <summary>
-            Write the message into the log either in text mode or binary mode.
-            </summary>
-            <param name="message">Message to be written into the log.</param>
-        </member>
-        <member name="M:KSPM.IO.Logging.FileLog.Dispose">
-            <summary>
-            Dispose and releases all the resources, closes the writers nicely.
-            </summary>
-        </member>
-        <member name="P:KSPM.IO.Logging.FileLog.IsBinaryLog">
-            <summary>
-            Sets or Gets the binary log value.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Server.UserManagement.UserManagementSystem">
-            <summary>
-            Base of every user management system.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.UserManagement.UserManagementSystem.filter">
-            <summary>
-            Filter to be used in the Query method.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.#ctor">
-            <summary>
-            Initializes the filter to NoneFilter.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.Query(KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Make a query into the sytem and tells if the given network entity matches with the filter.
-            </summary>
-            <param name="entityToValidate"></param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.SetFilter(KSPM.Network.Server.UserManagement.Filters.Filter@)">
-            <summary>
-            Replaces the current filter with the new one.
-            </summary>
-            <param name="newFilter"></param>
-        </member>
-        <member name="F:KSPM.Network.Chat.Group.ChatGroup.id">
-            <summary>
-            Unique id
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Group.ChatGroup.members">
-            <summary>
-            Dictionary with the member of this group.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Group.ChatGroup.performanceDataStructureMembers">
-            <summary>
-            Performance data structure iterate throught it.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Group.ChatGroup.privateGroup">
-            <summary>
-            Tells if the chat groups is private or not.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Group.NonPersistenChatGroup.messageCounter">
-            <summary>
-            Will count how many messages has been asigned to this group.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.AddMessage(KSPM.Network.Chat.Messages.ChatMessage)">
-            <summary>
-            Does not perform any adding process, only increments the message counter.
-            </summary>
-            <param name="newMessage"></param>
-        </member>
-        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.Purge">
-            <summary>
-            Resets the message counter to zero.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.Release">
-            <summary>
-            Releases all messages holded by the group, calling its Release method on each one.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Chat.Filter.GroupFilter">
-            <summary>
-            Works as BlackList of chat groups.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Filter.GroupFilter.Query(KSPM.Network.Chat.Messages.ChatMessage)">
-            <summary>
-            Applies the filtering statement to the given message.
-            </summary>
-            <param name="message"></param>
-            <returns>True if the message fits the filtering statement.</returns>
-        </member>
-        <member name="M:KSPM.IO.Memory.CyclicalMemoryBuffer.#ctor(System.UInt32,System.UInt32)">
-            <summary>
-            Creates a cyclical array of buffers.
-            </summary>
-            <param name="size">How many buffers are going to be.</param>
-            <param name="fixedBuffersLength">Size of each buffer.</param>
-        </member>
-        <member name="T:KSPM.IO.Logging.DevNullLog">
-            <summary>
-            Log class which Writes nothing, is basically a message > /dev/null
-            </summary>
-        </member>
-        <member name="M:KSPM.IO.Logging.DevNullLog.WriteTo(System.String)">
-            <summary>
-            Writes to /dev/null
-            </summary>
-            <param name="message"></param>
-        </member>
-        <member name="T:KSPM.Network.Common.NetworkRawEntity">
-            <summary>
-            Represents a basic network object used as wrapper to the async socket methods.
-            In the future it should be able to convert one this objects to another object, such a serverside client or such.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.NetworkRawEntity.ownerNetworkCollection">
-            <summary>
-            Holds the main references to work with, Socket, MainBuffer, SecondaryBuffer.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.NetworkRawEntity.id">
-            <summary>
-            An unique ID.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.NetworkRawEntity.timer">
-            <summary>
-            A timer to tells how much time has been alive this object reference.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkRawEntity.Release">
-            <summary>
-            Abstract method that should be used to release all the resources ocupied by the object itself, such as the socket and the arrays.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.NetworkRawEntity.Id">
-            <summary>
-            Returnt he ID as readonly.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.NetworkRawEntity.AliveTime">
-            <summary>
-            Gets the amount of miliseconds which this reference has been alive.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Common.NetworkEntity">
-            <summary>
-            Represents an interpretation of the server and the clients, having only the essential information to know what kind of Entity represents, either the server or the client.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.NetworkEntity.LoopbackNetworkEntity">
-            <summary>
-            Representes a loopback network entity, in other words an empty object.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.SetMessageSentCallback(KSPM.Network.Common.NetworkEntity.MessageSentCallback)">
-            <summary>
-            Set the method to the underlaying callback reference.
-            </summary>
-            <param name="method">Method to be called.</param>
-        </member>
-        <member name="F:KSPM.Network.Common.NetworkEntity.messageSentCallback">
-            <summary>
-            Reference to an MessageSentCallback.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.MessageSent(KSPM.Network.Common.NetworkEntity,System.Object)">
-            <summary>
-            Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.
-            </summary>
-            <param name="caller"></param>
-            <param name="arg"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.#ctor(System.Net.Sockets.Socket@)">
-            <summary>
-            Constructs a new NetworkEntity
-            </summary>
-            <param name="entityOwner">Reference (ref) to the socket who will be the owner of this object.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.#ctor">
-            <summary>
-            Creates an empty NetworkEntity
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.Dispose">
-            <summary>
-            Sets to null each member.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkEntity.Release">
-            <summary>
-            Releases all the resources on the NetworkEntity reference. <b>Do not confuse this method with the Dispose one.</b>
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Common.NetworkEntity.MessageSentCallback">
-            <summary>
-            Delegate prototype of the method that can be set and called when the time comes.
-            </summary>
-            <param name="caller">NetworkEntity who performs the call.</param>
-            <param name="arg">object which can hold any parameter, in case that it could be needed.</param>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.MessageCounter">
-            <summary>
-            Static message counter, this gives an unique autoincremental id to each message.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.messageId">
-            <summary>
-            Unique id.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.timeStamp">
-            <summary>
-            Timestamp when the message was created.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.sendersUsername">
-            <summary>
-            User's name who sends the message.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.senderHash">
-            <summary>
-            Tells the user's hash who sends the message.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.body">
-            <summary>
-            Message coded using UTF8.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.GroupId">
-            <summary>
-            Tells to which group was sent the message.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Messages.ChatMessage.#ctor">
-            <summary>
-            Creates an orphan message intance.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Chat.Messages.ChatMessage.CreateChatMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Chat.Group.ChatGroup,System.String,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Creates a GeneralChat message, it means a chat to be broadcasted to every member on the group.
-            </summary>
-            <param name="sender">Network entity who is sending the message.</param>
-            <param name="targetGroup">ChatGroup to whom is sent the message.</param>
-            <param name="bodyMessage">String containing the message.</param>
-            <param name="targetMessage">Out reference to the message to be sent.</param>
-            <returns></returns>
-        </member>
-        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.MessageId">
-            <summary>
-            Gets the message's unique Id.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.Time">
-            <summary>
-            Gets the message's timestamp when the message was created.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.Body">
-            <summary>
-            Gets the message body.<b>This is encoded using the Encoder set on the KSPMGlobals.Encoder.</b>
+            Represents a game user, it  is possible to use the hash to identify those ships that belongs to this user.
             </summary>
         </member>
         <member name="T:KSPM.Game.User">
@@ -588,329 +125,380 @@
             Sets/gets the authentication attempts counter.
             </summary>
         </member>
-        <member name="T:KSPM.Network.Common.Messages.Message">
+        <member name="M:KSPM.Game.GameUser.#ctor(System.Byte[]@)">
             <summary>
-            Abstrac class to represent a single message, holds the basic information required to work.
+            Creates a GameUser object.
+            </summary>
+            <param name="userHash">Hash of the user.</param>
+        </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.InitiLogging(KSPM.IO.Logging.Log.LogginMode,System.Boolean)">
+            <summary>
+            Initializes the loggers and set the proper one according to the given parameters. If a DevNull mode is set at the beginning, the other logging modes become unavailable.
+            </summary>
+            <param name="loggingMode">Determines what kind of logging mode will be used to perform all the outputs.</param>
+            <param name="isBinaryEnabled">Determines if the binary writing is enabled when the logging mode is set to File mode, otherwise it has no effect.</param>
+        </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.ChangeIOFilePath(System.String)">
+            <summary>
+            Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
+            </summary>
+            <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
+        </member>
+        <member name="P:KSPM.Globals.KSPMGlobals.NAT">
+            <summary>
+            Gets the NAT traversing method used by the KSPM model. <b>By default it is set to None.</b>
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.EndOfMessageCommand">
+        <member name="T:KSPM.Globals.KSPMSystem.PriorityLevel">
             <summary>
-            4 bytes to mark the end of the message, is kind of the differential manchester encoding plus 1.
+            System priority levels.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand">
+        <member name="F:KSPM.Globals.KSPMSystem.PriorityLevel.Critical">
             <summary>
-            4 bytes to mark the beggining of the message
+            High priority -> Connection commands.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.MessageCounter">
+        <member name="F:KSPM.Globals.KSPMSystem.PriorityLevel.High">
             <summary>
-            Message counter to set to an unique id to each message.<b>Is defined as Int because System.Threading.Interlocked.Increment method only handles autommatically the overflow on Int32.</b>
+            User commands. These commands are passed to the upside level.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.command">
+        <member name="F:KSPM.Globals.KSPMSystem.PriorityLevel.Medium">
             <summary>
-            Command type
+            At this moment this level has no commands.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.MessageId">
+        <member name="F:KSPM.Globals.KSPMSystem.PriorityLevel.Lowest">
             <summary>
-            Message id to be used whatever you want, like server message sync or stuff like that.
+            Chat commands, the lowest priority on the system.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.UserDefinedCommand">
+        <member name="F:KSPM.Globals.KSPMSystem.PriorityLevel.Disposable">
             <summary>
-            Byte value used to sent user defined commands.
+            Means that this level is going to be droped.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.messageRawLength">
+        <member name="F:KSPM.Globals.KSPMSystem.WarningLevel.None">
             <summary>
-            How many bytes of the buffer are usable, only used when the messages is being sent. This can hold up to 65535.
+            Everything is fine.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.broadcasted">
+        <member name="F:KSPM.Globals.KSPMSystem.WarningLevel.Easy">
             <summary>
-            Tells if this messages is going to be broadcasted, so a different release will be performed.
+            Keep an eye on it.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.bodyMessage">
+        <member name="F:KSPM.Globals.KSPMSystem.WarningLevel.Carefull">
             <summary>
-            Will hold the body of the message, to avoid overwriting messages.
+            Starting to bypass some packets.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.#ctor(KSPM.Network.Common.Messages.Message.CommandType)">
+        <member name="F:KSPM.Globals.KSPMSystem.WarningLevel.Warning">
             <summary>
-            Constructor, I have to rethink this method.
+            A queue is overflown, backup is used.
             </summary>
-            <param name="kindOfMessage">Command kind</param>
-            <param name="messageOwner">Network entity who is owner of this message.</param>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.SetBodyMessage(System.Byte[],System.UInt32)">
+        <member name="F:KSPM.Globals.KSPMSystem.WarningLevel.Halt">
             <summary>
-            Sets the bodymessage from another byte array cloning the array itself into its own buffer.
+            The system is totally overflown so it must be purged, start to drop packets.
             </summary>
-            <param name="rawBytes">Reference to the original buffer which is going to be cloned.</param>
-            <param name="blockSize">Amount of bytes to be cloned.</param>
-            <returns>The message's length.</returns>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.SetBodyMessageNoClone(System.Byte[],System.UInt32)">
+        <member name="T:KSPM.IO.Compression.Compressor">
             <summary>
-            Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that.</b>
+            Base class of each compressor implemented on the KSPM
             </summary>
-            <param name="rawBytes"></param>
+        </member>
+        <member name="T:KSPM.IO.Logging.BufferedLog">
+            <summary>
+            Log which instead of printing the output  it will store it inside a buffer.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.Log.WriteTo(System.String)">
+            <summary>
+            Writes a message into the log.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:KSPM.IO.Logging.Log.Dispose">
+            <summary>
+            Releases all the utilized resources.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.BufferedLog.buffer">
+            <summary>
+            Buffer in which is going to store all the output coming from WriteTo method.
+            </summary>
+        </member>
+        <member name="T:KSPM.IO.Logging.ConsoleLog">
+            <summary>
+            Log class to write the log into the console output.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.ConsoleLog.WriteTo(System.String)">
+            <summary>
+            Write the given message into the console.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:KSPM.IO.Logging.DevNullLog">
+            <summary>
+            Log class which Writes nothing, is basically a message > /dev/null
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.DevNullLog.WriteTo(System.String)">
+            <summary>
+            Writes to /dev/null
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:KSPM.IO.Logging.FileLog">
+            <summary>
+            Writes messages into a file either in binary or text mode using the UTF8 enconding.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.FileLog.binaryLogEnabled">
+            <summary>
+            If it is false the log will be written in text style for human read, by default set to false.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.FileLog.logFileName">
+            <summary>
+            Name of the filename where the log will be written, it must contain the path either.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.FileLog.logOutputStream">
+            <summary>
+            A stream which will hold the log messages
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.FileLog.logTextWriter">
+            <summary>
+            Writer used to save as text mode.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.FileLog.logBinaryWriter">
+            <summary>
+            Writer used to save as binary mode.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.FileLog.#ctor(System.String,System.Boolean)">
+            <summary>
+            Creates a FileLog object using the UTF8 encoding to to that.
+            </summary>
+            <param name="logFileName">The name of the file which will contain the messages.</param>
+            <param name="isBinaryLog">Tells if the file would be written using a binary mode or a text mode</param>
+        </member>
+        <member name="M:KSPM.IO.Logging.FileLog.GetAUniqueFilename(System.String)">
+            <summary>
+            Returns an unique filename merged with the given baseName, it uses the DateTime to create the returned name.
+            </summary>
+            <param name="baseName">The basename to be used, if one is provided.</param>
+            <returns>An unique filename</returns>
+        </member>
+        <member name="M:KSPM.IO.Logging.FileLog.WriteTo(System.String)">
+            <summary>
+            Write the message into the log either in text mode or binary mode.
+            </summary>
+            <param name="message">Message to be written into the log.</param>
+        </member>
+        <member name="M:KSPM.IO.Logging.FileLog.Dispose">
+            <summary>
+            Dispose and releases all the resources, closes the writers nicely.
+            </summary>
+        </member>
+        <member name="P:KSPM.IO.Logging.FileLog.IsBinaryLog">
+            <summary>
+            Sets or Gets the binary log value.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Memory.CyclicalMemoryBuffer.#ctor(System.UInt32,System.UInt32)">
+            <summary>
+            Creates a cyclical array of buffers.
+            </summary>
+            <param name="size">How many buffers are going to be.</param>
+            <param name="fixedBuffersLength">Size of each buffer.</param>
+        </member>
+        <member name="F:KSPM.IO.Memory.MemoryBuffer.ioBuffer">
+            <summary>
+            Byte array buffer.<b>Internal use only.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Memory.MemoryBuffer.bufferSize">
+            <summary>
+            Byte buffer's size.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Memory.MemoryBuffer.readingPosition">
+            <summary>
+            Index used to write from a determined position.<b>Internal use only.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Memory.MemoryBuffer.writingPosition">
+            <summary>
+            Index used to read from the buffer.<b>Internal use only.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Memory.MemoryBuffer.Write(System.Byte[],System.UInt32@,System.UInt32)">
+            <summary>
+            Writes a byte array into the buffer.
+            </summary>
+            <param name="source">Byte array from where the bytes are going to copied.</param>
+            <param name="srcOffset">Reference to the offset where the bytes are being copied from, and is set to the starting position inside the underlying buffer</param>
+            <param name="size">How many buffers should be written.</param>
+            <returns>Amount of written bytes.</returns>
+        </member>
+        <member name="M:KSPM.IO.Memory.MemoryBuffer.Release">
+            <summary>
+            Releases the underlying buffer and resets the writing and reading positions also resets the bufferSize.
+            </summary>
+        </member>
+        <member name="P:KSPM.IO.Memory.MemoryBuffer.IOBuffer">
+            <summary>
+            This is not thread safe so be carefull.
+            </summary>
+        </member>
+        <member name="P:KSPM.IO.Memory.MemoryBuffer.Size">
+            <summary>
+            Gets the linear size of the buffer.
+            </summary>
+        </member>
+        <member name="T:KSPM.IO.Security.Hash">
+            <summary>
+            Class to compute hashes., by default it uses the SHA512 method.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Security.Hash.Hasher">
+            <summary>
+            Static reference to the HashAlgorith.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Security.Hash.Initialize(KSPM.IO.Security.Hash.HashingAlgorithm)">
+            <summary>
+            Initializes the hasher reference to a new one.
+            </summary>
+            <param name="algorithm">The algorithm that should be used.</param>
+        </member>
+        <member name="M:KSPM.IO.Security.Hash.GetHash(System.Byte[]@,System.UInt32,System.UInt32,System.Byte[]@)">
+            <summary>
+            Computes a hash from the given byte array and write it down into the hashedBytes param.
+            </summary>
+            <param name="rawBytes">Byte array that would be hashed.</param>
+            <param name="offset">The offset to take in count to perform the hash, so not the entire array would be hashed.</param>
+            <param name="bytesToHash">How many bytes must be read by the hasher.</param>
+            <param name="hashedBytes">Out reference to the hashed bytes.</param>
             <returns></returns>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.ToString">
+        <member name="T:KSPM.IO.Security.Hash.HashingAlgorithm">
             <summary>
-            Gets a basic information of the message.
+            Enum to define which method will be used to compute the hashes.
             </summary>
+        </member>
+        <member name="M:KSPM.Network.Chat.Filter.ChatFilter.Query(KSPM.Network.Chat.Messages.ChatMessage)">
+            <summary>
+            Applies the filter statemen over the given ChatMessage reference.
+            </summary>
+            <param name="message"></param>
             <returns></returns>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.HandshakeAccetpMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+        <member name="M:KSPM.Network.Chat.Filter.ChatFilter.Release">
             <summary>
-            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.NewUserMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a NewUser message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.ServerFullMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationMessage(KSPM.Network.Common.NetworkEntity,KSPM.Game.User,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Creates an authentication message. **In this moment it is not complete and may change in future updates.**
-            </summary>
-            <param name="sender"></param>
-            <param name="targetMessage"></param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a AuthenticationFail message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationSuccessMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a AuthenticationSuccess message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.KeepAlive(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.DisconnectMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes a disconnect message into de buffer.
-            </summary>
-            <param name="sender"></param>
-            <param name="targetMessage"></param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPInfoAndPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingOkMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:KSPM.Network.Common.Messages.Message.LoadUDPPairingOkMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)" -->
-        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPPairingFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-            </summary>
-            <param name="sender">Reference to sender that holds the buffer to write in.</param>
-            <param name="targetMessage">Out reference to the Message object to be created.</param>
-            <returns></returns>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.Message.Command">
-            <summary>
-            Gets the command type of this message.
+            Releases all resources handled by the filter.
             </summary>
         </member>
-        <member name="P:KSPM.Network.Common.Messages.Message.MessageBytesSize">
+        <member name="T:KSPM.Network.Chat.Filter.GroupFilter">
             <summary>
-            Gets or sets the amount of usable bytes inside the buffer and that amount of bytes are going to be sent.
-            Use this property instead of the ServerSettings.ServerBufferSize property.
+            Works as BlackList of chat groups.
             </summary>
         </member>
-        <member name="P:KSPM.Network.Common.Messages.Message.IsBroadcast">
+        <member name="M:KSPM.Network.Chat.Filter.GroupFilter.Query(KSPM.Network.Chat.Messages.ChatMessage)">
             <summary>
-            Sets/Gets if the message is going to be broadcasted or not.<b>Be carefull setting this flag.</b>
+            Applies the filtering statement to the given message.
+            </summary>
+            <param name="message"></param>
+            <returns>True if the message fits the filtering statement.</returns>
+        </member>
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.id">
+            <summary>
+            Unique id
             </summary>
         </member>
-        <member name="T:KSPM.Network.Common.Messages.Message.CommandType">
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.members">
             <summary>
-            An enum representing what kind of commands could be handled by the server and the client.
+            Dictionary with the member of this group.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Handshake">
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.performanceDataStructureMembers">
             <summary>
-            Handshake command used to begin a connection between the server and the client.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Performance data structure iterate throught it.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.NewClient">
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.privateGroup">
             <summary>
-            NewClient command used by the client to try to stablish a connection with the server.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Tells if the chat groups is private or not.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ServerFull">
+        <member name="F:KSPM.Network.Chat.Group.ChatGroup.Name">
             <summary>
-            Message sent when the server is full and a new client is attempting to connect to the game.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Chatgroup's name.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Authentication">
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.#ctor">
             <summary>
-            Command used by the client to send its authentication information.
-            [Header {byte:4}][ Command {byte:1} ][ UsernameLenght {byte:1}] [ Username {byte:1-} ][HashLength{2}][ HashedUsernameAndPassword {byte:1-} ][ EndOfMessage {byte:4} ]
+            Creates a new ChatGroup, setting it as public.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.AuthenticationFail">
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.AddNewMember(KSPM.Network.Common.NetworkEntity)">
             <summary>
-            Command to tells that something went wrong while the authentication process.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Adds a new member to the group.
+            </summary>
+            <param name="newMember"></param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.RemoveMember(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Removes a member from the group.
+            </summary>
+            <param name="memberToRemove"></param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.ChatGroup.RemoveAllMembers">
+            <summary>
+            Removes the whole members from this group.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.AuthenticationSuccess">
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.Id">
             <summary>
-            Command to tells that the access is granted.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Gets the group Id assigned.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPSettingUp">
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.MembersAsList">
             <summary>
-            Command sent by the server to tell the remote client wich port has been assigned to it also sends the pairing code. Either it works to test the connection.
-            [Header {byte:4}][ Command {byte:1} ][ PortNumber{byte:4}][ PairingCode {byte:4} ][ EndOfMessage {byte:4} ]
+            Gets the group members as a list.<b>To a fast iteration through them.</b>
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairing">
+        <member name="P:KSPM.Network.Chat.Group.ChatGroup.IsPrivate">
             <summary>
-            Command send by the remote client to test the UDP connection, and the client establishes the message structure. <b>*It is sent through the UDP socket.*</b>
-            [Header {byte:4}][ Command {byte:1} ][ PairingNumber{byte:4} ][ EndOfMessage {byte:4} ]
+            Gets if the current group is private or not.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairingOk">
+        <member name="F:KSPM.Network.Chat.Group.NonPersistenChatGroup.messageCounter">
             <summary>
-            Command sent by the server to tell the remote client that everything is ok.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            Will count how many messages has been asigned to this group.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairingFail" -->
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPBroadcast">
+        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.AddMessage(KSPM.Network.Chat.Messages.ChatMessage)">
             <summary>
-            
+            Does not perform any adding process, only increments the message counter.
+            </summary>
+            <param name="newMessage"></param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.Purge">
+            <summary>
+            Resets the message counter to zero.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Chat">
+        <member name="M:KSPM.Network.Chat.Group.NonPersistenChatGroup.Release">
             <summary>
-            Chat command.
-            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPChat">
-            <summary>
-            UDP Chat command. A chat message sent through the UDP connection.
-            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ChatSettingUp">
-            <summary>
-            Tells the remote client how many chat groups are registered inside the server.
-            [Header {byte:4}][ Command {byte:1} ][ ChatGroupsCount { byte:2 } ] ( [ChatGroupId {byte:2} ] [ ChatGroupNameLength{byte:}][ ChatGroupName{byte:1-}] ) ... [ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.KeepAlive">
-            <summary>
-            Resets the TCP timer and avoids the TimedOut socket error.<b>TCP timeout exception ocurs after 8 hours of inactivity.</b>
-            [MessageHeader{ byte:4}][Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Disconnect">
-            <summary>
-            Disconnect command to a nicely way to say goodbye.
-            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.User">
-            <summary>
-            Command used to mark the message and bypass it to the app.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.BroadcastMessage.targets">
-            <summary>
-            Snapshot of network entities to be broadcasted.
-            Creating a snapshot of the given targets list to avoid race conditions when a NetworkEntity is released and set to Null.
-            Not using a reference to the list because it can produce IndexOutOfRange exceptions due to the race condition explaided above
-            and to the fact of changing context between threads.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.BroadcastMessage.Dispose">
-            <summary>
-            Does nothing at this moment.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.BroadcastMessage.Targets">
-            <summary>
-            Gets the targets list.
+            Releases all messages holded by the group, calling its Release method on each one.
             </summary>
         </member>
         <member name="F:KSPM.Network.Chat.Group.PersistentChatGroup.messages">
@@ -921,74 +509,6 @@
         <member name="M:KSPM.Network.Chat.Group.PersistentChatGroup.Release">
             <summary>
             Releases all messages holded by the group, calling its Release method on each one.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Common.NetworkBaseCollection">
-            <summary>
-            Holds the basic properties to create a network connection.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkBaseCollection.#ctor(System.Int32)">
-            <summary>
-            Initializes the buffers, but the Socket is set to null.
-            <see cref="T:System.Net.Sockets.Socket"/>
-            </summary>
-            <param name="buffersSize">Size used to alloc the memory buffers.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.NetworkBaseCollection.Dispose">
-            <summary>
-            Releases the buffers and set the Socket to null, so It has to be shut down by you.
-            <see cref="T:System.Net.Sockets.Socket"/>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.ManagedMessage.messageOwner">
-            <summary>
-            A network entity which is owner of the message.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.ManagedMessage.startsAt">
-            <summary>
-            Index to tell where the bodymessage starts.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.#ctor(KSPM.Network.Common.Messages.Message.CommandType,KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Creates an instance and set the NetworkEntity owner of this message.
-            </summary>
-            <param name="commandType"></param>
-            <param name="messageOwner"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SetOwnerMessageNetworkEntity(KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Sets a new NetworkEntity owner for this message.
-            </summary>
-            <param name="messageOwner"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Release">
-            <summary>
-            Sets messageOwner to null and he messageRawLength to 0.<b>If you want to clean everythin you have to set to null this reference.</b>
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Empty">
-            <summary>
-            Returns a new instance of the same class.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Dispose">
-            <summary>
-            Does nothing.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SwapReceivedBufferToSend(KSPM.Network.Common.Messages.ManagedMessage)">
-            <summary>
-            DEPRECATED
-            </summary>
-            <param name="otherMessage"></param>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.ManagedMessage.OwnerNetworkEntity">
-            <summary>
-            Return the current NetworkEntity owner of this message.
             </summary>
         </member>
         <member name="F:KSPM.Network.Chat.Managers.ChatManager.chatGroups">
@@ -1043,6 +563,25 @@
             <param name="incomingMessage"></param>
             <returns></returns>
         </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.RegisterUser(KSPM.Network.Common.NetworkEntity,KSPM.Network.Chat.Managers.ChatManager.UserRegisteringMode)">
+            <summary>
+            Register a user into each chat group if it is not a private one.
+            </summary>
+            <param name="newUser"></param>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.UnregisterUser(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Removes an user from the chat groups.
+            </summary>
+            <param name="userToRemove">NetworkEntity to remove.</param>
+        </member>
+        <member name="M:KSPM.Network.Chat.Managers.ChatManager.UnregisterAllUsers">
+            <summary>
+            Removes all users from the chat manager.
+            </summary>
+        </member>
         <member name="M:KSPM.Network.Chat.Managers.ChatManager.RegisterFilter(KSPM.Network.Chat.Filter.ChatFilter)">
             <summary>
             Adds a new filter to the available filters.
@@ -1063,6 +602,11 @@
         <member name="P:KSPM.Network.Chat.Managers.ChatManager.RegisteredGroups">
             <summary>
             Gets how many chat groups are registered inside the manager.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Chat.Managers.ChatManager.Owner">
+            <summary>
+            Gets/Sets the owner of this chatmanager.
             </summary>
         </member>
         <member name="P:KSPM.Network.Chat.Managers.ChatManager.AvailableFilters">
@@ -1090,191 +634,69 @@
             Defines how the default chat group would be created.
             </summary>
         </member>
-        <member name="M:KSPM.IO.Memory.MemoryBuffer.Write(System.Byte[],System.UInt32@,System.UInt32)">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.MessageCounter">
             <summary>
-            Writes a byte array into the buffer.
-            </summary>
-            <param name="source">Byte array from where the bytes are going to copied.</param>
-            <param name="srcOffset">Reference to the offset where the bytes are being copied from, and is set to the starting position inside the underlying buffer</param>
-            <param name="size">How many buffers should be written.</param>
-            <returns>Amount of written bytes.</returns>
-        </member>
-        <member name="M:KSPM.IO.Memory.MemoryBuffer.Release">
-            <summary>
-            Releases the underlying buffer and resets the writing and reading positions also resets the bufferSize.
+            Static message counter, this gives an unique autoincremental id to each message.
             </summary>
         </member>
-        <member name="P:KSPM.IO.Memory.MemoryBuffer.IOBuffer">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.messageId">
             <summary>
-            This is not thread safe so be carefull.
+            Unique id.
             </summary>
         </member>
-        <member name="T:KSPM.Diagnostics.RealTimer">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.timeStamp">
             <summary>
-            Holds a stopwatch
+            Timestamp when the message was created.
             </summary>
         </member>
-        <member name="F:KSPM.Diagnostics.RealTimer.Clock">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.sendersUsername">
             <summary>
-            Performance stopwatch
+            User's name who sends the message.
             </summary>
         </member>
-        <member name="M:KSPM.Diagnostics.RealTimer.GetCurrentDateTime">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.senderHash">
             <summary>
-            Return the current time in a preformatted string.
+            Tells the user's hash who sends the message.
             </summary>
-            <returns>The current date time with miliseconds as an string.</returns>
         </member>
-        <member name="M:KSPM.Network.NAT.NATTraversal.Punch(System.Net.Sockets.Socket@,System.String,System.Int32)">
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.body">
             <summary>
-            Tries to connect to the specified ip using the given port.
+            Message coded using UTF8.
             </summary>
-            <param name="client">Socket reference used to work.</param>
-            <param name="ip">Remote ip.</param>
-            <param name="port">Remote port.</param>
+        </member>
+        <member name="F:KSPM.Network.Chat.Messages.ChatMessage.GroupId">
+            <summary>
+            Tells to which group was sent the message.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Chat.Messages.ChatMessage.#ctor">
+            <summary>
+            Creates an orphan message intance.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Chat.Messages.ChatMessage.CreateChatMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Chat.Group.ChatGroup,System.String,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Creates a GeneralChat message, it means a chat to be broadcasted to every member on the group.
+            </summary>
+            <param name="sender">Network entity who is sending the message.</param>
+            <param name="targetGroup">ChatGroup to whom is sent the message.</param>
+            <param name="bodyMessage">String containing the message.</param>
+            <param name="targetMessage">Out reference to the message to be sent.</param>
             <returns></returns>
         </member>
-        <member name="P:KSPM.Network.NAT.NATTraversal.Status">
+        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.MessageId">
             <summary>
-            Gets the current status of the puching process.
+            Gets the message's unique Id.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Common.SharedBufferSAEAPool.#ctor(System.UInt32,System.Byte[],KSPM.Network.Common.SharedBufferSAEAPool.OnCompleteOperation)">
+        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.Time">
             <summary>
-            Creates a SocketAsyncEventArgs pool, with the same buffer and sets the Complete event to the callback.
-            </summary>
-            <param name="initialCapacity">How many SAEA objects will be pooled.</param>
-            <param name="sharedBuffer">Byte array to be set as the buffer to all the SAEA objects.</param>
-            <param name="callback">Method to be set as the SocketAsyncEventArgs.Complete event.</param>
-        </member>
-        <member name="T:KSPM.Network.Common.IAsyncSender">
-            <summary>
-            Interface to be implemented by each class who needs to perform an async sending.
+            Gets the message's timestamp when the message was created.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Common.IAsyncSender.AsyncSenderCallback(System.IAsyncResult)">
+        <member name="P:KSPM.Network.Chat.Messages.ChatMessage.Body">
             <summary>
-            Sends data in an async way.
-            </summary>
-            <param name="result"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.BufferedMessage.Load(System.Byte[],System.UInt32,System.UInt32)">
-            <summary>
-            Loads a new content into the message, seting up the message indexes.
-            </summary>
-            <param name="rawBytes">Byte array containing the original message.</param>
-            <param name="rawBytesOffset">Bytes offset from where the message starts.</param>
-            <param name="blockSize">How many bytes are being used by the message.</param>
-            <returns></returns>
-        </member>
-        <member name="T:KSPM.Network.Server.UserManagement.ClientsHandler">
-            <summary>
-            A class that should handle the clients and store them into a data structure. It is threadsafe.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.UserManagement.ClientsHandler.clients">
-            <summary>
-            List to provide a fast way to iterate through the server's clients.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.UserManagement.ClientsHandler.clientsEngine">
-            <summary>
-            Dictionary to privide a fast way to search among the server's clients.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.AddNewClient(KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Locks the underlaying structures to add the NetworkEntity to the data structures, check if the network entity is not already stored.
-            </summary>
-            <param name="referredEntity"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.RemoveClient(KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Removes a client from the data structures and calls the Release method on it.
-            </summary>
-            <param name="referredEntity"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.Release">
-            <summary>
-            Clears the structures and calls the ReleaseMethod of each NetworkEntity reference.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.TCPBroadcastTo(System.Collections.Generic.List{KSPM.Network.Common.NetworkEntity},KSPM.Network.Common.Messages.Message)">
-            <summary>
-            Creates a broadcast message taking the messageToSend as base.
-            </summary>
-            <param name="targets"></param>
-            <param name="messageToSend"></param>
-        </member>
-        <member name="P:KSPM.Network.Server.UserManagement.ClientsHandler.ConnectedClients">
-            <summary>
-            Gets the connected clients.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Server.UserManagement.AccountManager">
-            <summary>
-            Class that will provide the basic account management.
-            </summary>
-        </member>
-        <member name="T:KSPM.IO.Logging.ConsoleLog">
-            <summary>
-            Log class to write the log into the console output.
-            </summary>
-        </member>
-        <member name="M:KSPM.IO.Logging.ConsoleLog.WriteTo(System.String)">
-            <summary>
-            Write the given message into the console.
-            </summary>
-            <param name="message"></param>
-        </member>
-        <member name="T:KSPM.Network.Server.ServerSettings">
-            <summary>
-            Class to handle the settings used by the server for its proper operation.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSettings.PoolingCacheSize">
-            <summary>
-            Tells the size of those buffers used internally such as the PacketHandler buffer.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSettings.PurgeTimeIterval">
-            <summary>
-            Sets the amount of time that the system will check if it is able to process commands.<b>DO NOT CHANGE IT IF YOU DON NOT KNOW WHAT YOU ARE DOING.</b>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSettings.AvailablePercentAfterPurge">
-            <summary>
-            Tells how much available space has to have the queue to start accepting messages.<b>Is set in percent.</b>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSettings.connectionsBackog">
-            <summary>
-            The maximun of enqueued connections that the TCP socket can handle.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.ServerSettings.ReadSettings(KSPM.Network.Server.ServerSettings@)">
-            <summary>
-            Read the settings file and inflate an object with the stored information.
-            </summary>
-            <param name="settings">Reference to the ServerSettings object which would be filled.</param>
-            <returns>False if there was an error during the write task.</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.ServerSettings.WriteSettings(KSPM.Network.Server.ServerSettings@)">
-            <summary>
-            Write the settings object into a Xml file using the UTF8 encoding.
-            </summary>
-            <param name="settings">Reference to the ServerSettings object</param>
-            <returns>False if there was an error such as if the reference is set to a null.</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.ServerSettings.DefaultSettings(KSPM.Network.Server.ServerSettings@)">
-            <summary>
-            Load a default sattings values into the given paremeter.
-            </summary>
-            <param name="settings"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.ServerSettings.Release">
-            <summary>
-            <b>Does nothing.</b>
+            Gets the message body.<b>This is encoded using the Encoder set on the KSPMGlobals.Encoder.</b>
             </summary>
         </member>
         <member name="F:KSPM.Network.Client.ClientSettings.ClientTCPPort">
@@ -1334,552 +756,124 @@
             At this moment does not do anything.
             </summary>
         </member>
-        <member name="T:KSPM.IO.Compression.Compressor">
-            <summary>
-            Base class of each compressor implemented on the KSPM
-            </summary>
-        </member>
-        <member name="M:KSPM.Globals.KSPMGlobals.InitiLogging(KSPM.IO.Logging.Log.LogginMode,System.Boolean)">
-            <summary>
-            Initializes the loggers and set the proper one according to the given parameters. If a DevNull mode is set at the beginning, the other logging modes become unavailable.
-            </summary>
-            <param name="loggingMode">Determines what kind of logging mode will be used to perform all the outputs.</param>
-            <param name="isBinaryEnabled">Determines if the binary writing is enabled when the logging mode is set to File mode, otherwise it has no effect.</param>
-        </member>
-        <member name="M:KSPM.Globals.KSPMGlobals.ChangeIOFilePath(System.String)">
-            <summary>
-            Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
-            </summary>
-            <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
-        </member>
-        <member name="P:KSPM.Globals.KSPMGlobals.NAT">
-            <summary>
-            Gets the NAT traversing method used by the KSPM model. <b>By default it is set to None.</b>
-            </summary>
-        </member>
-        <member name="T:KSPM.Game.GameUser">
-            <summary>
-            Represents a game user, it  is possible to use the hash to identify those ships that belongs to this user.
-            </summary>
-        </member>
-        <member name="M:KSPM.Game.GameUser.#ctor(System.Byte[]@)">
-            <summary>
-            Creates a GameUser object.
-            </summary>
-            <param name="userHash">Hash of the user.</param>
-        </member>
-        <member name="M:KSPM.IO.ILoadableFromFile.InflateFromFile(System.String)">
-            <summary>
-            Reads a file and tries to inflate a object.
-            </summary>
-            <param name="fileName">The filename who contains the filter definition.</param>
-            <returns></returns>
-        </member>
-        <member name="F:KSPM.Network.Common.Messages.RawMessage.pooling">
-            <summary>
-            Flags to tell if this message belongs to a pool.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.#ctor(KSPM.Network.Common.Messages.Message.CommandType,System.Byte[],System.UInt32)">
-            <summary>
-            Creates a RawMessage instance, copying the amount of bytes specified by the messageSize parameter into the bodyMessage array.
-            </summary>
-            <param name="kindOfMessage">Command type of the message.</param>
-            <param name="rawBytes">Reference to the byte array.</param>
-            <param name="messageSize">The amount of usable bytes.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.#ctor">
-            <summary>
-            Creates a RawMessage as a buffer setting the pooling flag to True.<b>Be careful about the pooling flag.</b>
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.LoadWith(System.Byte[],System.UInt32,System.UInt32)">
-            <summary>
-            Copies the src array into the preallocated buffer.
-            </summary>
-            <param name="src">Byte array to be copied.</param>
-            <param name="offset">From which index position is allocate the data inside the src array.</param>
-            <param name="bytesToCopy">Amount of bytes to be copied.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.Empty">
-            <summary>
-            Returns an empty RawMessage prepared to be used as a buffer.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.Release">
-            <summary>
-            Releases all the properties and frees the memory buffers.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Messages.RawMessage.Dispose">
-            <summary>
-            Sets the current reference to an invalid object, but no harm is performed to the buffer. If you want to free all the resource yous must call
-            Release.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Common.Messages.RawMessage.Pooling">
-            <summary>
-            Gets/Sets the pooling flag.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Packet.PacketHandler.RawMessageHeaderSize">
-            <summary>
-            Size of the raw message header, it is used to send the lenght of sent bytes.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Packet.PacketHandler.CompressingPacketsEnabled">
-            <summary>
-            Flag to indicate if the packets are compressed or not, by default is set to False.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Packet.PacketHandler.PrefixSize">
-            <summary>
-            Tells how many bytes are required to start to consider a bunch of bytes as packet.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Common.Packet.PacketHandler.CompressingObject">
-            <summary>
-            Reference to the compression methods.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InitPacketHandler(System.Boolean,KSPM.IO.Compression.Compressor@)">
-            <summary>
-            Initialize the compression settings to be used by the PacketHandler. If the compression flag is set to True and the compression reference is null then the compression flag shall be set to false.
-            </summary>
-            <param name="compressionEnabled">Tells if the packets are going to be compressed.</param>
-            <param name="compressionObject">Reference to the compression object. Sets null if the compressionEnabled flag is set to false.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InflateManagedMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Secont level of the KSPM Network model.
-            Creates a ManagedMessage object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
-            </summary>
-            <param name="bytesOwner">Reference to the NetworkEntity who holds the raw bytes, this reference is set as the message owner ether.</param>
-            <param name="messageTarget">Message object which should have the result of handling the raw bytes.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.DecodeRawPacket(System.Byte[]@)">
-            <summary>
-            Lowest level method of the KSPM Network model, decompress the bytes if the compression flag is set to true, otherwise it is a passthrough method.
-            </summary>
-            <param name="rawBytes">Array of bytes in raw format.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.EncodeRawPacket(System.Byte[]@)">
-            <summary>
-            Creates a Message object with the given NetworkEntity reference also it performs the compression method if the compression flag is set to True.
-            </summary>
-            <param name="owner">NetworkEntity who is owner of the message.</param>
-            <param name="messageTarget">An out reference to the Message.</param>
-            <returns>Error.ErrorType.Ok if there was not error.</returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InflateRawMessage(System.Byte[],KSPM.Network.Common.Messages.Message@)">
-            <summary>
-            Secont level of the KSPM Network model.
-            Creates a RawMessage object from the given byte array.
-            </summary>
-            <param name="rawBytes">Byte array contaning the message in raw format.</param>
-            <param name="messageTarget">Out reference to the message to create.</param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.Release">
-            <summary>
-            Releases all the resources holded by thie object.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.PacketizeCRC(KSPM.Network.Common.Packet.IPacketArrived)">
-            <summary>
-            <b>Used by the server itself.</b>
-            Packetize the incoming bytes, searching the Begin and End headers, then calls to the ProcessPacket method.
-            </summary>
-            <param name="consumer"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.PacketHandler.UDPPacketizeCRCLoadIntoMessage(KSPM.Network.Common.Packet.IUDPPacketArrived,KSPM.Network.Common.Messages.MessagesPool)">
-            <summary>
-            Packetizes the incoming bytes and takes a Message from the pool.
-            </summary>
-            <param name="consumer"></param>
-            <param name="pooling"></param>
-        </member>
-        <member name="M:KSPM.Network.Common.Packet.ByteDecoder.UncompressBytes(System.Byte[]@,System.Byte[]@)">
-            <summary>
-            Uncompress the bytes
-            </summary>
-            <param name="rawBytes"></param>
-            <param name="uncompressedBytes"></param>
-            <returns></returns>
-        </member>
-        <member name="T:KSPM.Network.Common.IAsyncTCPReceiver">
-            <summary>
-            Interface to be used when you want to receive asynchronous packets, but you already are implementing the AsyncReceiver interface.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.IAsyncTCPReceiver.AsyncTCPReceiver(System.IAsyncResult)">
-            <summary>
-            Method used to receive Messages through the TCP socket and utilize the Async model.
-            </summary>
-            <param name="result">Holds a reference to this object.</param>
-        </member>
-        <member name="M:KSPM.Network.Common.IAsyncTCPReceiver.ReceiveTCPStream">
-            <summary>
-            Used to call Socket.BeginReceive method, and avoid a recursive calling.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Common.ConnectionlessNetworkCollection">
-            <summary>
-            Class representing Non-oriented network connections, those which uses UDP or some other similar protocol.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.Dispose">
-            <summary>
-            Overrides the Dispose method from NetworkBaseCollection.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.Clone(KSPM.Network.Common.NetworkBaseCollection@)">
-            <summary>
-            Clones this NetworkCollection to the another;
-            </summary>
-            <param name="newReference"></param>
-        </member>
-        <member name="T:KSPM.Network.Server.IOPortManager">
-            <summary>
-            Provides a pool of free port numbers, with a closed set given by [startAssignationPort, endAssignationPort]
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.IOPortManager.assignablePortRange">
-            <summary>
-            Port assignation table.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.IOPortManager.assignedPorts">
-            <summary>
-            Dictionary to keep track of the assigned ports.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.IOPortManager.freePorts">
-            <summary>
-            Queue to hold all the available ports.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.IOPortManager.#ctor(System.Int32,System.Int32)">
-            <summary>
-            Creates an instance of the IOPortManager.
-            </summary>
-            <param name="startAssignationPort">Where the assignation should start at.</param>
-            <param name="endAssignationPort">Where the assignation should end at<b>Set 0 to use the MaxPort available (65535)</b></param>
-        </member>
-        <member name="M:KSPM.Network.Server.IOPortManager.NextPort(KSPM.Network.Server.IOPortManager.PortProtocool)">
-            <summary>
-            Gets the next available port between the set established at the beginning.
-            </summary>
-            <param name="usedProtocool"></param>
-            <returns></returns>
-        </member>
-        <member name="M:KSPM.Network.Server.IOPortManager.RecyclePort(System.Int32)">
-            <summary>
-            Recycles a port placing it again in the available ports structure.
-            </summary>
-            <param name="port"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.IOPortManager.Release">
-            <summary>
-            Releases all the used resources by the IOPortManager.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Server.GameServer">
-            <summary>
-            TODO: Create a filter to allow a number of maximun TCP connections.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.alive">
-            <summary>
-            Controls the life-cycle of the server, also the thread's life-cyle.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.ableToRun">
-            <summary>
-            Controls if the server is set and ready to run.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.lowLevelOperationSettings">
-            <summary>
-            Settings to operate at low level, like listening ports and the like.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.ioPortManager">
-            <summary>
-            Port manager to handle the UDP ports, ensuring an available port each time it is required.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpSocket">
-            <summary>
-            TCP socket used to receive the new incoming connections.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpIpEndPoint">
-            <summary>
-            The IP information required to set the TCP socket.<b>IP address and port are required.</b>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpBuffer">
-            <summary>
-            Byte buffer attached to the TCP socket.<b>Used to receive the first commandof a new client.</b>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.incomingConnectionsPool">
-            <summary>
-            SockeAsyncEventArgs pool to accept connections and to receive the first command.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimer">
-            <summary>
-            Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimeInterval">
-            <summary>
-            Amount of time to set when the timer should check the capacity of the referred queue.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeFlag">
-            <summary>
-            Tells when the system is purging an UDP queue.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpMinimumMessagesAllowedAfterPurge">
-            <summary>
-            Tells the amount of messages are allowe to receive messages again.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.commandsQueue">
-            <summary>
-            Holds the commands to be processed by de server, like the command chat and other commands not required to the connection process.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.localCommandsQueue">
-            <summary>
-            Holds those local commands to be processed by the server, such as the connection commands.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.outgoingMessagesQueue">
-            <summary>
-            Outgoing TCP messages.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.priorityOutgoingMessagesQueue">
-            <summary>
-            Outgoing TCP priority messages like the connection commands and the like.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.incomingMessagesPool">
-            <summary>
-            Preallocated incoming messages pool.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.priorityMessagesPool">
-            <summary>
-            Preallocated incoming priority messages pool.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.commandsThread">
-            <summary>
-            Thread used to handle the incoming commands.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.outgoingMessagesThread">
-            <summary>
-            Thread to handle the sending process of non priority commands.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.localCommandsThread">
-            <summary>
-            Thread to handle those prioritized commands, like those used in the connection process.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.priorityOutgoingMessagesThread">
-            <summary>
-            Thread to handle the prioritized outgoing commands.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.defaultUserManagementSystem">
-            <summary>
-            Default User Management System (UMS) applied by the server.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.usersAccountManager">
-            <summary>
-            Provides a basic authentication.<b>At this moment is a by pass method.</b>
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.clientsHandler">
-            <summary>
-            Poll of clients connected to the server, it should be used when the broadcasting is required.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.chatManager">
-            <summary>
-            Handles the KSPM Chat system, either UDP and TCP chating system.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.#ctor(KSPM.Network.Server.ServerSettings@)">
-            <summary>
-            Constructor of the server
-            </summary>
-            <param name="operationSettings"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.StartServer">
-            <summary>
-            Starts the server making it able to work.
-            </summary>
-            <returns>True if everything goes well, False otherwise.</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.ShutdownServer">
-            <summary>
-            Stops the server, making it unable it to work. So if you must create a new instance of the server if you want to run it again.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.StartReceiveConnections">
-            <summary>
-            Starts to receive incoming connections asynchronously.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.OnAsyncIncomingConnectionComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
-            <summary>
-            Method called when a connection has been made through the socket. <b>Need to think in some antispam filter.</b>
-            </summary>
-            <param name="sender"></param>
-            <param name="e">The SocketAsyncEventArgs used to perform the connection process.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.OnAsyncFirstDataIncomingComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
-            <summary>
-            Method called once the first command was received by the server.
-            </summary>
-            <param name="sender"></param>
-            <param name="e">SocketAsyncEventArgs used to receive the first command.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.ProcessPacket(System.Byte[],System.UInt32,System.UInt32,KSPM.Network.Common.NetworkEntity)">
-            <summary>
-            Used to process an incoming stream.
-            </summary>
-            <param name="rawData"></param>
-            <param name="rawDataOffset"></param>
-            <param name="fixedLength"></param>
-            <param name="packetOwner"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleCommandsThreadMethod">
-            <summary>
-            Handles the those commands send by the client through a TCP socket.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleOutgoingMessagesThreadMethod">
-            <summary>
-            Handles the TCP socket and the main Queue of messages, uses the a TCP socket to send messages.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.OnSendingOutgoingDataComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
-            <summary>
-            Method called when a asynchronous sending  is complete.
-            </summary>
-            <param name="sender"></param>
-            <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleTCPPurgeTimerCallback(System.Object)">
-            <summary>
-            Method called each amount of time specified by udpPurgeTimeInterval property.
-            Checks if the queue is able to receive new messages.
-            </summary>
-            <param name="state"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleLocalCommandsThreadMethod">
-            <summary>
-            Handles the commands passed by the UI or the console if is it one implemented.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleOutgoingPriorityMessagesThreadMethod">
-            <summary>
-            Handles the TCP socket and the main Queue of messages, uses the a TCP socket to send messages.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.AsyncSenderCallback(System.IAsyncResult)">
-            <summary>
-            Method used to send asynchronously a message. This method calls the MessageSentCallbak once the send task is completed, but do not get afraid of this callback call, if you have not set a method to the callback it will not be invoked at all.
-            </summary>
-            <param name="result"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.OnUserDisconnected(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Events.KSPMEventArgs)">
-            <summary>
-            Event raised when an user has connected to the server.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.OnUDPMessageArrived(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.RawMessage)">
-            <summary>
-            Method called each time an UDP message is received, if there is no attached method  to the event, the message is recycled.
-            </summary>
-            <param name="sender">Network entity who has received the message.</param>
-            <param name="message">Reference to the received message.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.DisconnectClient(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Events.KSPMEventArgs)">
-            <summary>
-            Internal method used to disconnect clients, also raises the OnUserDisconnected event.
-            </summary>
-            <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
-            <param name="cause">Information about what was the cause of the disconnection.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.RejectMessageToClient(KSPM.Network.Common.NetworkEntity,System.Object)">
-            <summary>
-            Method which removes a client, and is used to set the callback inside the networkentity.
-            </summary>
-            <param name="caller"></param>
-            <param name="arg"></param>
-        </member>
-        <member name="E:KSPM.Network.Server.GameServer.UserConnected">
-            <summary>
-            Event raised when a new user is connected.
-            </summary>
-        </member>
-        <member name="E:KSPM.Network.Server.GameServer.UserDisconnected">
-            <summary>
-            Event raised when an user is disconnected from the user.
-            </summary>
-        </member>
-        <member name="E:KSPM.Network.Server.GameServer.UDPMessageArrived">
-            <summary>
-            Event raised when an UDP message has arrived to the server.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Server.GameServer.ConnectedClients">
-            <summary>
-            Returns an array of NetworkEntities connected to the server.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Server.GameServer.ClientsManager">
-            <summary>
-            Returns the ClientManager reference used by the server.
-            </summary>
-        </member>
-        <member name="P:KSPM.Network.Server.GameServer.IsAlive">
-            <summary>
-            Tells if the server is still running.
-            </summary>
-        </member>
-        <member name="T:KSPM.Network.Common.IAsyncReceiver">
-            <summary>
-            Interface to be implemented to each class who needs to perform an async receiving.
-            </summary>
-        </member>
-        <member name="M:KSPM.Network.Common.IAsyncReceiver.AsyncReceiverCallback(System.IAsyncResult)">
-            <summary>
-            Receives data in an async way.
-            </summary>
-            <param name="result"></param>
-        </member>
         <member name="T:KSPM.Network.Client.GameClient">
             <summary>
             Class to represent the remote client.
             </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.NetworkEntity">
+            <summary>
+            Represents an interpretation of the server and the clients, having only the essential information to know what kind of Entity represents, either the server or the client.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.NetworkRawEntity">
+            <summary>
+            Represents a basic network object used as wrapper to the async socket methods.
+            In the future it should be able to convert one this objects to another object, such a serverside client or such.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkRawEntity.ownerNetworkCollection">
+            <summary>
+            Holds the main references to work with, Socket, MainBuffer, SecondaryBuffer.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkRawEntity.id">
+            <summary>
+            An unique ID.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkRawEntity.timer">
+            <summary>
+            A timer to tells how much time has been alive this object reference.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkRawEntity.Release">
+            <summary>
+            Abstract method that should be used to release all the resources ocupied by the object itself, such as the socket and the arrays.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.NetworkRawEntity.Id">
+            <summary>
+            Returnt he ID as readonly.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.NetworkRawEntity.AliveTime">
+            <summary>
+            Gets the amount of miliseconds which this reference has been alive.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkEntity.LoopbackNetworkEntity">
+            <summary>
+            Representes a loopback network entity, in other words an empty object.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.SetMessageSentCallback(KSPM.Network.Common.NetworkEntity.MessageSentCallback)">
+            <summary>
+            Set the method to the underlaying callback reference.
+            </summary>
+            <param name="method">Method to be called.</param>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkEntity.messageSentCallback">
+            <summary>
+            Reference to an MessageSentCallback.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.NetworkEntity.markedToDie">
+            <summary>
+            Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.MessageSent(KSPM.Network.Common.NetworkEntity,System.Object)">
+            <summary>
+            Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.
+            </summary>
+            <param name="caller"></param>
+            <param name="arg"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.#ctor(System.Net.Sockets.Socket@)">
+            <summary>
+            Constructs a new NetworkEntity
+            </summary>
+            <param name="entityOwner">Reference (ref) to the socket who will be the owner of this object.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.#ctor">
+            <summary>
+            Creates an empty NetworkEntity
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.Dispose">
+            <summary>
+            Sets to null each member.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.Release">
+            <summary>
+            Releases all the resources on the NetworkEntity reference. <b>Do not confuse this method with the Dispose one.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.GetHashCode">
+            <summary>
+            Gets the HashCode of this NetworkEntity.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkEntity.IsAlive">
+            <summary>
+            Tells if the NetworkEntity is alive or no.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Common.NetworkEntity.MarkedToDie">
+            <summary>
+            Tells if this NetworkEntity reference is marked to die.<b>Helps you to avoid kill twice or more times a single reference.</b>
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.NetworkEntity.MessageSentCallback">
+            <summary>
+            Delegate prototype of the method that can be set and called when the time comes.
+            </summary>
+            <param name="caller">NetworkEntity who performs the call.</param>
+            <param name="arg">object which can hold any parameter, in case that it could be needed.</param>
         </member>
         <member name="F:KSPM.Network.Client.GameClient.workingSettings">
             <summary>
@@ -2257,31 +1251,1344 @@
             Gets the messges pool used to send/receive messages through the UDP connection.
             </summary>
         </member>
-        <member name="T:KSPM.Network.Server.UserManagement.Filters.NoneFilter">
+        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.name">
             <summary>
-            Class with no filter.
+            Server name, it is used by the user to identify them best.
             </summary>
         </member>
-        <member name="T:KSPM.Network.Server.UserManagement.Filters.Filter">
+        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.ip">
             <summary>
-            Filter to be used by the UserManagementSystem clases. If you want to implement a new filter you must inherit from this class.
+            Ip address of the server.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Server.UserManagement.Filters.Filter.Match(KSPM.Network.Server.UserManagement.Filters.Filter.FilterMode,KSPM.Network.Common.NetworkEntity@)">
+        <member name="F:KSPM.Network.Client.RemoteServer.ServerInformation.port">
             <summary>
-            Test the given NetworkEntity and applies the filter on it.
-            </summary>
-            <param name="entityToBeTested">Reference to a NetworkEntity to be tested.</param>
-            <returns>True if the NetworkEntity maches, false otherwise.</returns>
-        </member>
-        <member name="F:KSPM.Network.Server.UserManagement.Filters.NoneFilter.Filter">
-            <summary>
-            Static reference to an NoneFilter object.
+            Port where the server will be listening for incoming connections.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Server.UserManagement.Filters.NoneFilter.#ctor">
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.#ctor(System.String,System.String,System.Int32)">
             <summary>
-            Protected constructor to avoid user create more than one instance of this class.
+            Creates a ServerInformation with the given parameters.
+            </summary>
+            <param name="serverName">Server name.</param>
+            <param name="ip">Ip.</param>
+            <param name="port">Port.</param>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.Dispose">
+            <summary>
+            Releases the properties and set them to null.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerInformation.Clone(KSPM.Network.Client.RemoteServer.ServerInformation@)">
+            <summary>
+            Clones its content to the target reference.
+            </summary>
+            <param name="target"></param>
+        </member>
+        <member name="P:KSPM.Network.Client.RemoteServer.ServerInformation.NetworkEndPoint">
+            <summary>
+            Gets the underlying IpEndPoint filled with the stored information.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.ReadServerList(KSPM.Network.Client.RemoteServer.ServerList@)">
+            <summary>
+            Reads a file a tries to inflate a ServerList with the file's content.<b>If the file can not be read or it were some error a new ServeList is created, written and set as output.</b>
+            </summary>
+            <param name="list">Out reference to the ServerList.</param>
+            <returns>Ok or IOFileCanNotBeWritten.</returns>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.WriteServerList(KSPM.Network.Client.RemoteServer.ServerList@)">
+            <summary>
+            Writes the ServerList into a file.<b>If the reference is null a new ServerList is created and written.</b>
+            </summary>
+            <param name="list">Reference to the ServerList.</param>
+            <returns>Ok or IOFileCanNotBeWritten.</returns>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.Dispose">
+            <summary>
+            Releases all resources and write itself into a file.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.AddHost(KSPM.Network.Client.RemoteServer.ServerInformation)">
+            <summary>
+            Tries to add the given ServerInformation reference into the hosts list.<b>If it already exists in the hosts list, nothing is added.</b>
+            </summary>
+            <param name="newServer"></param>
+        </member>
+        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.RemoveHost(KSPM.Network.Client.RemoteServer.ServerInformation)">
+            <summary>
+            Tries to remove the given ServerInformation from the hosts list.
+            </summary>
+            <param name="referredServer"></param>
+        </member>
+        <member name="P:KSPM.Network.Client.RemoteServer.ServerList.Hosts">
+            <summary>
+            Gets the ServerInformation List.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.MessageHandlers.CommandQueue">
+            <summary>
+            A thread safe queue which holds the command messages.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.CommandQueue.commandMessagesQueue">
+            <summary>
+            Queue of messages.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.CommandQueue.maxNumberOfCommands">
+            <summary>
+            Amount of allowed messages on this queue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.CommandQueue.MaxQueueSize">
+            <summary>
+            Default amount of allowed messages on all the queues.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.CommandQueue.itemsCount">
+            <summary>
+            Tells the occupied percent of the queue.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.CommandQueue.EnqueueCommandMessage(KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Enqueue a new command message to the underlayin queue.
+            </summary>
+            <param name="newMessage">Reference to the new message, if it is null nothing will performed.</param>
+            <returns>True if the message was successfully enqueued, FALSE otherwise.</returns>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.CommandQueue.DequeueCommandMessage(KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Dequeue a command message from the underlaying queue.
+            </summary>
+            <param name="newMessage">out message, so it will hold the dequeued message, null if there was no message to dequeue.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.CommandQueue.IsEmpty">
+            <summary>
+            Verifies if the queue is empty or not.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.CommandQueue.Purge(System.Boolean)">
+            <summary>
+            Removes all messages and calls the Release method on each one.
+            </summary>
+            <param name="threadSafe">Tells if the call should be ThreadSafe and lock the queue.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.CommandQueue.CloneEmpty">
+            <summary>
+            Returns a new CommandQueue instance ready to be used.
+            </summary>
+            <returns>CommandQueue reference.</returns>
+        </member>
+        <member name="P:KSPM.Network.Common.MessageHandlers.CommandQueue.DirtyCount">
+            <summary>
+            As its name says it is not granted to return the actual count, it could change from one moment to another.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.MessageHandlers.CommandQueue.OccupiedSpace">
+            <summary>
+            Tells the occupied percent of the queue.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.MessageHandlers.CommandQueue.MaxCommandAllowed">
+            <summary>
+            Tells the Max amount of messages allowed on this queue.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.BufferedCommandQueue.CloneEmpty">
+            <summary>
+            Gets a new BufferedCommandQueue.
+            </summary>
+            <returns>Reference to a new object, it has the same properties as the original does.</returns>
+        </member>
+        <member name="T:KSPM.Network.Common.ConnectionlessNetworkCollection">
+            <summary>
+            Class representing Non-oriented network connections, those which uses UDP or some other similar protocol.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.NetworkBaseCollection">
+            <summary>
+            Holds the basic properties to create a network connection.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkBaseCollection.#ctor(System.Int32)">
+            <summary>
+            Initializes the buffers, but the Socket is set to null.
+            <see cref="T:System.Net.Sockets.Socket"/>
+            </summary>
+            <param name="buffersSize">Size used to alloc the memory buffers.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.NetworkBaseCollection.Dispose">
+            <summary>
+            Releases the buffers and set the Socket to null, so It has to be shut down by you.
+            <see cref="T:System.Net.Sockets.Socket"/>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.Dispose">
+            <summary>
+            Overrides the Dispose method from NetworkBaseCollection.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.Clone(KSPM.Network.Common.NetworkBaseCollection@)">
+            <summary>
+            Clones this NetworkCollection to the another;
+            </summary>
+            <param name="newReference"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.IAsyncReceiver">
+            <summary>
+            Interface to be implemented to each class who needs to perform an async receiving.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.IAsyncReceiver.AsyncReceiverCallback(System.IAsyncResult)">
+            <summary>
+            Receives data in an async way.
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.IAsyncSender">
+            <summary>
+            Interface to be implemented by each class who needs to perform an async sending.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.IAsyncSender.AsyncSenderCallback(System.IAsyncResult)">
+            <summary>
+            Sends data in an async way.
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.IAsyncTCPReceiver">
+            <summary>
+            Interface to be used when you want to receive asynchronous packets, but you already are implementing the AsyncReceiver interface.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.IAsyncTCPReceiver.AsyncTCPReceiver(System.IAsyncResult)">
+            <summary>
+            Method used to receive Messages through the TCP socket and utilize the Async model.
+            </summary>
+            <param name="result">Holds a reference to this object.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.IAsyncTCPReceiver.ReceiveTCPStream">
+            <summary>
+            Used to call Socket.BeginReceive method, and avoid a recursive calling.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.IAsyncTCPSender">
+            <summary>
+            Interface to be used when you want to send asynchronous packets, but you already are implementing the AsyncSender interface.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.IAsyncTCPSender.AsyncTCPSender(System.IAsyncResult)">
+            <summary>
+            Method used to send Messages through the TCP socket.
+            </summary>
+            <param name="result">Holds a reference to this object.</param>
+        </member>
+        <member name="T:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way">
+            <summary>
+            Priority queue used to prioritize messages.
+            It is called 3 way because it has 3 internal queues.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.priorityQueue">
+            <summary>
+            This is the main priority queue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.primaryQueue">
+            <summary>
+            Primary queue of messages.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.backupQueue">
+            <summary>
+            Secondary message queue used when the primary queue is full.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.usedSpace">
+            <summary>
+            Holds the amount of memopry used and controls the warning levels.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.WorkingQueue">
+            <summary>
+            This is the queue used by the system, so do not worry how this works.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.PurgeFlag">
+            <summary>
+            Flag to tells if the queue needs some purge.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.recyclingPool">
+            <summary>
+            Messages pool used to recycle those messages that require it.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.#ctor(KSPM.Network.Common.MessageHandlers.CommandQueue,System.Boolean,KSPM.Network.Common.Messages.MessagesPool)">
+            <summary>
+            Creates the queues and set them ready.
+            </summary>
+            <param name="primaryQueueBase">CommandQueue uses as base to create this reference.</param>
+            <param name="priorityQueueEnabled">Tells if the priority queue is enabled and will be initializated.</param>
+            <param name="recyclingPool">Reference to the pool of messages used to recycle those messages that must be droped.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.#ctor(KSPM.Network.Common.MessageHandlers.CommandQueue,KSPM.Network.Common.MessageHandlers.CommandQueue,KSPM.Network.Common.Messages.MessagesPool)">
+            <summary>
+            Creates and sets the queues with the given references.
+            </summary>
+            <param name="primaryQueueBase">CommandQueue uses as base to create this reference.</param>
+            <param name="priorityQueue">Reference to the priority queue</param>
+            <param name="recyclingPool">Reference to the pool of messages used to recycle those messages that must be droped.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.Purge(System.Boolean)">
+            <summary>
+            Purges all the queues and set them to null, becoming unusable.<b>You must set to null those references passed in the constructor method. Only set them to null.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.Release">
+            <summary>
+            Releases all the used queues and set them to null.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.HandlePurgeCallback">
+            <summary>
+            Asynchronous method used to purge the queue. This method must be as fast as posible.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.OnPurgeComplete(System.IAsyncResult)">
+            <summary>
+            Method called once the purge process is finished.
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.TryToEnqueueMessage(KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Tries to enqueue an incoming message. Also calls the purge method if it is required.
+            </summary>
+            <param name="message"></param>
+            <returns>True if the messages was enqueued successfully, False otherwise.</returns>
+        </member>
+        <member name="P:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.PriorityQueue">
+            <summary>
+            Gets the priority queue either it is set to null or not.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.MessageHandlers.PriorityQueue3Way.PurgeAsync">
+            <summary>
+            Delegate to create an async method to perform a purge on the queues.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.Messages.Message">
+            <summary>
+            Abstrac class to represent a single message, holds the basic information required to work.
+            Revision 2.0
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.EndOfMessageCommand">
+            <summary>
+            4 bytes to mark the end of the message, is kind of the differential manchester encoding plus 1.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.HeaderOfMessageCommand">
+            <summary>
+            4 bytes to mark the beggining of the message
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageCounter">
+            <summary>
+            Message counter to set to an unique id to each message.<b>Is defined as Int because System.Threading.Interlocked.Increment method only handles autommatically the overflow on Int32.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.command">
+            <summary>
+            Command type
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.MessageId">
+            <summary>
+            Message id to be used whatever you want, like server message sync or stuff like that.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.Priority">
+            <summary>
+            Holds the priority level of the message.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.UserDefinedCommand">
+            <summary>
+            Byte value used to sent user defined commands.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.messageRawLength">
+            <summary>
+            How many bytes of the buffer are usable, only used when the messages is being sent. This can hold up to 65535.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.broadcasted">
+            <summary>
+            Tells if this messages is going to be broadcasted, so a different release will be performed.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.bodyMessage">
+            <summary>
+            Will hold the body of the message, to avoid overwriting messages.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.#ctor(KSPM.Network.Common.Messages.Message.CommandType)">
+            <summary>
+            Constructor, I have to rethink this method.
+            </summary>
+            <param name="kindOfMessage">Command kind</param>
+            <param name="messageOwner">Network entity who is owner of this message.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.SetBodyMessage(System.Byte[],System.UInt32)">
+            <summary>
+            Sets the bodymessage from another byte array cloning the array itself into its own buffer.
+            </summary>
+            <param name="rawBytes">Reference to the original buffer which is going to be cloned.</param>
+            <param name="blockSize">Amount of bytes to be cloned.</param>
+            <returns>The message's length.</returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.SetBodyMessage(System.Byte[],System.UInt32,System.UInt32)">
+            <summary>
+            Sets the bodymessage from another byte array and the given offset, cloning the array into its own buffer.<b>Creates a new byte array.</b>
+            </summary>
+            <param name="rawBytes">Source byte array.</param>
+            <param name="rawBytesOffset">Offset, index to indicate where to start to copying.</param>
+            <param name="blockSize">Amount of bytes to be copied.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.SetBodyMessageNoClone(System.Byte[],System.UInt32)">
+            <summary>
+            Sets the body message with the given byte array reference.<b>Only copies the reference BE careful with that. DOES NOT create a new array.</b>
+            </summary>
+            <param name="rawBytes">Reference to the byte array.</param>
+            <param name="blockSize">Amount of bytes to be used.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.ToString">
+            <summary>
+            Gets a basic information of the message.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.CommandPriority(System.Byte)">
+            <summary>
+            Gets the command priority according to its command id.
+            </summary>
+            <param name="commandId">The command id as byte type.</param>
+            <returns>Command group, goes from [0-3], Default 0.</returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.HandshakeAccetpMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.NewUserMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a NewUser message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.ServerFullMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationMessage(KSPM.Network.Common.NetworkEntity,KSPM.Game.User,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Creates an authentication message. **In this moment it is not complete and may change in future updates.**
+            </summary>
+            <param name="sender"></param>
+            <param name="targetMessage"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a AuthenticationFail message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.AuthenticationSuccessMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a AuthenticationSuccess message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.KeepAlive(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.DisconnectMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a disconnect message into de buffer.
+            </summary>
+            <param name="sender"></param>
+            <param name="targetMessage"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPInfoAndPairingMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingOkMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:KSPM.Network.Common.Messages.Message.LoadUDPPairingOkMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)" -->
+        <member name="M:KSPM.Network.Common.Messages.Message.UDPPairingFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.LoadUDPPairingFailMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+            </summary>
+            <param name="sender">Reference to sender that holds the buffer to write in.</param>
+            <param name="targetMessage">Out reference to the Message object to be created.</param>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.Message.Command">
+            <summary>
+            Gets the command type of this message.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.Message.MessageBytesSize">
+            <summary>
+            Gets or sets the amount of usable bytes inside the buffer and that amount of bytes are going to be sent.
+            Use this property instead of the ServerSettings.ServerBufferSize property.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.Message.IsBroadcast">
+            <summary>
+            Sets/Gets if the message is going to be broadcasted or not.<b>Be carefull setting this flag.</b>
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.Messages.Message.CommandType">
+            <summary>
+            An enum representing what kind of commands could be handled by the server and the client.
+            Also each command has a priority level, the lowest the level number the highest priority.
+            0 - High priority -> Connection commands.
+            1 - User commands. These commands are passed to the upside level.
+            2 - At this moment this level has no commands.
+            3 - Chat commands, the lowest priority on the system.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Null">
+            <summary>
+            These commands belongs to the 0 level of priority.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Handshake">
+            <summary>
+            Handshake command used to begin a connection between the server and the client.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.NewClient">
+            <summary>
+            NewClient command used by the client to try to stablish a connection with the server.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ServerFull">
+            <summary>
+            Message sent when the server is full and a new client is attempting to connect to the game.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Authentication">
+            <summary>
+            Command used by the client to send its authentication information.
+            [Header {byte:4}][ Command {byte:1} ][ UsernameLenght {byte:1}] [ Username {byte:1-} ][HashLength{2}][ HashedUsernameAndPassword {byte:1-} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.AuthenticationFail">
+            <summary>
+            Command to tells that something went wrong while the authentication process.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.AuthenticationSuccess">
+            <summary>
+            Command to tells that the access is granted.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPSettingUp">
+            <summary>
+            Command sent by the server to tell the remote client wich port has been assigned to it also sends the pairing code. Either it works to test the connection.
+            [Header {byte:4}][ Command {byte:1} ][ PortNumber{byte:4}][ PairingCode {byte:4} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairing">
+            <summary>
+            Command send by the remote client to test the UDP connection, and the client establishes the message structure. <b>*It is sent through the UDP socket.*</b>
+            [Header {byte:4}][ Command {byte:1} ][ PairingNumber{byte:4} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairingOk">
+            <summary>
+            Command sent by the server to tell the remote client that everything is ok.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:KSPM.Network.Common.Messages.Message.CommandType.UDPPairingFail" -->
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPBroadcast">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ChatSettingUp">
+            <summary>
+            Tells the remote client how many chat groups are registered inside the server.
+            [Header {byte:4}][ Command {byte:1} ][ ChatGroupsCount { byte:2 } ] ( [ChatGroupId {byte:2} ] [ ChatGroupNameLength{byte:}][ ChatGroupName{byte:1-}] ) ... [ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.KeepAlive">
+            <summary>
+            Resets the TCP timer and avoids the TimedOut socket error.<b>TCP timeout exception ocurs after 8 hours of inactivity.</b>
+            [MessageHeader{ byte:4}][Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Disconnect">
+            <summary>
+            Disconnect command to a nicely way to say goodbye.
+            [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.User">
+            <summary>
+            Command used to mark the message and bypass it to the app.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Chat">
+            <summary>
+            Chat command.
+            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.UDPChat">
+            <summary>
+            UDP Chat command. A chat message sent through the UDP connection.
+            [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.BroadcastMessage.targets">
+            <summary>
+            Snapshot of network entities to be broadcasted.
+            Creating a snapshot of the given targets list to avoid race conditions when a NetworkEntity is released and set to Null.
+            Not using a reference to the list because it can produce IndexOutOfRange exceptions due to the race condition explaided above
+            and to the fact of changing context between threads.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.BroadcastMessage.Dispose">
+            <summary>
+            Does nothing at this moment.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.BroadcastMessage.Targets">
+            <summary>
+            Gets the targets list.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.ManagedMessage.messageOwner">
+            <summary>
+            A network entity which is owner of the message.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.ManagedMessage.startsAt">
+            <summary>
+            Index to tell where the bodymessage starts.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.#ctor(KSPM.Network.Common.Messages.Message.CommandType,KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Creates an instance and set the NetworkEntity owner of this message.
+            </summary>
+            <param name="commandType"></param>
+            <param name="messageOwner"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SetOwnerMessageNetworkEntity(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Sets a new NetworkEntity owner for this message.
+            </summary>
+            <param name="messageOwner"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Release">
+            <summary>
+            Sets messageOwner to null and he messageRawLength to 0.<b>If you want to clean everythin you have to set to null this reference.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Empty">
+            <summary>
+            Returns a new instance of the same class.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.Dispose">
+            <summary>
+            Does nothing.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.ManagedMessage.SwapReceivedBufferToSend(KSPM.Network.Common.Messages.ManagedMessage)">
+            <summary>
+            DEPRECATED
+            </summary>
+            <param name="otherMessage"></param>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.ManagedMessage.OwnerNetworkEntity">
+            <summary>
+            Return the current NetworkEntity owner of this message.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.ManagedMessage.StartsAt">
+            <summary>
+            Gets the index posision where the message starts inside the byte array.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.BufferedMessage.Load(System.Byte[],System.UInt32,System.UInt32)">
+            <summary>
+            Loads a new content into the message, seting up the message indexes.
+            </summary>
+            <param name="rawBytes">Byte array containing the original message.</param>
+            <param name="rawBytesOffset">Bytes offset from where the message starts.</param>
+            <param name="blockSize">How many bytes are being used by the message.</param>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.BufferedMessage.EndsAt">
+            <summary>
+            Gets the index position where the message ends inside the byte array.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.MessagesPool.Recycle(KSPM.Network.Common.Messages.Message)">
+            <summary>
+            Recycles the given item and put it back to the pool.
+            </summary>
+            <param name="oldItem"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.MessagesPool.Release">
+            <summary>
+            Releases all the stored messages, making this reference unable to perform any further job.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.MessagesPool.BorrowMessage">
+            <summary>
+            Takes off an item from the pool ready to be used.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.MessagesPool.FixedSize">
+            <summary>
+            Gets the initial size of the pool.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.MessagesPool.CurrentSize">
+            <summary>
+            Returns the current size of the pool.<b>This could be a dirty value, so be carefull about this value.</b>
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.MessagesPool.MessageSample">
+            <summary>
+            Returns the instance on which is based the MessagePool.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.ByteDecoder.UncompressBytes(System.Byte[]@,System.Byte[]@)">
+            <summary>
+            Uncompress the bytes
+            </summary>
+            <param name="rawBytes"></param>
+            <param name="uncompressedBytes"></param>
+            <returns></returns>
+        </member>
+        <member name="F:KSPM.Network.Common.Packet.PacketHandler.RawMessageHeaderSize">
+            <summary>
+            Size of the raw message header, it is used to send the lenght of sent bytes.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Packet.PacketHandler.CompressingPacketsEnabled">
+            <summary>
+            Flag to indicate if the packets are compressed or not, by default is set to False.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Packet.PacketHandler.PrefixSize">
+            <summary>
+            Tells how many bytes are required to start to consider a bunch of bytes as packet.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Packet.PacketHandler.CompressingObject">
+            <summary>
+            Reference to the compression methods.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InitPacketHandler(System.Boolean,KSPM.IO.Compression.Compressor@)">
+            <summary>
+            Initialize the compression settings to be used by the PacketHandler. If the compression flag is set to True and the compression reference is null then the compression flag shall be set to false.
+            </summary>
+            <param name="compressionEnabled">Tells if the packets are going to be compressed.</param>
+            <param name="compressionObject">Reference to the compression object. Sets null if the compressionEnabled flag is set to false.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InflateManagedMessage(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Secont level of the KSPM Network model.
+            Creates a ManagedMessage object from the byte array stored by the given NetworkEntity, the NetworkEntity reference is set as the owner of the messageTarget.
+            </summary>
+            <param name="bytesOwner">Reference to the NetworkEntity who holds the raw bytes, this reference is set as the message owner ether.</param>
+            <param name="messageTarget">Message object which should have the result of handling the raw bytes.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.DecodeRawPacket(System.Byte[]@)">
+            <summary>
+            Lowest level method of the KSPM Network model, decompress the bytes if the compression flag is set to true, otherwise it is a passthrough method.
+            </summary>
+            <param name="rawBytes">Array of bytes in raw format.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.EncodeRawPacket(System.Byte[]@)">
+            <summary>
+            Creates a Message object with the given NetworkEntity reference also it performs the compression method if the compression flag is set to True.
+            </summary>
+            <param name="owner">NetworkEntity who is owner of the message.</param>
+            <param name="messageTarget">An out reference to the Message.</param>
+            <returns>Error.ErrorType.Ok if there was not error.</returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.InflateRawMessage(System.Byte[],KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Secont level of the KSPM Network model.
+            Creates a RawMessage object from the given byte array.
+            </summary>
+            <param name="rawBytes">Byte array contaning the message in raw format.</param>
+            <param name="messageTarget">Out reference to the message to create.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.Release">
+            <summary>
+            Releases all the resources holded by thie object.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.PacketizeCRC(KSPM.Network.Common.Packet.IPacketArrived)">
+            <summary>
+            <b>Used by the server itself.</b>
+            Packetize the incoming bytes, searching the Begin and End headers, then calls to the ProcessPacket method.
+            </summary>
+            <param name="consumer"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.Packet.PacketHandler.UDPPacketizeCRCLoadIntoMessage(KSPM.Network.Common.Packet.IUDPPacketArrived,KSPM.Network.Common.Messages.MessagesPool)">
+            <summary>
+            Packetizes the incoming bytes and takes a Message from the pool.
+            </summary>
+            <param name="consumer"></param>
+            <param name="pooling"></param>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.RawMessage.pooling">
+            <summary>
+            Flags to tell if this message belongs to a pool.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.#ctor(KSPM.Network.Common.Messages.Message.CommandType,System.Byte[],System.UInt32)">
+            <summary>
+            Creates a RawMessage instance, copying the amount of bytes specified by the messageSize parameter into the bodyMessage array.
+            </summary>
+            <param name="kindOfMessage">Command type of the message.</param>
+            <param name="rawBytes">Reference to the byte array.</param>
+            <param name="messageSize">The amount of usable bytes.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.#ctor">
+            <summary>
+            Creates a RawMessage as a buffer setting the pooling flag to True.<b>Be careful about the pooling flag.</b>
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.LoadWith(System.Byte[],System.UInt32,System.UInt32)">
+            <summary>
+            Copies the src array into the preallocated buffer.
+            </summary>
+            <param name="src">Byte array to be copied.</param>
+            <param name="offset">From which index position is allocate the data inside the src array.</param>
+            <param name="bytesToCopy">Amount of bytes to be copied.</param>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.Empty">
+            <summary>
+            Returns an empty RawMessage prepared to be used as a buffer.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.Release">
+            <summary>
+            Releases all the properties and frees the memory buffers.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Messages.RawMessage.Dispose">
+            <summary>
+            Sets the current reference to an invalid object, but no harm is performed to the buffer. If you want to free all the resource yous must call
+            Release.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Common.Messages.RawMessage.Pooling">
+            <summary>
+            Gets/Sets the pooling flag.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.SharedBufferSAEAPool.#ctor(System.UInt32,System.Byte[],KSPM.Network.Common.SharedBufferSAEAPool.OnCompleteOperation)">
+            <summary>
+            Creates a SocketAsyncEventArgs pool, with the same buffer and sets the Complete event to the callback.
+            </summary>
+            <param name="initialCapacity">How many SAEA objects will be pooled.</param>
+            <param name="sharedBuffer">Byte array to be set as the buffer to all the SAEA objects.</param>
+            <param name="callback">Method to be set as the SocketAsyncEventArgs.Complete event.</param>
+        </member>
+        <member name="M:KSPM.Network.NAT.NATTraversal.Punch(System.Net.Sockets.Socket@,System.String,System.Int32)">
+            <summary>
+            Tries to connect to the specified ip using the given port.
+            </summary>
+            <param name="client">Socket reference used to work.</param>
+            <param name="ip">Remote ip.</param>
+            <param name="port">Remote port.</param>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.NAT.NATTraversal.Status">
+            <summary>
+            Gets the current status of the puching process.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.GameServer">
+            <summary>
+            TODO: Create a filter to allow a number of maximun TCP connections.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.alive">
+            <summary>
+            Controls the life-cycle of the server, also the thread's life-cyle.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.ableToRun">
+            <summary>
+            Controls if the server is set and ready to run.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.lowLevelOperationSettings">
+            <summary>
+            Settings to operate at low level, like listening ports and the like.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.ioPortManager">
+            <summary>
+            Port manager to handle the UDP ports, ensuring an available port each time it is required.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.warningLevel">
+            <summary>
+            Tells on what warning level the system is working.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpSocket">
+            <summary>
+            TCP socket used to receive the new incoming connections.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpIpEndPoint">
+            <summary>
+            The IP information required to set the TCP socket.<b>IP address and port are required.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpBuffer">
+            <summary>
+            Byte buffer attached to the TCP socket.<b>Used to receive the first commandof a new client.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.incomingConnectionsPool">
+            <summary>
+            SockeAsyncEventArgs pool to accept connections and to receive the first command.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimer">
+            <summary>
+            Timer to handle when the incoming tdp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimeInterval">
+            <summary>
+            Amount of time to set when the timer should check the capacity of the referred queue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeFlag">
+            <summary>
+            Tells when the system is purging an UDP queue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.tcpMinimumMessagesAllowedAfterPurge">
+            <summary>
+            Tells the amount of messages are allowe to receive messages again.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.commandsQueue">
+            <summary>
+            Holds the commands to be processed by de server, like the command chat and other commands not required to the connection process.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.localCommandsQueue">
+            <summary>
+            Holds those local commands to be processed by the server, such as the connection commands.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.outgoingMessagesQueue">
+            <summary>
+            Outgoing TCP messages.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.priorityOutgoingMessagesQueue">
+            <summary>
+            Outgoing TCP priority messages like the connection commands and the like.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.incomingMessagesPool">
+            <summary>
+            Preallocated incoming messages pool.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.priorityMessagesPool">
+            <summary>
+            Preallocated incoming priority messages pool.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.commandsThread">
+            <summary>
+            Thread used to handle the incoming commands.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.outgoingMessagesThread">
+            <summary>
+            Thread to handle the sending process of non priority commands.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.localCommandsThread">
+            <summary>
+            Thread to handle those prioritized commands, like those used in the connection process.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.priorityOutgoingMessagesThread">
+            <summary>
+            Thread to handle the prioritized outgoing commands.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.defaultUserManagementSystem">
+            <summary>
+            Default User Management System (UMS) applied by the server.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.usersAccountManager">
+            <summary>
+            Provides a basic authentication.<b>At this moment is a by pass method.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.clientsHandler">
+            <summary>
+            Poll of clients connected to the server, it should be used when the broadcasting is required.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.chatManager">
+            <summary>
+            Handles the KSPM Chat system, either UDP and TCP chating system.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.#ctor(KSPM.Network.Server.ServerSettings@)">
+            <summary>
+            Constructor of the server
+            </summary>
+            <param name="operationSettings"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.StartServer">
+            <summary>
+            Starts the server making it able to work.
+            </summary>
+            <returns>True if everything goes well, False otherwise.</returns>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.ShutdownServer">
+            <summary>
+            Stops the server, making it unable it to work. So if you must create a new instance of the server if you want to run it again.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.StartReceiveConnections">
+            <summary>
+            Starts to receive incoming connections asynchronously.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnAsyncIncomingConnectionComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called when a connection has been made through the socket. <b>Need to think in some antispam filter.</b>
+            </summary>
+            <param name="sender"></param>
+            <param name="e">The SocketAsyncEventArgs used to perform the connection process.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnAsyncFirstDataIncomingComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called once the first command was received by the server.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">SocketAsyncEventArgs used to receive the first command.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.ProcessPacket(System.Byte[],System.UInt32,System.UInt32,KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Used to process an incoming stream.
+            </summary>
+            <param name="rawData"></param>
+            <param name="rawDataOffset"></param>
+            <param name="fixedLength"></param>
+            <param name="packetOwner"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnTCPMessageArrived(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.ManagedMessage)">
+            <summary>
+            Event raised each time an User command is received.
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.HandleCommandsThreadMethod">
+            <summary>
+            Handles the those commands send by the client through a TCP socket.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.HandleOutgoingMessagesThreadMethod">
+            <summary>
+            Handles the TCP socket and the main Queue of messages, uses the a TCP socket to send messages.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnSendingOutgoingDataComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called when a asynchronous sending  is complete.
+            </summary>
+            <param name="sender"></param>
+            <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.HandleTCPPurgeTimerCallback(System.Object)">
+            <summary>
+            Method called each amount of time specified by udpPurgeTimeInterval property.
+            Checks if the queue is able to receive new messages.
+            </summary>
+            <param name="state"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.HandleLocalCommandsThreadMethod">
+            <summary>
+            Handles the commands passed by the UI or the console if is it one implemented.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.HandleOutgoingPriorityMessagesThreadMethod">
+            <summary>
+            Handles the TCP socket and the main Queue of messages, uses the a TCP socket to send messages.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.AsyncSenderCallback(System.IAsyncResult)">
+            <summary>
+            Method used to send asynchronously a message. This method calls the MessageSentCallbak once the send task is completed, but do not get afraid of this callback call, if you have not set a method to the callback it will not be invoked at all.
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnUserDisconnected(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Events.KSPMEventArgs)">
+            <summary>
+            Event raised when an user has connected to the server.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnUDPMessageArrived(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Messages.RawMessage)">
+            <summary>
+            Method called each time an UDP message is received, if there is no attached method  to the event, the message is recycled.
+            </summary>
+            <param name="sender">Network entity who has received the message.</param>
+            <param name="message">Reference to the received message.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.DisconnectClient(KSPM.Network.Common.NetworkEntity,KSPM.Network.Common.Events.KSPMEventArgs)">
+            <summary>
+            Internal method used to disconnect clients, also raises the OnUserDisconnected event.
+            </summary>
+            <param name="target">NetworkEntity to whom is going be applyed the ban hammer.</param>
+            <param name="cause">Information about what was the cause of the disconnection.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.RejectMessageToClient(KSPM.Network.Common.NetworkEntity,System.Object)">
+            <summary>
+            Method which removes a client, and is used to set the callback inside the networkentity.
+            </summary>
+            <param name="caller"></param>
+            <param name="arg"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.DisconnectAll">
+            <summary>
+            Disconnect every connected user.<b>This method will not fire the Disconnect event attached to each member.</b>
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Server.GameServer.UDPMessageArrived">
+            <summary>
+            Event raised when an UDP message has arrived to the server.
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Server.GameServer.TCPMessageArrived">
+            <summary>
+            Event raised when an User command is received by the server.
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Server.GameServer.UserConnected">
+            <summary>
+            Event raised when a new user is connected.
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Server.GameServer.UserDisconnected">
+            <summary>
+            Event raised when an user is disconnected from the user.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.GameServer.ConnectedClients">
+            <summary>
+            Returns an array of NetworkEntities connected to the server.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.GameServer.ClientsManager">
+            <summary>
+            Returns the ClientManager reference used by the server.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.GameServer.IsAlive">
+            <summary>
+            Tells if the server is still running.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.IOPortManager">
+            <summary>
+            Provides a pool of free port numbers, with a closed set given by [startAssignationPort, endAssignationPort]
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.IOPortManager.assignablePortRange">
+            <summary>
+            Port assignation table.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.IOPortManager.assignedPorts">
+            <summary>
+            Dictionary to keep track of the assigned ports.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.IOPortManager.freePorts">
+            <summary>
+            Queue to hold all the available ports.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.IOPortManager.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Creates an instance of the IOPortManager.
+            </summary>
+            <param name="startAssignationPort">Where the assignation should start at.</param>
+            <param name="endAssignationPort">Where the assignation should end at<b>Set 0 to use the MaxPort available (65535)</b></param>
+        </member>
+        <member name="M:KSPM.Network.Server.IOPortManager.NextPort(KSPM.Network.Server.IOPortManager.PortProtocool)">
+            <summary>
+            Gets the next available port between the set established at the beginning.
+            </summary>
+            <param name="usedProtocool"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Server.IOPortManager.RecyclePort(System.Int32)">
+            <summary>
+            Recycles a port placing it again in the available ports structure.
+            </summary>
+            <param name="port"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.IOPortManager.Release">
+            <summary>
+            Releases all the used resources by the IOPortManager.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.ServerSettings">
+            <summary>
+            Class to handle the settings used by the server for its proper operation.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSettings.PoolingCacheSize">
+            <summary>
+            Tells the size of those buffers used internally such as the PacketHandler buffer.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSettings.PurgeTimeIterval">
+            <summary>
+            Sets the amount of time that the system will check if it is able to process commands.<b>DO NOT CHANGE IT IF YOU DON NOT KNOW WHAT YOU ARE DOING.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSettings.AvailablePercentAfterPurge">
+            <summary>
+            Tells how much available space has to have the queue to start accepting messages.<b>Is set in percent.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.ServerSettings.connectionsBackog">
+            <summary>
+            The maximun of enqueued connections that the TCP socket can handle.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSettings.ReadSettings(KSPM.Network.Server.ServerSettings@)">
+            <summary>
+            Read the settings file and inflate an object with the stored information.
+            </summary>
+            <param name="settings">Reference to the ServerSettings object which would be filled.</param>
+            <returns>False if there was an error during the write task.</returns>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSettings.WriteSettings(KSPM.Network.Server.ServerSettings@)">
+            <summary>
+            Write the settings object into a Xml file using the UTF8 encoding.
+            </summary>
+            <param name="settings">Reference to the ServerSettings object</param>
+            <returns>False if there was an error such as if the reference is set to a null.</returns>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSettings.DefaultSettings(KSPM.Network.Server.ServerSettings@)">
+            <summary>
+            Load a default sattings values into the given paremeter.
+            </summary>
+            <param name="settings"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSettings.Release">
+            <summary>
+            <b>Does nothing.</b>
             </summary>
         </member>
         <member name="T:KSPM.Network.Server.ServerSideClient">
@@ -2357,11 +2664,6 @@
         <member name="F:KSPM.Network.Server.ServerSideClient.connected">
             <summary>
             Flag which tells if the ServerSideClient has finished the connection process with the remote client.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.ServerSideClient.markedToDie">
-            <summary>
-            Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
             </summary>
         </member>
         <member name="F:KSPM.Network.Server.ServerSideClient.incomingPackets">
@@ -2623,51 +2925,115 @@
             Delegate to process the incoming UDP datagrams.
             </summary>
         </member>
-        <member name="T:KSPM.Network.Common.IAsyncTCPSender">
+        <member name="T:KSPM.Network.Server.UserManagement.AccountManager">
             <summary>
-            Interface to be used when you want to send asynchronous packets, but you already are implementing the AsyncSender interface.
+            Class that will provide the basic account management.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Common.IAsyncTCPSender.AsyncTCPSender(System.IAsyncResult)">
+        <member name="T:KSPM.Network.Server.UserManagement.UserManagementSystem">
             <summary>
-            Method used to send Messages through the TCP socket.
-            </summary>
-            <param name="result">Holds a reference to this object.</param>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.ReadServerList(KSPM.Network.Client.RemoteServer.ServerList@)">
-            <summary>
-            Reads a file a tries to inflate a ServerList with the file's content.<b>If the file can not be read or it were some error a new ServeList is created, written and set as output.</b>
-            </summary>
-            <param name="list">Out reference to the ServerList.</param>
-            <returns>Ok or IOFileCanNotBeWritten.</returns>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.WriteServerList(KSPM.Network.Client.RemoteServer.ServerList@)">
-            <summary>
-            Writes the ServerList into a file.<b>If the reference is null a new ServerList is created and written.</b>
-            </summary>
-            <param name="list">Reference to the ServerList.</param>
-            <returns>Ok or IOFileCanNotBeWritten.</returns>
-        </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.Dispose">
-            <summary>
-            Releases all resources and write itself into a file.
+            Base of every user management system.
             </summary>
         </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.AddHost(KSPM.Network.Client.RemoteServer.ServerInformation)">
+        <member name="F:KSPM.Network.Server.UserManagement.UserManagementSystem.filter">
             <summary>
-            Tries to add the given ServerInformation reference into the hosts list.<b>If it already exists in the hosts list, nothing is added.</b>
+            Filter to be used in the Query method.
             </summary>
-            <param name="newServer"></param>
         </member>
-        <member name="M:KSPM.Network.Client.RemoteServer.ServerList.RemoveHost(KSPM.Network.Client.RemoteServer.ServerInformation)">
+        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.#ctor">
             <summary>
-            Tries to remove the given ServerInformation from the hosts list.
+            Initializes the filter to NoneFilter.
             </summary>
-            <param name="referredServer"></param>
         </member>
-        <member name="P:KSPM.Network.Client.RemoteServer.ServerList.Hosts">
+        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.Query(KSPM.Network.Common.NetworkEntity)">
             <summary>
-            Gets the ServerInformation List.
+            Make a query into the sytem and tells if the given network entity matches with the filter.
+            </summary>
+            <param name="entityToValidate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.UserManagementSystem.SetFilter(KSPM.Network.Server.UserManagement.Filters.Filter@)">
+            <summary>
+            Replaces the current filter with the new one.
+            </summary>
+            <param name="newFilter"></param>
+        </member>
+        <member name="T:KSPM.Network.Server.UserManagement.ClientsHandler">
+            <summary>
+            A class that should handle the clients and store them into a data structure. It is threadsafe.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.UserManagement.ClientsHandler.clients">
+            <summary>
+            List to provide a fast way to iterate through the server's clients.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.UserManagement.ClientsHandler.clientsEngine">
+            <summary>
+            Dictionary to privide a fast way to search among the server's clients.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.AddNewClient(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Locks the underlaying structures to add the NetworkEntity to the data structures, check if the network entity is not already stored.
+            </summary>
+            <param name="referredEntity"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.RemoveClient(KSPM.Network.Common.NetworkEntity)">
+            <summary>
+            Removes a client from the data structures and calls the Release method on it.
+            </summary>
+            <param name="referredEntity"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.Release">
+            <summary>
+            Clears the structures and calls the ReleaseMethod of each NetworkEntity reference.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.ClientsHandler.TCPBroadcastTo(System.Collections.Generic.List{KSPM.Network.Common.NetworkEntity},KSPM.Network.Common.Messages.Message)">
+            <summary>
+            Creates a broadcast message taking the messageToSend as base.
+            </summary>
+            <param name="targets"></param>
+            <param name="messageToSend"></param>
+        </member>
+        <member name="P:KSPM.Network.Server.UserManagement.ClientsHandler.ConnectedClients">
+            <summary>
+            Gets the connected clients.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.UserManagement.Filters.Filter">
+            <summary>
+            Filter to be used by the UserManagementSystem clases. If you want to implement a new filter you must inherit from this class.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.Filters.Filter.Match(KSPM.Network.Server.UserManagement.Filters.Filter.FilterMode,KSPM.Network.Common.NetworkEntity@)">
+            <summary>
+            Test the given NetworkEntity and applies the filter on it.
+            </summary>
+            <param name="entityToBeTested">Reference to a NetworkEntity to be tested.</param>
+            <returns>True if the NetworkEntity maches, false otherwise.</returns>
+        </member>
+        <member name="M:KSPM.IO.ILoadableFromFile.InflateFromFile(System.String)">
+            <summary>
+            Reads a file and tries to inflate a object.
+            </summary>
+            <param name="fileName">The filename who contains the filter definition.</param>
+            <returns></returns>
+        </member>
+        <member name="T:KSPM.Network.Server.UserManagement.Filters.NoneFilter">
+            <summary>
+            Class with no filter.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.UserManagement.Filters.NoneFilter.Filter">
+            <summary>
+            Static reference to an NoneFilter object.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.UserManagement.Filters.NoneFilter.#ctor">
+            <summary>
+            Protected constructor to avoid user create more than one instance of this class.
             </summary>
         </member>
     </members>

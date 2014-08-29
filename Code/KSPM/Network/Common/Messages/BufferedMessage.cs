@@ -34,7 +34,7 @@
             this.startsAt = rawBytesOffset;
             this.endsAt = this.startsAt + blockSize;
             this.messageRawLength = blockSize;
-            this.PriorityGroup = Message.CommandPriority((byte)this.command);
+            this.Priority = (KSPM.Globals.KSPMSystem.PriorityLevel)Message.CommandPriority((byte)this.command);
             return this.messageRawLength;
         }
 
@@ -51,6 +51,7 @@
             }
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
         }
 
         public override Message Empty()
@@ -61,6 +62,9 @@
 
         #region Setters/Getters        
 
+        /// <summary>
+        /// Gets the index position where the message ends inside the byte array.
+        /// </summary>
         public uint EndsAt
         {
             get
@@ -82,6 +86,7 @@
             }
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
         }
 
         #endregion

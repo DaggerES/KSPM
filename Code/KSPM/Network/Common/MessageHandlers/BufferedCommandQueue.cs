@@ -1,7 +1,7 @@
 ﻿using KSPM.IO.Memory;
 using KSPM.Network.Common.Messages;
 
-namespace KSPM.Network.Common
+namespace KSPM.Network.Common.MessageHandlers
 {
     public class BufferedCommandQueue : CommandQueue
     {
@@ -30,6 +30,16 @@ namespace KSPM.Network.Common
             this.ioBuffer.Release();
             this.ioBuffer = null;
             base.Purge(threadSafe);
+        }
+
+        /// <summary>
+        /// Gets a new BufferedCommandQueue.
+        /// </summary>
+        /// <returns>Reference to a new object, it has the same properties as the original does.</returns>
+        public override CommandQueue CloneEmpty()
+        {
+            BufferedCommandQueue target = new BufferedCommandQueue(this.ioBuffer.Size);
+            return target;
         }
     }
 }

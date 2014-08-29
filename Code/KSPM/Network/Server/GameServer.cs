@@ -11,6 +11,7 @@ using KSPM.Globals;
 using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
+using KSPM.Network.Common.MessageHandlers;
 using KSPM.Network.Common.Events;
 using KSPM.Network.Server.UserManagement;
 using KSPM.Network.Server.UserManagement.Filters;
@@ -60,6 +61,11 @@ namespace KSPM.Network.Server
         /// </summary>
         public event UDPMessageArrived UDPMessageArrived;
 
+        /// <summary>
+        /// Tells on what warning level the system is working.
+        /// </summary>
+        public int warningLevel;
+
         #region TCPProperties
 
         /// <summary>
@@ -83,7 +89,7 @@ namespace KSPM.Network.Server
         protected SocketAsyncEventArgsPool incomingConnectionsPool;
 
         /// <summary>
-        /// Timer to handle when the incoming udp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
+        /// Timer to handle when the incoming tdp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
         /// </summary>
         internal System.Threading.Timer tcpPurgeTimer;
 
@@ -110,6 +116,8 @@ namespace KSPM.Network.Server
         #endregion
 
         #region CommandsCode
+
+        public PriorityQueue3Way primaryCommandQueue;
 
         /// <summary>
         /// Holds the commands to be processed by de server, like the command chat and other commands not required to the connection process.
@@ -233,14 +241,15 @@ namespace KSPM.Network.Server
             this.commandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 1000);
             ///Creating the local commands queue, capable to hold up to 100 messages, each one of 1024 bytes length.
             this.localCommandsQueue = new BufferedCommandQueue((uint)ServerSettings.ServerBufferSize * 100);
-
-            this.priorityOutgoingMessagesQueue = new CommandQueue();
-            this.outgoingMessagesQueue = new CommandQueue();
-
             ///Pool of pre-allocated messages with an initial capacity if 2000 messages.
             this.incomingMessagesPool = new MessagesPool(2000, new BufferedMessage(Message.CommandType.Null, 0, 0));
             ///Pool of pre-allocated messages used in the connection process. Up to 100 messages.
             this.priorityMessagesPool = new MessagesPool(100, new BufferedMessage(Message.CommandType.Null, 0, 0));
+            ///Creating the set of queues to be used by the system.
+            this.primaryCommandQueue = new PriorityQueue3Way(this.commandsQueue, this.localCommandsQueue, this.incomingMessagesPool);
+
+            this.priorityOutgoingMessagesQueue = new CommandQueue();
+            this.outgoingMessagesQueue = new CommandQueue();
 
             this.commandsThread = new Thread(new ThreadStart(this.HandleCommandsThreadMethod));
             this.outgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingMessagesThreadMethod));
@@ -366,10 +375,11 @@ namespace KSPM.Network.Server
             this.ableToRun = false;
 
             ///Releasing command queues.
-            this.commandsQueue.Purge(false);
+            this.primaryCommandQueue.Purge(false);
+
             this.outgoingMessagesQueue.Purge(false);
-            this.localCommandsQueue.Purge(false);
             this.priorityOutgoingMessagesQueue.Purge(false);
+            
             this.commandsQueue = null;
             this.localCommandsQueue = null;
             this.outgoingMessagesQueue = null;
@@ -377,7 +387,6 @@ namespace KSPM.Network.Server
 
             ///Releasing messages pools.
             this.priorityMessagesPool.Release();
-            this.incomingMessagesPool.Release();
             this.priorityMessagesPool = null;
             this.incomingMessagesPool = null;
 
@@ -507,9 +516,13 @@ namespace KSPM.Network.Server
             incomingMessage = this.priorityMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(packetOwner);
-            if (!this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
+            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+            if (incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
-                this.priorityMessagesPool.Recycle(incomingMessage);
+                if (!this.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    this.priorityMessagesPool.Recycle(incomingMessage);
+                }
             }
         }
 
@@ -524,9 +537,6 @@ namespace KSPM.Network.Server
             {
                 this.TCPMessageArrived(sender, message);
             }
-            else
-            {
-            }
         }
 
         #endregion
@@ -540,6 +550,7 @@ namespace KSPM.Network.Server
         {
             Message messageToProcess = null;
             ManagedMessage managedMessageReference = null;
+            KSPMSystem.PriorityLevel userPriority;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -549,7 +560,7 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo("-Starting to handle commands[ " + this.alive + " ]");
                 while (this.alive)
                 {
-                    this.commandsQueue.DequeueCommandMessage(out messageToProcess);
+                    this.primaryCommandQueue.WorkingQueue.DequeueCommandMessage(out messageToProcess);
                     if (messageToProcess != null)
                     {
                         managedMessageReference = (ManagedMessage)messageToProcess;
@@ -562,17 +573,35 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
                                 break;
                             case Message.CommandType.User:
-                                ///Rising the TCP event.
-                                this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
-                                break;
-                            case Message.CommandType.Disconnect:
-                                ///Disconnects either a NetworkEntity or a ServerSideClient.
-                                KSPMGlobals.Globals.Log.WriteTo("Disconnect command");
-                                this.DisconnectClient(managedMessageReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.Disconnect, KSPMEventArgs.EventCause.NiceDisconnect));
+                                userPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(messageToProcess.UserDefinedCommand);
+                                switch( this.warningLevel)
+                                {
+                                    case (int)KSPMSystem.WarningLevel.Warning:
+                                        ///Only Critical commands are delivered.
+                                        if( userPriority == KSPMSystem.PriorityLevel.Critical)
+                                        {
+                                            ///Rising the TCP event.
+                                            this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
+                                        }
+                                        break;
+                                    case (int)KSPMSystem.WarningLevel.Carefull:
+                                        ///Only those commands: High and Critical are delivered.
+                                        if( userPriority <= KSPMSystem.PriorityLevel.High)
+                                        {
+                                            ///Rising the TCP event.
+                                            this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
+                                        }
+                                        break;
+                                    default:
+                                        ///Another warning level, every message is delivered.
+                                        ///Rising the TCP event.
+                                        this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
+                                        break;
+                                }
                                 break;
                             case Message.CommandType.Unknown:
                             default:
-                                KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                KSPMGlobals.Globals.Log.WriteTo("Non-Critical Unknown command: " + messageToProcess.Command.ToString());
                                 break;
                         }
                         ///Releasing and recycling the message.
@@ -846,7 +875,7 @@ namespace KSPM.Network.Server
                                     break;
                                 case Message.CommandType.Unknown:
                                 default:
-                                    KSPMGlobals.Globals.Log.WriteTo("Unknown command: " + messageToProcess.Command.ToString());
+                                    KSPMGlobals.Globals.Log.WriteTo("Prioritized Queue - Unknown command: " + messageToProcess.Command.ToString());
                                     break;
                             }
 
@@ -884,7 +913,7 @@ namespace KSPM.Network.Server
                         {
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
-                            KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
+                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
 
                             //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
                             managedReference = (ManagedMessage)outgoingMessage;

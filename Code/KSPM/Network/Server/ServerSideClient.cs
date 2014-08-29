@@ -8,6 +8,7 @@ using KSPM.Network.Common;
 using KSPM.Network.Common.Packet;
 using KSPM.Network.Common.Messages;
 using KSPM.Network.Common.Events;
+using KSPM.Network.Common.MessageHandlers;
 using KSPM.Globals;
 using KSPM.Game;
 
@@ -490,9 +491,33 @@ namespace KSPM.Network.Server
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
             Message incomingMessage = null;
+            incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
+            ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
+            ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
+            KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+            if( incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
+            {
+                if (!KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
+                {
+                    ///If this code is executed means the queue is full.
+                    KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.Recycle(incomingMessage);
+                }
+            }
+            else
+            {
+                ///If it is not a critical message it will inserted in the primary queue.
+                KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.TryToEnqueueMessage(ref incomingMessage);
+            }
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLength.ToString());
+            /*
             if (this.connected)
             {
+                incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
+                ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
+                ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
+                KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.TryToEnqueueMessage(ref incomingMessage);
+
+                /*
                 if (Interlocked.CompareExchange(ref KSPMGlobals.Globals.KSPMServer.tcpPurgeFlag, 0, 0) == 0)
                 {
                     incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
@@ -507,18 +532,21 @@ namespace KSPM.Network.Server
                         KSPMGlobals.Globals.KSPMServer.tcpPurgeTimer.Change(KSPMGlobals.Globals.KSPMServer.tcpPurgeTimeInterval, KSPMGlobals.Globals.KSPMServer.tcpPurgeTimeInterval);
                     }
                 }
+                 * */
+            /*
             }
             else
             {
                 incomingMessage = KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.BorrowMessage;
                 ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
                 ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-                if (!KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
+                if (!KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
                 {
                     ///If this code is executed means the queue is full.
                     KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.Recycle(incomingMessage);
                 }
             }
+            */
         }
 
         #endregion

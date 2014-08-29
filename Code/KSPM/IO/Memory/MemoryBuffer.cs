@@ -2,9 +2,24 @@
 {
     public class MemoryBuffer
     {
+        /// <summary>
+        /// Byte array buffer.<b>Internal use only.</b>
+        /// </summary>
         protected byte[] ioBuffer;
+
+        /// <summary>
+        /// Byte buffer's size.
+        /// </summary>
         protected uint bufferSize;
+
+        /// <summary>
+        /// Index used to write from a determined position.<b>Internal use only.</b>
+        /// </summary>
         protected uint readingPosition;
+
+        /// <summary>
+        /// Index used to read from the buffer.<b>Internal use only.</b>
+        /// </summary>
         protected uint writingPosition;
 
         public MemoryBuffer(uint bufferLength)
@@ -62,6 +77,17 @@
             get
             {
                 return this.ioBuffer;
+            }
+        }
+
+        /// <summary>
+        /// Gets the linear size of the buffer.
+        /// </summary>
+        public uint Size
+        {
+            get
+            {
+                return this.bufferSize;
             }
         }
     }

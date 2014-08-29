@@ -69,10 +69,10 @@ namespace ConsoleFakeClient
             //client.SetServerHostInformation(server);
             client.InitializeClient();
             client.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(client_UserDisconnected);
-            //client.Connect();
-            /*GroupFilter group = new GroupFilter();
+            client.Connect();
+            GroupFilter group = new GroupFilter();
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
-            client.ChatSystem.RegisterFilter(group);*/
+            client.ChatSystem.RegisterFilter(group);
             Console.WriteLine(string.Format("delay: {0}", delay));
             Console.WriteLine(string.Format("Flooding: {0}", flooding));
             Console.WriteLine(string.Format("Mode: {0}", mode.ToString()));
@@ -83,11 +83,11 @@ namespace ConsoleFakeClient
 
                 while (!exit)
                 {
-                    /*
+                    
                     bot.Flood(mode);
                     System.Threading.Thread.Sleep((int)delay);
-                    */
-
+                    
+                    /*
                     Console.WriteLine("Press q to quit");
                     Console.WriteLine("Press r to connect");
                     Console.WriteLine("Press d to disconnect");
@@ -113,7 +113,8 @@ namespace ConsoleFakeClient
                         default:
                             break;
                     }
-                    
+                    */
+
                     /*
                     client.SetGameUser(myUser);
                     client.SetServerHostInformation(hosts.Hosts[0]);
