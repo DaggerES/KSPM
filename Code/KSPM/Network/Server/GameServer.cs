@@ -550,7 +550,7 @@ namespace KSPM.Network.Server
         {
             Message messageToProcess = null;
             ManagedMessage managedMessageReference = null;
-            KSPMSystem.PriorityLevel userPriority;
+            KSPMSystem.PriorityLevel userCommandPriority;
             if (!this.ableToRun)
             {
                 KSPMGlobals.Globals.Log.WriteTo(Error.ErrorType.ServerUnableToRun.ToString());
@@ -567,18 +567,23 @@ namespace KSPM.Network.Server
                         switch (messageToProcess.Command)
                         {
                             case Message.CommandType.Chat:
-                                this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
+                                ///This if means that if the level warning is less than KSPM.System.Easy value as integer the message will be processed.
+                                if (this.warningLevel < 2)
+                                {
+                                    this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
+                                }
                                 break;
                             case Message.CommandType.KeepAlive:
+                                ///This is only to show something.
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
                                 break;
                             case Message.CommandType.User:
-                                userPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(messageToProcess.UserDefinedCommand);
+                                userCommandPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(messageToProcess.UserDefinedCommand);
                                 switch( this.warningLevel)
                                 {
                                     case (int)KSPMSystem.WarningLevel.Warning:
                                         ///Only Critical commands are delivered.
-                                        if( userPriority == KSPMSystem.PriorityLevel.Critical)
+                                        if( userCommandPriority == KSPMSystem.PriorityLevel.Critical)
                                         {
                                             ///Rising the TCP event.
                                             this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
@@ -586,7 +591,7 @@ namespace KSPM.Network.Server
                                         break;
                                     case (int)KSPMSystem.WarningLevel.Carefull:
                                         ///Only those commands: High and Critical are delivered.
-                                        if( userPriority <= KSPMSystem.PriorityLevel.High)
+                                        if( userCommandPriority <= KSPMSystem.PriorityLevel.High)
                                         {
                                             ///Rising the TCP event.
                                             this.OnTCPMessageArrived(managedMessageReference.OwnerNetworkEntity, managedMessageReference);
@@ -760,6 +765,7 @@ namespace KSPM.Network.Server
             }
         }
 
+        #region DEPRECATED
         /// <summary>
         /// Method called each amount of time specified by udpPurgeTimeInterval property.
         /// Checks if the queue is able to receive new messages.
@@ -777,6 +783,8 @@ namespace KSPM.Network.Server
                 KSPMGlobals.Globals.Log.WriteTo(string.Format("TCPPurge finished."));
             }
         }
+
+#endregion
 
         #endregion
 

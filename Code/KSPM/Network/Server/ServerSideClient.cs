@@ -494,7 +494,7 @@ namespace KSPM.Network.Server
             incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-            KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+            //KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
             if( incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
                 if (!KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
