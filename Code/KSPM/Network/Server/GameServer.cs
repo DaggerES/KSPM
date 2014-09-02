@@ -375,7 +375,8 @@ namespace KSPM.Network.Server
             this.ableToRun = false;
 
             ///Releasing command queues.
-            this.primaryCommandQueue.Purge(false);
+            this.primaryCommandQueue.Release();
+            this.primaryCommandQueue = null;
 
             this.outgoingMessagesQueue.Purge(false);
             this.priorityOutgoingMessagesQueue.Purge(false);

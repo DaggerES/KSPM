@@ -123,6 +123,11 @@ namespace KSPM.Network.Server
         protected CommandQueue incomingPackets;
 
         /// <summary>
+        /// Priority UDP Queue to hold those incoming datagrams.
+        /// </summary>
+        protected PriorityQueue3Way incomingDatagrams;
+
+        /// <summary>
         /// UDPMessages queue to be send to the remote client.
         /// </summary>
         public CommandQueue outgoingPackets;
@@ -225,10 +230,6 @@ namespace KSPM.Network.Server
             this.tcpInEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, this.OnTCPIncomingDataComplete);
             this.tcpOutEventsPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize / 2, KSPMGlobals.Globals.KSPMServer.OnSendingOutgoingDataComplete);
 
-            ///Setting UDP queues.
-            this.incomingPackets = new CommandQueue();
-            this.outgoingPackets = new CommandQueue();
-
             ///UDP Buffering
             this.udpCollection = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.udpBuffer = new IO.Memory.CyclicalMemoryBuffer(ServerSettings.PoolingCacheSize, (uint)ServerSettings.ServerBufferSize);
@@ -236,6 +237,13 @@ namespace KSPM.Network.Server
             this.udpInputSAEAPool = new SharedBufferSAEAPool(ServerSettings.PoolingCacheSize, this.udpCollection.secondaryRawBuffer, this.OnUDPIncomingDataComplete);
             this.udpOutSAEAPool = new SocketAsyncEventArgsPool(ServerSettings.PoolingCacheSize, this.OnUDPSendingDataComplete);
             this.udpIOMessagesPool = new MessagesPool(ServerSettings.PoolingCacheSize * 1000, new RawMessage(Message.CommandType.Null, null, 0));
+
+            ///Setting UDP queues.
+            this.incomingPackets = new CommandQueue();
+            this.outgoingPackets = new CommandQueue();
+
+            ///Setting up the priority UDP Qeuue.
+            this.incomingDatagrams = new PriorityQueue3Way(this.incomingPackets, false, this.udpIOMessagesPool);
 
             this.markedToDie = false;
 
@@ -465,21 +473,6 @@ namespace KSPM.Network.Server
         /// <param name="fixedLegth"></param>
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
-            /*
-            Message incomingMessage = null;
-            //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
-            if (PacketHandler.InflateManagedMessageAlt(rawData, this, out incomingMessage) == Error.ErrorType.Ok)
-            {
-                if (this.connected)///If everything is already set up, commands go to the common queue.
-                {
-                    KSPMGlobals.Globals.KSPMServer.commandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                }
-                else
-                {
-                    KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage);
-                }
-            }
-            */
         }
 
         /// <summary>
