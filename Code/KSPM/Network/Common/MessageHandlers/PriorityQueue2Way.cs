@@ -1,18 +1,15 @@
-﻿//using KSPM.Network.Common.Messages;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace KSPM.Network.Common.MessageHandlers
-{
-    /// <summary>
+{/// <summary>
     /// Priority queue used to prioritize messages.
     /// It is called 3 way because it has 3 internal queues.
     /// </summary>
-    public class PriorityQueue3Way
+    public class PriorityQueue2Way
     {
-        /// <summary>
-        /// This is the main priority queue.
-        /// </summary>
-        protected CommandQueue priorityQueue;
-
         /// <summary>
         /// Primary queue of messages.
         /// </summary>
@@ -54,30 +51,8 @@ namespace KSPM.Network.Common.MessageHandlers
         /// <param name="primaryQueueBase">CommandQueue uses as base to create this reference.</param>
         /// <param name="priorityQueueEnabled">Tells if the priority queue is enabled and will be initializated.</param>
         /// <param name="recyclingPool">Reference to the pool of messages used to recycle those messages that must be droped.</param>
-        public PriorityQueue3Way( CommandQueue primaryQueueBase, bool priorityQueueEnabled, Messages.MessagesPool recyclingPool)
+        public PriorityQueue2Way(CommandQueue primaryQueueBase, Messages.MessagesPool recyclingPool)
         {
-            this.priorityQueue = null;
-            this.primaryQueue = primaryQueueBase;
-            this.backupQueue = this.primaryQueue.CloneEmpty();
-            this.recyclingPool = recyclingPool;
-            if( priorityQueueEnabled )
-            {
-                this.priorityQueue = this.primaryQueue.CloneEmpty();
-            }
-
-            this.WorkingQueue = this.primaryQueue;
-            this.PurgeFlag = 0;
-        }
-
-        /// <summary>
-        /// Creates and sets the queues with the given references.
-        /// </summary>
-        /// <param name="primaryQueueBase">CommandQueue uses as base to create this reference.</param>
-        /// <param name="priorityQueue">Reference to the priority queue</param>
-        /// <param name="recyclingPool">Reference to the pool of messages used to recycle those messages that must be droped.</param>
-        public PriorityQueue3Way(CommandQueue primaryQueueBase, CommandQueue priorityQueue, Messages.MessagesPool recyclingPool)
-        {
-            this.priorityQueue = priorityQueue;
             this.primaryQueue = primaryQueueBase;
             this.backupQueue = this.primaryQueue.CloneEmpty();
             this.recyclingPool = recyclingPool;
@@ -87,54 +62,67 @@ namespace KSPM.Network.Common.MessageHandlers
         }
 
         /// <summary>
-        /// Purges all the queues and set them to null, becoming unusable.<b>You must set to null those references passed in the constructor method. Only set them to null.</b>
+        /// Purges all the queues but not set them to null.
         /// </summary>
         public void Purge(bool threadSafe)
         {
-            this.primaryQueue.Purge(threadSafe);
-            this.backupQueue.Purge(threadSafe);
-            if (this.priorityQueue != null)
+            Messages.Message disposingMessage = null;
+            ///Cleaning the working queue.
+            ///Taking off and recycling each message stored inside the working queue.
+            this.WorkingQueue.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
             {
-                this.priorityQueue.Purge(threadSafe);
+                this.recyclingPool.Recycle(disposingMessage);
+                this.WorkingQueue.DequeueCommandMessage(out disposingMessage);
             }
 
-            this.recyclingPool.Release();
+            ///Checking if the system is already purging some queues.
+            if (System.Threading.Interlocked.CompareExchange(ref this.PurgeFlag, int.MaxValue, int.MaxValue) == 1)
+            {
+                while (this.PurgeFlag != 0)
+                {
+                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("PriorityQueue3Way-System already purging, waiting for 100 miliseconds."));
+                    System.Threading.Thread.Sleep(100);
+                }
+            }
 
-            this.priorityQueue = null;
-            this.primaryQueue = null;
-            this.backupQueue = null;
-            this.recyclingPool = null;
+            this.primaryQueue.Purge(false);
+            this.backupQueue.Purge(false);
         }
 
         /// <summary>
-        /// Releases all the used queues and set them to null.
+        /// Releases all the used queues and set them to null. Also recycles those messages put them back into the pool.
         /// </summary>
         public void Release()
         {
+            Messages.Message disposingMessage = null;
+            ///Cleaning the working queue.
+            ///Taking off and recycling each message stored inside the working queue.
+            this.WorkingQueue.DequeueCommandMessage(out disposingMessage);
+            while (disposingMessage != null)
+            {
+                this.recyclingPool.Recycle(disposingMessage);
+                this.WorkingQueue.DequeueCommandMessage(out disposingMessage);
+            }
+
+            ///Checking if the system is already purging some queues.
+            if (System.Threading.Interlocked.CompareExchange(ref this.PurgeFlag, int.MaxValue, int.MaxValue) == 1)
+            {
+                while (this.PurgeFlag != 0)
+                {
+                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("PriorityQueue3Way-System already purging, waiting for 100 miliseconds."));
+                    System.Threading.Thread.Sleep(100);
+                }
+            }
+
             this.primaryQueue.Purge(false);
             this.backupQueue.Purge(false);
-            if (this.priorityQueue != null)
-            {
-                this.priorityQueue.Purge(false);
-            }
 
             this.recyclingPool.Release();
 
-            this.priorityQueue = null;
             this.primaryQueue = null;
             this.backupQueue = null;
             this.recyclingPool = null;
-        }
-
-        /// <summary>
-        /// Gets the priority queue either it is set to null or not.
-        /// </summary>
-        public CommandQueue PriorityQueue
-        {
-            get
-            {
-                return this.priorityQueue;
-            }
         }
 
         /// <summary>
@@ -160,7 +148,7 @@ namespace KSPM.Network.Common.MessageHandlers
         /// Method called once the purge process is finished.
         /// </summary>
         /// <param name="result"></param>
-        protected void OnPurgeComplete( System.IAsyncResult result )
+        protected void OnPurgeComplete(System.IAsyncResult result)
         {
             ///Setting a proper value to the purge flag, basically reseting the flag.
             System.Threading.Interlocked.Exchange(ref this.PurgeFlag, 0);
@@ -187,7 +175,7 @@ namespace KSPM.Network.Common.MessageHandlers
             this.usedSpace = this.WorkingQueue.OccupiedSpace;
             if (!insertingResult)
             {
-                if (System.Threading.Interlocked.CompareExchange( ref this.PurgeFlag, 1, 1 ) == 1)
+                if (System.Threading.Interlocked.CompareExchange(ref this.PurgeFlag, 1, 1) == 1)
                 {
                     ///This meens that both queues are full
                     ///Required to implement a new system to fix this situation.
@@ -215,18 +203,18 @@ namespace KSPM.Network.Common.MessageHandlers
             else
             {
                 ///Almost full it requires to bypass more packets.
-                if( this.usedSpace >= 75 )
+                if (this.usedSpace >= 75)
                 {
                     System.Threading.Interlocked.Exchange(ref KSPM.Globals.KSPMGlobals.Globals.KSPMServer.warningLevel, (int)KSPM.Globals.KSPMSystem.WarningLevel.Warning);
                 }
-                    ///Starting to bypass packets.
-                else if(this.usedSpace >= 50 )
+                ///Starting to bypass packets.
+                else if (this.usedSpace >= 50)
                 {
                     System.Threading.Interlocked.Exchange(ref KSPM.Globals.KSPMGlobals.Globals.KSPMServer.warningLevel, (int)KSPM.Globals.KSPMSystem.WarningLevel.Carefull);
                 }
                 else
                 {
-                    System.Threading.Interlocked.Exchange(ref KSPM.Globals.KSPMGlobals.Globals.KSPMServer.warningLevel, (int)KSPM.Globals.KSPMSystem.WarningLevel.None);
+                    System.Threading.Interlocked.Exchange(ref KSPM.Globals.KSPMGlobals.Globals.KSPMServer.warningLevel, (int)KSPM.Globals.KSPMSystem.WarningLevel.Warning);
                 }
             }
             return insertingResult;

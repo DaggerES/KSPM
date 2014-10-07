@@ -1,9 +1,21 @@
 ﻿namespace KSPM.Network.Common.Messages
 {
+    /// <summary>
+    /// Buffered message, the Buffered.bodyMessage reference is set to an external buffer.
+    /// </summary>
     public class BufferedMessage : ManagedMessage
     {
+        /// <summary>
+        /// Index where the message ends.
+        /// </summary>
         protected uint endsAt;
 
+        /// <summary>
+        /// Creates  a new instance of a BufferedMessage and set each property to a default values.
+        /// </summary>
+        /// <param name="kindOfCommand">Kind of the commands that this message would be.</param>
+        /// <param name="startsAt">Index from where the message starts.</param>
+        /// <param name="endsAt">Index where the message ends.</param>
         public BufferedMessage(CommandType kindOfCommand, uint startsAt, uint endsAt)
             : base(kindOfCommand, null)
         {
@@ -11,6 +23,13 @@
             this.endsAt = endsAt;
         }
 
+        /// <summary>
+        /// Sets the bodyMessage
+        /// </summary>
+        /// <param name="rawBytes"></param>
+        /// <param name="rawBytesOffset"></param>
+        /// <param name="blockSize"></param>
+        /// <returns></returns>
         public uint SetBodyMessageNoClone(byte[] rawBytes, uint rawBytesOffset, uint blockSize )
         {
             this.bodyMessage = rawBytes;

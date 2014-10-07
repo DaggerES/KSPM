@@ -117,7 +117,10 @@ namespace KSPM.Network.Server
 
         #region CommandsCode
 
-        public PriorityQueue3Way primaryCommandQueue;
+        /// <summary>
+        /// Primary Command manager, manages the commandsQueue reference.
+        /// </summary>
+        public PriorityQueue2Way primaryCommandQueue;
 
         /// <summary>
         /// Holds the commands to be processed by de server, like the command chat and other commands not required to the connection process.
@@ -148,6 +151,11 @@ namespace KSPM.Network.Server
         /// Preallocated incoming priority messages pool.
         /// </summary>
         public MessagesPool priorityMessagesPool;
+
+        /// <summary>
+        /// Preallocated outgoing broadcasting messages pool.
+        /// </summary>
+        public MessagesPool broadcastMessagesPool;
 
 
         #endregion
@@ -245,8 +253,11 @@ namespace KSPM.Network.Server
             this.incomingMessagesPool = new MessagesPool(2000, new BufferedMessage(Message.CommandType.Null, 0, 0));
             ///Pool of pre-allocated messages used in the connection process. Up to 100 messages.
             this.priorityMessagesPool = new MessagesPool(100, new BufferedMessage(Message.CommandType.Null, 0, 0));
+            ///Pool of pre-allocated messages used to broadcast messages. Up to to 2000 messages.
+            this.broadcastMessagesPool = new MessagesPool(2000, new BroadcastMessage(Message.CommandType.Null, null));
+
             ///Creating the set of queues to be used by the system.
-            this.primaryCommandQueue = new PriorityQueue3Way(this.commandsQueue, this.localCommandsQueue, this.incomingMessagesPool);
+            this.primaryCommandQueue = new PriorityQueue2Way(this.commandsQueue, this.incomingMessagesPool);
 
             this.priorityOutgoingMessagesQueue = new CommandQueue();
             this.outgoingMessagesQueue = new CommandQueue();
@@ -257,7 +268,7 @@ namespace KSPM.Network.Server
             this.priorityOutgoingMessagesThread = new Thread(new ThreadStart(this.HandleOutgoingPriorityMessagesThreadMethod));
 
             this.defaultUserManagementSystem = new LowlevelUserManagmentSystem();
-            this.clientsHandler = new ClientsHandler();
+            this.clientsHandler = new ClientsHandler( (byte)this.lowLevelOperationSettings.maxConnectedClients );
 
             ///It still missing the filter
             this.usersAccountManager = new AccountManager();
@@ -378,6 +389,10 @@ namespace KSPM.Network.Server
             this.primaryCommandQueue.Release();
             this.primaryCommandQueue = null;
 
+            ///Required release all those commands.
+            this.localCommandsQueue.Purge(false);
+            this.localCommandsQueue = null;
+
             this.outgoingMessagesQueue.Purge(false);
             this.priorityOutgoingMessagesQueue.Purge(false);
             
@@ -390,6 +405,8 @@ namespace KSPM.Network.Server
             this.priorityMessagesPool.Release();
             this.priorityMessagesPool = null;
             this.incomingMessagesPool = null;
+            this.broadcastMessagesPool.Release();
+            this.broadcastMessagesPool = null;
 
             ///Releasing SAEA pool.
             this.incomingConnectionsPool.Release(false);
@@ -520,7 +537,7 @@ namespace KSPM.Network.Server
             KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
             if (incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
-                if (!this.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
+                if (!this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
                 {
                     this.priorityMessagesPool.Recycle(incomingMessage);
                 }
@@ -564,6 +581,7 @@ namespace KSPM.Network.Server
                     this.primaryCommandQueue.WorkingQueue.DequeueCommandMessage(out messageToProcess);
                     if (messageToProcess != null)
                     {
+                        KSPMGlobals.Globals.Log.WriteTo(messageToProcess.ToString());
                         managedMessageReference = (ManagedMessage)messageToProcess;
                         switch (messageToProcess.Command)
                         {
@@ -571,6 +589,7 @@ namespace KSPM.Network.Server
                                 ///This if means that if the level warning is less than KSPM.System.Easy value as integer the message will be processed.
                                 if (this.warningLevel < 2)
                                 {
+                                    //KSPMGlobals.Globals.Log.WriteTo(messageToProcess.ToString());
                                     this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
                                 }
                                 break;
@@ -579,7 +598,14 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.Log.WriteTo("KeepAlive command: " + messageToProcess.Command.ToString());
                                 break;
                             case Message.CommandType.User:
+                                messageToProcess.UserDefinedCommand = messageToProcess.bodyMessage[13];
                                 userCommandPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(messageToProcess.UserDefinedCommand);
+                                /*
+                                KSPMGlobals.Globals.Log.WriteTo(messageToProcess.UserDefinedCommand.ToString());
+                                KSPMGlobals.Globals.Log.WriteTo(userCommandPriority.ToString());
+                                KSPMGlobals.Globals.Log.WriteTo(this.warningLevel.ToString());
+                                */
+                                ///Checking the priority level from the UserDefinedCommand because it defines if the message is bypassed or not.
                                 switch( this.warningLevel)
                                 {
                                     case (int)KSPMSystem.WarningLevel.Warning:
@@ -654,13 +680,14 @@ namespace KSPM.Network.Server
                         {
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
                             try
                             {
                                 ///If it is broadcaste message a different sending procces is performed.
                                 if (outgoingMessage.IsBroadcast)
                                 {
                                     broadcastReference = (BroadcastMessage)outgoingMessage;
-                                    for (entityCounter = 0; entityCounter < broadcastReference.Targets.Length; entityCounter++)
+                                    for (entityCounter = 0; entityCounter < broadcastReference.Targets.Count; entityCounter++)
                                     {
                                         if (broadcastReference.Targets[entityCounter] != null && broadcastReference.Targets[entityCounter].IsAlive())
                                         {
@@ -678,7 +705,7 @@ namespace KSPM.Network.Server
                                             }
                                             else
                                             {
-                                                KSPMGlobals.Globals.Log.WriteTo("PACKET CRC ERROR, Avoiding it.");
+                                                KSPMGlobals.Globals.Log.WriteTo("Non-Priortized----PACKET CRC ERROR, Avoiding it.");
                                             }
                                         }
                                     }
@@ -704,7 +731,7 @@ namespace KSPM.Network.Server
                                     }
                                     else
                                     {
-                                        KSPMGlobals.Globals.Log.WriteTo("PACKET CRC ERROR, Avoiding it.");
+                                        KSPMGlobals.Globals.Log.WriteTo("Non-Prioritized----PACKET CRC ERROR, Avoiding it.");
                                     }
                                 }
                             }
@@ -716,7 +743,14 @@ namespace KSPM.Network.Server
                             finally
                             {
                                 ///Cleaning up.
-                                outgoingMessage.Release();
+                                if( outgoingMessage.IsBroadcast)
+                                {
+                                    this.broadcastMessagesPool.Recycle(outgoingMessage);
+                                }
+                                else
+                                {
+                                    outgoingMessage.Release();
+                                }
                                 outgoingMessage = null;
                             }
                         }
@@ -848,12 +882,17 @@ namespace KSPM.Network.Server
                                     User.InflateUserFromBytes(messageToProcess.bodyMessage, ((BufferedMessage)messageToProcess).StartsAt, messageToProcess.MessageBytesSize, out referredUser);
                                     serverSideClientReference = (ServerSideClient)managedMessageReference.OwnerNetworkEntity;
                                     serverSideClientReference.gameUser = referredUser;
+
+                                    ///Setting the NetworkEntity of this GameUser.
+                                    referredUser.Parent = serverSideClientReference;
                                     if (this.usersAccountManager.Query(managedMessageReference.OwnerNetworkEntity))
                                     {
                                         /*
                                         Message.AuthenticationSuccessMessage(messageOwner, out responseMessage);
                                         this.outgoingMessagesQueue.EnqueueCommandMessage(ref responseMessage);
                                          */
+                                        ///Setting the new id, this one is generated by the system itself.
+                                        serverSideClientReference.gameUser.SetCustomId(this.clientsHandler.NextUserId());
                                         serverSideClientReference.RemoveAwaitingState(ServerSideClient.ClientStatus.Authenticated);
                                     }
                                     else
@@ -1006,11 +1045,13 @@ namespace KSPM.Network.Server
             {
                 this.UDPMessageArrived(sender, message);
             }
+            /*
             else
             {
                 ///Recycling the message, to avoid message exhaustion.
                 ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
             }
+            */
         }
 
         /// <summary>
@@ -1020,9 +1061,9 @@ namespace KSPM.Network.Server
         /// <param name="cause">Information about what was the cause of the disconnection.</param>
         internal void DisconnectClient(NetworkEntity target, KSPMEventArgs cause)
         {
-            if (target != null && target.IsAlive() && !target.MarkedToDie)
+            if (target != null && target.IsAlive() && !target.markedToDie)
             {
-                target.MarkedToDie = true;
+                target.markedToDie = true;
                 KSPMGlobals.Globals.Log.WriteTo("Desconectando");
                 this.OnUserDisconnected(target, cause);
                 this.chatManager.UnregisterUser(target);

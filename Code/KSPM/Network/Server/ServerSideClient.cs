@@ -91,6 +91,10 @@ namespace KSPM.Network.Server
         /// Pool of SocketAsyncEventArgs used to receive tcp streams.
         /// </summary>
         SocketAsyncEventArgsPool tcpInEventsPool;
+
+        /// <summary>
+        /// Pool of SocketAsyncEventArgs used to send tcp streams.
+        /// </summary>
         SocketAsyncEventArgsPool tcpOutEventsPool;
 
         #endregion
@@ -125,7 +129,7 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Priority UDP Queue to hold those incoming datagrams.
         /// </summary>
-        protected PriorityQueue3Way incomingDatagrams;
+        protected PriorityQueue2Way incomingDatagrams;
 
         /// <summary>
         /// UDPMessages queue to be send to the remote client.
@@ -243,7 +247,7 @@ namespace KSPM.Network.Server
             this.outgoingPackets = new CommandQueue();
 
             ///Setting up the priority UDP Qeuue.
-            this.incomingDatagrams = new PriorityQueue3Way(this.incomingPackets, false, this.udpIOMessagesPool);
+            this.incomingDatagrams = new PriorityQueue2Way(this.incomingPackets, this.udpIOMessagesPool);
 
             this.markedToDie = false;
 
@@ -355,6 +359,12 @@ namespace KSPM.Network.Server
                         this.profilerTimeStart = this.profilerTimeMark;
                         this.profilerTimeCounter++;
 
+                        ///Registering the user into the selective broadcast queue.
+                        ///Until the connection is complete this client would not be available to a selective broadcast.
+                        ///Only to a wide broadcast.
+                        KSPMGlobals.Globals.KSPMServer.ClientsManager.RegisterNewUserClient((GameUser)this.gameUser);
+
+                        ///Registering the user to the Chat manager, becoming available to receive chat messages.
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
                         Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
@@ -490,7 +500,7 @@ namespace KSPM.Network.Server
             //KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
             if( incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
-                if (!KSPMGlobals.Globals.KSPMServer.primaryCommandQueue.PriorityQueue.EnqueueCommandMessage(ref incomingMessage))
+                if (!KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
                 {
                     ///If this code is executed means the queue is full.
                     KSPMGlobals.Globals.KSPMServer.priorityMessagesPool.Recycle(incomingMessage);
@@ -721,16 +731,6 @@ namespace KSPM.Network.Server
         /// <param name="fixedLegth"></param>
         public void ProcessUDPPacket(byte[] rawData, uint fixedLegth)
         {
-            /*
-            Message incomingMessage;
-            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(fixedLegth.ToString());
-            if (PacketHandler.InflateRawMessage(rawData, out incomingMessage) == Error.ErrorType.Ok)
-            {
-                ///Puting the incoming RawMessage into the queue to be processed.
-                this.incomingPackets.EnqueueCommandMessage(ref incomingMessage);
-                this.ProcessUDPCommand();
-            }
-            */
         }
 
         /// <summary>
@@ -739,6 +739,9 @@ namespace KSPM.Network.Server
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
+            ///Trying to enqueue the new message.
+            this.incomingDatagrams.TryToEnqueueMessage(ref incomingMessage);
+            /*
             if (Interlocked.CompareExchange(ref this.udpPurgeFlag, 0, 0) == 0)
             {
                 if (!this.incomingPackets.EnqueueCommandMessage(ref incomingMessage))
@@ -756,6 +759,7 @@ namespace KSPM.Network.Server
                 ///So we need to recycle the incoming message to avoid memory exhaustion.
                 this.udpIOMessagesPool.Recycle(incomingMessage);
             }
+            */
         }
 
         /// <summary>
@@ -767,6 +771,7 @@ namespace KSPM.Network.Server
             Message incomingMessage = null;
             Message responseMessage = null;
             RawMessage rawMessageReference = null;
+            KSPMSystem.PriorityLevel userCommandPriority;
             int intBuffer;
             byte[] byteBuffer;
 
@@ -775,9 +780,11 @@ namespace KSPM.Network.Server
             ///It will cycle until the Queue is not empty, in such case it will sleep 5 ms ans tries again.
             while (this.aliveFlag)
             {
-                this.incomingPackets.DequeueCommandMessage(out incomingMessage);
+                ///Taking out a message from the working queue.
+                this.incomingDatagrams.WorkingQueue.DequeueCommandMessage(out incomingMessage);
                 if (incomingMessage != null)
                 {
+                    KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
                     rawMessageReference = (RawMessage)incomingMessage;
                     switch (incomingMessage.Command)
                     {
@@ -787,7 +794,7 @@ namespace KSPM.Network.Server
                             intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 2 + byteBuffer.Length);
                             //this.udpCollection.remoteEndPoint = new IPEndPoint(new IPAddress(byteBuffer), intBuffer);
                             this.udpCollection.remoteEndPoint = new IPEndPoint(((IPEndPoint)this.ownerNetworkCollection.socketReference.RemoteEndPoint).Address, intBuffer);
-                            KSPMGlobals.Globals.Log.WriteTo(this.udpCollection.remoteEndPoint.ToString());
+                            //KSPMGlobals.Globals.Log.WriteTo(this.udpCollection.remoteEndPoint.ToString());
                             intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 6 + byteBuffer.Length);
                             //intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
                             responseMessage = this.udpIOMessagesPool.BorrowMessage;
@@ -813,22 +820,54 @@ namespace KSPM.Network.Server
                                 }
                             }
                             this.SendUDPDatagram();
-                            ///Recycling the message used in the connection process.
-                            this.udpIOMessagesPool.Recycle(incomingMessage);
                             break;
                         case Message.CommandType.UDPChat:
-                            ///At this moment we only raises the event, but it can be raised with whichever incoming message.
-                            KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                            ///This if means that if the level warning is less than KSPM.System.Carefull value as integer the message will be processed, otherwise it will be bypassed.
+                            if (KSPMGlobals.Globals.KSPMServer.warningLevel < 2)
+                            {
+                                ///At this moment we only raises the event, but it can be raised with whichever incoming message.
+                                KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                            }
                             break;
                         case Message.CommandType.User:
-                            ///At this moment we only raises the event, but it can be raised with whichever incoming message.
-                            KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                            incomingMessage.UserDefinedCommand = incomingMessage.bodyMessage[13];
+                            userCommandPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(incomingMessage.UserDefinedCommand);
+                            KSPMGlobals.Globals.Log.WriteTo(incomingMessage.UserDefinedCommand.ToString());
+                            KSPMGlobals.Globals.Log.WriteTo(userCommandPriority.ToString());
+                            KSPMGlobals.Globals.Log.WriteTo( KSPMGlobals.Globals.KSPMServer.warningLevel.ToString());
+
+                            switch( KSPMGlobals.Globals.KSPMServer.warningLevel )
+                            {
+                                case (int)KSPMSystem.WarningLevel.Warning:
+                                    ///Only Critical commands are delivered.
+                                    if (userCommandPriority == KSPMSystem.PriorityLevel.Critical)
+                                    {
+                                        ///Rising the UDP event.
+                                        KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                                    }
+                                    break;
+                                case (int)KSPMSystem.WarningLevel.Carefull:
+                                    ///Only those commands: High and Critical are delivered.
+                                    if (userCommandPriority <= KSPMSystem.PriorityLevel.High)
+                                    {
+                                        ///Rising the UDP event.
+                                        KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                                    }
+                                    break;
+                                default:
+                                    ///Another warning level, every message is delivered.
+                                    ///Rising the UDP event.
+                                    KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
+                                    break;
+                            }
                             break;
                         default:
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] {1} unknown command", this.id, incomingMessage.Command.ToString()));
-                            this.udpIOMessagesPool.Recycle(rawMessageReference);
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]-ProcessUDPCommandAsyncMethod {1} unknown command", this.id, incomingMessage.Command.ToString()));
                             break;
                     }
+
+                    ///Recycling the message, to avoid message exhaustion.
+                    this.udpIOMessagesPool.Recycle(rawMessageReference);
                 }
                 else
                 {
@@ -1085,6 +1124,8 @@ namespace KSPM.Network.Server
             ///User release.
             if (this.gameUser != null)
             {
+                ///Releasing the GameUser so it is becoming useless to receive any message.
+                KSPMGlobals.Globals.KSPMServer.ClientsManager.UnregisterUserClient((GameUser)this.gameUser);
                 this.gameUser.Release();
                 this.gameUser = null;
             }
@@ -1105,22 +1146,20 @@ namespace KSPM.Network.Server
             this.tcpOutEventsPool = null;
 
             ///Cleaning the UDP queues.
-            this.incomingPackets.DequeueCommandMessage(out disposingMessage);
-            while (disposingMessage != null)
-            {
-                this.udpIOMessagesPool.Recycle(disposingMessage);
-                this.incomingPackets.DequeueCommandMessage(out disposingMessage);
-            }
+
+            ///Outgoing queue taking out all those messages that could not be sent and put them in back into the pool.
             this.outgoingPackets.DequeueCommandMessage(out disposingMessage);
             while (disposingMessage != null)
             {
                 this.udpIOMessagesPool.Recycle(disposingMessage);
                 this.outgoingPackets.DequeueCommandMessage(out disposingMessage);
             }
-            this.incomingPackets.Purge(false);
-            this.outgoingPackets.Purge(false);
+
+            this.incomingDatagrams.Release();
+
             this.incomingPackets = null;
             this.outgoingPackets = null;
+            this.udpIOMessagesPool = null;
 
             ///Cleaning UDP buffers.
             this.udpBuffer.Release();

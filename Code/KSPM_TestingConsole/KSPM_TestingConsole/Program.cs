@@ -35,6 +35,7 @@ namespace KSPM_TestingConsole
                 GameServer server = new GameServer(ref gameSettings);
                 KSPMGlobals.Globals.SetServerReference(ref server);
                 server.UDPMessageArrived += new KSPM.Network.Common.Events.UDPMessageArrived(server_UDPMessageArrived);
+                server.TCPMessageArrived += server_TCPMessageArrived;
                 server.StartServer();
                 eventRiser.Enabled = true;
                 Console.ReadLine();
@@ -48,11 +49,28 @@ namespace KSPM_TestingConsole
 
         }
 
+        static void server_TCPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
+        {
+            if( message.Command == KSPM.Network.Common.Messages.Message.CommandType.User)
+            {
+                KSPMGlobals.Globals.KSPMServer.ClientsManager.TCPSelectiveBroadcast(message);
+            }
+        }
+
         static void server_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)
         {
             //Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
-            KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
-            ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
+            if( message.Command == KSPM.Network.Common.Messages.Message.CommandType.User)
+            {
+                KSPMGlobals.Globals.Log.WriteTo("USER");
+                KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPSelectiveBroacast(message);
+            }/*
+            else
+            {
+                KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPBroadcastClients(message);
+            }
+            */
+            //((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
         }
 
         static void eventRiser_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

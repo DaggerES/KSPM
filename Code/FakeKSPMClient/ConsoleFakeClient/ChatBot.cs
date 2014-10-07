@@ -7,12 +7,14 @@ using System.IO;
 
 using KSPM.Network.Client;
 using KSPM.Game;
+using KSPM.Network.Common.Messages;
 
 namespace ConsoleFakeClient
 {
     public class ChatBot
     {
-        public enum FloodMode : byte { None, TCP, UDP, Both };
+        public enum FloodMode : byte 
+        { None, TCP, UDP, Both, TCPUser, UDPUser };
         protected static Random r = new Random();
         public static string[] Names = {
                                            "Ver'an",
@@ -47,6 +49,9 @@ namespace ConsoleFakeClient
                                             "Loten"
                                        };
 
+        /// <summary>
+        /// Underlaying game client.
+        /// </summary>
         public GameClient botClient;
 
         protected List<string> contentList;
@@ -81,9 +86,11 @@ namespace ConsoleFakeClient
             reader.Close();
         }
 
-        public void Flood( FloodMode mode )
+        public void Flood( FloodMode mode, int targetsIds )
         {
             int nexId = r.Next(this.contentList.Count);
+            ManagedMessage tcpUserMessage = null;
+            Message messageReference = tcpUserMessage;
             //Console.WriteLine(string.Format("{0}:{1}", nexId, this.contentList[nexId].Length));
             switch (mode)
             {
@@ -96,6 +103,15 @@ namespace ConsoleFakeClient
                 case FloodMode.Both:
                     this.botClient.ChatSystem.SendChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
                     this.botClient.ChatSystem.SendUDPChatMessage(botClient.ChatSystem.AvailableGroupList[0], this.contentList[nexId]);
+                    break;
+                case FloodMode.TCPUser:
+                    KSPM.Network.Common.Messages.Message.EmptyUserCommandMessage(this.botClient, targetsIds, out messageReference);
+                    this.botClient.OutgoingTCPQueue.EnqueueCommandMessage(ref messageReference);
+                    break;
+                case FloodMode.UDPUser:
+                    messageReference = this.botClient.UDPIOMessagesPool.BorrowMessage;
+                    KSPM.Network.Common.Messages.Message.LoadUDPEmptyUserCommandMessageFromClient(this.botClient, targetsIds, ref messageReference);
+                    this.botClient.OutgoingUDPQueue.EnqueueCommandMessage(ref messageReference);
                     break;
                 case FloodMode.None:
                     break;

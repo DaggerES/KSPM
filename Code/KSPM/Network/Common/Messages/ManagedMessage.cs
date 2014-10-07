@@ -5,6 +5,9 @@ using System.Text;
 
 namespace KSPM.Network.Common.Messages
 {
+    /// <summary>
+    /// Message capable to hold to which NetworkEntity belongs.
+    /// </summary>
     public class ManagedMessage : Message
     {
         /// <summary>
@@ -18,7 +21,7 @@ namespace KSPM.Network.Common.Messages
         protected uint startsAt;
 
         /// <summary>
-        /// Creates an instance and set the NetworkEntity owner of this message.
+        /// Creates an instance and set the NetworkEntity owner of this message.<b>The bodyMessage is set to Null, BE CAREFUL WITH THAT.</b>
         /// </summary>
         /// <param name="commandType"></param>
         /// <param name="messageOwner"></param>
@@ -76,7 +79,8 @@ namespace KSPM.Network.Common.Messages
         }
 
         /// <summary>
-        /// Does nothing.
+        /// Releases each property of the message, this method verifies if the ManagedMessage.broadcasted flag is set to true, so in that case the bodyMessage property will be kept,
+        /// otherwise the bodyMessage is released too.
         /// </summary>
         public override void Dispose()
         {
@@ -105,16 +109,6 @@ namespace KSPM.Network.Common.Messages
             {
                 this.startsAt = value;
             }
-        }
-
-        /// <summary>
-        /// DEPRECATED
-        /// </summary>
-        /// <param name="otherMessage"></param>
-        public void SwapReceivedBufferToSend(ManagedMessage otherMessage)
-        {
-            System.Buffer.BlockCopy(otherMessage.OwnerNetworkEntity.ownerNetworkCollection.secondaryRawBuffer, 0, this.OwnerNetworkEntity.ownerNetworkCollection.rawBuffer, 0, (int)otherMessage.messageRawLength);
-            this.messageRawLength = otherMessage.messageRawLength;
         }
     }
 }

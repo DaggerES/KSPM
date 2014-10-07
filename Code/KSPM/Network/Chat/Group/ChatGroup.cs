@@ -5,8 +5,15 @@ using KSPM.Network.Common;
 
 namespace KSPM.Network.Chat.Group
 {
+    /// <summary>
+    /// Abstract Chatgroup class to gather members an create a group.
+    /// </summary>
     public abstract class ChatGroup
     {
+        /// <summary>
+        /// Static counter to create sucesive an unique group ids.
+        /// Up to 65535 unique ids.
+        /// </summary>
         protected static short ChatGroupCounter = 1;
 
         /// <summary>
@@ -15,12 +22,12 @@ namespace KSPM.Network.Chat.Group
         protected short id;
 
         /// <summary>
-        /// Dictionary with the member of this group.
+        /// Dictionary with the members of this group.
         /// </summary>
         protected Dictionary<System.Guid, NetworkEntity> members;
 
         /// <summary>
-        /// Performance data structure iterate throught it.
+        /// Performance data structure, use it to iterate throught it.
         /// </summary>
         protected List<NetworkEntity> performanceDataStructureMembers;
 
@@ -125,10 +132,20 @@ namespace KSPM.Network.Chat.Group
 
         #endregion
 
+        /// <summary>
+        /// Abstract method to add a message to the group.
+        /// </summary>
+        /// <param name="newMessage"></param>
         public abstract void AddMessage(ChatMessage newMessage);
 
+        /// <summary>
+        /// Abstract method that must be used to Purge the group.
+        /// </summary>
         public abstract void Purge();
 
+        /// <summary>
+        /// Abstract method that must be used to Release the group.
+        /// </summary>
         public abstract void Release();
     }
 }

@@ -4,6 +4,9 @@ using KSPM.Game;
 
 namespace KSPM.Network.Common.Messages
 {
+    /// <summary>
+    /// Message used to deliver messages through the UDP channel, its common purpose is to be broadcasted overall the connected clients.
+    /// </summary>
     public class RawMessage : Message
     {
         /// <summary>
@@ -43,7 +46,7 @@ namespace KSPM.Network.Common.Messages
         /// Copies the src array into the preallocated buffer.
         /// </summary>
         /// <param name="src">Byte array to be copied.</param>
-        /// <param name="offset">From which index position is allocate the data inside the src array.</param>
+        /// <param name="srcOffset">From which index position is allocate the data inside the src array.</param>
         /// <param name="bytesToCopy">Amount of bytes to be copied.</param>
         public void LoadWith(byte[] src, uint srcOffset, uint bytesToCopy)
         {
@@ -54,11 +57,16 @@ namespace KSPM.Network.Common.Messages
             System.Buffer.BlockCopy(src, (int)srcOffset, this.bodyMessage, 0, (int)bytesToCopy);
             this.messageRawLength = bytesToCopy;
             this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 8];
+            this.Priority = (KSPM.Globals.KSPMSystem.PriorityLevel)Message.CommandPriority((byte)this.command);
         }
 
+        /// <summary>
+        /// Updates the message command and the priority according to the actual body.
+        /// </summary>
         public void ReallocateCommand()
         {
             this.command = (CommandType)this.bodyMessage[Message.HeaderOfMessageCommand.Length + 8];
+            this.Priority = (KSPM.Globals.KSPMSystem.PriorityLevel)Message.CommandPriority((byte)this.command);
         }
 
         /// <summary>
@@ -96,6 +104,7 @@ namespace KSPM.Network.Common.Messages
             this.broadcasted = false;
             this.pooling = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
             //KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Releasing");
         }
 
@@ -109,6 +118,7 @@ namespace KSPM.Network.Common.Messages
             this.messageRawLength = 0;
             this.broadcasted = false;
             this.MessageId = 0;
+            this.Priority = Globals.KSPMSystem.PriorityLevel.Disposable;
         }
     }
 }

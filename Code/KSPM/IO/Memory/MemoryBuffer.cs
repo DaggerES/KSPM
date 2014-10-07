@@ -1,5 +1,8 @@
 ﻿namespace KSPM.IO.Memory
 {
+    /// <summary>
+    /// Class designed to be a managed byte based buffer.
+    /// </summary>
     public class MemoryBuffer
     {
         /// <summary>
@@ -22,6 +25,10 @@
         /// </summary>
         protected uint writingPosition;
 
+        /// <summary>
+        /// Creates a buffer as a linear memory array.
+        /// </summary>
+        /// <param name="bufferLength">Amount of bytes required.</param>
         public MemoryBuffer(uint bufferLength)
         {
             this.bufferSize = bufferLength;

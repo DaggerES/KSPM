@@ -3,9 +3,9 @@ D:\Projects\CSharp\KSPM\KSPM\bin\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\KSPM\obj\Debug\ResolveAssemblyReference.cache
 D:\Projects\CSharp\KSPM\KSPM\obj\Debug\KSPM.dll
 D:\Projects\CSharp\KSPM\KSPM\obj\Debug\KSPM.pdb
+D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Debug\KSPM.XML
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Debug\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.dll
-D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Debug\KSPM.csprojResolveAssemblyReference.cache

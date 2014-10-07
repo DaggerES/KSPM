@@ -7,6 +7,9 @@ using KSPM.Globals;
 
 namespace KSPM.Network.Chat.Messages
 {
+    /// <summary>
+    /// Abstract class that represents a single chat message.
+    /// </summary>
     public abstract class ChatMessage
     {
         /// <summary>
@@ -57,6 +60,10 @@ namespace KSPM.Network.Chat.Messages
             this.sendersUsername = null;
         }
 
+        /// <summary>
+        /// Creates a chat message with the sender's hash as owner.
+        /// </summary>
+        /// <param name="senderHash">Hash code</param>
         public ChatMessage(byte[] senderHash)
         {
             this.timeStamp = System.DateTime.Now;
@@ -68,6 +75,10 @@ namespace KSPM.Network.Chat.Messages
 
         #endregion
 
+        /// <summary>
+        /// Sets the body of the message.<b>Only copies references.</b>
+        /// </summary>
+        /// <param name="body">Reference to the string containing the message.</param>
         public void SetBody(string body)
         {
             this.body = body;
@@ -102,7 +113,7 @@ namespace KSPM.Network.Chat.Messages
 
             senderClient = (GameClient)sender;
 
-            ///Writing header
+            ///Writing header 4 bytes for the header, 4 for the message length and 4 for the message id.
             System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
             bytesToSend += 8;
 
@@ -154,12 +165,20 @@ namespace KSPM.Network.Chat.Messages
             messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
             System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
 
-            targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 4], sender);
+            targetMessage = new ManagedMessage((Message.CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 8], sender);
             targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
 
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Creates a UDP chat message.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="targetGroup"></param>
+        /// <param name="bodyMessage"></param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
         public static Error.ErrorType CreateUDPChatMessage(NetworkEntity sender, ChatGroup targetGroup, string bodyMessage, out Message targetMessage)
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
@@ -240,6 +259,14 @@ namespace KSPM.Network.Chat.Messages
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Loads a chat message with the given text.
+        /// </summary>
+        /// <param name="sender">Network entity who sends the message.</param>
+        /// <param name="targetGroup">Chat group to be reached by the message.</param>
+        /// <param name="bodyMessage">The message itself.</param>
+        /// <param name="targetMessage">Ref reference to the Message who must carry the information.</param>
+        /// <returns></returns>
         public static Error.ErrorType LoadUDPChatMessage(NetworkEntity sender, ChatGroup targetGroup, string bodyMessage, ref Message targetMessage)
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
@@ -322,6 +349,12 @@ namespace KSPM.Network.Chat.Messages
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Tries to create a ChatMessage reference from the byte array.
+        /// </summary>
+        /// <param name="rawBytes">Byte array with the information.</param>
+        /// <param name="messageTarget">Out reference to the message that should be created.</param>
+        /// <returns>Ok if everything went fine.</returns>
         public static Error.ErrorType InflateChatMessage(byte[] rawBytes, out ChatMessage messageTarget)
         {
             int bytesBlockSize;
@@ -373,6 +406,11 @@ namespace KSPM.Network.Chat.Messages
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Tries to decode the GroupId from the given raw bytes.
+        /// </summary>
+        /// <param name="rawBytes">Byte array with the information.</param>
+        /// <returns>The GroupId to whom this message was sent. </returns>
         public static short InflateTargetGroupId(byte[] rawBytes)
         {
             int bytesBlockSize;
@@ -405,6 +443,9 @@ namespace KSPM.Network.Chat.Messages
             return shortBuffer;
         }
 
+        /// <summary>
+        /// Abstract method that must be used to release all the resources used by this reference.
+        /// </summary>
         public abstract void Release();
 
         #region Getters

@@ -1,12 +1,38 @@
 ﻿namespace KSPM.IO.Memory
 {
+    /// <summary>
+    /// Cyclical byte buffer array.
+    /// </summary>
     public class CyclicalMemoryBuffer
     {
+        /// <summary>
+        /// Array of buffers to hold the infomation.
+        /// </summary>
         protected byte[][] buffers;
+
+        /// <summary>
+        /// Amount of usable bytes on each buffer.
+        /// </summary>
         protected uint[] usableBytes;
+
+        /// <summary>
+        /// Array count of the buffer.
+        /// </summary>
         protected uint size;
+
+        /// <summary>
+        /// Amount of bytes that each buffer can hold.
+        /// </summary>
         protected uint buffersLength;
+
+        /// <summary>
+        /// Index position where the next writing opertion will be performed.
+        /// </summary>
         protected uint writingIndex;
+
+        /// <summary>
+        /// Index position where the reading operation will be performed.
+        /// </summary>
         protected uint readingIndex;
 
         /// <summary>
@@ -28,6 +54,12 @@
             }
         }
 
+        /// <summary>
+        /// Writes an specified byte array into the buffer.<b>This method copies the entire array.</b>
+        /// </summary>
+        /// <param name="sourceArray">Source array. Those bytes to be copied into the buffer.</param>
+        /// <param name="bytesToCopy">Amount of bytes to be copied.</param>
+        /// <returns>Amount of copied bytes.</returns>
         public uint Write(byte[] sourceArray, uint bytesToCopy)
         {
             System.Buffer.BlockCopy(sourceArray, 0, this.buffers[this.writingIndex], 0, (int)bytesToCopy);
@@ -36,6 +68,13 @@
             return bytesToCopy;
         }
 
+        /// <summary>
+        /// Reads the information from the buffer and writes it into the given array.<b>The destination array must have enough space to hold the incoming information.
+        /// Otherwise an IndexOutMemoryException will be thrown. You can use the FixedLength method to know the maximun amount of information that this buffer can deliver on
+        /// a single read operation.</b>
+        /// </summary>
+        /// <param name="destArray">Array to be filled with the information.</param>
+        /// <returns>Amount of read bytes.</returns>
         public uint Read(ref byte[] destArray)
         {
             uint worthyBytes = this.usableBytes[this.readingIndex];
@@ -48,6 +87,9 @@
             return worthyBytes;
         }
 
+        /// <summary>
+        /// Releases all the memory buffers and sets them to null.<b>After calling this method the entire reference becomes unusable.</b>
+        /// </summary>
         public void Release()
         {
             for (int i = 0; i < this.size; i++)
@@ -62,6 +104,9 @@
             this.size = 0;
         }
 
+        /// <summary>
+        /// Gets the size of each buffer.
+        /// </summary>
         public uint FixedLength
         {
             get

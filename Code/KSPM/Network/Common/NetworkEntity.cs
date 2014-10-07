@@ -39,9 +39,9 @@ namespace KSPM.Network.Common
         protected MessageSentCallback messageSentCallback;
 
         /// <summary>
-        /// Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.
+        /// Tells if the references is marked to be killed. Avoids to send twice or more the disconnect message.<b>VOLATILE FLAG</b>
         /// </summary>
-        protected bool markedToDie;
+        internal volatile bool markedToDie;
 
         /// <summary>
         /// Invoke a call over the MessageSentCallback reference.<b>If the reference is null, nothing is performed at all.</b> Once the method is invoked the callback reference is set to null.

@@ -24,7 +24,46 @@ namespace KSPM.Network.Client
     /// </summary>
     public class GameClient : NetworkEntity, IPacketArrived, IUDPPacketArrived
     {
-        public enum ClientStatus : byte { None = 0, Rebind, Handshaking, Authenticating, UDPSettingUp, Awaiting, Connected };
+        /// <summary>
+        /// Set of available states in which the GameClient could be.
+        /// </summary>
+        public enum ClientStatus : byte 
+        { 
+            /// <summary>
+            /// Default state. Means that it is an invalid entity.
+            /// </summary>
+            None = 0, 
+
+            /// <summary>
+            /// Means that the client is trying to rebind a new port to one of the communication channels.
+            /// </summary>
+            Rebind,
+
+            /// <summary>
+            /// A handshake has been sent to the server.
+            /// </summary>
+            Handshaking,
+
+            /// <summary>
+            /// GameClient is sending the required information to be authenticated on the server.
+            /// </summary>
+            Authenticating,
+
+            /// <summary>
+            /// Server has sent the UDP information so the GameClient is trying to stablish communication using the UDP channel.
+            /// </summary>
+            UDPSettingUp,
+
+            /// <summary>
+            /// Idle state.
+            /// </summary>
+            Awaiting,
+
+            /// <summary>
+            /// The client has been succesfuly connected to the server.
+            /// </summary>
+            Connected,
+        };
 
         /// <summary>
         /// Client settings to be used to work.
@@ -641,7 +680,7 @@ namespace KSPM.Network.Client
                     this.commandsQueue.DequeueCommandMessage(out command);
                     if (command != null)
                     {
-                        KSPMGlobals.Globals.Log.WriteTo(command.ToString());
+                        //KSPMGlobals.Globals.Log.WriteTo(command.ToString());
                         switch (command.Command)
                         {
                             case Message.CommandType.Handshake:///NewClient command accepted, proceed to authenticate.
@@ -664,6 +703,7 @@ namespace KSPM.Network.Client
                                 udpServerInformationFromNetwork.port = System.BitConverter.ToInt32(command.bodyMessage, 13);
                                 udpServerInformationFromNetwork.ip = ((IPEndPoint)managedMessageReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.RemoteEndPoint).Address.ToString();
                                 receivedPairingCode = System.BitConverter.ToInt32(command.bodyMessage, 17);
+                                this.clientOwner.SetCustomId(System.BitConverter.ToInt32(command.bodyMessage, 21));
 
                                 if (!this.udpServerInformation.Equals(udpServerInformationFromNetwork) && this.pairingCode != receivedPairingCode)
                                 {
@@ -698,6 +738,10 @@ namespace KSPM.Network.Client
                                 break;
                             case Message.CommandType.User:
                                 this.OnTCPMessageArrived(this, (ManagedMessage)command);
+                                break;
+                            case Message.CommandType.Unknown:
+                            default:
+                                KSPMGlobals.Globals.Log.WriteTo("Non-Critical Unknown command: " + command.Command.ToString());
                                 break;
                         }
                         ///Cleaning up.
@@ -743,8 +787,9 @@ namespace KSPM.Network.Client
                             case Message.CommandType.User:
                                 this.OnUDPMessageArrived(this, (RawMessage)command);
                                 break;
+                            case Message.CommandType.Unknown:
                             default:
-                                this.OnUDPMessageArrived(this, (RawMessage)command);
+                                KSPMGlobals.Globals.Log.WriteTo("Non-Critical Unknown command: " + command.Command.ToString());
                                 break;
                         }
                     }
@@ -757,6 +802,9 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Threaded method to send commands.
+        /// </summary>
         protected void HandleOutgoingMessagesThreadMethod()
         {
             Message outgoingMessage = null;
@@ -780,6 +828,7 @@ namespace KSPM.Network.Client
                         {
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
+                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
 
                             try
                             {
@@ -818,6 +867,7 @@ namespace KSPM.Network.Client
                         this.outgoingUDPMessages.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
                             ///Setting up the MessageId
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
@@ -844,7 +894,7 @@ namespace KSPM.Network.Client
         #region TCPCode
 
         /// <summary>
-        /// Method called when a asynchronous sending  is complete.
+        /// Method called when a TCP asynchronous sending  is complete.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
@@ -873,6 +923,10 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Sends a TCP KeepAlive command, because after 8 hours of inactivity the TCP socket is closed by the system.
+        /// </summary>
+        /// <param name="stateInfo"></param>
         protected void SendTCPKeepAliveCommand(object stateInfo)
         {
             Message keepAliveCommand = null;

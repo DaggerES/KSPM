@@ -1,17 +1,23 @@
 ﻿namespace KSPM.Network.Chat.Group
 {
+    /// <summary>
+    /// Non-persistent group, which means that no message is stored by the sistem.
+    /// </summary>
     public class NonPersistenChatGroup : ChatGroup
     {
+        /// <summary>
+        /// Will count how many messages has been asigned to this group.
+        /// </summary>
+        protected uint messageCounter;
+
+        /// <summary>
+        /// Creates an empty group.
+        /// </summary>
         public NonPersistenChatGroup()
             : base()
         {
             this.messageCounter = 0;
         }
-
-        /// <summary>
-        /// Will count how many messages has been asigned to this group.
-        /// </summary>
-        protected uint messageCounter;
 
         /// <summary>
         /// Does not perform any adding process, only increments the message counter.
@@ -39,7 +45,6 @@
             this.id = -1;
             this.members.Clear();
             this.performanceDataStructureMembers.Clear();
-            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(this.messageCounter.ToString());
             this.messageCounter = 0;
             this.Name = null;
         }

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace KSPM.Diagnostics
 {
+    /// <summary>
+    /// Class to create some metrics.
+    /// </summary>
     public class Profiler
     {
         public System.Diagnostics.Stopwatch timer;
@@ -12,6 +15,10 @@ namespace KSPM.Diagnostics
         public long startMeasure;
         public long endMeasure;
 
+        /// <summary>
+        /// Creates a new Profiler and writes it down into a file.
+        /// </summary>
+        /// <param name="fileName">Filename </param>
         public Profiler(string fileName)
         {
             this.logger = new IO.Logging.DiagnosticsLog(KSPM.IO.Logging.DiagnosticsLog.GetAUniqueFilename(fileName), false);

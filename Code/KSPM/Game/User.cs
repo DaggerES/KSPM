@@ -185,6 +185,26 @@ namespace KSPM.Game
         }
 
         /// <summary>
+        /// Gets the current id of this User.
+        /// </summary>
+        public int Id
+        {
+            get
+            {
+                return this.id;
+            }
+        }
+
+        /// <summary>
+        /// Sets a new Id value on this user, overriding the previous value.
+        /// </summary>
+        /// <param name="newId"></param>
+        public void SetCustomId( int newId)
+        {
+            this.id = newId;
+        }
+
+        /// <summary>
         /// Releases all the resources utilized by User class.
         /// </summary>
         public virtual void Release()
@@ -193,7 +213,7 @@ namespace KSPM.Game
             this.hash = null;
             this.humanHash = null;
             this.authenticationAttempts = int.MaxValue;
-            this.id = 0;
+            this.id = -1;
             this.UserDefinedHolder = null;
         }
     }

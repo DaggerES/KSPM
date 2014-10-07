@@ -15,9 +15,12 @@ namespace KSPM.Network.Common.Messages
     {
         /// <summary>
         /// An enum representing what kind of commands could be handled by the server and the client.
+        /// Its header is composed in this way [ [HeaderIdentifier {byte:4}][MessageLength {byte:4}][ MessageId {byte:4} ][ Command {byte:1} ] ] so at least you have 13 unmovable positioned bytes.
+        /// Its finel header is composed in this way [ [EndHeader {byte:4}] ]
+        /// Do not modify these values unless you really are pretty sure about what you are doing.
         /// Also each command has a priority level, the lowest the level number the highest priority.
-        /// 0 - High priority -> Connection commands.
-        /// 1 - User commands. These commands are passed to the upside level.
+        /// 0 - Critical priority -> Connection commands.
+        /// 1 - High priority -> User commands. These commands are passed to the upside level.
         /// 2 - At this moment this level has no commands.
         /// 3 - Chat commands, the lowest priority on the system.
         /// </summary>
@@ -29,9 +32,21 @@ namespace KSPM.Network.Common.Messages
             #region LEVEL_0 Ids range[0:63]
 
             Null = 0,
+
+            /// <summary>
+            /// Void message, so if you are receiving this kind of messages means that something is wrong.
+            /// </summary>
             Unknown,
             #region ServerCommands
+
+            /// <summary>
+            /// Its purpose is to tell the server to shutdown itself.
+            /// </summary>
             StopServer,
+
+            /// <summary>
+            /// Restarts the server.<b>It is not implemeneted.</b>
+            /// </summary>
             RestartServer,
             #endregion
 
@@ -47,6 +62,10 @@ namespace KSPM.Network.Common.Messages
             /// [Header {byte:4}][ Command {byte:1} ][ EndOfMessage {byte:4} ]
             /// </summary>
             NewClient,
+
+            /// <summary>
+            /// Means that the server just droped the connection.
+            /// </summary>
             RefuseConnection,
 
             /// <summary>
@@ -134,7 +153,8 @@ namespace KSPM.Network.Common.Messages
             #region LEVEL_1 Ids range[64:127]
 
             /// <summary>
-            /// Command used to mark the message and bypass it to the app.
+            /// Command used to mark the message and bypass it to the app. This is the empty message.
+            /// [MessageHeader {byte:13}][UserCommand {byte:1}][Targets {byte:4}]......Whatever you need........[ EndOfMessage {byte:4} ]
             /// </summary>
             User = 64,
 
@@ -153,13 +173,13 @@ namespace KSPM.Network.Common.Messages
 
             /// <summary>
             /// Chat command.
-            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// [MessageHeader {byte:13}][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             /// </summary>
             Chat = 192,
 
             /// <summary>
             /// UDP Chat command. A chat message sent through the UDP connection.
-            /// [MessageHeader {byte:4}][Header {byte:4}][ Command {byte:1} ][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
+            /// [MessageHeader {byte:13}][ From ( [ HashLength{ byte:2 } ][HashedId {byte:1-} ] ) ] [ GroupId{byte:2}] [MessageLength{byte:2}][ MessageBody{byte1:-}] [ EndOfMessage {byte:4} ]
             /// </summary>
             UDPChat,
 
@@ -217,7 +237,7 @@ namespace KSPM.Network.Common.Messages
         public byte[] bodyMessage;
 
         /// <summary>
-        /// Constructor, I have to rethink this method.
+        /// Creates a new object and sets each property to a default and unusable values.<b>The bodyMessage is set to Null, BE CAREFUL WITH THAT.</b>
         /// </summary>
         /// <param name="kindOfMessage">Command kind</param>
         /// <param name="messageOwner">Network entity who is owner of this message.</param>
@@ -324,10 +344,20 @@ namespace KSPM.Network.Common.Messages
             return string.Format("{0} Id: [{1}], [{2}] Command, [{3}] bytes length, PriorityLevel: [{4}]", this.GetType().ToString(), this.MessageId.ToString(), this.command.ToString(), this.messageRawLength, this.Priority);
         }
 
+        /// <summary>
+        /// Abstract method that MUST be used to release all resources on this reference.
+        /// </summary>
         public abstract void Release();
 
+        /// <summary>
+        /// Abstract method that MUST be used to dipose whatever resource you need.
+        /// </summary>
         public abstract void Dispose();
 
+        /// <summary>
+        /// Abstract method that MUST be used to create Empty references.
+        /// </summary>
+        /// <returns></returns>
         public abstract Message Empty();
 
         /// <summary>
@@ -626,7 +656,8 @@ namespace KSPM.Network.Common.Messages
         #region UserInteractionCode
 
         /// <summary>
-        /// Writes a handshake message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// Writes an empty message in a raw format into the sender's buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// It is used because the TCP socket closes itself after 8 hours of inactivity.
         /// </summary>
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
@@ -703,6 +734,13 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
+        /// <summary>
+        /// Creates a message holding the required information by the remote client to get up its own chat system.
+        /// </summary>
+        /// <param name="sender">NetworkEntity who is the owner of this message.</param>
+        /// <param name="availableGroups">List of available chat groups in the moment of the client joining.</param>
+        /// <param name="targetMessage">Out reference to the message who will hold the infomation.</param>
+        /// <returns></returns>
         public static Error.ErrorType SettingUpChatSystem(NetworkEntity sender, System.Collections.Generic.List<Chat.Group.ChatGroup> availableGroups, out Message targetMessage)
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
@@ -761,6 +799,12 @@ namespace KSPM.Network.Common.Messages
 
         #region UDPCommands
 
+        /// <summary>
+        /// Creates a message with the required information by the remote client to stablish a connection using the UDP channel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
         public static Error.ErrorType UDPSettingUpMessage(NetworkEntity sender, out Message targetMessage)
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
@@ -793,6 +837,11 @@ namespace KSPM.Network.Common.Messages
             byteBuffer = System.BitConverter.GetBytes(ssClientReference.CreatePairingCode());
             System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
             bytesToSend += byteBuffer.Length;
+
+            ///Writing the users id generated by the system.
+            byteBuffer = System.BitConverter.GetBytes(ssClientReference.gameUser.Id);
+            System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
             
             ///Writint the EndOfMessageCommand.
             System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
@@ -804,6 +853,7 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
+        /*
         /// <summary>
         /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
@@ -843,9 +893,10 @@ namespace KSPM.Network.Common.Messages
             targetMessage = new RawMessage((CommandType)gameClientReference.udpNetworkCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 8], gameClientReference.udpNetworkCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
+        */
 
         /// <summary>
-        /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// Writes an UDPParingMessage message in a raw format into the sender's udp buffer then loads a Message object. <b>The previous content is discarded.</b>
         /// </summary>
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
@@ -945,6 +996,7 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
+        /*
         /// <summary>
         /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
@@ -978,6 +1030,7 @@ namespace KSPM.Network.Common.Messages
             targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 8], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
+        */
 
         /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then loads the given message reference. <b>The previous content is discarded.</b>
         /// </summary>
@@ -1017,6 +1070,7 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
+        /*
         /// <summary>
         /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
         /// </summary>
@@ -1050,9 +1104,10 @@ namespace KSPM.Network.Common.Messages
             targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 8], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
+        */
 
         /// <summary>
-        /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
+        /// Writes an UDPParingFailMessage message in a raw format into the sender's udp buffer then loads a Message object. <b>The previous content is discarded.</b>
         /// </summary>
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
         /// <param name="targetMessage">Out reference to the Message object to be created.</param>
@@ -1061,7 +1116,6 @@ namespace KSPM.Network.Common.Messages
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
             ServerSideClient ssClientReference = (ServerSideClient)sender;
-            targetMessage = null;
             byte[] messageHeaderContent = null;
             if (sender == null)
             {
@@ -1087,7 +1141,160 @@ namespace KSPM.Network.Common.Messages
             ///Loading the content to the targetMessage
             System.Buffer.BlockCopy(ssClientReference.udpCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
             targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.PrefixSize + 4];
             
+            return Error.ErrorType.Ok;
+        }
+
+        #endregion
+
+        #region UserCommands
+
+        /// <summary>
+        /// Creates an empty User command, it must be sent using the TCP channel.
+        /// </summary>
+        /// <param name="sender">NetworkEntity</param>
+        /// <param name="targetIds">Flag with the clients ids.</param>
+        /// <param name="targetMessage"></param>
+        /// <returns></returns>
+        public static Error.ErrorType EmptyUserCommandMessage(NetworkEntity sender, int targetIds, out Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            byte[] rawBuffer = new byte[ServerSettings.ServerBufferSize];
+            targetMessage = null;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 8;
+
+            ///Writing the Command byte.
+            rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+            bytesToSend += 1;
+
+            ///Writing the UserCommand following the Command itself. By default it is written a 0 value to achieve the empty message.
+            rawBuffer[bytesToSend] = 255;
+            bytesToSend += 1;
+
+            ///Writing the targets ids
+            byteBuffer = System.BitConverter.GetBytes( targetIds);
+            System.Buffer.BlockCopy(byteBuffer, 0, rawBuffer, bytesToSend, 4);
+            bytesToSend += 4;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+            targetMessage = new ManagedMessage((CommandType)rawBuffer[Message.HeaderOfMessageCommand.Length + 8], sender);
+            targetMessage.SetBodyMessage(rawBuffer, (uint)bytesToSend);
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Loads an empty user command into a RawMessage. <b>It must be sent through the UDP channel.</b>
+        /// </summary>
+        /// <param name="sender">ServerSideClient reference passed as NetworkEntity.<b>It must be an ServerSideClient reference or an error will be thrown.</b></param>
+        /// <param name="targetsIds">Flag with the ids of those clients that shouls receive the message.</param>
+        /// <param name="targetMessage">A message loaded with the information.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadUDPEmptyUserCommandMessage(NetworkEntity sender, int targetsIds, ref Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            ServerSideClient ssClientReference = (ServerSideClient)sender;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 8;///4 bytes reserved to write the message length.
+
+            ///Writing the Command byte.
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+            bytesToSend += 1;
+
+            ///Writing the UserCommand following the Command itself. By default it is written a 0 value to achieve the empty message.
+            ssClientReference.udpCollection.rawBuffer[bytesToSend] = 255;
+            bytesToSend += 1;
+
+            ///Writing the targets ids
+            byteBuffer = System.BitConverter.GetBytes(targetsIds);
+            System.Buffer.BlockCopy(byteBuffer, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, 4);
+            bytesToSend += 4;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Loading the content to the targetMessage
+            System.Buffer.BlockCopy(ssClientReference.udpCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.PrefixSize + 4];
+
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Loads an empty user command into a RawMessage. <b>It must be sent through the UDP channel.</b>
+        /// </summary>
+        /// <param name="sender">GameClient reference passed as NetworkEntity.<b>It must be an GameClient reference or an error will be thrown.</b></param>
+        /// <param name="targetsIds">Flag with the ids of those clients that shouls receive the message.</param>
+        /// <param name="targetMessage">A message loaded with the information.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadUDPEmptyUserCommandMessageFromClient(NetworkEntity sender, int targetsIds, ref Message targetMessage)
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            GameClient gameClientReference = (GameClient)sender;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer = null;
+            if (sender == null)
+            {
+                return Error.ErrorType.InvalidNetworkEntity;
+            }
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 8;///4 bytes reserved to write the message length.
+
+            ///Writing the Command byte.
+            gameClientReference.udpNetworkCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.User;
+            bytesToSend += 1;
+
+            ///Writing the UserCommand following the Command itself. By default it is written a 0 value to achieve the empty message.
+            gameClientReference.udpNetworkCollection.rawBuffer[bytesToSend] = 255;
+            bytesToSend += 1;
+
+            ///Writing the targets ids
+            byteBuffer = System.BitConverter.GetBytes(targetsIds);
+            System.Buffer.BlockCopy(byteBuffer, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, 4);
+            bytesToSend += 4;
+
+            ///Writint the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, gameClientReference.udpNetworkCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+
+            ///Writing the message length.
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, gameClientReference.udpNetworkCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            ///Loading the content to the targetMessage
+            System.Buffer.BlockCopy(gameClientReference.udpNetworkCollection.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)gameClientReference.udpNetworkCollection.rawBuffer[PacketHandler.PrefixSize + 4];
+
             return Error.ErrorType.Ok;
         }
 
