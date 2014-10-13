@@ -6,40 +6,86 @@ using KSPM.Network.NAT;
 
 namespace KSPM.Globals
 {
+    /// <summary>
+    /// Class to hold those properties required during the KSPM execution, such as the Loggers, server and client references.
+    /// </summary>
     public class KSPMGlobals
     {
-
+        /// <summary>
+        /// Singletong pattern, so this is a static object reference.
+        /// </summary>
         public static readonly KSPMGlobals Globals = new KSPMGlobals();
 
         #region Logging variables
 
+        /// <summary>
+        /// Polymorfic reference to a Log object.
+        /// </summary>
         protected Log log;
+
+        /// <summary>
+        /// File logger reference used to write into a file.
+        /// </summary>
         protected FileLog fileLogger;
+
+        /// <summary>
+        /// Default loggers, this prints into a console.
+        /// </summary>
         protected ConsoleLog consoleLogger;
+
+        /// <summary>
+        /// Means that everything is going to be discarded.
+        /// </summary>
         protected DevNullLog nullLogger;
+
+        /// <summary>
+        /// Binary or Text mode used on those file logs.
+        /// </summary>
         protected Log.LogginMode loggingMode;
+
+        /// <summary>
+        /// This logger writes everything into a memory.
+        /// </summary>
         protected BufferedLog bufferLogger;
 
+        /// <summary>
+        /// Says if the binary log is enabled.
+        /// </summary>
         protected bool binaryEnabled;
 
         #endregion
 
         #region Server variables
 
+        /// <summary>
+        /// Reference to the GameServer, being accesible by any object on the server side.
+        /// </summary>
         protected GameServer gameServer;
 
+        /// <summary>
+        /// Holds the NAT method used to connect through internet.
+        /// </summary>
         protected NATTraversal natTraversingMethod;
 
         #endregion
 
         #region IO
 
+        /// <summary>
+        /// Encoder used to encode the strings in the system.<b>By default is used UTF8</b>
+        /// </summary>
         protected Encoder stringEncoder;
 
+        /// <summary>
+        /// Path to the file used by the logger.
+        /// </summary>
         protected string ioFilePath;
 
         #endregion
 
+        /// <summary>
+        /// Protected contructor used to create the singleton reference.
+        /// </summary>
         protected KSPMGlobals()
         {
             this.nullLogger = new DevNullLog();
@@ -88,11 +134,19 @@ namespace KSPM.Globals
             }
         }
 
+        /// <summary>
+        /// Sets the NAT method to be used by the system.
+        /// </summary>
+        /// <param name="method"></param>
         public void SetNATTraversingMethod(NATTraversal method)
         {
             this.natTraversingMethod = method;
         }
 
+        /// <summary>
+        /// Sets the GameServer reference.
+        /// </summary>
+        /// <param name="reference"></param>
         public void SetServerReference(ref GameServer reference)
         {
             this.gameServer = reference;
@@ -116,6 +170,9 @@ namespace KSPM.Globals
             }
         }
 
+        /// <summary>
+        /// Gets the GameServer reference.
+        /// </summary>
         public GameServer KSPMServer
         {
             get
@@ -135,6 +192,9 @@ namespace KSPM.Globals
             }
         }
 
+        /// <summary>
+        /// Gets the Encoder used by the system.
+        /// </summary>
         public Encoder StringEncoder
         {
             get
@@ -143,6 +203,9 @@ namespace KSPM.Globals
             }
         }
 
+        /// <summary>
+        /// Gets the path to the file used by the logger.
+        /// </summary>
         public string IOFilePath
         {
             get
@@ -151,6 +214,9 @@ namespace KSPM.Globals
             }
         }
 
+        /// <summary>
+        /// Tells if the system is running using Mono or not.<b>Mono is used under Unix OS.</b>
+        /// </summary>
         public bool IsRunningUnderMono
         {
             get

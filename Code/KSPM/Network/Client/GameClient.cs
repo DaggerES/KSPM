@@ -619,7 +619,7 @@ namespace KSPM.Network.Client
                             break;
                         ///Already received the UDPPairingOK message.
                         case ClientStatus.Connected:
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Connected to [{1}].", this.id, this.udpServerInformation.NetworkEndPoint.ToString()));
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Id[{1}] Connected to [{2}].", this.id, this.clientOwner.Id, this.udpServerInformation.NetworkEndPoint.ToString()));
                             connected = true;
                             ///Activating the keepalive timer.
                             this.tcpKeepAliveTimer.Change(this.tcpKeepAliveInterval, this.tcpKeepAliveInterval);
@@ -757,16 +757,12 @@ namespace KSPM.Network.Client
                             ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
                             case Message.CommandType.UDPPairingOk:
                                 this.currentStatus = ClientStatus.Connected;
-                                ///Cleaning up.
-                                this.udpIOMessagesPool.Recycle(command);
                                 break;
                             ///Means that the message was received by the remote server, but something were wrong, anyway the communication is stablished.
                             ///At this the Connected status is going to be set, but a Warning must be raised.
                             case Message.CommandType.UDPPairingFail:
                                 this.currentStatus = ClientStatus.Connected;
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] '{1}' Connection stablished, but something were wrong.", this.id, command.Command.ToString()));
-                                ///Cleaning up.
-                                this.udpIOMessagesPool.Recycle(command);
                                 break;
                             case Message.CommandType.UDPChat:
                                 if (this.chatSystem != null)///Checking if the chat system is already set up.
@@ -781,8 +777,6 @@ namespace KSPM.Network.Client
                                         }
                                     }
                                 }
-                                ///Cleaning up.
-                                this.udpIOMessagesPool.Recycle(command);
                                 break;
                             case Message.CommandType.User:
                                 this.OnUDPMessageArrived(this, (RawMessage)command);
@@ -792,6 +786,9 @@ namespace KSPM.Network.Client
                                 KSPMGlobals.Globals.Log.WriteTo("Non-Critical Unknown command: " + command.Command.ToString());
                                 break;
                         }
+
+                        ///Cleaning up.
+                        this.udpIOMessagesPool.Recycle(command);
                     }
                     //Thread.Sleep(3);
                 }
@@ -876,6 +873,7 @@ namespace KSPM.Network.Client
                             outgoingData.AcceptSocket = this.udpNetworkCollection.socketReference;
                             outgoingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;
                             outgoingData.SetBuffer(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize);
+                            ///Setting the message to the usertoken allowing to recycle it after.
                             outgoingData.UserToken = outgoingMessage;
                             this.udpNetworkCollection.socketReference.SendToAsync(outgoingData);
                         }

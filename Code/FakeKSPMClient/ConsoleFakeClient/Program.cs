@@ -223,7 +223,7 @@ namespace ConsoleFakeClient
 
         static void AsyncFlooder( ChatBot botReference, ChatBot.FloodMode floodingMode, int targetsIds, long delay)
         {
-            Console.WriteLine("Starting to flood Mode[{0}] ; Delay[{1}] ; Targets[{2}", floodingMode, delay, targetsIds);
+            Console.WriteLine("Starting to flood Mode[{0}] ; Delay[{1}] ; Targets[{2}]", floodingMode, delay, targetsIds);
             while(Program.flooding)
             {
                 botReference.Flood(floodingMode, targetsIds);

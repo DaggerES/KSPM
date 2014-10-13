@@ -1,4 +1,5 @@
 ﻿//#define PROFILING
+//#define DEBUGTRACER_L2
 
 using System.Net;
 using System.Net.Sockets;
@@ -343,7 +344,9 @@ namespace KSPM.Network.Server
                         Message.UDPSettingUpMessage(myNetworkEntityReference, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
+#if DEBUGTRACER_L2
                         KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Pairing code", this.Id, System.Convert.ToString(this.pairingCode, 2)));
+#endif
                         this.usingUdpConnection = true;
                         this.ReceiveUDPDatagram();
 
@@ -366,7 +369,8 @@ namespace KSPM.Network.Server
 
                         ///Registering the user to the Chat manager, becoming available to receive chat messages.
                         KSPMGlobals.Globals.KSPMServer.chatManager.RegisterUser(this, Chat.Managers.ChatManager.UserRegisteringMode.Public);
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
+                        
+                        ///Once the client is already connected the system proceeds to get the chat system is online, because the chat  is not essential to run.
                         Message.SettingUpChatSystem(this, KSPMGlobals.Globals.KSPMServer.chatManager.AvailableGroupList, out tempMessage);
                         PacketHandler.EncodeRawPacket(ref tempMessage.bodyMessage);
                         KSPMGlobals.Globals.KSPMServer.priorityOutgoingMessagesQueue.EnqueueCommandMessage(ref tempMessage);
@@ -387,6 +391,10 @@ namespace KSPM.Network.Server
             }
         }
 
+        /// <summary>
+        /// Callback called once the connection process is completed.
+        /// </summary>
+        /// <param name="result"></param>
         protected void AsyncConnectionProccesComplete(System.IAsyncResult result)
         {
             ///Profiling
@@ -395,6 +403,7 @@ namespace KSPM.Network.Server
             this.profilerTimeStart = this.profilerTimeMark;
             this.profilerTimeCounter++;
             this.profilerTimeSnapshot /= this.profilerTimeCounter;
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} has connected", this.Id, this.gameUser.Username));
 
             ConnectAsync caller = (ConnectAsync)result.AsyncState;
             caller.EndInvoke(result);
@@ -497,7 +506,9 @@ namespace KSPM.Network.Server
             incomingMessage = KSPMGlobals.Globals.KSPMServer.incomingMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(this);
-            //KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+#if DEBUGTRACER_L3
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("ServerSideClient.ProcessPacket(byte[] rawData, uint fixedLegth) -> {0}", incomingMessage.ToString()));
+#endif
             if( incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
                 if (!KSPMGlobals.Globals.KSPMServer.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
@@ -639,10 +650,12 @@ namespace KSPM.Network.Server
             }
 #endif
             int readBytes = 0;
+            /*
             if (!this.connected)
             {
                 KSPMGlobals.Globals.Log.WriteTo("UDP Completed RECV-");
             }
+            */
             if (e.SocketError == SocketError.Success )
             {
                 readBytes = e.BytesTransferred;
@@ -662,10 +675,12 @@ namespace KSPM.Network.Server
 #if PROFILING
                     this.profilerPacketizer.Set();
 #endif
+                    /*
                     if (!this.connected)
                     {
                         KSPMGlobals.Globals.Log.WriteTo("UDP RECV-" + readBytes.ToString());
                     }
+                    */
                     //this.udpPacketizer.UDPPacketizeCRCMemoryAlloc(this);
                     this.udpPacketizer.UDPPacketizeCRCLoadIntoMessage(this, this.udpIOMessagesPool);
 #if PROFILING
@@ -739,6 +754,9 @@ namespace KSPM.Network.Server
         /// <param name="incomingMessage"></param>
         public void ProcessUDPMessage(Message incomingMessage)
         {
+#if DEBUGTRACER_L3
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("ServerSideClient.ProcessUDPMessage -> {0}", incomingMessage.ToString()));
+#endif
             ///Trying to enqueue the new message.
             this.incomingDatagrams.TryToEnqueueMessage(ref incomingMessage);
             /*
@@ -784,7 +802,9 @@ namespace KSPM.Network.Server
                 this.incomingDatagrams.WorkingQueue.DequeueCommandMessage(out incomingMessage);
                 if (incomingMessage != null)
                 {
-                    KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+#if DEBUGTRACER_L2
+                    KSPMGlobals.Globals.Log.WriteTo( string.Format("ServerSideClient.ProcessUDPCommandAsyncMethod -> {0}", incomingMessage.ToString()));
+#endif
                     rawMessageReference = (RawMessage)incomingMessage;
                     switch (incomingMessage.Command)
                     {
@@ -798,7 +818,9 @@ namespace KSPM.Network.Server
                             intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 4 + 6 + byteBuffer.Length);
                             //intBuffer = System.BitConverter.ToInt32(rawMessageReference.bodyMessage, (int)PacketHandler.PrefixSize + 1);
                             responseMessage = this.udpIOMessagesPool.BorrowMessage;
+#if DEBUGTRACER_L2
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]{1} Received Pairing code", this.Id, System.Convert.ToString(intBuffer, 2)));
+#endif
                             if ((this.pairingCode & intBuffer) == 0)//UDP tested.
                             {
                                 Message.LoadUDPPairingOkMessage(this, ref responseMessage);
@@ -823,7 +845,7 @@ namespace KSPM.Network.Server
                             break;
                         case Message.CommandType.UDPChat:
                             ///This if means that if the level warning is less than KSPM.System.Carefull value as integer the message will be processed, otherwise it will be bypassed.
-                            if (KSPMGlobals.Globals.KSPMServer.warningLevel < 2)
+                            if (this.incomingDatagrams.WarningFlagLevel < 2)
                             {
                                 ///At this moment we only raises the event, but it can be raised with whichever incoming message.
                                 KSPMGlobals.Globals.KSPMServer.OnUDPMessageArrived(this, rawMessageReference);
@@ -832,11 +854,8 @@ namespace KSPM.Network.Server
                         case Message.CommandType.User:
                             incomingMessage.UserDefinedCommand = incomingMessage.bodyMessage[13];
                             userCommandPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(incomingMessage.UserDefinedCommand);
-                            KSPMGlobals.Globals.Log.WriteTo(incomingMessage.UserDefinedCommand.ToString());
-                            KSPMGlobals.Globals.Log.WriteTo(userCommandPriority.ToString());
-                            KSPMGlobals.Globals.Log.WriteTo( KSPMGlobals.Globals.KSPMServer.warningLevel.ToString());
 
-                            switch( KSPMGlobals.Globals.KSPMServer.warningLevel )
+                            switch( this.incomingDatagrams.WarningFlagLevel )
                             {
                                 case (int)KSPMSystem.WarningLevel.Warning:
                                     ///Only Critical commands are delivered.
@@ -948,7 +967,9 @@ namespace KSPM.Network.Server
                             ///Setting the MessageId
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
-
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("ServerSideClient.SendUDPDatagram -> {0}", outgoingMessage.ToString()));
+#endif
                             if (outgoingMessage.IsBroadcast)///Message sent through broadcasting methods.
                             {
                                 if (this.connected)///Is already connected.

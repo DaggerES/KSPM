@@ -344,7 +344,7 @@ namespace KSPM.Network.Server.UserManagement
                 targetId = flag & userIds;
                 if( targetId != 0 )
                 {
-                    if( this.clientsEngineByUserId.TryGetValue( targetId, out targetEntity))
+                    if (this.clientsEngineByUserId.TryGetValue((i + 1), out targetEntity))
                     {
                         outgoingBroadcast.Targets.Add(targetEntity);
                     }
@@ -386,7 +386,7 @@ namespace KSPM.Network.Server.UserManagement
                 targetId = flag & targetsIds;
                 if (targetId != 0)
                 {
-                    if (this.clientsEngineByUserId.TryGetValue(targetId, out targetEntity))
+                    if (this.clientsEngineByUserId.TryGetValue((i + 1), out targetEntity))
                     {
                         outgoingBroadcast.Targets.Add(targetEntity);
                     }
@@ -425,7 +425,7 @@ namespace KSPM.Network.Server.UserManagement
                     targetId = flag & userIds;
                     if (targetId != 0)
                     {
-                        if (this.clientsEngineByUserId.TryGetValue(targetId, out targetEntity))
+                        if (this.clientsEngineByUserId.TryGetValue((i + 1), out targetEntity))
                         {
                             outgoingMessage = ((ServerSideClient)targetEntity).IOUDPMessagesPool.BorrowMessage;
                             ((RawMessage)outgoingMessage).LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);
@@ -470,7 +470,7 @@ namespace KSPM.Network.Server.UserManagement
                     targetId = flag & targetsIds;
                     if (targetId != 0)
                     {
-                        if (this.clientsEngineByUserId.TryGetValue(targetId, out targetEntity))
+                        if (this.clientsEngineByUserId.TryGetValue((i + 1), out targetEntity))
                         {
                             outgoingMessage = ((ServerSideClient)targetEntity).IOUDPMessagesPool.BorrowMessage;
                             ((RawMessage)outgoingMessage).LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);

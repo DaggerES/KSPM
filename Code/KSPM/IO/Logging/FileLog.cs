@@ -125,6 +125,11 @@ namespace KSPM.IO.Logging
                 this.logTextWriter.Flush();
                 this.logTextWriter.Close();
             }
+            if (this.logOutputStream != null)
+            {
+                this.logOutputStream.Flush();
+                this.logOutputStream.Close();
+            }
         }
     }
 }

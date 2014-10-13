@@ -9,11 +9,46 @@
             Class to create some metrics.
             </summary>
         </member>
+        <member name="F:KSPM.Diagnostics.Profiler.timer">
+            <summary>
+            High presition timer.
+            </summary>
+        </member>
+        <member name="F:KSPM.Diagnostics.Profiler.logger">
+            <summary>
+            Logger to write the results.
+            </summary>
+        </member>
+        <member name="F:KSPM.Diagnostics.Profiler.startMeasure">
+            <summary>
+            Time snapshot.
+            </summary>
+        </member>
+        <member name="F:KSPM.Diagnostics.Profiler.endMeasure">
+            <summary>
+            Time snapshot taken when you want to measure the passed time.
+            </summary>
+        </member>
         <member name="M:KSPM.Diagnostics.Profiler.#ctor(System.String)">
             <summary>
             Creates a new Profiler and writes it down into a file.
             </summary>
             <param name="fileName">Filename </param>
+        </member>
+        <member name="M:KSPM.Diagnostics.Profiler.Set">
+            <summary>
+            Sets the profiler to start a new measuring.
+            </summary>
+        </member>
+        <member name="M:KSPM.Diagnostics.Profiler.Mark">
+            <summary>
+            Sets the end of the measurement and writes down the result.
+            </summary>
+        </member>
+        <member name="M:KSPM.Diagnostics.Profiler.Dispose">
+            <summary>
+            Diposes the logger.
+            </summary>
         </member>
         <member name="T:KSPM.Diagnostics.RealTimer">
             <summary>
@@ -170,6 +205,76 @@
             Sets/Gets the parent of this GameUser.
             </summary>
         </member>
+        <member name="T:KSPM.Globals.KSPMGlobals">
+            <summary>
+            Class to hold those properties required during the KSPM execution, such as the Loggers, server and client references.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.Globals">
+            <summary>
+            Singletong pattern, so this is a static object reference.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.log">
+            <summary>
+            Polymorfic reference to a Log object.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.fileLogger">
+            <summary>
+            File logger reference used to write into a file.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.consoleLogger">
+            <summary>
+            Default loggers, this prints into a console.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.nullLogger">
+            <summary>
+            Means that everything is going to be discarded.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.loggingMode">
+            <summary>
+            Binary or Text mode used on those file logs.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.bufferLogger">
+            <summary>
+            This logger writes everything into a memory.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.binaryEnabled">
+            <summary>
+            Says if the binary log is enabled.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.gameServer">
+            <summary>
+            Reference to the GameServer, being accesible by any object on the server side.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.natTraversingMethod">
+            <summary>
+            Holds the NAT method used to connect through internet.
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.stringEncoder">
+            <summary>
+            Encoder used to encode the strings in the system.<b>By default is used UTF8</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Globals.KSPMGlobals.ioFilePath">
+            <summary>
+            Path to the file used by the logger.
+            </summary>
+        </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.#ctor">
+            <summary>
+            Protected contructor used to create the singleton reference.
+            </summary>
+        </member>
         <member name="M:KSPM.Globals.KSPMGlobals.InitiLogging(KSPM.IO.Logging.Log.LogginMode,System.Boolean)">
             <summary>
             Initializes the loggers and set the proper one according to the given parameters. If a DevNull mode is set at the beginning, the other logging modes become unavailable.
@@ -177,15 +282,47 @@
             <param name="loggingMode">Determines what kind of logging mode will be used to perform all the outputs.</param>
             <param name="isBinaryEnabled">Determines if the binary writing is enabled when the logging mode is set to File mode, otherwise it has no effect.</param>
         </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.SetNATTraversingMethod(KSPM.Network.NAT.NATTraversal)">
+            <summary>
+            Sets the NAT method to be used by the system.
+            </summary>
+            <param name="method"></param>
+        </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.SetServerReference(KSPM.Network.Server.GameServer@)">
+            <summary>
+            Sets the GameServer reference.
+            </summary>
+            <param name="reference"></param>
+        </member>
         <member name="M:KSPM.Globals.KSPMGlobals.ChangeIOFilePath(System.String)">
             <summary>
             Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
             </summary>
             <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
         </member>
+        <member name="P:KSPM.Globals.KSPMGlobals.KSPMServer">
+            <summary>
+            Gets the GameServer reference.
+            </summary>
+        </member>
         <member name="P:KSPM.Globals.KSPMGlobals.NAT">
             <summary>
             Gets the NAT traversing method used by the KSPM model. <b>By default it is set to None.</b>
+            </summary>
+        </member>
+        <member name="P:KSPM.Globals.KSPMGlobals.StringEncoder">
+            <summary>
+            Gets the Encoder used by the system.
+            </summary>
+        </member>
+        <member name="P:KSPM.Globals.KSPMGlobals.IOFilePath">
+            <summary>
+            Gets the path to the file used by the logger.
+            </summary>
+        </member>
+        <member name="P:KSPM.Globals.KSPMGlobals.IsRunningUnderMono">
+            <summary>
+            Tells if the system is running using Mono or not.<b>Mono is used under Unix OS.</b>
             </summary>
         </member>
         <member name="T:KSPM.Globals.KSPMSystem.PriorityLevel">
@@ -267,6 +404,42 @@
         <member name="F:KSPM.IO.Logging.BufferedLog.buffer">
             <summary>
             Buffer in which is going to store all the output coming from WriteTo method.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.BufferedLog.MaximunLinesToBeBuffered">
+            <summary>
+            Sets the amount of lines that the buffer will be hold before releases them to every reference.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.BufferedLog.maxBufferedLines">
+            <summary>
+            Amount of lines before the object releases the memory to 0.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.BufferedLog.printedLinesCounter">
+            <summary>
+            Amount of lines printed into the memory.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.BufferedLog.#ctor">
+            <summary>
+            Creates an empty BufferedLog.
+            </summary>
+        </member>
+        <member name="M:KSPM.IO.Logging.BufferedLog.WriteTo(System.String)">
+            <summary>
+            Writes into the buffer.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:KSPM.IO.Logging.BufferedLog.Dispose">
+            <summary>
+            Disposes the buffer and set it to null, becoming unusable.
+            </summary>
+        </member>
+        <member name="P:KSPM.IO.Logging.BufferedLog.Buffer">
+            <summary>
+            Gets the buffer as string, ready to print.
             </summary>
         </member>
         <member name="T:KSPM.IO.Logging.ConsoleLog">
@@ -1849,7 +2022,12 @@
         </member>
         <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue2Way.PurgeFlag">
             <summary>
-            Flag to tells if the queue needs some purge.
+            Flag to tell if the queue needs some purge.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue2Way.WarningFlagLevel">
+            <summary>
+            Flag to tell the current warning level of this Queue.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.MessageHandlers.PriorityQueue2Way.recyclingPool">
@@ -2686,11 +2864,6 @@
             Port manager to handle the UDP ports, ensuring an available port each time it is required.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Server.GameServer.warningLevel">
-            <summary>
-            Tells on what warning level the system is working.
-            </summary>
-        </member>
         <member name="F:KSPM.Network.Server.GameServer.tcpSocket">
             <summary>
             TCP socket used to receive the new incoming connections.
@@ -2711,19 +2884,9 @@
             SockeAsyncEventArgs pool to accept connections and to receive the first command.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimer">
-            <summary>
-            Timer to handle when the incoming tdp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
-            </summary>
-        </member>
         <member name="F:KSPM.Network.Server.GameServer.tcpPurgeTimeInterval">
             <summary>
             Amount of time to set when the timer should check the capacity of the referred queue.
-            </summary>
-        </member>
-        <member name="F:KSPM.Network.Server.GameServer.tcpPurgeFlag">
-            <summary>
-            Tells when the system is purging an UDP queue.
             </summary>
         </member>
         <member name="F:KSPM.Network.Server.GameServer.tcpMinimumMessagesAllowedAfterPurge">
@@ -2880,13 +3043,6 @@
             <param name="sender"></param>
             <param name="e">SocketAsyncEventArgs used to perform the sending stuff.</param>
         </member>
-        <member name="M:KSPM.Network.Server.GameServer.HandleTCPPurgeTimerCallback(System.Object)">
-            <summary>
-            Method called each amount of time specified by udpPurgeTimeInterval property.
-            Checks if the queue is able to receive new messages.
-            </summary>
-            <param name="state"></param>
-        </member>
         <member name="M:KSPM.Network.Server.GameServer.HandleLocalCommandsThreadMethod">
             <summary>
             Handles the commands passed by the UI or the console if is it one implemented.
@@ -2969,6 +3125,11 @@
         <member name="P:KSPM.Network.Server.GameServer.IsAlive">
             <summary>
             Tells if the server is still running.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.GameServer.WarningLevel">
+            <summary>
+            Gets the warning level flag on what the system is working.
             </summary>
         </member>
         <member name="T:KSPM.Network.Server.IOPortManager">
@@ -3229,6 +3390,12 @@
             <summary>
             Handles the main behaviour of the server side client.
             </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.ServerSideClient.AsyncConnectionProccesComplete(System.IAsyncResult)">
+            <summary>
+            Callback called once the connection process is completed.
+            </summary>
+            <param name="result"></param>
         </member>
         <member name="M:KSPM.Network.Server.ServerSideClient.ReceiveTCPStream">
             <summary>

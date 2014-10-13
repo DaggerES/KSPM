@@ -62,7 +62,6 @@ namespace KSPM_TestingConsole
             //Console.WriteLine( string.Format("{0}-{1}", ((ServerSideClient)sender).Id, message.MessageBytesSize.ToString()));
             if( message.Command == KSPM.Network.Common.Messages.Message.CommandType.User)
             {
-                KSPMGlobals.Globals.Log.WriteTo("USER");
                 KSPMGlobals.Globals.KSPMServer.ClientsManager.UDPSelectiveBroacast(message);
             }/*
             else

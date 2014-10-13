@@ -1,4 +1,6 @@
 ﻿//#define PROFILING
+//#define DEBUGTRACER_L2
+//#define DEBUGTRACER_L3
 
 using System;
 using System.Collections.Generic;
@@ -61,11 +63,6 @@ namespace KSPM.Network.Server
         /// </summary>
         public event UDPMessageArrived UDPMessageArrived;
 
-        /// <summary>
-        /// Tells on what warning level the system is working.
-        /// </summary>
-        public int warningLevel;
-
         #region TCPProperties
 
         /// <summary>
@@ -89,19 +86,9 @@ namespace KSPM.Network.Server
         protected SocketAsyncEventArgsPool incomingConnectionsPool;
 
         /// <summary>
-        /// Timer to handle when the incoming tdp queue is full, giving some time to the system to process the current messages until their number decreases and make the system be able to operate at 100%.
-        /// </summary>
-        internal System.Threading.Timer tcpPurgeTimer;
-
-        /// <summary>
         /// Amount of time to set when the timer should check the capacity of the referred queue.
         /// </summary>
         internal int tcpPurgeTimeInterval;
-
-        /// <summary>
-        /// Tells when the system is purging an UDP queue.
-        /// </summary>
-        internal int tcpPurgeFlag;
 
         /// <summary>
         /// Tells the amount of messages are allowe to receive messages again.
@@ -279,7 +266,7 @@ namespace KSPM.Network.Server
             this.incomingConnectionsPool = new SocketAsyncEventArgsPool((uint)this.lowLevelOperationSettings.connectionsBackog);
 
             ///TCP Purge Timer
-            this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
+            ///this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
             this.tcpPurgeTimeInterval = (int)ServerSettings.PurgeTimeIterval;
             this.tcpMinimumMessagesAllowedAfterPurge = (int)(this.commandsQueue.MaxCommandAllowed * (1.0f - ServerSettings.AvailablePercentAfterPurge));
 
@@ -416,8 +403,8 @@ namespace KSPM.Network.Server
             this.lowLevelOperationSettings = null;
 
             ///Releasing the TCP purge timer.
-            this.tcpPurgeTimer.Dispose();
-            this.tcpPurgeTimer = null;
+            //this.tcpPurgeTimer.Dispose();
+            //this.tcpPurgeTimer = null;
 
             this.ioPortManager.Release();
             this.ioPortManager = null;
@@ -534,7 +521,11 @@ namespace KSPM.Network.Server
             incomingMessage = this.priorityMessagesPool.BorrowMessage;
             ((BufferedMessage)incomingMessage).Load(rawData, rawDataOffset, fixedLength);
             ((BufferedMessage)incomingMessage).SetOwnerMessageNetworkEntity(packetOwner);
-            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(incomingMessage.ToString());
+
+#if DEBUGTRACER_L3
+            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength, NetworkEntity packetOwner) -> {0}", incomingMessage.ToString()));
+#endif
+
             if (incomingMessage.Priority == KSPMSystem.PriorityLevel.Critical)
             {
                 if (!this.localCommandsQueue.EnqueueCommandMessage(ref incomingMessage))
@@ -581,15 +572,16 @@ namespace KSPM.Network.Server
                     this.primaryCommandQueue.WorkingQueue.DequeueCommandMessage(out messageToProcess);
                     if (messageToProcess != null)
                     {
-                        KSPMGlobals.Globals.Log.WriteTo(messageToProcess.ToString());
+#if DEBUGTRACER_L2
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.HandleCommandsThreadMethod -> {0}", messageToProcess.ToString()));
+#endif
                         managedMessageReference = (ManagedMessage)messageToProcess;
                         switch (messageToProcess.Command)
                         {
                             case Message.CommandType.Chat:
                                 ///This if means that if the level warning is less than KSPM.System.Easy value as integer the message will be processed.
-                                if (this.warningLevel < 2)
+                                if ( this.primaryCommandQueue.WarningFlagLevel < 2)
                                 {
-                                    //KSPMGlobals.Globals.Log.WriteTo(messageToProcess.ToString());
                                     this.clientsHandler.TCPBroadcastTo(this.chatManager.GetChatGroupById(ChatMessage.InflateTargetGroupId(messageToProcess.bodyMessage)).MembersAsList, messageToProcess);
                                 }
                                 break;
@@ -600,13 +592,8 @@ namespace KSPM.Network.Server
                             case Message.CommandType.User:
                                 messageToProcess.UserDefinedCommand = messageToProcess.bodyMessage[13];
                                 userCommandPriority = (KSPMSystem.PriorityLevel)Message.CommandPriority(messageToProcess.UserDefinedCommand);
-                                /*
-                                KSPMGlobals.Globals.Log.WriteTo(messageToProcess.UserDefinedCommand.ToString());
-                                KSPMGlobals.Globals.Log.WriteTo(userCommandPriority.ToString());
-                                KSPMGlobals.Globals.Log.WriteTo(this.warningLevel.ToString());
-                                */
                                 ///Checking the priority level from the UserDefinedCommand because it defines if the message is bypassed or not.
-                                switch( this.warningLevel)
+                                switch( this.primaryCommandQueue.WarningFlagLevel )
                                 {
                                     case (int)KSPMSystem.WarningLevel.Warning:
                                         ///Only Critical commands are delivered.
@@ -678,9 +665,12 @@ namespace KSPM.Network.Server
                         this.outgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            ///Writing the message id into the message's buffer.
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
-                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.HandleOutgoingMessagesThreadMethod -> {0}", outgoingMessage.ToString()));
+#endif
                             try
                             {
                                 ///If it is broadcaste message a different sending procces is performed.
@@ -800,27 +790,6 @@ namespace KSPM.Network.Server
             }
         }
 
-        #region DEPRECATED
-        /// <summary>
-        /// Method called each amount of time specified by udpPurgeTimeInterval property.
-        /// Checks if the queue is able to receive new messages.
-        /// </summary>
-        /// <param name="state"></param>
-        protected void HandleTCPPurgeTimerCallback(object state)
-        {
-            if (this.commandsQueue.DirtyCount <= this.tcpMinimumMessagesAllowedAfterPurge)///The system has consumd all the messages.
-            {
-                ///Disabling the timer.
-                this.tcpPurgeTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-
-                ///Disabling the purge flag.
-                Interlocked.Exchange(ref this.tcpPurgeFlag, 0);
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("TCPPurge finished."));
-            }
-        }
-
-#endregion
-
         #endregion
 
         #region PrioritizedCommandsHandle
@@ -847,7 +816,9 @@ namespace KSPM.Network.Server
                         this.localCommandsQueue.DequeueCommandMessage(out messageToProcess);                        
                         if (messageToProcess != null)
                         {
-                            //KSPMGlobals.Globals.Log.WriteTo(messageToProcess.Command.ToString());
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.HandleLocalCommandsThreadMethod -> {0}", messageToProcess.Command.ToString()));
+#endif
                             managedMessageReference = (ManagedMessage)messageToProcess;
                             switch (messageToProcess.Command)
                             {
@@ -959,11 +930,13 @@ namespace KSPM.Network.Server
                         this.priorityOutgoingMessagesQueue.DequeueCommandMessage(out outgoingMessage);
                         if (outgoingMessage != null)
                         {
+                            ///Writing the message Id to the message itself.
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
-                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
 
-                            //KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}]===Error==={1}.", outgoingMessage.bodyMessage[ 4 ], outgoingMessage.Command));
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.HandleOutgoingPriorityMessagesThreadMethod -> {0}", outgoingMessage.ToString()));
+#endif
                             managedReference = (ManagedMessage)outgoingMessage;
                             try
                             {
@@ -971,7 +944,6 @@ namespace KSPM.Network.Server
                                 if (managedReference.OwnerNetworkEntity.IsAlive())
                                 {
                                     ///Writing the outgoing message command.
-                                    KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.Command.ToString());
                                     managedReference.OwnerNetworkEntity.ownerNetworkCollection.socketReference.BeginSend(outgoingMessage.bodyMessage, 0, (int)outgoingMessage.MessageBytesSize, SocketFlags.None, new AsyncCallback(this.AsyncSenderCallback), managedReference.OwnerNetworkEntity);
                                 }
                             }
@@ -980,10 +952,12 @@ namespace KSPM.Network.Server
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}-{2}\"] Something went wrong with the remote client, performing a removing process on it.", managedReference.OwnerNetworkEntity.Id, "HandleOutgoingPriorityMessages", ex.Message));
                                 this.DisconnectClient(managedReference.OwnerNetworkEntity, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ErrorByException));
                             }
-
-                            ///Releasing the processed command.
-                            outgoingMessage.Release();
-                            outgoingMessage = null;
+                            finally
+                            {
+                                ///Releasing the processed command.
+                                outgoingMessage.Release();
+                                outgoingMessage = null;
+                            }
                         }
                     Thread.Sleep(1);
                 }
@@ -1006,7 +980,6 @@ namespace KSPM.Network.Server
             {
                 net = (NetworkEntity)result.AsyncState;
                 sentBytes = net.ownerNetworkCollection.socketReference.EndSend(result);
-                KSPMGlobals.Globals.Log.WriteTo(sentBytes.ToString());
 				if( sentBytes > 0 )
 				{
                 	net.MessageSent(net, null);
@@ -1045,13 +1018,6 @@ namespace KSPM.Network.Server
             {
                 this.UDPMessageArrived(sender, message);
             }
-            /*
-            else
-            {
-                ///Recycling the message, to avoid message exhaustion.
-                ((ServerSideClient)sender).IOUDPMessagesPool.Recycle(message);
-            }
-            */
         }
 
         /// <summary>
@@ -1064,7 +1030,9 @@ namespace KSPM.Network.Server
             if (target != null && target.IsAlive() && !target.markedToDie)
             {
                 target.markedToDie = true;
-                KSPMGlobals.Globals.Log.WriteTo("Desconectando");
+#if DEBUGTRACER_L2
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.DisconnectClient(NetworkEntity target, KSPMEventArgs cause) -> {0}", target.Id));
+#endif
                 this.OnUserDisconnected(target, cause);
                 this.chatManager.UnregisterUser(target);
                 this.clientsHandler.RemoveClient(target);
@@ -1124,6 +1092,20 @@ namespace KSPM.Network.Server
             get
             {
                 return this.alive;
+            }
+        }
+
+        /// <summary>
+        /// Gets the warning level flag on what the system is working.
+        /// </summary>
+        public KSPMSystem.WarningLevel WarningLevel
+        {
+            get
+            {
+                if (this.primaryCommandQueue != null)
+                    return (KSPMSystem.WarningLevel)this.primaryCommandQueue.WarningFlagLevel;
+                else
+                    return KSPMSystem.WarningLevel.None;
             }
         }
 
