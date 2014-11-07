@@ -5,8 +5,15 @@
     /// </summary>
     public class ConnectionlessNetworkCollection : NetworkBaseCollection, System.IDisposable
     {
+        /// <summary>
+        /// Remote endpoint holding the information.
+        /// </summary>
         public System.Net.EndPoint remoteEndPoint;
 
+        /// <summary>
+        /// Creates an empty object.
+        /// </summary>
+        /// <param name="bufferSize"></param>
         public ConnectionlessNetworkCollection(int bufferSize)
             : base(bufferSize)
         {

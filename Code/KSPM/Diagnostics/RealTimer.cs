@@ -21,6 +21,9 @@ namespace KSPM.Diagnostics
             return System.DateTime.Now.ToString("[dd-MM-yyyy_HH:mm:ss:fffffff]");
         }
 
+        /// <summary>
+        /// Gets the reference to the underlaying Timer.
+        /// </summary>
         public static Stopwatch Timer
         {
             get

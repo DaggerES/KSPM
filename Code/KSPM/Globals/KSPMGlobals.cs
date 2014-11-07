@@ -102,6 +102,7 @@ namespace KSPM.Globals
 
         /// <summary>
         /// Initializes the loggers and set the proper one according to the given parameters. If a DevNull mode is set at the beginning, the other logging modes become unavailable.
+        /// If UserDefined mode is set you must call SetUserDefinedLogger( Log userDefinedLogger ) because the DevNull is set to avoid null references.
         /// </summary>
         /// <param name="loggingMode">Determines what kind of logging mode will be used to perform all the outputs.</param>
         /// <param name="isBinaryEnabled">Determines if the binary writing is enabled when the logging mode is set to File mode, otherwise it has no effect.</param>
@@ -126,6 +127,9 @@ namespace KSPM.Globals
                     this.fileLogger = null;
                     this.bufferLogger = new BufferedLog();
                     this.log = this.bufferLogger;
+                    break;
+                case IO.Logging.Log.LogginMode.UserDefined:
+                    this.log = nullLogger;
                     break;
                 ///In this mode no other loggers will be created, so if you need to change the logging mode we have to create a method to handle that action.
                 case Log.LogginMode.DevNull:
@@ -162,6 +166,18 @@ namespace KSPM.Globals
             this.ioFilePath = normalizedPath;
         }
 
+        /// <summary>
+        /// Defines a new logger into the system.
+        /// </summary>
+        /// <param name="userDefinedLogger"></param>
+        public void SetUserDefinedLogger( Log userDefinedLogger)
+        {
+            this.log = userDefinedLogger;
+        }
+
+        /// <summary>
+        /// Gets the reference to the logger used on the system.
+        /// </summary>
         public Log Log
         {
             get

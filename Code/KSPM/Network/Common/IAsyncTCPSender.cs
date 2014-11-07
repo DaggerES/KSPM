@@ -9,6 +9,6 @@
         /// Method used to send Messages through the TCP socket.
         /// </summary>
         /// <param name="result">Holds a reference to this object.</param>
-        void AsyncTCPSender(System.IAsyncResult resul);
+        void AsyncTCPSender(System.IAsyncResult result);
     }
 }

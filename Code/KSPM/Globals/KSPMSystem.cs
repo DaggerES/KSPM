@@ -1,5 +1,8 @@
 ﻿namespace KSPM.Globals
 {
+    /// <summary>
+    /// Class to define some properties of the KSPM system.
+    /// </summary>
     public abstract class KSPMSystem
     {
         /// <summary>
@@ -33,6 +36,9 @@
             Disposable = 254,
         };
 
+        /// <summary>
+        /// Defines the warning levels of the KSPM system.
+        /// </summary>
         public enum WarningLevel:byte
         {
             /// <summary>

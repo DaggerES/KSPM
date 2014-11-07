@@ -5,6 +5,9 @@
     /// </summary>
     public class DevNullLog : Log
     {
+        /// <summary>
+        /// Does nothing at all.
+        /// </summary>
         public override void Dispose()
         {
         }

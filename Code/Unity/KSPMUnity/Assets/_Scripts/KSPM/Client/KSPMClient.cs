@@ -46,7 +46,7 @@ public class KSPMClient : MonoBehaviour
         this.serverInformationIndex = 0;
         this.usersConnected = 0;
         this.sceneManager.LoadingComplete += new SceneManager.LoadingCompleteEventHandler(sceneManager_LoadingComplete);
-        this.StartClient();
+        //this.StartClient();
         UnityGlobals.SingletonReference.KSPMClientReference = this;
 	}
 
@@ -85,8 +85,35 @@ public class KSPMClient : MonoBehaviour
         KSPMGlobals.Globals.Log.Dispose();
     }
 
+    int sel = -1;
+
     void OnGUI()
     {
+        if (this.hosts != null)
+        {
+            GUILayout.BeginVertical();
+
+            GUILayout.BeginScrollView(new Vector2(500,100), GUILayout.Width(250f), GUILayout.Height(300));
+
+            for (int i = 0; i < this.hosts.Hosts.Count; i++)
+            {
+                //GUILayout.Button(this.hosts.Hosts[i].name);
+                if (GUILayout.Toggle(sel == i, this.hosts.Hosts[i].name, GUILayout.Height(64f)))
+                {
+                    if (sel != i)
+                    {
+                        sel = i;
+                        Debug.Log(sel);
+                    }
+                }
+                Rect lastRec = GUILayoutUtility.GetLastRect();
+                GUI.Label(lastRec, this.hosts.Hosts[i].ip);
+            }
+            GUILayout.EndScrollView();
+
+            GUILayout.EndVertical();
+        }
+        /*
         GUI.TextArea(new Rect(400, 0, 768, 400), ((BufferedLog)KSPMGlobals.Globals.Log).Buffer);
 
         GUI.BeginGroup(new Rect(50, 0, 256, 480), "User account");
@@ -138,6 +165,7 @@ public class KSPMClient : MonoBehaviour
             }
         }
         GUI.EndGroup();
+        */
     }
 
     protected void StartClient()

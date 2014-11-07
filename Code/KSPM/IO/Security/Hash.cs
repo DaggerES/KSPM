@@ -10,7 +10,18 @@ namespace KSPM.IO.Security
         /// <summary>
         /// Enum to define which method will be used to compute the hashes.
         /// </summary>
-        public enum HashingAlgorithm:byte { SHA512 = 0, MD5 };
+        public enum HashingAlgorithm:byte
+        { 
+            /// <summary>
+            /// Uses a SHA with 512 bits.
+            /// </summary>
+            SHA512 = 0, 
+
+            /// <summary>
+            /// Uses MD5.
+            /// </summary>
+            MD5
+        };
 
         /// <summary>
         /// Static reference to the HashAlgorith.

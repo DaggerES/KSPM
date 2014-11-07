@@ -57,7 +57,6 @@
     <Compile Include="IO\Logging\DiagnosticsLog.cs" />
     <Compile Include="IO\Logging\FileLog.cs" />
     <Compile Include="IO\Logging\Log.cs" />
-    <Compile Include="IO\Logging\WebLog.cs" />
     <Compile Include="IO\Memory\CyclicalMemoryBuffer.cs" />
     <Compile Include="IO\Memory\MemoryBuffer.cs" />
     <Compile Include="IO\Security\Hash.cs" />

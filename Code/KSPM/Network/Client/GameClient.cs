@@ -63,6 +63,11 @@ namespace KSPM.Network.Client
             /// The client has been succesfuly connected to the server.
             /// </summary>
             Connected,
+
+            /// <summary>
+            /// Is set when the client breaks connections.
+            /// </summary>
+            Disconnecting,
         };
 
         /// <summary>
@@ -71,9 +76,9 @@ namespace KSPM.Network.Client
         public ClientSettings workingSettings;
 
         /// <summary>
-        /// Tells the current status of the client.
+        /// Tells the current status of the client.<b>This is a volatile property.</b>
         /// </summary>
-        protected ClientStatus currentStatus;
+        volatile protected ClientStatus currentStatus;
 
         /// <summary>
         /// Reference to the game user which is using the multiplayer, and from whom its information would be get. <b>This is not released when client is closed.</b>
@@ -121,6 +126,9 @@ namespace KSPM.Network.Client
 
         #region UserManagement
 
+        /// <summary>
+        /// Event definition to the event raised when an user is disconnected.
+        /// </summary>
         public event UserDisconnectedEventHandler UserDisconnected;
 
         #endregion
@@ -958,6 +966,9 @@ namespace KSPM.Network.Client
 
         #region TCP_Processing
 
+        /// <summary>
+        /// Asynchronous method used to receive TCP streams.
+        /// </summary>
         public void ReceiveTCPStream()
         {
             SocketAsyncEventArgs incomingData = this.tcpInEventsPool.NextSlot;
@@ -977,6 +988,11 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Method called each time an stream was received through the network.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void OnTCPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
             int readBytes = 0;
@@ -1005,19 +1021,38 @@ namespace KSPM.Network.Client
                 }
                 else
                 {
-                    ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
-                    ///disconnected.
-                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
-                    this.BreakConnections(this,  new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected) );
+                    if (this.currentStatus == ClientStatus.Disconnecting || this.currentStatus == ClientStatus.None)
+                    {
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Nicely disconnection TCP.", this.id, "OnTCPIncomingDataComplete"));
+                    }
+                    else
+                    {
+                        ///If BytesTransferred is 0, it means that there is no more bytes to be read, so the remote socket was
+                        ///disconnected.
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Remote client disconnected, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete"));
+                        this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+                    }
                 }
             }
             else
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
-                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+                if (this.currentStatus == ClientStatus.Disconnecting || this.currentStatus == ClientStatus.None)
+                {
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Nicely disconnection TCP.", this.id, "OnTCPIncomingDataComplete"));
+                }
+                else
+                {
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the remote client, performing a removing process on it.", this.id, "OnTCPIncomingDataComplete", e.SocketError));
+                    this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+                }
             }
         }
 
+        /// <summary>
+        /// Called each time an stream is converted to bytes and is sent to be processed.
+        /// </summary>
+        /// <param name="rawData">Byte array with the information.</param>
+        /// <param name="fixedLegth">Number of usable bytes inside the byte array.</param>
         public void ProcessPacket(byte[] rawData, uint fixedLegth)
         {
             Message incomingMessage = null;
@@ -1042,6 +1077,12 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Does nothing at all.
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <param name="rawDataOffset"></param>
+        /// <param name="fixedLength"></param>
         public void ProcessPacket(byte[] rawData, uint rawDataOffset, uint fixedLength)
         {
             /*
@@ -1076,6 +1117,9 @@ namespace KSPM.Network.Client
 
         #region UDPCode
 
+        /// <summary>
+        /// Asynchrounouse method used to receive datagrams.
+        /// </summary>
         protected void ReceiveUDPDatagram()
         {
 #if PROFILING
@@ -1090,7 +1134,7 @@ namespace KSPM.Network.Client
             incomingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;
 
             ///Setting the buffer offset and count, keep in mind that we are no assigning a new buffer, we are only setting working paremeters.
-            ///Because at high speeds if you set the buffear inside each call, it is thrown a SocketError.Faul error.
+            ///Because at high speeds if you set the buffear inside each call, it is thrown a SocketError.Fault error.
             incomingData.SetBuffer(0, (int)this.udpInputSAEAPool.BufferSize);
             try
             {
@@ -1119,6 +1163,11 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Method called each time an asynchrounous datagran reception is completed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void OnUDPIncomingDataComplete(object sender, SocketAsyncEventArgs e)
         {
 #if PROFILING
@@ -1169,8 +1218,16 @@ namespace KSPM.Network.Client
             else
             {
                 this.udpInputSAEAPool.Recycle(e);
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the UDP remote client, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
-                this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+                if (this.currentStatus == ClientStatus.Disconnecting || this.currentStatus == ClientStatus.None)
+                {
+                    ///The socket has been closed so there is no need to break connections.
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}\"] Nicely disconnection UDP.", this.id, "OnUDPIncomingDataComplete"));
+                }
+                else
+                {
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}][\"{1}:{2}\"] Something went wrong with the UDP remote client, proceed to disconnect.", this.id, "OnUDPIncomingDataComplete", e.SocketError));
+                    this.BreakConnections(this, new KSPMEventArgs(KSPMEventArgs.EventType.RuntimeError, KSPMEventArgs.EventCause.ServerDisconnected));
+                }
             }
         }
 
@@ -1275,6 +1332,11 @@ namespace KSPM.Network.Client
             }
         }
 
+        /// <summary>
+        /// Method called raised each time a datagram is received and it is marked as User command.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="message"></param>
         protected void OnUDPMessageArrived(NetworkEntity sender, RawMessage message)
         {
 #if DEBUG_PRINT
@@ -1434,10 +1496,11 @@ namespace KSPM.Network.Client
                 return;
             */
 
-            if (this.currentStatus == ClientStatus.None)
+            if (this.currentStatus == ClientStatus.None || this.currentStatus == ClientStatus.Disconnecting)
                 return;
 
-            this.currentStatus = ClientStatus.None;
+            //this.currentStatus = ClientStatus.None;
+            this.currentStatus = ClientStatus.Disconnecting;
 
             ///***********************Sockets code
             this.udpHolePunched = false;
@@ -1449,7 +1512,8 @@ namespace KSPM.Network.Client
 
             if (this.ownerNetworkCollection.socketReference != null )
             {
-                if (this.ownerNetworkCollection.socketReference.Connected)
+                ///This means that it was a nicely disconnection.
+                if (this.ownerNetworkCollection.socketReference.Connected && arg == null)
                 {
                     this.ownerNetworkCollection.socketReference.Shutdown(SocketShutdown.Both);
                     this.ownerNetworkCollection.socketReference.Disconnect(true);
@@ -1511,6 +1575,9 @@ namespace KSPM.Network.Client
             }
 
             KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnected after {1} seconds alive.", this.id, this.AliveTime / 1000));
+
+            ///Setting it as an invalid network entity.
+            this.currentStatus = ClientStatus.None;
         }
 
         /// <summary>
@@ -1520,7 +1587,7 @@ namespace KSPM.Network.Client
         {
             if (this.holePunched)
             {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnecting.", this.id));
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] Disconnecting...", this.id));
                 Message disconnectMessage = null;
                 this.outgoingTCPMessages.Purge(true);
                 this.commandsQueue.Purge(true);
@@ -1536,6 +1603,9 @@ namespace KSPM.Network.Client
 
         #region ErrorHandling
 
+        /// <summary>
+        /// Trheaded method to handle those runtime errors.
+        /// </summary>
         protected void HandleErrorsThreadMethod()
         {
             System.Exception runtimeError = null;
@@ -1579,6 +1649,9 @@ namespace KSPM.Network.Client
 
         #region Setters/Getters
 
+        /// <summary>
+        /// Gets the pairing code used during the connection process.
+        /// </summary>
         public int PairingCode
         {
             get
@@ -1648,6 +1721,18 @@ namespace KSPM.Network.Client
             get
             {
                 return this.udpIOMessagesPool;
+            }
+        }
+
+        /// <summary>
+        /// Gets the ServerInformation to which this client is connected.
+        /// <returns>Null if there is not connected.</returns>
+        /// </summary>
+        public ServerInformation ConnectedTo
+        {
+            get
+            {
+                return this.gameServerInformation;
             }
         }
 

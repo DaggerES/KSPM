@@ -2,8 +2,14 @@
 
 namespace KSPM.Network.Client.RemoteServer
 {
+    /// <summary>
+    /// Class to hold the information of those servers that are able to connect.
+    /// </summary>
     public class ServerInformation : System.IDisposable
     {
+        /// <summary>
+        /// ServerInformation to define a local server.
+        /// </summary>
         [XmlIgnore]
 		public static readonly ServerInformation LoopbackServerInformation = new ServerInformation( "Loopback", "127.0.0.1", KSPM.Network.Server.ServerSettings.DefaultTCPListeningPort );
 
@@ -25,6 +31,9 @@ namespace KSPM.Network.Client.RemoteServer
         [XmlElement("PortNumber")]
         public int port;
 
+        /// <summary>
+        /// IPEndPoint definition to this ServerInformation reference.
+        /// </summary>
         [XmlIgnore]
         protected System.Net.IPEndPoint networkEndPoint;
 
@@ -50,6 +59,9 @@ namespace KSPM.Network.Client.RemoteServer
             }
 		}
 
+        /// <summary>
+        /// Creates an empty object.
+        /// </summary>
 		public ServerInformation()
 		{
             this.networkEndPoint = null;
@@ -66,6 +78,11 @@ namespace KSPM.Network.Client.RemoteServer
             this.networkEndPoint = null;
         }
 
+        /// <summary>
+        /// Overrided method to provide a way to find if this object is equals to another.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if ((obj == null) || !this.GetType().Equals(obj.GetType()) || this.port < 0 || this.ip == null)
@@ -79,6 +96,10 @@ namespace KSPM.Network.Client.RemoteServer
             }
         }
 
+        /// <summary>
+        /// Gets the hash code of this object.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return this.ip.GetHashCode() + this.port.GetHashCode();

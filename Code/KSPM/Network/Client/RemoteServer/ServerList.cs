@@ -6,11 +6,20 @@ using System.IO;
 
 namespace KSPM.Network.Client.RemoteServer
 {
+    /// <summary>
+    /// Class to hold a list to the available servers on the system.
+    /// </summary>
     public class ServerList : System.IDisposable
     {
+        /// <summary>
+        /// Default filename to save the information.
+        /// </summary>
         [XmlIgnore]
         protected static string ServerListFilename = "KSPMServerList.xml";
 
+        /// <summary>
+        /// List of available servers.
+        /// </summary>
         [XmlArray("KSPMServers" )]
         protected List<ServerInformation> hosts;
 
@@ -87,6 +96,9 @@ namespace KSPM.Network.Client.RemoteServer
             return result;
         }
 
+        /// <summary>
+        /// Creates an empty object and ready to work.
+        /// </summary>
         public ServerList()
         {
             this.hosts = new List<ServerInformation>();

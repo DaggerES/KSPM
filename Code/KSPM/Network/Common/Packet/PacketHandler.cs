@@ -257,8 +257,7 @@ namespace KSPM.Network.Common.Packet
         /// <summary>
         /// Creates a Message object with the given NetworkEntity reference also it performs the compression method if the compression flag is set to True.
         /// </summary>
-        /// <param name="owner">NetworkEntity who is owner of the message.</param>
-        /// <param name="messageTarget">An out reference to the Message.</param>
+        /// <param name="rawBytes">Source bytes.</param>
         /// <returns>Error.ErrorType.Ok if there was not error.</returns>
         public static Error.ErrorType EncodeRawPacket(ref byte[] rawBytes)
         {
@@ -283,7 +282,6 @@ namespace KSPM.Network.Common.Packet
         public static Error.ErrorType InflateRawMessage(byte[] rawBytes, out Message messageTarget)
         {
             int bytesBlockSize;
-            int byteCounter;
             messageTarget = null;
             if (rawBytes.Length < 4)
                 return Error.ErrorType.MessageBadFormat;

@@ -1,5 +1,5 @@
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Release\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\KSPM\bin\Release\KSPM.pdb
-D:\Projects\CSharp\KSPM\Code\KSPM\obj\Release\ResolveAssemblyReference.cache
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Release\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\KSPM\obj\Release\KSPM.pdb
+D:\Projects\CSharp\KSPM\Code\KSPM\obj\Release\KSPM.csprojResolveAssemblyReference.cache

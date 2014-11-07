@@ -88,7 +88,6 @@ namespace KSPM.Game
         /// Tries to encode the string into a bytes array.
         /// </summary>
         /// <param name="username">Reference to the string that should be converted.</param>
-        /// <param name="maxBytesLenght">Max allowed lenght to the byte array.</param>
         /// <param name="rawBytes">Out reference to the byte in raw format.</param>
         /// <returns></returns>
         public static Error.ErrorType EncodeUsernameToBytes( ref string username, out byte[] rawBytes )
@@ -106,6 +105,8 @@ namespace KSPM.Game
         /// Tries to create an GameUser reference and fill it with the data contained in raw format.
         /// </summary>
         /// <param name="rawBytes">Byte array in raw format.</param>
+        /// <param name="rawBytesOffset"></param>
+        /// <param name="bytesToRead"></param>
         /// <param name="targetUser">Out reference to the GameUser.</param>
         /// <returns></returns>
         public static Error.ErrorType InflateUserFromBytes(byte[] rawBytes, uint rawBytesOffset, uint bytesToRead, out GameUser targetUser)

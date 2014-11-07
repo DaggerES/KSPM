@@ -117,6 +117,7 @@ namespace KSPM.Network.Common.Messages
             /// <summary>
             /// Command sent by the server to tell the remote client that its message has been received but its pairing code was wrong, anyway the connection works.
             /// [Header {byte:4}][ Command {byte:1} ]
+            /// </summary>
             UDPPairingFail,
 
             /// <summary>
@@ -240,7 +241,6 @@ namespace KSPM.Network.Common.Messages
         /// Creates a new object and sets each property to a default and unusable values.<b>The bodyMessage is set to Null, BE CAREFUL WITH THAT.</b>
         /// </summary>
         /// <param name="kindOfMessage">Command kind</param>
-        /// <param name="messageOwner">Network entity who is owner of this message.</param>
         public Message(CommandType kindOfMessage)
         {
             this.command = kindOfMessage;
@@ -517,6 +517,7 @@ namespace KSPM.Network.Common.Messages
         /// Creates an authentication message. **In this moment it is not complete and may change in future updates.**
         /// </summary>
         /// <param name="sender"></param>
+        /// <param name="userInfo"></param>
         /// <param name="targetMessage"></param>
         /// <returns></returns>
         public static Error.ErrorType AuthenticationMessage(NetworkEntity sender, User userInfo, out Message targetMessage)
@@ -996,42 +997,7 @@ namespace KSPM.Network.Common.Messages
             return Error.ErrorType.Ok;
         }
 
-        /*
         /// <summary>
-        /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then creates a Message object. <b>The previous content is discarded.</b>
-        /// </summary>
-        /// <param name="sender">Reference to sender that holds the buffer to write in.</param>
-        /// <param name="targetMessage">Out reference to the Message object to be created.</param>
-        /// <returns></returns>
-        public static Error.ErrorType UDPPairingOkMessage(NetworkEntity sender, out Message targetMessage)
-        {
-            int bytesToSend = Message.HeaderOfMessageCommand.Length;
-            ServerSideClient ssClientReference = (ServerSideClient)sender;
-            targetMessage = null;
-            byte[] messageHeaderContent = null;
-            if (sender == null)
-            {
-                return Error.ErrorType.InvalidNetworkEntity;
-            }
-
-            ///Writing header
-            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
-            bytesToSend += 8;
-
-            ///Writing the Command byte.
-            ssClientReference.udpCollection.rawBuffer[bytesToSend] = (byte)Message.CommandType.UDPPairingOk;
-            bytesToSend += 1;
-
-            ///Writint the EndOfMessageCommand.
-            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, ssClientReference.udpCollection.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
-            bytesToSend += EndOfMessageCommand.Length;
-            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
-            System.Buffer.BlockCopy(messageHeaderContent, 0, ssClientReference.udpCollection.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
-            targetMessage = new RawMessage((CommandType)ssClientReference.udpCollection.rawBuffer[Message.HeaderOfMessageCommand.Length + 8], ssClientReference.udpCollection.rawBuffer, (uint)bytesToSend);
-            return Error.ErrorType.Ok;
-        }
-        */
-
         /// Writes an UDPParingOkMessage message in a raw format into the sender's udp buffer then loads the given message reference. <b>The previous content is discarded.</b>
         /// </summary>
         /// <param name="sender">Reference to sender that holds the buffer to write in.</param>

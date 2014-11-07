@@ -9,13 +9,23 @@ namespace KSPM.Network.Chat.Filter
     /// </summary>
     public class GroupFilter : ChatFilter
     {
+        /// <summary>
+        /// Set of groups to be filtered.
+        /// </summary>
         protected Dictionary<short, ChatGroup> filterStatement;
 
+        /// <summary>
+        /// Creates an empty filter.<b>None is filtered.</b>
+        /// </summary>
         public GroupFilter() : base()
         {
             this.filterStatement = new Dictionary<short, ChatGroup>();
         }
 
+        /// <summary>
+        /// Adds a group to the filter.
+        /// </summary>
+        /// <param name="groupToBeFiltered"></param>
         public void AddToFilter(ChatGroup groupToBeFiltered)
         {
             if (groupToBeFiltered == null)
@@ -26,6 +36,10 @@ namespace KSPM.Network.Chat.Filter
             }
         }
 
+        /// <summary>
+        /// Removes a group from the filter.
+        /// </summary>
+        /// <param name="referredGroup"></param>
         public void RemoveFromFilter(ChatGroup referredGroup)
         {
             if (referredGroup == null)
@@ -46,6 +60,9 @@ namespace KSPM.Network.Chat.Filter
             return message != null && this.filterStatement.ContainsKey(message.GroupId);
         }
 
+        /// <summary>
+        /// Releases the filter.
+        /// </summary>
         public override void Release()
         {
             this.filterStatement.Clear();

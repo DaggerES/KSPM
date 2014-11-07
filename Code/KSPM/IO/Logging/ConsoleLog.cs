@@ -16,6 +16,9 @@ namespace KSPM.IO.Logging
             System.Console.WriteLine(RealTimer.GetCurrentDateTime() + message);
         }
 
+        /// <summary>
+        /// Does nothing at all.
+        /// </summary>
         public override void Dispose()
         {
         }

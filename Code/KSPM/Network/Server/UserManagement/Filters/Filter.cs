@@ -13,6 +13,7 @@ namespace KSPM.Network.Server.UserManagement.Filters
         /// Test the given NetworkEntity and applies the filter on it.
         /// </summary>
         /// <param name="entityToBeTested">Reference to a NetworkEntity to be tested.</param>
+        /// <param name="filteringMode"></param>
         /// <returns>True if the NetworkEntity maches, false otherwise.</returns>
         public abstract bool Match( FilterMode filteringMode, ref NetworkEntity entityToBeTested);
     }

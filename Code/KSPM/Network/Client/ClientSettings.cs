@@ -4,11 +4,21 @@ using System.IO;
 
 namespace KSPM.Network.Client
 {
+    /// <summary>
+    /// Class to hold the setting on the client side.
+    /// </summary>
     public class ClientSettings : KSPM.Network.Common.AbstractSettings
     {
+        /// <summary>
+        /// Default name of the settings file.
+        /// </summary>
         [XmlIgnore]
         public static string SettingsFilename = "clientSettings.xml";
 
+        /// <summary>
+        /// Size of the buffer to be used on each byte array on the client side.<b>DO NOT change it if you do not what you are doing.</b>
+        /// It uses the multiplier 1.
+        /// </summary>
         [XmlIgnore]
         public static readonly int ClientBufferSize = 1024 * 1;
 
@@ -48,12 +58,21 @@ namespace KSPM.Network.Client
         [XmlIgnore]
         public static readonly float AvailablePercentAfterPurge = 0.95f;
 
+        /// <summary>
+        /// Local port used by the TCP channel.
+        /// </summary>
         [XmlElement("TCPPort")]
         public int tcpPort;
 
+        /// <summary>
+        /// Local port used by the UDP channel.
+        /// </summary>
         [XmlElement("UDPPort")]
         public int udpPort;
 
+        /// <summary>
+        /// Amount of time that marks when the connection has taken so much time and it must be terminated or do something about it.
+        /// </summary>
         [XmlElement("NetworkTimeout")]
         public long connectionTimeout;
 
