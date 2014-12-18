@@ -284,6 +284,7 @@
         <member name="M:KSPM.Globals.KSPMGlobals.InitiLogging(KSPM.IO.Logging.Log.LogginMode,System.Boolean)">
             <summary>
             Initializes the loggers and set the proper one according to the given parameters. If a DevNull mode is set at the beginning, the other logging modes become unavailable.
+            If UserDefined mode is set you must call SetUserDefinedLogger( Log userDefinedLogger ) because the DevNull is set to avoid null references.
             </summary>
             <param name="loggingMode">Determines what kind of logging mode will be used to perform all the outputs.</param>
             <param name="isBinaryEnabled">Determines if the binary writing is enabled when the logging mode is set to File mode, otherwise it has no effect.</param>
@@ -305,6 +306,12 @@
             Changes the default IO file path, so be careful when you call this method.<b>Use normal slash '/' as separator, and add one '/' at the end.</b>
             </summary>
             <param name="newPath">New path to the IO folder where all files are going to be written/read.</param>
+        </member>
+        <member name="M:KSPM.Globals.KSPMGlobals.SetUserDefinedLogger(KSPM.IO.Logging.Log)">
+            <summary>
+            Defines a new logger into the system.
+            </summary>
+            <param name="userDefinedLogger"></param>
         </member>
         <member name="P:KSPM.Globals.KSPMGlobals.Log">
             <summary>
@@ -494,6 +501,11 @@
         <member name="F:KSPM.IO.Logging.Log.LogginMode.Buffered">
             <summary>
             Logged into the memory.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Logging.Log.LogginMode.UserDefined">
+            <summary>
+            Any class that inherits from Log and it is defined by the user.
             </summary>
         </member>
         <member name="F:KSPM.IO.Logging.BufferedLog.buffer">
@@ -2035,6 +2047,12 @@
             Gets the messges pool used to send/receive messages through the UDP connection.
             </summary>
         </member>
+        <member name="P:KSPM.Network.Client.GameClient.ConnectedTo">
+            <summary>
+            Gets the ServerInformation to which this client is connected.
+            <returns>Null if there is not connected.</returns>
+            </summary>
+        </member>
         <member name="T:KSPM.Network.Client.GameClient.ClientStatus">
             <summary>
             Set of available states in which the GameClient could be.
@@ -3234,7 +3252,7 @@
         </member>
         <member name="F:KSPM.Network.Common.Packet.PacketHandler.PrefixSize">
             <summary>
-            Tells how many bytes are required to start to consider a bunch of bytes as packet.
+            Tells how many bytes are required to start to consider a bunch of bytes as packet. At this moment 8 bytes.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Packet.PacketHandler.CompressingObject">

@@ -351,7 +351,7 @@ namespace KSPM.Network.Server.UserManagement
                 }
             }
 
-            outgoingBroadcast.LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);
+            outgoingBroadcast.LoadWith(messageToSend.bodyMessage, ((BufferedMessage)messageToSend).StartsAt, messageToSend.MessageBytesSize);
             outgoingMessage.IsBroadcast = true;
             if (!KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage))
             {
@@ -393,7 +393,7 @@ namespace KSPM.Network.Server.UserManagement
                 }
             }
 
-            outgoingBroadcast.LoadWith(messageToSend.bodyMessage, 0, messageToSend.MessageBytesSize);
+            outgoingBroadcast.LoadWith(messageToSend.bodyMessage, ((BufferedMessage)messageToSend).StartsAt, messageToSend.MessageBytesSize);
             outgoingMessage.IsBroadcast = true;
             if (!KSPM.Globals.KSPMGlobals.Globals.KSPMServer.outgoingMessagesQueue.EnqueueCommandMessage(ref outgoingMessage))
             {

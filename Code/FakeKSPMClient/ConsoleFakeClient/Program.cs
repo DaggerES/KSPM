@@ -10,6 +10,7 @@ using KSPM.Diagnostics;
 using KSPM.Globals;
 using KSPM.Game;
 using KSPM.Network.Chat.Filter;
+using KSPM.Network.Common.Messages;
 
 namespace ConsoleFakeClient
 {
@@ -189,6 +190,24 @@ namespace ConsoleFakeClient
                                 //System.Threading.Thread.Sleep(1000);
                                 //client.ChatSystem.SendChatMessage(client.ChatSystem.AvailableGroupList[0], "HOLA a todos!!!");
                             }
+                            break;
+                        case ConsoleKey.U:
+                            KSPMVessel outgoingVessel = new KSPMVessel();
+                            outgoingVessel.Synchronizator = new KSPMVessel.SyncInformation();
+                            outgoingVessel.NetworkId = 1;
+                            int bytes = 1;
+                            System.IO.FileStream ship = new System.IO.FileStream("SyncShip.craft.7z", System.IO.FileMode.Open);
+                            outgoingVessel.Synchronizator.swapStream = ship;
+                            while (bytes > 0)
+                            {
+                                Message shipMessage = null;
+                                GameMessage.PackShip(client, -1, outgoingVessel, outgoingVessel.Synchronizator.swapStream, ref bytes, out shipMessage);
+                                ///GameMessage.PackShip(client, -1, ship, ref bytes, out shipMessage);
+                                client.OutgoingTCPQueue.EnqueueCommandMessage(ref shipMessage);
+                                //Console.ReadLine();
+                            }
+                            //ship.Close();
+                            outgoingVessel.Synchronizator.Flush();
                             break;
                         default:
                             break;

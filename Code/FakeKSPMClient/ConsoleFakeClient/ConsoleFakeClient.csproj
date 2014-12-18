@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatBot.cs" />
+    <Compile Include="GameMessage.cs" />
+    <Compile Include="KSPMUnitySystem.cs" />
+    <Compile Include="KSPMVessel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

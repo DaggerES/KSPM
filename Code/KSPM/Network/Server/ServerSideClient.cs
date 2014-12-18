@@ -455,6 +455,7 @@ namespace KSPM.Network.Server
                 readBytes = e.BytesTransferred;
                 if (readBytes > 0)
                 {
+                    KSPMGlobals.Globals.Log.WriteTo(readBytes.ToString());
                     this.tcpBuffer.Write(e.Buffer, (uint)readBytes);
                     this.packetizer.PacketizeCRC(this);
                     this.ReceiveTCPStream();

@@ -53,7 +53,7 @@ namespace KSPM_TestingConsole
         {
             if( message.Command == KSPM.Network.Common.Messages.Message.CommandType.User)
             {
-                KSPMGlobals.Globals.KSPMServer.ClientsManager.TCPSelectiveBroadcast(message);
+                //KSPMGlobals.Globals.KSPMServer.ClientsManager.TCPSelectiveBroadcast(message);
             }
         }
 

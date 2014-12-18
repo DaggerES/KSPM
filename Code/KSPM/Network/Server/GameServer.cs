@@ -695,7 +695,7 @@ namespace KSPM.Network.Server
                                             }
                                             else
                                             {
-                                                KSPMGlobals.Globals.Log.WriteTo("Non-Priortized----PACKET CRC ERROR, Avoiding it.");
+                                                KSPMGlobals.Globals.Log.WriteTo( string.Format( "Non-Prioritized----Broadcast_PACKET-CRC-ERROR MessageSize: {0}; BlockSize: {1}, Avoiding it.", outgoingMessage.MessageBytesSize, blockSize));
                                             }
                                         }
                                     }

@@ -18,7 +18,7 @@ namespace KSPM.Network.Common.Packet
         protected static bool CompressingPacketsEnabled = false;
 
         /// <summary>
-        /// Tells how many bytes are required to start to consider a bunch of bytes as packet.
+        /// Tells how many bytes are required to start to consider a bunch of bytes as packet. At this moment 8 bytes.
         /// </summary>
         public static readonly uint PrefixSize = 8;
 
@@ -342,6 +342,7 @@ namespace KSPM.Network.Common.Packet
             int physicalMessageBlockSize = 0;
             int index = 0;
             int searchedHeaderIndex = 0;
+            int lastHeaderFoundIndex = -1;
             int startsAtIndex = 0;
             int endsAtIndex = 0;
             int stolenBytesFromWorkingBuffer = 0;
@@ -372,6 +373,51 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.unpackedBytes[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            packetStatus = PacketStatus.Splitted;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                        packetStatus = PacketStatus.EndHeaderIncomplete;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                    packetStatus = PacketStatus.EndHeaderIncomplete;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                                packetStatus = PacketStatus.EndHeaderIncomplete;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             packetStatus = PacketStatus.EndHeaderIncomplete;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
@@ -381,6 +427,7 @@ namespace KSPM.Network.Common.Packet
                                 packetStatus = PacketStatus.Complete;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers on the same buffer.
@@ -394,6 +441,10 @@ namespace KSPM.Network.Common.Packet
                             //consumer.ProcessPacket(this.packet, (uint)messageBlockSize);
                             consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
                             packetStatus = PacketStatus.NoProcessed;
+                        }
+                        else
+                        {
+                            KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Packer error: " + availableBytes.ToString());
                         }
                         endHeaderFound = startHeaderFound = false;
                         startsAtIndex = endsAtIndex = 0;
@@ -421,7 +472,39 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.workingBuffer[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
-                            searchedHeaderIndex++;
+                            if( lastHeaderFoundIndex != -1 )
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex;lastHeaderFoundIndex++ )
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                                                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                            }
+                            //searchedHeaderIndex++;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
                             {
                                 endHeaderFound = true;
@@ -450,6 +533,10 @@ namespace KSPM.Network.Common.Packet
                                     consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
                                     packetStatus = PacketStatus.NoProcessed;
                                 }
+                                else
+                                {
+                                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Packer error: " + availableBytes.ToString());
+                                }
                             }
                             else
                             {
@@ -469,6 +556,10 @@ namespace KSPM.Network.Common.Packet
                                     //consumer.ProcessPacket(this.packet, (uint)messageBlockSize);
                                     consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
                                     packetStatus = PacketStatus.NoProcessed;
+                                }
+                                else
+                                {
+                                    KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Packer error: " + availableBytes.ToString());
                                 }
                             }
                         }
@@ -492,6 +583,10 @@ namespace KSPM.Network.Common.Packet
                                 consumer.ProcessPacket(this.packet, 0, (uint)messageBlockSize);
                                 packetStatus = PacketStatus.NoProcessed;
                             }
+                            else
+                            {
+                                KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("Packer error: " + availableBytes.ToString());
+                            }
                             //startsAtIndex = endsAtIndex = 0;
                         }
                         endHeaderFound = startHeaderFound = false;
@@ -504,8 +599,13 @@ namespace KSPM.Network.Common.Packet
                     System.Buffer.BlockCopy(this.workingBuffer, endsAtIndex, this.unpackedBytes, 0, (int)availableBytes - endsAtIndex);
                 }
             }
+            ///KSPM.Globals.KSPMGlobals.Globals.Log.WriteTo("saliendo de procesesar: " + availableBytes.ToString());
         }
 
+        /// <summary>
+        /// Packetizes the incoming bytes and creates a new buffer to load them.
+        /// </summary>
+        /// <param name="consumer"></param>
         public void PacketizeCRCCreateMemory(IPacketArrived consumer)
         {
             uint availableBytes = this.memoryReference.Read(ref this.workingBuffer);
@@ -513,6 +613,7 @@ namespace KSPM.Network.Common.Packet
             int physicalMessageBlockSize = 0;
             int index = 0;
             int searchedHeaderIndex = 0;
+            int lastHeaderFoundIndex = -1;
             int startsAtIndex = 0;
             int endsAtIndex = 0;
             int stolenBytesFromWorkingBuffer = 0;
@@ -543,6 +644,51 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.unpackedBytes[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            packetStatus = PacketStatus.Splitted;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                        packetStatus = PacketStatus.EndHeaderIncomplete;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                    packetStatus = PacketStatus.EndHeaderIncomplete;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                                packetStatus = PacketStatus.EndHeaderIncomplete;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             packetStatus = PacketStatus.EndHeaderIncomplete;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
@@ -552,6 +698,7 @@ namespace KSPM.Network.Common.Packet
                                 packetStatus = PacketStatus.Complete;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers on the same buffer.
@@ -592,6 +739,46 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.workingBuffer[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
                             {
@@ -599,6 +786,7 @@ namespace KSPM.Network.Common.Packet
                                 endsAtIndex = index + 1;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers.
@@ -679,6 +867,10 @@ namespace KSPM.Network.Common.Packet
             }
         }
 
+        /// <summary>
+        /// Packetizes the incoming bytes and load them into a UDMMessage.
+        /// </summary>
+        /// <param name="consumer"></param>
         public void UDPPacketizeCRCMemoryAlloc(IUDPPacketArrived consumer)
         {
             uint availableBytes = this.memoryReference.Read(ref this.workingBuffer);
@@ -686,6 +878,7 @@ namespace KSPM.Network.Common.Packet
             int physicalMessageBlockSize = 0;
             int index = 0;
             int searchedHeaderIndex = 0;
+            int lastHeaderFoundIndex = -1;
             int startsAtIndex = 0;
             int endsAtIndex = 0;
             int stolenBytesFromWorkingBuffer = 0;
@@ -716,6 +909,51 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.unpackedBytes[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            packetStatus = PacketStatus.Splitted;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                        packetStatus = PacketStatus.EndHeaderIncomplete;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                    packetStatus = PacketStatus.EndHeaderIncomplete;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                                packetStatus = PacketStatus.EndHeaderIncomplete;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             packetStatus = PacketStatus.EndHeaderIncomplete;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
@@ -725,6 +963,7 @@ namespace KSPM.Network.Common.Packet
                                 packetStatus = PacketStatus.Complete;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers on the same buffer.
@@ -765,6 +1004,46 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.workingBuffer[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
                             {
@@ -772,6 +1051,7 @@ namespace KSPM.Network.Common.Packet
                                 endsAtIndex = index + 1;
                                 searchedHeaderIndex = 0;
                             }
+                             * */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers.
@@ -861,6 +1141,7 @@ namespace KSPM.Network.Common.Packet
             int physicalMessageBlockSize = 0;
             int index = 0;
             int searchedHeaderIndex = 0;
+            int lastHeaderFoundIndex = -1;
             int startsAtIndex = 0;
             int endsAtIndex = 0;
             int stolenBytesFromWorkingBuffer = 0;
@@ -892,6 +1173,51 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.unpackedBytes[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            packetStatus = PacketStatus.Splitted;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                        packetStatus = PacketStatus.EndHeaderIncomplete;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                    packetStatus = PacketStatus.EndHeaderIncomplete;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                                packetStatus = PacketStatus.EndHeaderIncomplete;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                packetStatus = PacketStatus.Complete;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             packetStatus = PacketStatus.EndHeaderIncomplete;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
@@ -901,6 +1227,7 @@ namespace KSPM.Network.Common.Packet
                                 packetStatus = PacketStatus.Complete;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers on the same buffer.
@@ -942,6 +1269,46 @@ namespace KSPM.Network.Common.Packet
                     {
                         if (this.workingBuffer[index] == Message.EndOfMessageCommand[searchedHeaderIndex])
                         {
+                            if (lastHeaderFoundIndex != -1)
+                            {
+                                if (index - lastHeaderFoundIndex > 1)
+                                {
+                                    for (lastHeaderFoundIndex = 0; lastHeaderFoundIndex < searchedHeaderIndex; lastHeaderFoundIndex++)
+                                    {
+                                        if (this.workingBuffer[index - (searchedHeaderIndex - lastHeaderFoundIndex)] != Message.EndOfMessageCommand[lastHeaderFoundIndex])
+                                        {
+                                            ///Means that we found only a part of the header so we neet to re-search the buffer.
+                                            searchedHeaderIndex = 0;
+                                            lastHeaderFoundIndex = -1;
+                                            break;
+                                        }
+                                    }
+                                    if (lastHeaderFoundIndex == searchedHeaderIndex)///If the loop was completed succesfully means that the founf header index and all those previous bytes match to the
+                                    ///EndMessageHeader bytes so everything goes normal.
+                                    {
+                                        searchedHeaderIndex++;
+                                        lastHeaderFoundIndex = index;
+                                    }
+                                }
+                                else
+                                {
+                                    searchedHeaderIndex++;
+                                    lastHeaderFoundIndex = index;
+                                }
+                            }
+                            else
+                            {
+                                searchedHeaderIndex++;
+                                lastHeaderFoundIndex = index;
+                            }
+                            //searchedHeaderIndex++;
+                            if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
+                            {
+                                endHeaderFound = true;
+                                endsAtIndex = index + 1;
+                                searchedHeaderIndex = 0;
+                            }
+                            /*
                             searchedHeaderIndex++;
                             if (searchedHeaderIndex >= Message.EndOfMessageCommand.Length)///Means that we already find all bytes of the header.
                             {
@@ -949,6 +1316,7 @@ namespace KSPM.Network.Common.Packet
                                 endsAtIndex = index + 1;
                                 searchedHeaderIndex = 0;
                             }
+                            */
                         }
                     }
                     if (startHeaderFound && endHeaderFound)///Found both headers.

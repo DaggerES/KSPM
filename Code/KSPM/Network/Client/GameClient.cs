@@ -688,7 +688,9 @@ namespace KSPM.Network.Client
                     this.commandsQueue.DequeueCommandMessage(out command);
                     if (command != null)
                     {
-                        //KSPMGlobals.Globals.Log.WriteTo(command.ToString());
+#if DEBUGTRACER_L2
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("GameClient.HandleIncomingMessagesThreadMethod.TCP -> {0}", command.ToString()));
+#endif
                         switch (command.Command)
                         {
                             case Message.CommandType.Handshake:///NewClient command accepted, proceed to authenticate.
@@ -760,6 +762,9 @@ namespace KSPM.Network.Client
                     this.incomingUDPMessages.DequeueCommandMessage(out command);
                     if (command != null)
                     {
+#if DEBUGTRACER_L2
+                        KSPMGlobals.Globals.Log.WriteTo(string.Format("GameClient.HandleIncomingMessagesThreadMethod.UDP -> {0}", command.ToString()));
+#endif
                         switch (command.Command)
                         {
                             ///Means that everything works fine, so you are able to send/receive data through the UDP connection.
@@ -833,8 +838,10 @@ namespace KSPM.Network.Client
                         {
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
-                            //KSPMGlobals.Globals.Log.WriteTo(outgoingMessage.ToString());
 
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("GameClient.HandleOutgoingMessagesThreadMethod.TCP -> {0}", outgoingMessage.ToString()));
+#endif
                             try
                             {
                                 if (this.ownerNetworkCollection != null && this.ownerNetworkCollection.socketReference != null)
@@ -877,6 +884,10 @@ namespace KSPM.Network.Client
                             outgoingMessage.MessageId = (uint)System.Threading.Interlocked.Increment(ref Message.MessageCounter);
                             System.Buffer.BlockCopy(System.BitConverter.GetBytes(outgoingMessage.MessageId), 0, outgoingMessage.bodyMessage, (int)PacketHandler.PrefixSize, 4);
 
+#if DEBUGTRACER_L2
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("GameClient.HandleOutgoingMessagesThreadMethod.UDP -> {0}", outgoingMessage.ToString()));
+#endif
+
                             outgoingData = this.udpOutSAEAPool.NextSlot;
                             outgoingData.AcceptSocket = this.udpNetworkCollection.socketReference;
                             outgoingData.RemoteEndPoint = this.udpServerInformation.NetworkEndPoint;
@@ -910,6 +921,7 @@ namespace KSPM.Network.Client
             {
                 if (e.BytesTransferred > 0)
                 {
+                    //KSPMGlobals.Globals.Log.WriteTo(e.BytesTransferred.ToString());
                     this.MessageSent(this, null);
                 }
             }
