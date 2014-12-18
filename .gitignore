@@ -3,5 +3,7 @@
 *.tlog
 *.vsp
 *.ctl
+*.pdb
+*.mdb
 /Code/Unity/KSPMUnity/Library/metadata/
 /Code/PerformanceReports/
