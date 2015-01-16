@@ -21,6 +21,14 @@
         }
 
         /// <summary>
+        /// Creates an Empty reference, so each property must be initializided before.
+        /// </summary>
+        public ConnectionlessNetworkCollection() : base()
+        {
+            this.remoteEndPoint = null;
+        }
+
+        /// <summary>
         /// Overrides the Dispose method from NetworkBaseCollection.
         /// </summary>
         new public void Dispose()

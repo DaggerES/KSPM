@@ -48,6 +48,12 @@ namespace KSPM.Network.Common.Messages
             /// Restarts the server.<b>It is not implemeneted.</b>
             /// </summary>
             RestartServer,
+
+            /// <summary>
+            /// Client: sends this command to request information.
+            /// Server: sends this command with the information.
+            /// </summary>
+            ServerInformation,
             #endregion
 
             #region AuthenticationCommands
@@ -1109,6 +1115,57 @@ namespace KSPM.Network.Common.Messages
             targetMessage.messageRawLength = (uint)bytesToSend;
             targetMessage.command = (Message.CommandType)ssClientReference.udpCollection.rawBuffer[PacketHandler.PrefixSize + 4];
             
+            return Error.ErrorType.Ok;
+        }
+
+        /// <summary>
+        /// Writes a request for information to be sent to a server.
+        /// </summary>
+        /// <param name="networkInformation">Network information to be used in the message composing.</param>
+        /// <param name="targetMessage">Reference to the message to be filled.</param>
+        /// <returns></returns>
+        public static Error.ErrorType LoadServerInformationRequestMessage( NetworkBaseCollection networkInformation, KSPM.Network.NetworkInformation.ProtoNetworkInterface nic, int port, ref Message targetMessage )
+        {
+            int bytesToSend = Message.HeaderOfMessageCommand.Length;
+            byte[] messageHeaderContent = null;
+            byte[] byteBuffer;
+
+            ///Writing header
+            System.Buffer.BlockCopy(Message.HeaderOfMessageCommand, 0, networkInformation.rawBuffer, 0, Message.HeaderOfMessageCommand.Length);
+            bytesToSend += 8;
+
+            ///Writing the Command byte.
+            networkInformation.rawBuffer[bytesToSend] = (byte)Message.CommandType.ServerInformation;
+            bytesToSend += 1;
+
+            /*
+            ///Writing the UDP IpEndPoint.Address used by the caller of this message.
+            //byteBuffer = ((System.Net.IPEndPoint)(networkInformation.socketReference.LocalEndPoint)).Address.GetAddressBytes();
+            byteBuffer = nic.address.GetAddressBytes();
+            ///Writing the lenghr of the address itself, giving support to IPv6 addresses.
+            networkInformation.rawBuffer[bytesToSend] = (byte)byteBuffer.Length;
+            bytesToSend += 1;
+            System.Buffer.BlockCopy(byteBuffer, 0, networkInformation.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+            */
+
+            ///Writing the UDP IpEndPoint.Port used by the caller of this message.
+            //byteBuffer = System.BitConverter.GetBytes(((System.Net.IPEndPoint)networkInformation.socketReference.LocalEndPoint).Port);
+            byteBuffer = System.BitConverter.GetBytes(port);
+            System.Buffer.BlockCopy(byteBuffer, 0, networkInformation.rawBuffer, bytesToSend, byteBuffer.Length);
+            bytesToSend += byteBuffer.Length;
+
+            ///Writing the EndOfMessageCommand.
+            System.Buffer.BlockCopy(Message.EndOfMessageCommand, 0, networkInformation.rawBuffer, bytesToSend, Message.EndOfMessageCommand.Length);
+            bytesToSend += EndOfMessageCommand.Length;
+            messageHeaderContent = System.BitConverter.GetBytes(bytesToSend);
+            System.Buffer.BlockCopy(messageHeaderContent, 0, networkInformation.rawBuffer, Message.HeaderOfMessageCommand.Length, messageHeaderContent.Length);
+
+            System.Buffer.BlockCopy(networkInformation.rawBuffer, 0, targetMessage.bodyMessage, 0, bytesToSend);
+            targetMessage.messageRawLength = (uint)bytesToSend;
+            targetMessage.command = (Message.CommandType)networkInformation.rawBuffer[PacketHandler.PrefixSize + 4];
+
+            //targetMessage = new RawMessage((CommandType)networkInformation.rawBuffer[Message.HeaderOfMessageCommand.Length + 4], networkInformation.rawBuffer, (uint)bytesToSend);
             return Error.ErrorType.Ok;
         }
 

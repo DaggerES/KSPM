@@ -45,6 +45,7 @@ namespace ConsoleFakeClient
             bot.botClient.SetServerHostInformation(hosts.Hosts[0]);
             client.InitializeClient();
             client.UserDisconnected += new KSPM.Network.Common.Events.UserDisconnectedEventHandler(client_UserDisconnected);
+            client.InformationRequestCompleted +=client_InformationRequestCompleted;
             /*
             GroupFilter group = new GroupFilter();
             group.AddToFilter(client.ChatSystem.AvailableGroupList[0]);
@@ -58,7 +59,9 @@ namespace ConsoleFakeClient
                     Console.WriteLine("Press f to flood using TCP");
                     Console.WriteLine("Press g to flood using UDP");
                     Console.WriteLine("Press t to flood UserCommands using TCP");
-                    Console.WriteLine("Press y to flood UserCommands using YCP");
+                    Console.WriteLine("Press y to flood UserCommands using UCP");
+                    Console.WriteLine("Press u to send a vessel");
+                    Console.WriteLine("Press i to request information from a server");
                     pressedKey = Console.ReadKey();
                     switch( pressedKey.Key )
                     {
@@ -209,12 +212,26 @@ namespace ConsoleFakeClient
                             //ship.Close();
                             outgoingVessel.Synchronizator.Flush();
                             break;
+                        case ConsoleKey.I:
+                            Console.WriteLine("Write down the index of the server to be requested.");
+                            idsAsString = Console.ReadLine();
+                            targetsIds = int.Parse(idsAsString);
+                            if(!client.RequestServerInformation(hosts.Hosts[targetsIds], 2000))
+                            {
+                                Console.WriteLine("A request is already running.");
+                            }
+                            break;
                         default:
                             break;
                     }
                 }
             client.Release();
             Console.ReadLine();
+        }
+
+        private static void client_InformationRequestCompleted(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+        {
+            KSPMGlobals.Globals.Log.WriteTo("LLEGO INFO");
         }
 
         static void client_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)

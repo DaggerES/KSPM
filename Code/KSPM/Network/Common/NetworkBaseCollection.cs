@@ -24,6 +24,17 @@ namespace KSPM.Network.Common
         }
 
         /// <summary>
+        /// Creates an Empty reference, so it must be initialized before.
+        /// Each property is set to null.
+        /// </summary>
+        public NetworkBaseCollection()
+        {
+            this.rawBuffer = null;
+            this.secondaryRawBuffer = null;
+            this.socketReference = null;
+        }
+
+        /// <summary>
         /// Releases the buffers and set the Socket to null, so It has to be shut down by you.
         /// <see cref="Socket"/>
         /// </summary>

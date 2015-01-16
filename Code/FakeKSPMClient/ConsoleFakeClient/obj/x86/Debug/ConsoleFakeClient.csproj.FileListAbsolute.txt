@@ -3,6 +3,6 @@ D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\bin\Debug\ConsoleF
 D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\bin\Debug\KSPM.dll
 D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\bin\Debug\KSPM.pdb
 D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\bin\Debug\KSPM.xml
+D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\obj\x86\Debug\ConsoleFakeClient.csprojResolveAssemblyReference.cache
 D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\obj\x86\Debug\ConsoleFakeClient.exe
 D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\obj\x86\Debug\ConsoleFakeClient.pdb
-D:\Projects\CSharp\KSPM\Code\FakeKSPMClient\ConsoleFakeClient\obj\x86\Debug\ConsoleFakeClient.csprojResolveAssemblyReference.cache

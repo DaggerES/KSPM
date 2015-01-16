@@ -1759,6 +1759,36 @@
             Tells the amount of messages are allowe to receive messages again.
             </summary>
         </member>
+        <member name="F:KSPM.Network.Client.GameClient.informationRequester">
+            <summary>
+            Network colletion to perform information request to the server.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.ioInformationRequestsSAEA">
+            <summary>
+            SocketAsyncEventArgs class to receive information from a server.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.NICs">
+            <summary>
+            List with the available NICs on the system.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.informationRequestTimeOutChecker">
+            <summary>
+            Timer to check if the operation has taken much time, so a cancellation is required.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.informationRequestTimeOut">
+            <summary>
+            Amount of time before a cancellation would be performed.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.requestingInformationFlag">
+            <summary>
+            Flag to avoid request many times, if that ocurres the behaviour is not known.
+            </summary>
+        </member>
         <member name="F:KSPM.Network.Client.GameClient.udpBuffer">
             <summary>
             Buffer used to store all the incoming messages.
@@ -1833,6 +1863,33 @@
             Initializes everything needed to work, as threads.
             </summary>
             <returns>Ok if everything went fine, and ClientUnableToRun if an error ocurred.</returns>
+        </member>
+        <member name="M:KSPM.Network.Client.GameClient.RequestServerInformation(KSPM.Network.Client.RemoteServer.ServerInformation,System.Int32)">
+            <summary>
+            Tries to send a request to the specified server.
+            </summary>
+            <param name="targetServer">Served to which the reques is going to be send.</param>
+            <param name="timeOut">Amount of time before cancell the operation.</param>
+            <returns>False if there are another request running, true if every went ok.</returns>
+        </member>
+        <member name="M:KSPM.Network.Client.GameClient.RequestServerInformationAsync(KSPM.Network.Client.RemoteServer.ServerInformation)">
+            <summary>
+            Request information to a server.
+            </summary>
+            <param name="target"></param>
+        </member>
+        <member name="M:KSPM.Network.Client.GameClient.IOInformationSocketOperationComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Called each time a request/reception for information to a server is completes.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:KSPM.Network.Client.GameClient.RequestTimeoutReached(System.Object)">
+            <summary>
+            Called once the timer reached the timeout.
+            </summary>
+            <param name="state"></param>
         </member>
         <member name="M:KSPM.Network.Client.GameClient.Connect">
             <summary>
@@ -2015,6 +2072,11 @@
         <member name="E:KSPM.Network.Client.GameClient.UserDisconnected">
             <summary>
             Event definition to the event raised when an user is disconnected.
+            </summary>
+        </member>
+        <member name="E:KSPM.Network.Client.GameClient.InformationRequestCompleted">
+            <summary>
+            Event to be called once a reques is completed successfully or not.
             </summary>
         </member>
         <member name="P:KSPM.Network.Client.GameClient.PairingCode">
@@ -2320,6 +2382,12 @@
             </summary>
             <param name="buffersSize">Size used to alloc the memory buffers.</param>
         </member>
+        <member name="M:KSPM.Network.Common.NetworkBaseCollection.#ctor">
+            <summary>
+            Creates an Empty reference, so it must be initialized before.
+            Each property is set to null.
+            </summary>
+        </member>
         <member name="M:KSPM.Network.Common.NetworkBaseCollection.Dispose">
             <summary>
             Releases the buffers and set the Socket to null, so It has to be shut down by you.
@@ -2336,6 +2404,11 @@
             Creates an empty object.
             </summary>
             <param name="bufferSize"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.#ctor">
+            <summary>
+            Creates an Empty reference, so each property must be initializided before.
+            </summary>
         </member>
         <member name="M:KSPM.Network.Common.ConnectionlessNetworkCollection.Dispose">
             <summary>
@@ -2471,6 +2544,170 @@
         <member name="F:KSPM.Network.Common.Error.ErrorType.ChatInvalidAvailableGroups">
             <summary>
             Sent when a negative value is used to create the groups.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.UserConnectedEventHandler">
+            <summary>
+            Delegate definition when a user is connected to the system.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.UserDisconnectedEventHandler">
+            <summary>
+            Delegate definition when a user is disconnected from the system.
+            KSPMEventArgs has the information.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.UDPMessageArrived">
+            <summary>
+            Delegate definition when a Message arrives through the UDP channel.
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.TCPMessageArrived">
+            <summary>
+            Delegate definition when a Message arrives through the TCP channel.
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.RequestInformationCompleted">
+            <summary>
+            Delegate definition when a information request is completed.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.KSPMEventArgs">
+            <summary>
+            Defines a wrapper for the details for those delegates which use this class.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.Event">
+            <summary>
+            Kind of the event.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.CauseOfTheEvent">
+            <summary>
+            Cause of the event.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.UserToken">
+            <summary>
+            Reference to a token defined by the user. By default null.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Common.Events.KSPMEventArgs.#ctor(KSPM.Network.Common.Events.KSPMEventArgs.EventType,KSPM.Network.Common.Events.KSPMEventArgs.EventCause)">
+            <summary>
+            Creates a new wrapper with the given information.
+            </summary>
+            <param name="type"></param>
+            <param name="cause"></param>
+        </member>
+        <member name="M:KSPM.Network.Common.Events.KSPMEventArgs.ToString">
+            <summary>
+            Parses this reference to a string representation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Common.Events.KSPMEventArgs.Empty">
+            <summary>
+            Creates a new reference with the values set to default.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.KSPMEventArgs.EventType">
+            <summary>
+            Definition of the type of the event.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.None">
+            <summary>
+            Default value, is harmless.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.Connect">
+            <summary>
+            Connection issue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.Disconnect">
+            <summary>
+            Disconnection issue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.Error">
+            <summary>
+            An error has caused the event.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.RuntimeError">
+            <summary>
+            A runtime error causes the event, such a event could be originated by a socket issue.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventType.InformationRequest">
+            <summary>
+            An information request has been performed.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Common.Events.KSPMEventArgs.EventCause">
+            <summary>
+            Definition for the available causes that could trigger an event.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.None">
+            <summary>
+            Default value, is harmless.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.Ok">
+            <summary>
+            Everything went ok.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.Cancelled">
+            <summary>
+            The method was cancelled.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.ConnectionTimeOut">
+            <summary>
+            Connection has taken soo long.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.TCPHolePunchingCannotBeDone">
+            <summary>
+            A connection could not be stablished with the remote host.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.ServerFull">
+            <summary>
+            The server is full.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.ServerDisconnected">
+            <summary>
+            The remote server closed the socket.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.ClientDisconnected">
+            <summary>
+            The remote host closed the socket.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.ErrorByException">
+            <summary>
+            A handled exception ocurred so the system can not go further.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Events.KSPMEventArgs.EventCause.NiceDisconnect">
+            <summary>
+            Nice disconnection between the host and the server.
             </summary>
         </member>
         <member name="T:KSPM.Network.Common.IAsyncReceiver">
@@ -2860,6 +3097,14 @@
             <param name="targetMessage">Out reference to the Message object to be created.</param>
             <returns></returns>
         </member>
+        <member name="M:KSPM.Network.Common.Messages.Message.LoadServerInformationRequestMessage(KSPM.Network.Common.NetworkBaseCollection,KSPM.Network.NetworkInformation.ProtoNetworkInterface,System.Int32,KSPM.Network.Common.Messages.Message@)">
+            <summary>
+            Writes a request for information to be sent to a server.
+            </summary>
+            <param name="networkInformation">Network information to be used in the message composing.</param>
+            <param name="targetMessage">Reference to the message to be filled.</param>
+            <returns></returns>
+        </member>
         <member name="M:KSPM.Network.Common.Messages.Message.EmptyUserCommandMessage(KSPM.Network.Common.NetworkEntity,System.Int32,KSPM.Network.Common.Messages.Message@)">
             <summary>
             Creates an empty User command, it must be sent using the TCP channel.
@@ -2934,6 +3179,12 @@
         <member name="F:KSPM.Network.Common.Messages.Message.CommandType.RestartServer">
             <summary>
             Restarts the server.<b>It is not implemeneted.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Common.Messages.Message.CommandType.ServerInformation">
+            <summary>
+            Client: sends this command to request information.
+            Server: sends this command with the information.
             </summary>
         </member>
         <member name="F:KSPM.Network.Common.Messages.Message.CommandType.Handshake">
@@ -3410,6 +3661,39 @@
             Gets the current status of the puching process.
             </summary>
         </member>
+        <member name="T:KSPM.Network.NetworkInformation.NetworkInformation">
+            <sumary>
+            Definition for NetworkInformation.
+            NetworkInformation is a:
+            </sumary>
+        </member>
+        <member name="M:KSPM.Network.NetworkInformation.NetworkInformation.GetUsableAddresses(System.Net.Sockets.AddressFamily)">
+            <summary>
+            Looks for those available and up NICs on the system.
+            </summary>
+            <param name="filter">Kindf of addresses to look for.</param>
+            <returns>A list with the addresses on the system, by default it has the loopback Address</returns>
+        </member>
+        <member name="M:KSPM.Network.NetworkInformation.NetworkInformation.TryToRouteIP(System.Collections.Generic.List{KSPM.Network.NetworkInformation.ProtoNetworkInterface},System.Net.IPAddress)">
+            <summary>
+            Looks for a proper NIC that can reach the IP given as parameter.
+            </summary>
+            <param name="target">IP address to be reached.</param>
+            <returns>A reference to a NIC that could reach the given IP, if none NIC fits the first NIC on the system is returned.</returns>
+        </member>
+        <member name="T:KSPM.Network.NetworkInformation.ProtoNetworkInterface">
+            <sumary>
+            Definition for NetworkInterface.
+            NetworkInterface is a: container of a network information which is configured to a determined NIC on the system.
+            </sumary>
+        </member>
+        <member name="M:KSPM.Network.NetworkInformation.ProtoNetworkInterface.#ctor(System.UInt32,System.UInt32)">
+            <summary>
+            Creates a new reference with the given information, the netmask is tryed to get using the network gateway and the ip addresses.
+            </summary>
+            <param name="networkGateway"></param>
+            <param name="ipAddress"></param>
+        </member>
         <member name="T:KSPM.Network.Server.GameServer">
             <summary>
             TODO: Create a filter to allow a number of maximun TCP connections.
@@ -3463,6 +3747,26 @@
         <member name="F:KSPM.Network.Server.GameServer.tcpMinimumMessagesAllowedAfterPurge">
             <summary>
             Tells the amount of messages are allowe to receive messages again.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.udpSytem">
+            <summary>
+            Network collection to handle information requests, it uses UDP.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.serverInformation">
+            <summary>
+            Human readable information about this server.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.udpSystemHandler">
+            <summary>
+            Async manager to handle the udp system.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.GameServer.udpSocketPointer_C">
+            <summary>
+            Memory address of the UDP socket running unmanaged.
             </summary>
         </member>
         <member name="F:KSPM.Network.Server.GameServer.primaryCommandQueue">
@@ -3597,6 +3901,25 @@
             <param name="sender"></param>
             <param name="message"></param>
         </member>
+        <member name="M:KSPM.Network.Server.GameServer.ReceiveInformationRequestsAsync">
+            <summary>
+            Receives server information requests, suchs as connected players and another information.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnServerInformationSocketOperationComplete(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called each time a receive/send operation is completed.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.GameServer.OnServerInformationRequestCompleted(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Method called each time a request is received.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
         <member name="M:KSPM.Network.Server.GameServer.HandleCommandsThreadMethod">
             <summary>
             Handles the those commands send by the client through a TCP socket.
@@ -3617,6 +3940,7 @@
         <member name="M:KSPM.Network.Server.GameServer.HandleLocalCommandsThreadMethod">
             <summary>
             Handles the commands passed by the UI or the console if is it one implemented.
+            Also it handles the connection commands.
             </summary>
         </member>
         <member name="M:KSPM.Network.Server.GameServer.HandleOutgoingPriorityMessagesThreadMethod">
@@ -3703,6 +4027,86 @@
             Gets the warning level flag on what the system is working.
             </summary>
         </member>
+        <member name="T:KSPM.Network.Server.GameServer.ReceiveUDPRequestsAsync">
+            <summary>
+            Delegate definition to receive UDP requests using an unmanaged code loaded by a dll.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.HostsManagement.HostInformation">
+            <sumary>
+            Definition for HostInformation.
+            HostInformation is a: 
+            </sumary>
+        </member>
+        <member name="F:KSPM.Network.Server.HostsManagement.HostInformation.Id">
+            <summary>
+            Unique Id.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.HostsManagement.HostInformation.endPoint">
+            <summary>
+            IPEndPoint used to send the information.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.HostsManagement.HostInformation.address">
+            <summary>
+            Address in raw format, it is useful to fast comparing methods.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.HostsManagement.HostInformation.port">
+            <summary>
+            Port used by the host.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.HostsManagement.HostInformation.#ctor(System.Byte[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Creates a HostInformation instance with the given parameters. SETS IPEndPoint property to null.
+            </summary>
+            <param name="addressBuffer">Byte array with the addres</param>
+            <param name="offset">Start position where the system should read bytes.</param>
+            <param name="count">Number of bytes to be read.</param>
+            <param name="port">Port number used by the host.</param>
+        </member>
+        <member name="M:KSPM.Network.Server.HostsManagement.HostInformation.Equals(System.Object)">
+            <summary>
+            Determines if a HostInformation reference is equals to another.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPM.Network.Server.HostsManagement.HostInformation.GetHashCode">
+            <summary>
+            Overrides the GetHashCode.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:KSPM.Network.Server.HostsManagement.HostInformation.Address">
+            <summary>
+            Gets the address array.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.HostsManagement.HostInformation.Port">
+            <summary>
+            Gets the port used by the host.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.HostsManagement.HostInformation.EndPoint">
+            <summary>
+            Gets the IPEndPoint that represents this host information.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.HostsManagement.LowLevelFilter">
+            <sumary>
+            Definition for LowLevelFilter.
+            LowLevelFilter is a:
+            </sumary>
+        </member>
+        <member name="T:KSPM.Network.Server.HostsManagement.LowLevelHostManagmentSystem">
+            <sumary>
+            Definition for LowLevelHostManagmentSystem.
+            LowLevelHostManagmentSystem is a:
+            </sumary>
+        </member>
         <member name="T:KSPM.Network.Server.IOPortManager">
             <summary>
             Provides a pool of free port numbers, with a closed set given by [startAssignationPort, endAssignationPort]
@@ -3746,6 +4150,58 @@
         <member name="M:KSPM.Network.Server.IOPortManager.Release">
             <summary>
             Releases all the used resources by the IOPortManager.
+            </summary>
+        </member>
+        <member name="T:KSPM.Network.Server.PublicServerInformation">
+            <sumary>
+            Definition for ServerInformation.
+            ServerInformation is a: human readable information.
+            </sumary>
+        </member>
+        <member name="F:KSPM.Network.Server.PublicServerInformation.MaxNameLength">
+            <summary>
+            Amount of characters available to the name as maximun size.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.PublicServerInformation.name">
+            <summary>
+            Name of the server, used by external agents.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.PublicServerInformation.connectedPlayers">
+            <summary>
+            Number of connected players.<b>It is a snapshot so this can change at any time.</b>
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.PublicServerInformation.informationBuffer">
+            <summary>
+            Byte array to hold the information in raw format, ready to be sent.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Server.PublicServerInformation.usableBytes">
+            <summary>
+            Number of bytes with an usable information.
+            </summary>
+        </member>
+        <member name="M:KSPM.Network.Server.PublicServerInformation.UpdateInformation(System.String)">
+            <summary>
+            Updates the buffer filling it with the current information held by the reference itself.
+            </summary>
+            <param name="newName"></param>
+        </member>
+        <member name="M:KSPM.Network.Server.PublicServerInformation.Release">
+            <summary>
+            Releases all resources used by the object, becoming unusable.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.PublicServerInformation.Name">
+            <summary>
+            Gets the server name.
+            </summary>
+        </member>
+        <member name="P:KSPM.Network.Server.PublicServerInformation.ConnectedPlayers">
+            <summary>
+            Gets the number of connected players.
             </summary>
         </member>
         <member name="T:KSPM.Network.Server.ServerSettings">

@@ -101,10 +101,16 @@
     <Compile Include="Network\Common\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Network\NAT\NATTraversal.cs" />
     <Compile Include="Network\NAT\NATNone.cs" />
+    <Compile Include="Network\NetworkInformation\NetworkInformation.cs" />
+    <Compile Include="Network\NetworkInformation\ProtoNetworkInterface.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Common\NetworkEntity.cs" />
     <Compile Include="Network\Common\NetworkRawEntity.cs" />
+    <Compile Include="Network\Server\HostsManagement\HostInformation.cs" />
+    <Compile Include="Network\Server\HostsManagement\LowLevelFilter.cs" />
+    <Compile Include="Network\Server\HostsManagement\LowLevelHostManagmentSystem.cs" />
     <Compile Include="Network\Server\IOPortManager.cs" />
+    <Compile Include="Network\Server\PublicServerInformation.cs" />
     <Compile Include="Network\Server\ServerSettings.cs" />
     <Compile Include="Network\Server\ServerSideClient.cs" />
     <Compile Include="Network\Server\UserManagement\AccountManager.cs" />

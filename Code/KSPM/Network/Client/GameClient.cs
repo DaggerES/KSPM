@@ -266,6 +266,45 @@ namespace KSPM.Network.Client
 
         #endregion
 
+        #region ServerInformationRequests
+
+        /// <summary>
+        /// Network colletion to perform information request to the server.
+        /// </summary>
+        protected ConnectionlessNetworkCollection informationRequester;
+
+        /// <summary>
+        /// SocketAsyncEventArgs class to receive information from a server.
+        /// </summary>
+        protected SocketAsyncEventArgs ioInformationRequestsSAEA;
+
+        /// <summary>
+        /// List with the available NICs on the system.
+        /// </summary>
+        protected System.Collections.Generic.List<KSPM.Network.NetworkInformation.ProtoNetworkInterface> NICs;
+
+        /// <summary>
+        /// Timer to check if the operation has taken much time, so a cancellation is required.
+        /// </summary>
+        protected System.Threading.Timer informationRequestTimeOutChecker;
+
+        /// <summary>
+        /// Amount of time before a cancellation would be performed.
+        /// </summary>
+        protected int informationRequestTimeOut;
+
+        /// <summary>
+        /// Flag to avoid request many times, if that ocurres the behaviour is not known.
+        /// </summary>
+        protected int requestingInformationFlag;
+
+        /// <summary>
+        /// Event to be called once a reques is completed successfully or not.
+        /// </summary>
+        public event KSPM.Network.Common.Events.RequestInformationCompleted InformationRequestCompleted;
+
+        #endregion
+
         #region UDP_Buffering
 
         /// <summary>
@@ -372,6 +411,12 @@ namespace KSPM.Network.Client
             ///Initializing the UDP Network
             this.udpNetworkCollection = new NetworkBaseCollection(ClientSettings.ClientBufferSize);
 
+            ///Initializing the Server Information requester over UDP
+            this.informationRequester = new ConnectionlessNetworkCollection(ClientSettings.ClientBufferSize);
+            this.requestingInformationFlag = 0;
+            this.informationRequestTimeOutChecker = new Timer(new TimerCallback(this.RequestTimeoutReached), this, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            this.informationRequester.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
             ///Network init
             this.udpServerInformation = new ServerInformation();
             this.usingUDP = false;
@@ -460,6 +505,12 @@ namespace KSPM.Network.Client
                 ///is created.
                 result = ClientSettings.ReadSettings(out this.workingSettings);
 
+                this.informationRequester.socketReference.Bind(new IPEndPoint(IPAddress.Any, (int)this.workingSettings.tcpPort));
+                this.ioInformationRequestsSAEA = new SocketAsyncEventArgs();
+                ///Setting only the complete event.
+                this.ioInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
+                this.NICs = KSPM.Network.NetworkInformation.NetworkInformation.GetUsableAddresses(AddressFamily.InterNetwork);
+
                 this.errorHandlingThread.Start();
 
                 ///Starting the pooling threads.
@@ -476,6 +527,145 @@ namespace KSPM.Network.Client
             }
             return result;
         }
+
+        #endregion
+
+        #region RequestingServerInformation
+
+        protected void RequestAvailableNetworkAddress()
+        {
+            if( this.informationRequester.socketReference == null )
+            {
+                this.informationRequester.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            }
+            this.informationRequester.socketReference.SendTo(this.informationRequester.rawBuffer, 1, SocketFlags.None, new IPEndPoint(IPAddress.Parse("8.8.8.8"), 80));
+            KSPMGlobals.Globals.Log.WriteTo(this.informationRequester.socketReference.LocalEndPoint.ToString());
+        }
+
+        /// <summary>
+        /// Tries to send a request to the specified server.
+        /// </summary>
+        /// <param name="targetServer">Served to which the reques is going to be send.</param>
+        /// <param name="timeOut">Amount of time before cancell the operation.</param>
+        /// <returns>False if there are another request running, true if every went ok.</returns>
+        public bool RequestServerInformation( ServerInformation targetServer, int timeOut)
+        {
+            ///Verifying if there is another request ongoing.
+            if( Interlocked.CompareExchange( ref this.requestingInformationFlag, 1, 0 ) == 0)
+            {
+                ///Setting the timer to check when the timeout is reached.
+                this.informationRequestTimeOutChecker.Change(timeOut, timeOut);
+                this.RequestServerInformationAsync(targetServer);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Request information to a server.
+        /// </summary>
+        /// <param name="target"></param>
+        protected void RequestServerInformationAsync( ServerInformation target )
+        {
+            Message informationRequestMessage = this.udpIOMessagesPool.BorrowMessage;
+            KSPM.Network.NetworkInformation.ProtoNetworkInterface outgoingInterface = KSPM.Network.NetworkInformation.NetworkInformation.TryToRouteIP(this.NICs, target.NetworkEndPoint.Address);
+            this.ioInformationRequestsSAEA.AcceptSocket = this.informationRequester.socketReference;
+            this.ioInformationRequestsSAEA.RemoteEndPoint = target.NetworkEndPoint;
+            if( Message.LoadServerInformationRequestMessage( this.informationRequester, outgoingInterface, this.workingSettings.tcpPort, ref informationRequestMessage ) == Error.ErrorType.Ok)
+            {
+                this.ioInformationRequestsSAEA.SetBuffer( informationRequestMessage.bodyMessage, 0, (int)informationRequestMessage.MessageBytesSize );
+                this.ioInformationRequestsSAEA.UserToken = informationRequestMessage;
+                if( !this.informationRequester.socketReference.SendToAsync(this.ioInformationRequestsSAEA) )
+                {
+                    ///It executes in a synchronous way.
+                    this.IOInformationSocketOperationComplete(this, this.ioInformationRequestsSAEA);
+                }
+                
+            }
+        }
+
+        /// <summary>
+        /// Called each time a request/reception for information to a server is completes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected void IOInformationSocketOperationComplete( object sender, SocketAsyncEventArgs e)
+        {
+            KSPMEventArgs eventArgs = null;
+            if( e.SocketError == SocketError.Success)
+            {
+                if( e.UserToken != null)///means that a request was sent and the message reference is here.
+                {
+                    ///We need to recycle the message, just checking if the pool still exists.
+                    if (this.udpIOMessagesPool != null)
+                    {
+                        this.udpIOMessagesPool.Recycle((Message)e.UserToken);
+                    }
+                    else
+                    {
+                        ((Message)e.UserToken).Release();
+                    }
+                    e.UserToken = null;
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("Request sent to: {0}", e.RemoteEndPoint.ToString()));
+                    ///Setting the value to 2, this tell the program that is waiting for a reply.
+                    System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 2);
+
+                    ///Setting a proper buffer to avoid overwriting on the same buffer.
+                    e.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
+                    e.RemoteEndPoint = this.informationRequester.socketReference.LocalEndPoint;
+                    if (!e.AcceptSocket.ReceiveFromAsync(e))
+                    {
+                        this.IOInformationSocketOperationComplete(this, e);
+                    }
+                }
+                else
+                {
+                    if( System.Threading.Interlocked.CompareExchange( ref this.requestingInformationFlag, 2, 3 ) == 2 )
+                    {
+                        ///Here we are certain that this reply comes fromt he requested server.
+                        ///Other replies will be ignored.
+                        
+                        if( this.InformationRequestCompleted != null)
+                        {
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("information received:"));
+
+                            ///Proceed to disable the timer.
+                            this.informationRequestTimeOutChecker.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+                            ///Missing server information
+                            eventArgs = new KSPMEventArgs(KSPMEventArgs.EventType.InformationRequest, KSPMEventArgs.EventCause.Ok);
+                            eventArgs.UserToken = e.Buffer;
+                            this.InformationRequestCompleted(this, eventArgs);
+                            eventArgs = null;
+                        }
+
+                        ///Setting the flag to receive another request.
+                        System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 0);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called once the timer reached the timeout.
+        /// </summary>
+        /// <param name="state"></param>
+        protected void RequestTimeoutReached( object state)
+        {
+            KSPMEventArgs eventArgs;
+            ///Proceed to disable the timer.
+            this.informationRequestTimeOutChecker.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+            eventArgs = new KSPMEventArgs(KSPMEventArgs.EventType.InformationRequest, KSPMEventArgs.EventCause.Cancelled);
+            if( this.InformationRequestCompleted != null )
+            {
+                this.InformationRequestCompleted(this, eventArgs);
+            }
+
+            ///Reseting the flag.
+            System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 0);
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("Request timeout"));
+        }
+
 
         #endregion
 
@@ -600,7 +790,6 @@ namespace KSPM.Network.Client
                             {
                                 this.udpNetworkCollection.socketReference = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                                 this.udpNetworkCollection.socketReference.Bind(new IPEndPoint( ((IPEndPoint)this.ownerNetworkCollection.socketReference.LocalEndPoint).Address, this.workingSettings.udpPort));
-                                //this.udpNetworkCollection.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.workingSettings.udpPort));
                                 KSPMGlobals.Globals.NAT.Punch(ref this.udpNetworkCollection.socketReference, this.udpServerInformation.ip, this.udpServerInformation.port);
                                 KSPMGlobals.Globals.Log.WriteTo(string.Format("[{0}] UDP hole status: {1}.", this.id, KSPMGlobals.Globals.NAT.Status.ToString()));
                                 this.udpHolePunched = KSPMGlobals.Globals.NAT.Status == NATTraversal.NATStatus.Connected;
