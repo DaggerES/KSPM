@@ -276,7 +276,12 @@ namespace KSPM.Network.Client
         /// <summary>
         /// SocketAsyncEventArgs class to receive information from a server.
         /// </summary>
-        protected SocketAsyncEventArgs ioInformationRequestsSAEA;
+        protected SocketAsyncEventArgs inInformationRequestsSAEA;
+
+        /// <summary>
+        /// SocketAsyncEventArgs class to send information to a server.
+        /// </summary>
+        protected SocketAsyncEventArgs outInformationRequestsSAEA;
 
         /// <summary>
         /// List with the available NICs on the system.
@@ -506,9 +511,12 @@ namespace KSPM.Network.Client
                 result = ClientSettings.ReadSettings(out this.workingSettings);
 
                 this.informationRequester.socketReference.Bind(new IPEndPoint(IPAddress.Any, (int)this.workingSettings.tcpPort));
-                this.ioInformationRequestsSAEA = new SocketAsyncEventArgs();
+                this.inInformationRequestsSAEA = new SocketAsyncEventArgs();
+                this.outInformationRequestsSAEA = new SocketAsyncEventArgs();
                 ///Setting only the complete event.
-                this.ioInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
+                this.inInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
+                this.outInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
+
                 this.NICs = KSPM.Network.NetworkInformation.NetworkInformation.GetUsableAddresses(AddressFamily.InterNetwork);
 
                 this.errorHandlingThread.Start();
@@ -569,16 +577,16 @@ namespace KSPM.Network.Client
         {
             Message informationRequestMessage = this.udpIOMessagesPool.BorrowMessage;
             KSPM.Network.NetworkInformation.ProtoNetworkInterface outgoingInterface = KSPM.Network.NetworkInformation.NetworkInformation.TryToRouteIP(this.NICs, target.NetworkEndPoint.Address);
-            this.ioInformationRequestsSAEA.AcceptSocket = this.informationRequester.socketReference;
-            this.ioInformationRequestsSAEA.RemoteEndPoint = target.NetworkEndPoint;
+            this.outInformationRequestsSAEA.AcceptSocket = this.informationRequester.socketReference;
+            this.outInformationRequestsSAEA.RemoteEndPoint = target.NetworkEndPoint;
             if( Message.LoadServerInformationRequestMessage( this.informationRequester, outgoingInterface, this.workingSettings.tcpPort, ref informationRequestMessage ) == Error.ErrorType.Ok)
             {
-                this.ioInformationRequestsSAEA.SetBuffer( informationRequestMessage.bodyMessage, 0, (int)informationRequestMessage.MessageBytesSize );
-                this.ioInformationRequestsSAEA.UserToken = informationRequestMessage;
-                if( !this.informationRequester.socketReference.SendToAsync(this.ioInformationRequestsSAEA) )
+                this.outInformationRequestsSAEA.SetBuffer( informationRequestMessage.bodyMessage, 0, (int)informationRequestMessage.MessageBytesSize );
+                this.outInformationRequestsSAEA.UserToken = informationRequestMessage;
+                if( !this.informationRequester.socketReference.SendToAsync(this.outInformationRequestsSAEA) )
                 {
                     ///It executes in a synchronous way.
-                    this.IOInformationSocketOperationComplete(this, this.ioInformationRequestsSAEA);
+                    this.IOInformationSocketOperationComplete(this, this.outInformationRequestsSAEA);
                 }
                 
             }
@@ -611,11 +619,13 @@ namespace KSPM.Network.Client
                     System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 2);
 
                     ///Setting a proper buffer to avoid overwriting on the same buffer.
-                    e.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
-                    e.RemoteEndPoint = this.informationRequester.socketReference.LocalEndPoint;
-                    if (!e.AcceptSocket.ReceiveFromAsync(e))
+                    this.inInformationRequestsSAEA.RemoteEndPoint = new IPEndPoint(0, 0);
+                    this.inInformationRequestsSAEA.AcceptSocket = e.AcceptSocket;
+                    this.inInformationRequestsSAEA.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
+                    //e.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
+                    if (!this.inInformationRequestsSAEA.AcceptSocket.ReceiveFromAsync(this.inInformationRequestsSAEA))
                     {
-                        this.IOInformationSocketOperationComplete(this, e);
+                        this.IOInformationSocketOperationComplete(this, this.inInformationRequestsSAEA);
                     }
                 }
                 else

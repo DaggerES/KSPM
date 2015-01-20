@@ -623,6 +623,9 @@ namespace KSPM.Network.Server
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?RecvFrom@@YAHHPAH0PADH0@Z")]
         public static extern int RecvFrom(int socketPtr, ref int remoteIpAddressAsInt, ref int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
 
+        [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?SendTo@@YAHHHHPADHPAH@Z")]
+        public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
+
         /// <summary>
         /// Receives server information requests, suchs as connected players and another information.
         /// </summary>
@@ -649,7 +652,7 @@ namespace KSPM.Network.Server
                         if (this.udpSytem.rawBuffer[12] == (byte)Message.CommandType.ServerInformation)
                         {
                             remotePort = System.BitConverter.ToInt32(this.udpSytem.rawBuffer, 13 );
-                            remoteHost.Address = new IPAddress(remoteIpAsInt);
+                            remoteHost.Address = new IPAddress((uint)remoteIpAsInt);
                             remoteHost.Port = remotePort;
                             KSPMGlobals.Globals.Log.WriteTo(string.Format("Information request from: {0}", remoteHost.ToString()));
 
@@ -657,8 +660,12 @@ namespace KSPM.Network.Server
                             Buffer.BlockCopy(this.serverInformation.informationBuffer, 0, this.udpSytem.secondaryRawBuffer, 0, this.serverInformation.usableBytes);
                             try
                             {
-                                this.udpSytem.socketReference.SendTo(this.udpSytem.secondaryRawBuffer, this.serverInformation.usableBytes, SocketFlags.None, remoteHost);
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("Information sent to: {0}", remoteHost.ToString()));
+                                error = GameServer.SendTo(this.udpSocketPointer_C, remoteIpAsInt, remotePort, this.udpSytem.secondaryRawBuffer,this.serverInformation.usableBytes, ref movedBytes);
+                                if (movedBytes > 0)
+                                {
+                                    //this.udpSytem.socketReference.SendTo(this.udpSytem.secondaryRawBuffer, this.serverInformation.usableBytes, SocketFlags.None, remoteHost);
+                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("Information sent to: {0}", remoteHost.ToString()));
+                                }
                             }
                             catch (Exception ex)
                             {

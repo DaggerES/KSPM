@@ -1764,9 +1764,14 @@
             Network colletion to perform information request to the server.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Client.GameClient.ioInformationRequestsSAEA">
+        <member name="F:KSPM.Network.Client.GameClient.inInformationRequestsSAEA">
             <summary>
             SocketAsyncEventArgs class to receive information from a server.
+            </summary>
+        </member>
+        <member name="F:KSPM.Network.Client.GameClient.outInformationRequestsSAEA">
+            <summary>
+            SocketAsyncEventArgs class to send information to a server.
             </summary>
         </member>
         <member name="F:KSPM.Network.Client.GameClient.NICs">
