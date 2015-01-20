@@ -1124,7 +1124,7 @@ namespace KSPM.Network.Common.Messages
         /// <param name="networkInformation">Network information to be used in the message composing.</param>
         /// <param name="targetMessage">Reference to the message to be filled.</param>
         /// <returns></returns>
-        public static Error.ErrorType LoadServerInformationRequestMessage( NetworkBaseCollection networkInformation, KSPM.Network.NetworkInformation.ProtoNetworkInterface nic, int port, ref Message targetMessage )
+        public static Error.ErrorType LoadServerInformationRequestMessage( NetworkBaseCollection networkInformation, int port, ref Message targetMessage )
         {
             int bytesToSend = Message.HeaderOfMessageCommand.Length;
             byte[] messageHeaderContent = null;
@@ -1137,17 +1137,6 @@ namespace KSPM.Network.Common.Messages
             ///Writing the Command byte.
             networkInformation.rawBuffer[bytesToSend] = (byte)Message.CommandType.ServerInformation;
             bytesToSend += 1;
-
-            /*
-            ///Writing the UDP IpEndPoint.Address used by the caller of this message.
-            //byteBuffer = ((System.Net.IPEndPoint)(networkInformation.socketReference.LocalEndPoint)).Address.GetAddressBytes();
-            byteBuffer = nic.address.GetAddressBytes();
-            ///Writing the lenghr of the address itself, giving support to IPv6 addresses.
-            networkInformation.rawBuffer[bytesToSend] = (byte)byteBuffer.Length;
-            bytesToSend += 1;
-            System.Buffer.BlockCopy(byteBuffer, 0, networkInformation.rawBuffer, bytesToSend, byteBuffer.Length);
-            bytesToSend += byteBuffer.Length;
-            */
 
             ///Writing the UDP IpEndPoint.Port used by the caller of this message.
             //byteBuffer = System.BitConverter.GetBytes(((System.Net.IPEndPoint)networkInformation.socketReference.LocalEndPoint).Port);

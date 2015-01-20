@@ -1774,11 +1774,6 @@
             SocketAsyncEventArgs class to send information to a server.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Client.GameClient.NICs">
-            <summary>
-            List with the available NICs on the system.
-            </summary>
-        </member>
         <member name="F:KSPM.Network.Client.GameClient.informationRequestTimeOutChecker">
             <summary>
             Timer to check if the operation has taken much time, so a cancellation is required.
@@ -3102,7 +3097,7 @@
             <param name="targetMessage">Out reference to the Message object to be created.</param>
             <returns></returns>
         </member>
-        <member name="M:KSPM.Network.Common.Messages.Message.LoadServerInformationRequestMessage(KSPM.Network.Common.NetworkBaseCollection,KSPM.Network.NetworkInformation.ProtoNetworkInterface,System.Int32,KSPM.Network.Common.Messages.Message@)">
+        <member name="M:KSPM.Network.Common.Messages.Message.LoadServerInformationRequestMessage(KSPM.Network.Common.NetworkBaseCollection,System.Int32,KSPM.Network.Common.Messages.Message@)">
             <summary>
             Writes a request for information to be sent to a server.
             </summary>
@@ -3665,39 +3660,6 @@
             <summary>
             Gets the current status of the puching process.
             </summary>
-        </member>
-        <member name="T:KSPM.Network.NetworkInformation.NetworkInformation">
-            <sumary>
-            Definition for NetworkInformation.
-            NetworkInformation is a:
-            </sumary>
-        </member>
-        <member name="M:KSPM.Network.NetworkInformation.NetworkInformation.GetUsableAddresses(System.Net.Sockets.AddressFamily)">
-            <summary>
-            Looks for those available and up NICs on the system.
-            </summary>
-            <param name="filter">Kindf of addresses to look for.</param>
-            <returns>A list with the addresses on the system, by default it has the loopback Address</returns>
-        </member>
-        <member name="M:KSPM.Network.NetworkInformation.NetworkInformation.TryToRouteIP(System.Collections.Generic.List{KSPM.Network.NetworkInformation.ProtoNetworkInterface},System.Net.IPAddress)">
-            <summary>
-            Looks for a proper NIC that can reach the IP given as parameter.
-            </summary>
-            <param name="target">IP address to be reached.</param>
-            <returns>A reference to a NIC that could reach the given IP, if none NIC fits the first NIC on the system is returned.</returns>
-        </member>
-        <member name="T:KSPM.Network.NetworkInformation.ProtoNetworkInterface">
-            <sumary>
-            Definition for NetworkInterface.
-            NetworkInterface is a: container of a network information which is configured to a determined NIC on the system.
-            </sumary>
-        </member>
-        <member name="M:KSPM.Network.NetworkInformation.ProtoNetworkInterface.#ctor(System.UInt32,System.UInt32)">
-            <summary>
-            Creates a new reference with the given information, the netmask is tryed to get using the network gateway and the ip addresses.
-            </summary>
-            <param name="networkGateway"></param>
-            <param name="ipAddress"></param>
         </member>
         <member name="T:KSPM.Network.Server.GameServer">
             <summary>

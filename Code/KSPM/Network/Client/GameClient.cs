@@ -284,11 +284,6 @@ namespace KSPM.Network.Client
         protected SocketAsyncEventArgs outInformationRequestsSAEA;
 
         /// <summary>
-        /// List with the available NICs on the system.
-        /// </summary>
-        protected System.Collections.Generic.List<KSPM.Network.NetworkInformation.ProtoNetworkInterface> NICs;
-
-        /// <summary>
         /// Timer to check if the operation has taken much time, so a cancellation is required.
         /// </summary>
         protected System.Threading.Timer informationRequestTimeOutChecker;
@@ -517,8 +512,6 @@ namespace KSPM.Network.Client
                 this.inInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
                 this.outInformationRequestsSAEA.Completed += new System.EventHandler<SocketAsyncEventArgs>(this.IOInformationSocketOperationComplete);
 
-                this.NICs = KSPM.Network.NetworkInformation.NetworkInformation.GetUsableAddresses(AddressFamily.InterNetwork);
-
                 this.errorHandlingThread.Start();
 
                 ///Starting the pooling threads.
@@ -558,8 +551,8 @@ namespace KSPM.Network.Client
         /// <returns>False if there are another request running, true if every went ok.</returns>
         public bool RequestServerInformation( ServerInformation targetServer, int timeOut)
         {
-            ///Verifying if there is another request ongoing.
-            if( Interlocked.CompareExchange( ref this.requestingInformationFlag, 1, 0 ) == 0)
+            ///Verifying if there is another request ongoing or if there was an timeout, so we can start another request.
+            if (Interlocked.CompareExchange(ref this.requestingInformationFlag, 1, 0) == 0 || Interlocked.CompareExchange(ref this.requestingInformationFlag, int.MaxValue - 1, int.MaxValue) == int.MaxValue)
             {
                 ///Setting the timer to check when the timeout is reached.
                 this.informationRequestTimeOutChecker.Change(timeOut, timeOut);
@@ -576,10 +569,9 @@ namespace KSPM.Network.Client
         protected void RequestServerInformationAsync( ServerInformation target )
         {
             Message informationRequestMessage = this.udpIOMessagesPool.BorrowMessage;
-            KSPM.Network.NetworkInformation.ProtoNetworkInterface outgoingInterface = KSPM.Network.NetworkInformation.NetworkInformation.TryToRouteIP(this.NICs, target.NetworkEndPoint.Address);
             this.outInformationRequestsSAEA.AcceptSocket = this.informationRequester.socketReference;
             this.outInformationRequestsSAEA.RemoteEndPoint = target.NetworkEndPoint;
-            if( Message.LoadServerInformationRequestMessage( this.informationRequester, outgoingInterface, this.workingSettings.tcpPort, ref informationRequestMessage ) == Error.ErrorType.Ok)
+            if( Message.LoadServerInformationRequestMessage( this.informationRequester, this.workingSettings.tcpPort, ref informationRequestMessage ) == Error.ErrorType.Ok)
             {
                 this.outInformationRequestsSAEA.SetBuffer( informationRequestMessage.bodyMessage, 0, (int)informationRequestMessage.MessageBytesSize );
                 this.outInformationRequestsSAEA.UserToken = informationRequestMessage;
@@ -615,17 +607,27 @@ namespace KSPM.Network.Client
                     }
                     e.UserToken = null;
                     KSPMGlobals.Globals.Log.WriteTo(string.Format("Request sent to: {0}", e.RemoteEndPoint.ToString()));
-                    ///Setting the value to 2, this tell the program that is waiting for a reply.
-                    System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 2);
 
-                    ///Setting a proper buffer to avoid overwriting on the same buffer.
-                    this.inInformationRequestsSAEA.RemoteEndPoint = new IPEndPoint(0, 0);
-                    this.inInformationRequestsSAEA.AcceptSocket = e.AcceptSocket;
-                    this.inInformationRequestsSAEA.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
-                    //e.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
-                    if (!this.inInformationRequestsSAEA.AcceptSocket.ReceiveFromAsync(this.inInformationRequestsSAEA))
+                    ///Checking if there is some reception pending, so the SAEA is running already.
+                    if (System.Threading.Interlocked.CompareExchange(ref this.requestingInformationFlag, 2, 1) == 1)
                     {
-                        this.IOInformationSocketOperationComplete(this, this.inInformationRequestsSAEA);
+                        ///If this code is reached meanas that the system is running properly, in that case we just need to set up the SAEA object to receive a packet.
+                        ///If not means that a pending reception is runnin and it is no need of call a reception again.
+
+                        ///Setting a proper buffer to avoid overwriting on the same buffer.
+                        this.inInformationRequestsSAEA.RemoteEndPoint = this.informationRequester.remoteEndPoint;
+                        this.inInformationRequestsSAEA.AcceptSocket = e.AcceptSocket;
+                        this.inInformationRequestsSAEA.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
+                        //e.SetBuffer(this.informationRequester.secondaryRawBuffer, 0, this.informationRequester.secondaryRawBuffer.Length);
+                        if (!this.inInformationRequestsSAEA.AcceptSocket.ReceiveFromAsync(this.inInformationRequestsSAEA))
+                        {
+                            this.IOInformationSocketOperationComplete(this, this.inInformationRequestsSAEA);
+                        }
+                    }
+                    else
+                    {
+                        ///Telling the system to work normal.
+                        System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 2);
                     }
                 }
                 else
@@ -671,8 +673,8 @@ namespace KSPM.Network.Client
                 this.InformationRequestCompleted(this, eventArgs);
             }
 
-            ///Reseting the flag.
-            System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, 0);
+            ///setting the flag as a timeout reached.
+            System.Threading.Interlocked.Exchange(ref this.requestingInformationFlag, int.MaxValue);
             KSPMGlobals.Globals.Log.WriteTo(string.Format("Request timeout"));
         }
 

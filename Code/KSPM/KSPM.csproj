@@ -101,8 +101,6 @@
     <Compile Include="Network\Common\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Network\NAT\NATTraversal.cs" />
     <Compile Include="Network\NAT\NATNone.cs" />
-    <Compile Include="Network\NetworkInformation\NetworkInformation.cs" />
-    <Compile Include="Network\NetworkInformation\ProtoNetworkInterface.cs" />
     <Compile Include="Network\Server\GameServer.cs" />
     <Compile Include="Network\Common\NetworkEntity.cs" />
     <Compile Include="Network\Common\NetworkRawEntity.cs" />
