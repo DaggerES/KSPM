@@ -1122,6 +1122,7 @@ namespace KSPM.Network.Common.Messages
         /// Writes a request for information to be sent to a server.
         /// </summary>
         /// <param name="networkInformation">Network information to be used in the message composing.</param>
+        /// <param name="port">Port number to be sent as part of the message.</param>
         /// <param name="targetMessage">Reference to the message to be filled.</param>
         /// <returns></returns>
         public static Error.ErrorType LoadServerInformationRequestMessage( NetworkBaseCollection networkInformation, int port, ref Message targetMessage )

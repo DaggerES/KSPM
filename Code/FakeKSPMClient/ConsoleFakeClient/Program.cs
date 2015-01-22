@@ -216,7 +216,7 @@ namespace ConsoleFakeClient
                             Console.WriteLine("Write down the index of the server to be requested.");
                             idsAsString = Console.ReadLine();
                             targetsIds = int.Parse(idsAsString);
-                            if(!client.RequestServerInformation(hosts.Hosts[targetsIds], 2000))
+                            if(!client.RequestServerInformation(hosts.Hosts[targetsIds], 10000))
                             {
                                 Console.WriteLine("A request is already running.");
                             }
@@ -229,9 +229,16 @@ namespace ConsoleFakeClient
             Console.ReadLine();
         }
 
-        private static void client_InformationRequestCompleted(object sender, KSPM.Network.Common.Events.KSPMEventArgs e)
+        private static void client_InformationRequestCompleted(object sender, KSPM.Network.Common.Events.KSPMInformationCompleteEventArgs e)
         {
-            KSPMGlobals.Globals.Log.WriteTo("LLEGO INFO");
+            if( e.CauseOfTheEvent == KSPM.Network.Common.Events.KSPMEventArgs.EventCause.Ok)
+            {
+                KSPMGlobals.Globals.Log.WriteTo(string.Format("Information request, ping {0}", e.Ping));
+            }
+            else
+            {
+                KSPMGlobals.Globals.Log.WriteTo(e.CauseOfTheEvent.ToString());
+            }
         }
 
         static void client_UDPMessageArrived(object sender, KSPM.Network.Common.Messages.Message message)

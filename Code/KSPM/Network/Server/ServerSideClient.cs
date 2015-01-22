@@ -34,7 +34,33 @@ namespace KSPM.Network.Server
         /// <summary>
         /// ServerSide status.
         /// </summary>
-        public enum ClientStatus : byte { Handshaking = 0, Authenticated, Connected, Awaiting, UDPSettingUp };
+        public enum ClientStatus : byte
+        { 
+            /// <summary>
+            /// Initial state of the object.
+            /// </summary>
+            Handshaking = 0,
+
+            /// <summary>
+            /// Remote client has sent its information and has been authenticated into the system.
+            /// </summary>
+            Authenticated,
+            
+            /// <summary>
+            /// The remote client is already connected to the system.
+            /// </summary>
+            Connected,
+
+            /// <summary>
+            /// Awaiting for something.
+            /// </summary>
+            Awaiting,
+            
+            /// <summary>
+            /// Exchanging information about how the UDP channel should work.
+            /// </summary>
+            UDPSettingUp
+        };
 
         /// <summary>
         /// Delegate to runs the connection process.

@@ -41,7 +41,7 @@ namespace KSPM.Network.Common.Events
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public delegate void RequestInformationCompleted( object sender, KSPMEventArgs e);
+    public delegate void RequestInformationCompleted( object sender, KSPMInformationCompleteEventArgs e);
     
     /// <summary>
     /// Defines a wrapper for the details for those delegates which use this class.
@@ -104,6 +104,11 @@ namespace KSPM.Network.Common.Events
             /// The method was cancelled.
             /// </summary>
             Cancelled,
+
+            /// <summary>
+            /// An operation has reached a timeout.
+            /// </summary>
+            TimeOut,
 
             /// <summary>
             /// Connection has taken soo long.
@@ -186,6 +191,27 @@ namespace KSPM.Network.Common.Events
             {
                 return new KSPMEventArgs(EventType.None, EventCause.None);
             }
+        }
+    }
+
+    /// <summary>
+    /// Event args used when a request is completed.
+    /// </summary>
+    public class KSPMInformationCompleteEventArgs : KSPMEventArgs
+    {
+        /// <summary>
+        /// Round trip time in millisenconds.
+        /// </summary>
+        public long Ping;
+
+        /// <summary>
+        /// Creates a new reference with default values.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="cause"></param>
+        public KSPMInformationCompleteEventArgs( EventType type, EventCause cause) : base( type, cause)
+        {
+            this.Ping = -1;
         }
     }
 }

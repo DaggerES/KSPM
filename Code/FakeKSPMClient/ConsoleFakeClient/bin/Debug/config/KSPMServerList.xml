@@ -6,5 +6,15 @@
       <IP_Address>192.168.15.11</IP_Address>
       <PortNumber>4700</PortNumber>
     </ServerInformation>
+    <ServerInformation>
+      <ServerName>Other</ServerName>
+      <IP_Address>192.168.15.10</IP_Address>
+      <PortNumber>4700</PortNumber>
+    </ServerInformation>
+    <ServerInformation>
+      <ServerName>Dead</ServerName>
+      <IP_Address>192.168.15.200</IP_Address>
+      <PortNumber>4700</PortNumber>
+    </ServerInformation>
   </KSPMServers>
 </ServerList>

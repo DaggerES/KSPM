@@ -41,7 +41,9 @@ namespace KSPM.Network.Server
         protected internal short usableBytes;
 
         
-
+        /// <summary>
+        /// Creates an empty reference, setting the information buffer to 256 characters.
+        /// </summary>
         public PublicServerInformation()
         {
             this.connectedPlayers = 0;

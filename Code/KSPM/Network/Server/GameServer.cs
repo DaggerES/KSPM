@@ -608,23 +608,60 @@ namespace KSPM.Network.Server
 
         #region ServerInformationRequests
 
+        /// <summary>
+        /// Extern method definition to initialize the engine on the imported library.
+        /// </summary>
+        /// <returns>Error code or 0</returns>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?InitializeSocketEngine@@YAHXZ")]
         public static extern int InitializeSocketEngine();
 
+        /// <summary>
+        /// Extern method definition to shutdown the engine on the imported library.
+        /// </summary>
+        /// <returns>Error code or 0</returns>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?ShutdownSocketEngine@@YAHXZ")]
         public static extern int ShutdownSocketEngine();
 
+        /// <summary>
+        /// Extern method definition to get a new socket reference from the underlying library.
+        /// </summary>
+        /// <param name="port">Port to be used on the socket.</param>
+        /// <returns>The socket pointer to the memory address as int.</returns>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?GetNewSocket@@YAHH@Z")]
         public static extern int GetNewSocket(int port);
 
+        /// <summary>
+        /// Extern method to delete a socket reference from the underlayin library.
+        /// </summary>
+        /// <param name="socketPtrAsInt">Socket pointer as int.</param>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?DeleteSocket@@YAXH@Z")]
         public static extern void DeleteSocket(int socketPtrAsInt);
 
+        /// <summary>
+        /// Extern definition to receive UDP packets through the socket specified as argument.
+        /// </summary>
+        /// <param name="socketPtr">Socket pointer as int.</param>
+        /// <param name="remoteIpAddressAsInt">Ref argument to be set using the remote IP address in network notation</param>
+        /// <param name="remotePort">Ref argument to be set usin  the remote port in network notation-</param>
+        /// <param name="receivedBuffer">Byte array with the received information in it.</param>
+        /// <param name="bufferSize">Buffer size, used to avoid memory overruns.</param>
+        /// <param name="movedBytes">Number of bytes received.</param>
+        /// <returns>Error code or the number of bytes received.</returns>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?RecvFrom@@YAHHPAH0PADH0@Z")]
         public static extern int RecvFrom(int socketPtr, ref int remoteIpAddressAsInt, ref int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
 
+        /// <summary>
+        /// Extern definition to sent UDP packets through the socket specified as argument.
+        /// </summary>
+        /// <param name="socketPtr">Socket pointer as int.</param>
+        /// <param name="remoteIpAddressAsInt">Remote IP address in network notation.</param>
+        /// <param name="remotePort">Remote port in host notation.</param>
+        /// <param name="sendingBuffer">Buffer with the info that must be send.</param>
+        /// <param name="bufferSize">Number of bytes to be send.</param>
+        /// <param name="movedBytes">Number of bytes sent.</param>
+        /// <returns>Error code or the number of bytes sent.</returns>
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?SendTo@@YAHHHHPADHPAH@Z")]
-        public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
+        public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] sendingBuffer, int bufferSize, ref int movedBytes);
 
         /// <summary>
         /// Receives server information requests, suchs as connected players and another information.
@@ -675,40 +712,19 @@ namespace KSPM.Network.Server
                     }
                 }
             }
-            /*
-            SocketAsyncEventArgs serverInformationRequestSAEA = this.incomingConnectionsPool.NextSlot;
-            serverInformationRequestSAEA.AcceptSocket = this.udpSytem.socketReference;
-            serverInformationRequestSAEA.SetBuffer(this.udpSytem.rawBuffer, 0, this.udpSytem.rawBuffer.Length);
-            serverInformationRequestSAEA.RemoteEndPoint = this.udpSytem.remoteEndPoint;
-            serverInformationRequestSAEA.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnServerInformationSocketOperationComplete);
-            serverInformationRequestSAEA.UserToken = 1;
-            try
-            {
-                ///Only if the socket is defined.
-                if (udpSytem.socketReference != null)
-                {
-                    ///serverInformationRequestSAEA.Completed += new EventHandler<SocketAsyncEventArgs>(this.OnServerInformationRequestCompleted);
-                    if (this.udpSytem.socketReference.ReceiveFromAsync(serverInformationRequestSAEA))
-                    {
-                        this.OnServerInformationRequestCompleted(this, serverInformationRequestSAEA);
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("Something happened while receive information requests: {0}", ex.StackTrace));
-
-                ///Trying to receive another request.
-                this.ReceiveInformationRequestsAsync();
-            }
-            */
         }
 
+        /// <summary>
+        /// Method called once the requests loop is finished.
+        /// </summary>
+        /// <param name="result"></param>
         protected void OnReceiveInformationRequestsAsyncComplete( System.IAsyncResult result)
         {
             GameServer.ShutdownSocketEngine();
             KSPMGlobals.Globals.Log.WriteTo("Killed unmanaged Sockets engine...");
         }
+
+        /*
 
         /// <summary>
         /// Method called each time a receive/send operation is completed.
@@ -813,7 +829,6 @@ namespace KSPM.Network.Server
             byte addressLength;
             byte[] byteBuffer;
             int remotePort;
-            HostInformation requesterHost;
             IPEndPoint remoteHost;
             SocketAsyncEventArgs serverInformationRequestSAEA;
             if( e.SocketError == SocketError.Success )
@@ -837,6 +852,7 @@ namespace KSPM.Network.Server
                 }
             }
         }
+        */
 
         #endregion
 
