@@ -2,6 +2,8 @@
 //#define DEBUGTRACER_L2
 //#define DEBUGTRACER_L3
 
+//#define _WINDOWS_
+
 using System.Runtime.InteropServices;
 
 using System;
@@ -608,6 +610,8 @@ namespace KSPM.Network.Server
 
         #region ServerInformationRequests
 
+#if _WINDOWS_
+
         /// <summary>
         /// Extern method definition to initialize the engine on the imported library.
         /// </summary>
@@ -663,6 +667,64 @@ namespace KSPM.Network.Server
         [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?SendTo@@YAHHHHPADHPAH@Z")]
         public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] sendingBuffer, int bufferSize, ref int movedBytes);
 
+#else
+
+        /// <summary>
+        /// Extern method definition to initialize the engine on the imported library.
+        /// </summary>
+        /// <returns>Error code or 0</returns>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int InitializeSocketEngine();
+
+        /// <summary>
+        /// Extern method definition to shutdown the engine on the imported library.
+        /// </summary>
+        /// <returns>Error code or 0</returns>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int ShutdownSocketEngine();
+
+        /// <summary>
+        /// Extern method definition to get a new socket reference from the underlying library.
+        /// </summary>
+        /// <param name="port">Port to be used on the socket.</param>
+        /// <returns>The socket pointer to the memory address as int.</returns>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int GetNewSocket(int port);
+
+        /// <summary>
+        /// Extern method to delete a socket reference from the underlayin library.
+        /// </summary>
+        /// <param name="socketPtrAsInt">Socket pointer as int.</param>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern void DeleteSocket(int socketPtrAsInt);
+
+        /// <summary>
+        /// Extern definition to receive UDP packets through the socket specified as argument.
+        /// </summary>
+        /// <param name="socketPtr">Socket pointer as int.</param>
+        /// <param name="remoteIpAddressAsInt">Ref argument to be set using the remote IP address in network notation</param>
+        /// <param name="remotePort">Ref argument to be set usin  the remote port in network notation-</param>
+        /// <param name="receivedBuffer">Byte array with the received information in it.</param>
+        /// <param name="bufferSize">Buffer size, used to avoid memory overruns.</param>
+        /// <param name="movedBytes">Number of bytes received.</param>
+        /// <returns>Error code or the number of bytes received.</returns>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int RecvFrom(int socketPtr, ref int remoteIpAddressAsInt, ref int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
+
+        /// <summary>
+        /// Extern definition to sent UDP packets through the socket specified as argument.
+        /// </summary>
+        /// <param name="socketPtr">Socket pointer as int.</param>
+        /// <param name="remoteIpAddressAsInt">Remote IP address in network notation.</param>
+        /// <param name="remotePort">Remote port in host notation.</param>
+        /// <param name="sendingBuffer">Buffer with the info that must be send.</param>
+        /// <param name="bufferSize">Number of bytes to be send.</param>
+        /// <param name="movedBytes">Number of bytes sent.</param>
+        /// <returns>Error code or the number of bytes sent.</returns>
+        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] sendingBuffer, int bufferSize, ref int movedBytes);
+
+#endif
         /// <summary>
         /// Receives server information requests, suchs as connected players and another information.
         /// </summary>
@@ -678,6 +740,7 @@ namespace KSPM.Network.Server
             {
                 this.udpSocketPointer_C = GameServer.GetNewSocket(this.lowLevelOperationSettings.tcpPort);
             }
+            KSPMGlobals.Globals.Log.WriteTo(string.Format("Error: {0}", error));
             if (this.udpSocketPointer_C > 0)
             {
                 while (this.alive)
