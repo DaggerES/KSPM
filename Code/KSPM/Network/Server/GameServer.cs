@@ -673,14 +673,14 @@ namespace KSPM.Network.Server
         /// Extern method definition to initialize the engine on the imported library.
         /// </summary>
         /// <returns>Error code or 0</returns>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", EntryPoint = "_Z22InitializeSocketEnginev")]
         public static extern int InitializeSocketEngine();
 
         /// <summary>
         /// Extern method definition to shutdown the engine on the imported library.
         /// </summary>
         /// <returns>Error code or 0</returns>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", EntryPoint = "_Z20ShutdownSocketEnginev")]
         public static extern int ShutdownSocketEngine();
 
         /// <summary>
@@ -688,14 +688,14 @@ namespace KSPM.Network.Server
         /// </summary>
         /// <param name="port">Port to be used on the socket.</param>
         /// <returns>The socket pointer to the memory address as int.</returns>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "_Z12GetNewSocketi")]
         public static extern int GetNewSocket(int port);
 
         /// <summary>
         /// Extern method to delete a socket reference from the underlayin library.
         /// </summary>
         /// <param name="socketPtrAsInt">Socket pointer as int.</param>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "_Z12DeleteSocketi")]
         public static extern void DeleteSocket(int socketPtrAsInt);
 
         /// <summary>
@@ -708,7 +708,7 @@ namespace KSPM.Network.Server
         /// <param name="bufferSize">Buffer size, used to avoid memory overruns.</param>
         /// <param name="movedBytes">Number of bytes received.</param>
         /// <returns>Error code or the number of bytes received.</returns>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "_Z8RecvFromiPiS_PciS_")]
         public static extern int RecvFrom(int socketPtr, ref int remoteIpAddressAsInt, ref int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
 
         /// <summary>
@@ -721,7 +721,7 @@ namespace KSPM.Network.Server
         /// <param name="bufferSize">Number of bytes to be send.</param>
         /// <param name="movedBytes">Number of bytes sent.</param>
         /// <returns>Error code or the number of bytes sent.</returns>
-        [DllImport("UDPSocket.bundle", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		[DllImport("libUDPSocket-dylib.dylib", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "_Z6SendToiiiPciPi")]
         public static extern int SendTo(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] sendingBuffer, int bufferSize, ref int movedBytes);
 
 #endif
