@@ -3887,10 +3887,11 @@
             <returns>Error code or 0</returns>
         </member>
         <member name="M:KSPM.Network.Server.GameServer.ShutdownSocketEngine">
-            <summary>
-            Extern method definition to shutdown the engine on the imported library.
-            </summary>
-            <returns>Error code or 0</returns>
+             <summary>
+             Extern method definition to shutdown the engine on the imported library.
+             </summary>
+             <returns>Error code or 0</returns>
+            [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?ShutdownSocketEngine@@YAHXZ")]
         </member>
         <member name="M:KSPM.Network.Server.GameServer.GetNewSocket(System.Int32)">
             <summary>
@@ -3905,7 +3906,7 @@
             </summary>
             <param name="socketPtrAsInt">Socket pointer as int.</param>
         </member>
-        <member name="M:KSPM.Network.Server.GameServer.RecvFrom(System.Int32,System.Int32@,System.Int32@,System.Byte[],System.Int32,System.Int32@)">
+        <member name="M:KSPM.Network.Server.GameServer.RecvFromSync(System.Int32,System.Int32@,System.Int32@,System.Byte[],System.Int32,System.Int32@)">
             <summary>
             Extern definition to receive UDP packets through the socket specified as argument.
             </summary>
@@ -3917,7 +3918,7 @@
             <param name="movedBytes">Number of bytes received.</param>
             <returns>Error code or the number of bytes received.</returns>
         </member>
-        <member name="M:KSPM.Network.Server.GameServer.SendTo(System.Int32,System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32@)">
+        <member name="M:KSPM.Network.Server.GameServer.SendToSync(System.Int32,System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32@)">
             <summary>
             Extern definition to sent UDP packets through the socket specified as argument.
             </summary>

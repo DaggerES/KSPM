@@ -1,0 +1,6 @@
+_InitializeSocketEngine
+_ShutdownSocketEngine
+_GetNewSocket
+_DeleteSocket
+_RecvFromSync
+_SendToSync
