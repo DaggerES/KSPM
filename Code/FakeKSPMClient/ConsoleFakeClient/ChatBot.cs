@@ -66,9 +66,11 @@ namespace ConsoleFakeClient
         {
             Random r = new Random();
             string userName = ChatBot.Names[r.Next(ChatBot.Names.Length)];
-            byte[] utf8Bytes;
-            UTF8Encoding utf8Encoder = new UTF8Encoding();
-            utf8Bytes = utf8Encoder.GetBytes(userName);
+            byte[] utf8Bytes = new byte[64];
+            int hashSize = 0;
+            KSPM.IO.Security.Hash.GenerateHashToUser(userName, userName, ref utf8Bytes, ref hashSize);
+            //UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //utf8Bytes = utf8Encoder.GetBytes(userName);
             GameUser myUser = new GameUser(ref userName, ref utf8Bytes);
             this.botClient.SetGameUser(myUser);
 

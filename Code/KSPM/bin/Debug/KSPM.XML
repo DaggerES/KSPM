@@ -793,6 +793,11 @@
             Static reference to the HashAlgorith.
             </summary>
         </member>
+        <member name="F:KSPM.IO.Security.Hash.Algorithm">
+            <summary>
+            Holds the algorithm used to compute the hashes.
+            </summary>
+        </member>
         <member name="M:KSPM.IO.Security.Hash.Initialize(KSPM.IO.Security.Hash.HashingAlgorithm)">
             <summary>
             Initializes the hasher reference to a new one.
@@ -809,6 +814,15 @@
             <param name="hashedBytes">Out reference to the hashed bytes.</param>
             <returns></returns>
         </member>
+        <member name="M:KSPM.IO.Security.Hash.GenerateHashToUser(System.String,System.String,System.Byte[]@,System.Int32@)">
+            <summary>
+            Generates a hash using the email and the password to generate a key and then computes the hash on them. Requires that the hasher must be initialized to HMAC_SHA512
+            </summary>
+            <param name="email"></param>
+            <param name="password"></param>
+            <param name="hash"></param>
+            <returns></returns>
+        </member>
         <member name="T:KSPM.IO.Security.Hash.HashingAlgorithm">
             <summary>
             Enum to define which method will be used to compute the hashes.
@@ -822,6 +836,11 @@
         <member name="F:KSPM.IO.Security.Hash.HashingAlgorithm.MD5">
             <summary>
             Uses MD5.
+            </summary>
+        </member>
+        <member name="F:KSPM.IO.Security.Hash.HashingAlgorithm.HMAC_SHA512">
+            <summary>
+            Uses HMAC with SHA 512, allowing to set a key to generate the hash.
             </summary>
         </member>
         <member name="T:KSPM.Network.Chat.Filter.ChatFilter">
