@@ -3762,11 +3762,6 @@
             Async manager to handle the udp system.
             </summary>
         </member>
-        <member name="F:KSPM.Network.Server.GameServer.udpSocketPointer_C">
-            <summary>
-            Memory address of the UDP socket running unmanaged.
-            </summary>
-        </member>
         <member name="F:KSPM.Network.Server.GameServer.primaryCommandQueue">
             <summary>
             Primary Command manager, manages the commandsQueue reference.
@@ -3898,56 +3893,6 @@
             </summary>
             <param name="sender"></param>
             <param name="message"></param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.InitializeSocketEngine">
-            <summary>
-            Extern method definition to initialize the engine on the imported library.
-            </summary>
-            <returns>Error code or 0</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.ShutdownSocketEngine">
-             <summary>
-             Extern method definition to shutdown the engine on the imported library.
-             </summary>
-             <returns>Error code or 0</returns>
-            [DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?ShutdownSocketEngine@@YAHXZ")]
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.GetNewSocket(System.Int32)">
-            <summary>
-            Extern method definition to get a new socket reference from the underlying library.
-            </summary>
-            <param name="port">Port to be used on the socket.</param>
-            <returns>The socket pointer to the memory address as int.</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.DeleteSocket(System.Int32)">
-            <summary>
-            Extern method to delete a socket reference from the underlayin library.
-            </summary>
-            <param name="socketPtrAsInt">Socket pointer as int.</param>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.RecvFromSync(System.Int32,System.Int32@,System.Int32@,System.Byte[],System.Int32,System.Int32@)">
-            <summary>
-            Extern definition to receive UDP packets through the socket specified as argument.
-            </summary>
-            <param name="socketPtr">Socket pointer as int.</param>
-            <param name="remoteIpAddressAsInt">Ref argument to be set using the remote IP address in network notation</param>
-            <param name="remotePort">Ref argument to be set usin  the remote port in network notation-</param>
-            <param name="receivedBuffer">Byte array with the received information in it.</param>
-            <param name="bufferSize">Buffer size, used to avoid memory overruns.</param>
-            <param name="movedBytes">Number of bytes received.</param>
-            <returns>Error code or the number of bytes received.</returns>
-        </member>
-        <member name="M:KSPM.Network.Server.GameServer.SendToSync(System.Int32,System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32@)">
-            <summary>
-            Extern definition to sent UDP packets through the socket specified as argument.
-            </summary>
-            <param name="socketPtr">Socket pointer as int.</param>
-            <param name="remoteIpAddressAsInt">Remote IP address in network notation.</param>
-            <param name="remotePort">Remote port in host notation.</param>
-            <param name="sendingBuffer">Buffer with the info that must be send.</param>
-            <param name="bufferSize">Number of bytes to be send.</param>
-            <param name="movedBytes">Number of bytes sent.</param>
-            <returns>Error code or the number of bytes sent.</returns>
         </member>
         <member name="M:KSPM.Network.Server.GameServer.ReceiveInformationRequestsAsync">
             <summary>

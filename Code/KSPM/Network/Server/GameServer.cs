@@ -2,8 +2,6 @@
 //#define DEBUGTRACER_L2
 //#define DEBUGTRACER_L3
 
-#define _WINDOWS_
-
 using System.Runtime.InteropServices;
 
 using System;
@@ -128,11 +126,6 @@ namespace KSPM.Network.Server
         /// Async manager to handle the udp system.
         /// </summary>
         protected ReceiveUDPRequestsAsync udpSystemHandler;
-
-        /// <summary>
-        /// Memory address of the UDP socket running unmanaged.
-        /// </summary>
-        protected int udpSocketPointer_C;
 
         #endregion
 
@@ -303,7 +296,6 @@ namespace KSPM.Network.Server
             this.udpSytem = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.serverInformation = new PublicServerInformation();
             this.udpSystemHandler = new ReceiveUDPRequestsAsync(this.ReceiveInformationRequestsAsync);
-            this.udpSocketPointer_C = 0;
 
             ///TCP Purge Timer
             ///this.tcpPurgeTimer = new Timer(this.HandleTCPPurgeTimerCallback);
@@ -409,9 +401,6 @@ namespace KSPM.Network.Server
             this.udpSytem.socketReference.Close();
             this.udpSytem.Dispose();
             this.udpSytem = null;
-            GameServer.DeleteSocket(this.udpSocketPointer_C);
-            this.udpSocketPointer_C = 0;
-            ///this.udpSystemHandler.EndInvoke()
 
             KSPMGlobals.Globals.Log.WriteTo("Killing chat system!!!");
             this.chatManager.Release();
@@ -611,109 +600,45 @@ namespace KSPM.Network.Server
         #region ServerInformationRequests
 
         /// <summary>
-        /// Extern method definition to initialize the engine on the imported library.
-        /// </summary>
-        /// <returns>Error code or 0</returns>
-        [DllImport("UDPSocket")]
-        public static extern int InitializeSocketEngine();
-
-        /// <summary>
-        /// Extern method definition to shutdown the engine on the imported library.
-        /// </summary>
-        /// <returns>Error code or 0</returns>
-        ///[DllImport("UDPSocket", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "?ShutdownSocketEngine@@YAHXZ")]
-        [DllImport("UDPSocket")]
-        public static extern int ShutdownSocketEngine();
-
-        /// <summary>
-        /// Extern method definition to get a new socket reference from the underlying library.
-        /// </summary>
-        /// <param name="port">Port to be used on the socket.</param>
-        /// <returns>The socket pointer to the memory address as int.</returns>
-        [DllImport("UDPSocket")]
-        public static extern int GetNewSocket(int port);
-
-        /// <summary>
-        /// Extern method to delete a socket reference from the underlayin library.
-        /// </summary>
-        /// <param name="socketPtrAsInt">Socket pointer as int.</param>
-        [DllImport("UDPSocket")]
-        public static extern void DeleteSocket(int socketPtrAsInt);
-
-        /// <summary>
-        /// Extern definition to receive UDP packets through the socket specified as argument.
-        /// </summary>
-        /// <param name="socketPtr">Socket pointer as int.</param>
-        /// <param name="remoteIpAddressAsInt">Ref argument to be set using the remote IP address in network notation</param>
-        /// <param name="remotePort">Ref argument to be set usin  the remote port in network notation-</param>
-        /// <param name="receivedBuffer">Byte array with the received information in it.</param>
-        /// <param name="bufferSize">Buffer size, used to avoid memory overruns.</param>
-        /// <param name="movedBytes">Number of bytes received.</param>
-        /// <returns>Error code or the number of bytes received.</returns>
-        [DllImport("UDPSocket")]
-        public static extern int RecvFromSync(int socketPtr, ref int remoteIpAddressAsInt, ref int remotePort, byte[] receivedBuffer, int bufferSize, ref int movedBytes);
-
-        /// <summary>
-        /// Extern definition to sent UDP packets through the socket specified as argument.
-        /// </summary>
-        /// <param name="socketPtr">Socket pointer as int.</param>
-        /// <param name="remoteIpAddressAsInt">Remote IP address in network notation.</param>
-        /// <param name="remotePort">Remote port in host notation.</param>
-        /// <param name="sendingBuffer">Buffer with the info that must be send.</param>
-        /// <param name="bufferSize">Number of bytes to be send.</param>
-        /// <param name="movedBytes">Number of bytes sent.</param>
-        /// <returns>Error code or the number of bytes sent.</returns>
-        [DllImport("UDPSocket")]
-        public static extern int SendToSync(int socketPtr, int remoteIpAddressAsInt, int remotePort, byte[] sendingBuffer, int bufferSize, ref int movedBytes);
-
-        /// <summary>
         /// Receives server information requests, suchs as connected players and another information.
         /// </summary>
         protected void ReceiveInformationRequestsAsync()
         {
-            int error = 0;
-            int remoteIpAsInt = 0;
             int remotePort = 0;
             int movedBytes = 0;
-            IPEndPoint remoteHost = new IPEndPoint(0, 0);
-            error = GameServer.InitializeSocketEngine();
-            if( error == 0)
-            {
-                this.udpSocketPointer_C = GameServer.GetNewSocket(this.lowLevelOperationSettings.tcpPort);
-            }
-            KSPMGlobals.Globals.Log.WriteTo(string.Format("Error: {0}", error));
-            if (this.udpSocketPointer_C > 0)
-            {
+            IPEndPoint remoteHost = new IPEndPoint(IPAddress.Any, 0);
+            EndPoint remoteEndPoint = remoteHost;
+            try
+            { 
+                this.udpSytem.socketReference.Bind(new IPEndPoint(IPAddress.Any, this.lowLevelOperationSettings.tcpPort));
                 while (this.alive)
                 {
-                    ///If no error happened it will contain the number of received bytes.
-                    error = GameServer.RecvFromSync(this.udpSocketPointer_C, ref remoteIpAsInt, ref remotePort, this.udpSytem.rawBuffer, this.udpSytem.rawBuffer.Length, ref movedBytes);
+                    movedBytes = this.udpSytem.socketReference.ReceiveFrom(this.udpSytem.rawBuffer, 0, this.udpSytem.rawBuffer.Length, SocketFlags.None, ref remoteEndPoint);
                     if( movedBytes > 0)
                     {
                         if (this.udpSytem.rawBuffer[12] == (byte)Message.CommandType.ServerInformation)
                         {
                             remotePort = System.BitConverter.ToInt32(this.udpSytem.rawBuffer, 13 );
-                            remoteHost.Address = new IPAddress((uint)remoteIpAsInt);
-                            remoteHost.Port = remotePort;
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("Information request from: {0}", remoteHost.ToString()));
+                            //remoteHost.Address = new IPAddress((uint)remoteIpAsInt);
+                            //remoteHost.Port = remotePort;
+                            KSPMGlobals.Globals.Log.WriteTo(string.Format("Information request from: {0}", remoteEndPoint.ToString()));
 
                             ///Writing the information.
                             Buffer.BlockCopy(this.serverInformation.informationBuffer, 0, this.udpSytem.secondaryRawBuffer, 0, this.serverInformation.usableBytes);
-                            try
+                            movedBytes = this.udpSytem.socketReference.SendTo(this.udpSytem.secondaryRawBuffer, 0, this.serverInformation.usableBytes, SocketFlags.None, remoteEndPoint);
+                            if (movedBytes > 0)
                             {
-                                error = GameServer.SendToSync(this.udpSocketPointer_C, remoteIpAsInt, remotePort, this.udpSytem.secondaryRawBuffer,this.serverInformation.usableBytes, ref movedBytes);
-                                if (movedBytes > 0)
-                                {
-                                    //this.udpSytem.socketReference.SendTo(this.udpSytem.secondaryRawBuffer, this.serverInformation.usableBytes, SocketFlags.None, remoteHost);
-                                    KSPMGlobals.Globals.Log.WriteTo(string.Format("Information sent to: {0}", remoteHost.ToString()));
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.OnServerInformationSocketOperationComplete error: {0}", ex.StackTrace));
+                                KSPMGlobals.Globals.Log.WriteTo(string.Format("Information sent to: {0}", remoteEndPoint.ToString()));
                             }
                         }
                     }
+                }
+            }
+            catch(System.Net.Sockets.SocketException ex)
+            {
+                if (ex.ErrorCode != 10004)
+                {
+                    KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.OnServerInformationSocketOperationComplete error: {0} at {1}", ex.ErrorCode, ex.StackTrace));
                 }
             }
         }
@@ -724,139 +649,9 @@ namespace KSPM.Network.Server
         /// <param name="result"></param>
         protected void OnReceiveInformationRequestsAsyncComplete( System.IAsyncResult result)
         {
-            GameServer.ShutdownSocketEngine();
-            KSPMGlobals.Globals.Log.WriteTo("Killed unmanaged Sockets engine...");
+            //GameServer.ShutdownSocketEngine();
+            KSPMGlobals.Globals.Log.WriteTo("Killed requests service...");
         }
-
-        /*
-
-        /// <summary>
-        /// Method called each time a receive/send operation is completed.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected void OnServerInformationSocketOperationComplete( object sender, SocketAsyncEventArgs e)
-        {
-            int movedBytes = 0;
-            byte addressLength;
-            byte[] byteBuffer;
-            int remotePort;
-            //HostInformation requesterHost;
-            IPEndPoint remoteHost;
-            if (e.SocketError == SocketError.Success)
-            {
-                ///Checking if the last operation was a reception.
-                if ((int)e.UserToken == 1)
-                {
-                    movedBytes = e.BytesTransferred;
-                    if (movedBytes > 0)
-                    {
-                        if (e.Buffer[12] == (byte)Message.CommandType.ServerInformation)
-                        {
-                            addressLength = e.Buffer[13];
-                            byteBuffer = new byte[addressLength];
-                            Buffer.BlockCopy(e.Buffer, 14, byteBuffer, 0, addressLength);
-                            remotePort = System.BitConverter.ToInt32(e.Buffer, 14 + addressLength);
-                            remoteHost = new IPEndPoint(new IPAddress(byteBuffer), remotePort);
-
-                            KSPMGlobals.Globals.Log.WriteTo(string.Format("Information request from: {0}", remoteHost.ToString()));
-
-                            ///Missing to write the information from the server.
-                            Buffer.BlockCopy(this.serverInformation.informationBuffer, 0, this.udpSytem.secondaryRawBuffer, 0, this.serverInformation.usableBytes);
-                            e.SetBuffer(this.udpSytem.secondaryRawBuffer, 0, this.serverInformation.usableBytes);
-                            e.RemoteEndPoint = remoteHost;
-                            e.UserToken = 2;
-
-                            try
-                            {
-                                e.AcceptSocket.SendToAsync(e);
-                            }
-                            catch(Exception ex)
-                            {
-                                KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.OnServerInformationSocketOperationComplete error: {0}", ex.StackTrace));
-                                ///Trying to receive another request.
-                                this.ReceiveInformationRequestsAsync();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    movedBytes = e.BytesTransferred;
-                    if( movedBytes > 0 )
-                    {
-                        KSPMGlobals.Globals.Log.WriteTo(string.Format("Information sent to: {0}", e.RemoteEndPoint.ToString()));
-                    }
-                    ///Restoring the AsyncEventArgs used to perform the rec/send process.
-                    e.Completed -= this.OnServerInformationSocketOperationComplete;
-                    if (this.incomingConnectionsPool != null)
-                    {
-                        this.incomingConnectionsPool.Recycle(e);
-                    }
-                    else
-                    {
-                        e.Dispose();
-                        e = null;
-                    }
-                    ///REceiving requests again.
-                    this.ReceiveInformationRequestsAsync();
-                }
-            }
-            else
-            {
-                KSPMGlobals.Globals.Log.WriteTo(string.Format("GameServer.OnServerInformationSocketOperationComplete.SocketError : {0}", e.SocketError.ToString()));
-                ///If there was a problem.
-                ///REceiving requests again.
-                this.ReceiveInformationRequestsAsync();
-                ///Restoring the AsyncEventArgs used to perform the connection process.
-                e.Completed -= this.OnServerInformationSocketOperationComplete;
-                if (this.incomingConnectionsPool != null)
-                {
-                    this.incomingConnectionsPool.Recycle(e);
-                }
-                else
-                {
-                    e.Dispose();
-                    e = null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Method called each time a request is received.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected void OnServerInformationRequestCompleted( object sender, SocketAsyncEventArgs e )
-        {
-            int readBytes = 0;
-            byte addressLength;
-            byte[] byteBuffer;
-            int remotePort;
-            IPEndPoint remoteHost;
-            SocketAsyncEventArgs serverInformationRequestSAEA;
-            if( e.SocketError == SocketError.Success )
-            {
-                readBytes = e.BytesTransferred;
-                if (readBytes > 0)
-                {
-                    if (e.Buffer[12] == (byte)Message.CommandType.ServerInformation)
-                    {
-                        addressLength = e.Buffer[13];
-                        byteBuffer = new byte[addressLength];
-                        Buffer.BlockCopy(e.Buffer, 14, byteBuffer, 0, addressLength);
-                        remotePort = System.BitConverter.ToInt32(e.Buffer, 14 + addressLength);
-                        remoteHost = new IPEndPoint(new IPAddress(byteBuffer), remotePort);
-
-                        ///Setting the SAEA to send an answer.
-                        serverInformationRequestSAEA = this.incomingConnectionsPool.NextSlot;
-                        serverInformationRequestSAEA.AcceptSocket = e.AcceptSocket;
-                        serverInformationRequestSAEA.RemoteEndPoint = remoteHost;
-                    }
-                }
-            }
-        }
-        */
 
         #endregion
 
