@@ -97,6 +97,8 @@
     <Compile Include="Network\Common\Packet\PacketHandler.cs" />
     <Compile Include="Network\Common\Messages\RawMessage.cs" />
     <Compile Include="Network\Common\AbstractSettings.cs" />
+    <Compile Include="Network\Common\SAEA\OwnedSAEA.cs" />
+    <Compile Include="Network\Common\SAEA\OwnedSAEAPool.cs" />
     <Compile Include="Network\Common\SharedBufferSAEAPool.cs" />
     <Compile Include="Network\Common\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Network\NAT\NATTraversal.cs" />

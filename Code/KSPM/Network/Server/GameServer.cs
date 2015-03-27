@@ -28,6 +28,8 @@ using KSPM.Network.Chat.Managers;
 using KSPM.Network.Chat.Group;
 using KSPM.Network.Chat.Messages;
 
+using KSPM.Network.Common.SAEA;
+
 namespace KSPM.Network.Server
 {
     /// <summary>
@@ -81,12 +83,16 @@ namespace KSPM.Network.Server
         /// <summary>
         /// Byte buffer attached to the TCP socket.<b>Used to receive the first commandof a new client.</b>
         /// </summary>
+        [Obsolete("Will be deleted")]
         protected byte[] tcpBuffer;
 
         /// <summary>
         /// SockeAsyncEventArgs pool to accept connections and to receive the first command.
         /// </summary>
+        [Obsolete("Will be deleted")]
         protected SocketAsyncEventArgsPool incomingConnectionsPool;
+
+        protected OwnedSAEAPool incomingSAEAPool;
 
         /// <summary>
         /// Amount of time to set when the timer should check the capacity of the referred queue.
@@ -291,7 +297,6 @@ namespace KSPM.Network.Server
             this.chatManager = new ChatManager(ChatManager.DefaultStorageMode.NonPersistent);
 
             this.incomingConnectionsPool = new SocketAsyncEventArgsPool((uint)this.lowLevelOperationSettings.connectionsBackog);
-
             ///Information System.
             this.udpSytem = new ConnectionlessNetworkCollection(ServerSettings.ServerBufferSize);
             this.serverInformation = new PublicServerInformation();
